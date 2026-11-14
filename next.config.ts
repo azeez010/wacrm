@@ -1,5 +1,11 @@
 import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
+import { initOpenNextCloudflareForDev } from "@opennextjs/cloudflare";
+
+// Exposes Cloudflare bindings (R2 cache, Images, service binding, ...)
+// to `next dev`, mirroring what the Worker sees in production. No-op
+// in builds that don't target Cloudflare.
+initOpenNextCloudflareForDev();
 
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 

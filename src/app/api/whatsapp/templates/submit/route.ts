@@ -6,7 +6,7 @@ import {
   requireRole,
   toErrorResponse,
 } from '@/lib/auth/account'
-import { decrypt } from '@/lib/whatsapp/encryption'
+import { resolveWhatsAppConfig, resolveWhatsAppCredentials, AmbiguousConnectionError, NoConnectionError } from '@/lib/whatsapp/resolve-config'
 import { submitMessageTemplate } from '@/lib/whatsapp/meta-api'
 import {
   validateTemplatePayload,
@@ -27,6 +27,7 @@ function buildTemplateRow(
     status: 'DRAFT' | string
     metaTemplateId: string | null
     submissionError: string | null
+    whatsappConfigId: string | null
   },
 ) {
   return {
@@ -34,6 +35,10 @@ function buildTemplateRow(
     // of migration 017. Without this an INSERT throws on the
     // not-null constraint.
     account_id: accountId,
+    // Which WABA/connection this template belongs to — a template
+    // approved under one WABA doesn't exist under another, so this
+    // disambiguates accounts with more than one connection.
+    whatsapp_config_id: extras.whatsappConfigId,
     name: payload.name,
     category: payload.category,
     language: payload.language,
@@ -69,14 +74,19 @@ async function findExistingTemplate(
   supabase: SupabaseClient,
   accountId: string,
   payload: TemplatePayload,
+  whatsappConfigId: string | null,
 ) {
-  return supabase
+  let query = supabase
     .from('message_templates')
     .select('id, status, meta_template_id')
     .eq('account_id', accountId)
     .eq('name', payload.name)
     .eq('language', payload.language)
-    .maybeSingle<ExistingTemplate>()
+  // Scope by connection when known — a name/language pair can
+  // legitimately repeat across two different WABAs on the same
+  // account (060_whatsapp_multi_connection.sql).
+  query = whatsappConfigId ? query.eq('whatsapp_config_id', whatsappConfigId) : query.is('whatsapp_config_id', null)
+  return query.maybeSingle<ExistingTemplate>()
 }
 
 async function saveTemplateRow(
@@ -156,10 +166,49 @@ export async function POST(request: Request) {
       )
     }
 
+    const requestedConfigId =
+      typeof (payload as unknown as { whatsapp_config_id?: unknown }).whatsapp_config_id === 'string'
+        ? (payload as unknown as { whatsapp_config_id: string }).whatsapp_config_id
+        : null
+
+    const dryRun =
+      process.env.WHATSAPP_TEMPLATES_DRY_RUN === 'true' ||
+      process.env.WHATSAPP_TEMPLATES_DRY_RUN === '1'
+
+    // Resolve the connection this template belongs to up front — needed
+    // both for the Meta submit call below and to scope the existing-
+    // template lookup correctly for accounts with more than one
+    // connection. Dry-run tolerates having none configured at all
+    // (CI/local dev), since there's no real WABA to submit against.
+    let configId: string | null = null
+    if (!dryRun) {
+      try {
+        const config = await resolveWhatsAppConfig(supabase, accountId, requestedConfigId)
+        if (!config.waba_id) {
+          return NextResponse.json({ error: t('common.wabaIdMissing') }, { status: 400 })
+        }
+        configId = config.id
+      } catch (err) {
+        if (err instanceof AmbiguousConnectionError) {
+          return NextResponse.json(
+            { error: 'This account has more than one WhatsApp connection — specify whatsapp_config_id.' },
+            { status: 400 },
+          )
+        }
+        if (err instanceof NoConnectionError) {
+          return NextResponse.json({ error: t('common.whatsappNotConfiguredConnect') }, { status: 400 })
+        }
+        throw err
+      }
+    } else if (requestedConfigId) {
+      configId = requestedConfigId
+    }
+
     const { data: existing, error: existingErr } = await findExistingTemplate(
       supabase,
       accountId,
       payload,
+      configId,
     )
     if (existingErr) {
       return NextResponse.json({ error: t('templates.submitFailed') }, { status: 500 })
@@ -177,10 +226,6 @@ export async function POST(request: Request) {
     }
     const existingDraftId = existing?.id ?? null
 
-    const dryRun =
-      process.env.WHATSAPP_TEMPLATES_DRY_RUN === 'true' ||
-      process.env.WHATSAPP_TEMPLATES_DRY_RUN === '1'
-
     let metaTemplateId: string
     let metaStatus: string
 
@@ -188,31 +233,14 @@ export async function POST(request: Request) {
       metaTemplateId = `dry-run-${crypto.randomUUID()}`
       metaStatus = 'PENDING'
     } else {
-      const { data: config, error: configError } = await supabase
-        .from('whatsapp_config')
-        .select('*')
-        .eq('account_id', accountId)
-        .single()
-      if (configError || !config) {
-        return NextResponse.json(
-          {
-            error:
-              t('common.whatsappNotConfiguredConnect'),
-          },
-          { status: 400 },
-        )
-      }
+      // configId was resolved above; re-resolve the full row (cheap,
+      // avoids threading the whole config object through the dry-run
+      // branch above just for its id).
+      const config = await resolveWhatsAppConfig(supabase, accountId, configId)
       if (!config.waba_id) {
-        return NextResponse.json(
-          {
-            error:
-              t('common.wabaIdMissing'),
-          },
-          { status: 400 },
-        )
+        return NextResponse.json({ error: t('common.wabaIdMissing') }, { status: 400 })
       }
-
-      const accessToken = decrypt(config.access_token)
+      const accessToken = resolveWhatsAppCredentials(config).accessToken
 
       // Media headers (image/video/document) need a Resumable-Upload
       // handle (Meta rejects a plain URL at creation). Derive it from
@@ -249,6 +277,7 @@ export async function POST(request: Request) {
             status: 'DRAFT',
             metaTemplateId: null,
             submissionError: message,
+            whatsappConfigId: configId,
           }),
         )
         const isRateLimit = /\b429\b/.test(message)
@@ -271,6 +300,7 @@ export async function POST(request: Request) {
         status: normalizeStatus(metaStatus),
         metaTemplateId,
         submissionError: null,
+        whatsappConfigId: configId,
       }),
     )
 

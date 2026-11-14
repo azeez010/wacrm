@@ -32,6 +32,11 @@ import {
   isTemplateWebhookField,
 } from '@/lib/whatsapp/template-webhook'
 import { applyMessageStatus } from '@/lib/whatsapp/message-status-sync'
+import { resolveWhatsAppCredentials } from '@/lib/whatsapp/resolve-config'
+import {
+  handleCoexistenceWebhookChange,
+  isCoexistenceWebhookField,
+} from '@/lib/whatsapp/coexistence-webhook'
 
 // The `after()` callback in POST runs within this route's max duration.
 // Inbound processing can fan out to per-media Meta verification calls, so
@@ -159,10 +164,25 @@ export async function GET(request: Request) {
       )
     }
 
-    // Fetch all whatsapp configs to check verify tokens
+    // Shared (Embedded Signup) connections store no per-row verify_token
+    // — every shared WABA is subscribed to the operator's own Tech
+    // Provider App, which has exactly one webhook subscription and one
+    // verify token configured in Meta's dashboard. Check that first;
+    // it's the common case for a shared-heavy deployment and avoids a
+    // DB round trip on every handshake.
+    const platformVerifyToken = process.env.META_WHATSAPP_WEBHOOK_VERIFY_TOKEN
+    if (platformVerifyToken && verifyTokenMatches(platformVerifyToken, verifyToken)) {
+      return new Response(challenge, {
+        status: 200,
+        headers: { 'Content-Type': 'text/plain' },
+      })
+    }
+
+    // Fetch all custom whatsapp configs to check per-row verify tokens
     const { data: configs, error: configError } = await supabaseAdmin()
       .from('whatsapp_config')
       .select('id, verify_token')
+      .eq('mode', 'custom')
 
     if (configError || !configs) {
       console.error('Error fetching configs for verification:', configError)
@@ -329,6 +349,18 @@ async function processWebhook(body: { entry?: WhatsAppWebhookEntry[] }) {
         continue
       }
 
+      // Coexistence-specific fields (smb_app_state_sync, smb_message_echoes,
+      // history) — only arrive on connections where Embedded Signup's
+      // existing-number flow enabled coexistence. Different value shape
+      // from the standard messaging branch below, so route separately.
+      if (isCoexistenceWebhookField(change.field)) {
+        await handleCoexistenceWebhookChange(
+          { field: change.field, value: change.value as unknown },
+          supabaseAdmin(),
+        )
+        continue
+      }
+
       const value = change.value
 
       // Handle status updates
@@ -383,7 +415,7 @@ async function processWebhook(body: { entry?: WhatsAppWebhookEntry[] }) {
 
       const config = configRows[0]
 
-      const decryptedAccessToken = decrypt(config.access_token)
+      const decryptedAccessToken = resolveWhatsAppCredentials(config).accessToken
 
       for (let i = 0; i < value.messages.length; i++) {
         const message = value.messages[i]
@@ -403,7 +435,11 @@ async function processWebhook(body: { entry?: WhatsAppWebhookEntry[] }) {
           // Default ON: the column is NOT NULL DEFAULT TRUE, but a row
           // read before migration 039 lands would have it undefined,
           // and losing attachments is the failure mode worth avoiding.
-          config.mirror_inbound_media !== false
+          config.mirror_inbound_media !== false,
+          // Which connection this message arrived on — stamped onto a
+          // newly-created conversation so replies go out from the same
+          // number the customer messaged (060_whatsapp_multi_connection).
+          config.id
         )
       }
     }
@@ -590,7 +626,9 @@ async function processMessage(
   accessToken: string,
   // Per-account opt-out for the inbound-media mirror (migration 039).
   // See parseMessageContent for what it turns off.
-  mirrorMedia: boolean
+  mirrorMedia: boolean,
+  // Connection this message arrived on (060_whatsapp_multi_connection).
+  whatsappConfigId: string
 ) {
   // Phone number OR business-scoped user ID — Meta sends only the
   // latter for a sender who has adopted a WhatsApp username (#519).
@@ -619,7 +657,8 @@ async function processMessage(
   const convResult = await findOrCreateConversation(
     accountId,
     configOwnerUserId,
-    contactRecord.id
+    contactRecord.id,
+    whatsappConfigId
   )
   if (!convResult) return
   const conversation = convResult.conversation
@@ -1321,6 +1360,7 @@ async function findOrCreateConversation(
   accountId: string,
   configOwnerUserId: string,
   contactId: string,
+  whatsappConfigId: string,
 ) {
   // Look for an existing conversation in this account, oldest-first.
   //
@@ -1349,7 +1389,19 @@ async function findOrCreateConversation(
   }
 
   if (existingRows && existingRows.length > 0) {
-    return { conversation: existingRows[0], created: false }
+    const existing = existingRows[0]
+    // Self-heal a conversation that predates whatsapp_config_id, or
+    // whose connection was deleted (ON DELETE SET NULL) — the next
+    // reply should still go out from the number this inbound message
+    // arrived on, rather than falling back to an ambiguous resolver.
+    if (!existing.whatsapp_config_id) {
+      void supabaseAdmin()
+        .from('conversations')
+        .update({ whatsapp_config_id: whatsappConfigId })
+        .eq('id', existing.id)
+      existing.whatsapp_config_id = whatsappConfigId
+    }
+    return { conversation: existing, created: false }
   }
 
   // Create new conversation. Same tenancy + audit split as
@@ -1360,6 +1412,7 @@ async function findOrCreateConversation(
       account_id: accountId,
       user_id: configOwnerUserId,
       contact_id: contactId,
+      whatsapp_config_id: whatsappConfigId,
     })
     .select()
     .single()

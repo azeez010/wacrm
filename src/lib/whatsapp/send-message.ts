@@ -34,7 +34,11 @@ import {
   interactivePayloadPreviewText,
   type InteractiveMessagePayload,
 } from '@/lib/whatsapp/interactive';
-import { decrypt, encrypt, isLegacyFormat } from '@/lib/whatsapp/encryption';
+import { encrypt, isLegacyFormat } from '@/lib/whatsapp/encryption';
+import {
+  resolveWhatsAppConfig,
+  resolveWhatsAppCredentials,
+} from '@/lib/whatsapp/resolve-config';
 import { supabaseAdmin } from '@/lib/flows/admin-client';
 import {
   phoneVariants,
@@ -121,8 +125,13 @@ export function validateSendMessageParams(params: {
   templateName?: string | null;
   interactivePayload?: InteractiveMessagePayload | null;
 }): void {
-  const { messageType, contentText, mediaUrl, templateName, interactivePayload } =
-    params;
+  const {
+    messageType,
+    contentText,
+    mediaUrl,
+    templateName,
+    interactivePayload,
+  } = params;
 
   if (!messageType) {
     throw new SendMessageError('bad_request', 'message_type is required', 400);
@@ -258,14 +267,21 @@ export async function sendMessageToConversation(
   const hasValidPhone = resolvedTarget.isPhone;
   const sanitizedPhone = hasValidPhone ? sendTarget : '';
 
-  // WhatsApp config, account-scoped.
-  const { data: config, error: configError } = await db
-    .from('whatsapp_config')
-    .select('*')
-    .eq('account_id', accountId)
-    .single();
-
-  if (configError || !config) {
+  // WhatsApp connection — prefer the one this conversation is already
+  // tied to (so a reply goes out from the same number the customer
+  // messaged), falling back to the resolver (the account's sole
+  // connection, or a clear error if there isn't exactly one) for
+  // conversations that predate multi-connection support.
+  let config;
+  try {
+    config = conversation.whatsapp_config_id
+      ? await resolveWhatsAppConfig(
+          db,
+          accountId,
+          conversation.whatsapp_config_id
+        )
+      : await resolveWhatsAppConfig(db, accountId);
+  } catch {
     throw new SendMessageError(
       'whatsapp_not_configured',
       'WhatsApp not configured. Please set up your WhatsApp integration first.',
@@ -273,10 +289,25 @@ export async function sendMessageToConversation(
     );
   }
 
-  const accessToken = decrypt(config.access_token);
+  // Self-heal conversations that predate whatsapp_config_id (or were
+  // somehow left null) so the next reply doesn't need to fall back to
+  // the resolver again. Fire-and-forget; idempotent.
+  if (!conversation.whatsapp_config_id) {
+    void db
+      .from('conversations')
+      .update({ whatsapp_config_id: config.id })
+      .eq('id', conversationId);
+  }
 
-  // Self-heal legacy CBC ciphertexts. Fire-and-forget; idempotent.
-  if (isLegacyFormat(config.access_token)) {
+  const accessToken = resolveWhatsAppCredentials(config).accessToken;
+
+  // Self-heal legacy CBC ciphertexts (custom connections only — shared
+  // connections store no token). Fire-and-forget; idempotent.
+  if (
+    config.mode === 'custom' &&
+    config.access_token &&
+    isLegacyFormat(config.access_token)
+  ) {
     void db
       .from('whatsapp_config')
       .update({ access_token: encrypt(accessToken) })
@@ -417,7 +448,9 @@ export async function sendMessageToConversation(
   try {
     // Variants only make sense for a phone number — a BSUID is opaque
     // and has exactly one correct form, so it gets a single attempt.
-    const variants = hasValidPhone ? phoneVariants(sanitizedPhone) : [sendTarget];
+    const variants = hasValidPhone
+      ? phoneVariants(sanitizedPhone)
+      : [sendTarget];
     let lastError: unknown = null;
 
     for (const variant of variants) {

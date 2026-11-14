@@ -356,6 +356,45 @@ export async function getSubscribedApps(
 }
 
 // ============================================================
+// Embedded Signup (Tech Provider onboarding)
+// ============================================================
+//
+// POST /api/whatsapp/connections/embedded-signup exchanges the `code`
+// FB.login hands back for a short-lived access token scoped to the
+// WABA the tenant just granted the Tech Provider access to. That
+// token is used ONLY to finish the grant (subscribing the WABA to
+// our app — see subscribeWabaToApp) and is never persisted; every
+// later Graph API call for a 'shared' connection reuses the
+// platform's own long-lived system-user token instead, per Meta's
+// Tech Provider permission model.
+
+export interface ExchangeEmbeddedSignupCodeArgs {
+  code: string
+  appId: string
+  appSecret: string
+}
+
+/**
+ * Exchange an Embedded Signup `code` (from the FB.login callback)
+ * for a short-lived access token.
+ */
+export async function exchangeEmbeddedSignupCode(
+  args: ExchangeEmbeddedSignupCodeArgs
+): Promise<{ accessToken: string }> {
+  const { code, appId, appSecret } = args
+  const params = new URLSearchParams({ client_id: appId, client_secret: appSecret, code })
+  const response = await fetch(`${META_API_BASE}/oauth/access_token?${params.toString()}`)
+  if (!response.ok) {
+    await throwMetaError(response, `Meta API error: ${response.status}`)
+  }
+  const data = (await response.json()) as { access_token?: string }
+  if (!data.access_token) {
+    throw new Error('Embedded Signup code exchange did not return an access token.')
+  }
+  return { accessToken: data.access_token }
+}
+
+// ============================================================
 // Sending
 // ============================================================
 

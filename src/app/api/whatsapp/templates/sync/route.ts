@@ -5,7 +5,7 @@ import {
   requireRole,
   toErrorResponse,
 } from '@/lib/auth/account'
-import { decrypt } from '@/lib/whatsapp/encryption'
+import { resolveWhatsAppCredentials, type WhatsAppConfigRow } from '@/lib/whatsapp/resolve-config'
 import { normalizeStatus } from '@/lib/whatsapp/template-status-normalize'
 import type { TemplateButton, TemplateSampleValues } from '@/types'
 import { checkRateLimit, rateLimitResponse, RATE_LIMITS } from '@/lib/rate-limit'
@@ -142,71 +142,72 @@ export async function POST() {
     const limit = checkRateLimit(`whatsapp-admin:${userId}`, RATE_LIMITS.whatsappAdmin)
     if (!limit.success) return rateLimitResponse(limit)
 
-    const { data: config, error: configError } = await supabase
+    const { data: configs, error: configsError } = await supabase
       .from('whatsapp_config')
       .select('*')
       .eq('account_id', accountId)
-      .single()
 
-    if (configError || !config) {
+    if (configsError) {
       return NextResponse.json(
-        {
-          error:
-            t('common.whatsappNotConfiguredConnect'),
-        },
+        { error: t('common.whatsappNotConfiguredConnect') },
         { status: 400 },
       )
     }
 
-    if (!config.waba_id) {
-      return NextResponse.json(
-        {
-          error:
-            t('common.wabaIdMissing'),
-        },
-        { status: 400 },
-      )
-    }
-
-    const accessToken = decrypt(config.access_token)
-
-    const metaTemplates: MetaTemplate[] = []
-    let nextUrl:
-      | string
-      | null = `${META_API_BASE}/${config.waba_id}/message_templates?limit=100&fields=id,name,language,status,category,components,quality_score`
-    const PAGE_CAP = 20
-    let pageCount = 0
-
-    while (nextUrl && pageCount < PAGE_CAP) {
-      pageCount++
-      const metaRes: Response = await fetch(nextUrl, {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      })
-
-      if (!metaRes.ok) {
-        let metaErr = t('templates.metaApiStatus', { status: metaRes.status })
-        try {
-          const body = await metaRes.json()
-          if (body?.error?.message) metaErr = body.error.message
-        } catch {
-          // response wasn't JSON — keep the fallback
-        }
-        return NextResponse.json({ error: metaErr }, { status: 502 })
-      }
-
-      const metaBody: {
-        data?: MetaTemplate[]
-        paging?: { next?: string }
-      } = await metaRes.json()
-      if (metaBody.data) metaTemplates.push(...metaBody.data)
-      nextUrl = metaBody.paging?.next ?? null
+    const connections = ((configs ?? []) as WhatsAppConfigRow[]).filter((c) => c.waba_id)
+    if (connections.length === 0) {
+      return NextResponse.json({ error: t('common.wabaIdMissing') }, { status: 400 })
     }
 
     let inserted = 0
     let updated = 0
     const errors: { name: string; language: string; message: string }[] = []
+    let anyTruncated = false
+    let totalTemplates = 0
 
-    for (const t of metaTemplates) {
+    // Sync is account-wide — loop over every connection so an account
+    // with more than one WABA gets every connection's catalog synced
+    // in one call, rather than requiring a separate call per connection.
+    for (const config of connections) {
+      const accessToken = resolveWhatsAppCredentials(config).accessToken
+
+      const metaTemplates: MetaTemplate[] = []
+      let nextUrl:
+        | string
+        | null = `${META_API_BASE}/${config.waba_id}/message_templates?limit=100&fields=id,name,language,status,category,components,quality_score`
+      const PAGE_CAP = 20
+      let pageCount = 0
+
+      while (nextUrl && pageCount < PAGE_CAP) {
+        pageCount++
+        const metaRes: Response = await fetch(nextUrl, {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        })
+
+        if (!metaRes.ok) {
+          let metaErr = t('templates.metaApiStatus', { status: metaRes.status })
+          try {
+            const body = await metaRes.json()
+            if (body?.error?.message) metaErr = body.error.message
+          } catch {
+            // response wasn't JSON — keep the fallback
+          }
+          errors.push({ name: '*', language: '*', message: `${config.label ?? config.phone_number_id}: ${metaErr}` })
+          nextUrl = null
+          continue
+        }
+
+        const metaBody: {
+          data?: MetaTemplate[]
+          paging?: { next?: string }
+        } = await metaRes.json()
+        if (metaBody.data) metaTemplates.push(...metaBody.data)
+        nextUrl = metaBody.paging?.next ?? null
+      }
+      if (pageCount >= PAGE_CAP && nextUrl !== null) anyTruncated = true
+      totalTemplates += metaTemplates.length
+
+      for (const t of metaTemplates) {
       const body = (t.components ?? []).find((c) => c.type === 'BODY')
       const header = (t.components ?? []).find((c) => c.type === 'HEADER')
       const footer = (t.components ?? []).find((c) => c.type === 'FOOTER')
@@ -228,6 +229,7 @@ export async function POST() {
         // Account tenancy. account_id is NOT NULL on message_templates
         // post-017, so an INSERT without it errors.
         account_id: accountId,
+        whatsapp_config_id: config.id,
         name: t.name,
         category: normalizeCategory(t.category),
         language: t.language,
@@ -248,6 +250,7 @@ export async function POST() {
         .from('message_templates')
         .select('id')
         .eq('account_id', accountId)
+        .eq('whatsapp_config_id', config.id)
         .eq('name', t.name)
         .eq('language', t.language)
         .order('updated_at', { ascending: false })
@@ -292,15 +295,16 @@ export async function POST() {
           inserted++
         }
       }
+      }
     }
 
     return NextResponse.json({
       success: errors.length === 0,
-      total: metaTemplates.length,
+      total: totalTemplates,
       inserted,
       updated,
       errors,
-      truncated: pageCount >= PAGE_CAP && nextUrl !== null,
+      truncated: anyTruncated,
     })
   } catch (error) {
     // Auth failures map to 401/403 rather than being folded into the

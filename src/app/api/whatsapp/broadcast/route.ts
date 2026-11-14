@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { requireRole, toErrorResponse } from '@/lib/auth/account'
 import { sendTemplateMessage } from '@/lib/whatsapp/meta-api'
-import { decrypt } from '@/lib/whatsapp/encryption'
+import { resolveWhatsAppConfig, resolveWhatsAppCredentials, AmbiguousConnectionError, NoConnectionError } from '@/lib/whatsapp/resolve-config'
 import type { SendTimeParams } from '@/lib/whatsapp/template-send-builder'
 import { resolveTemplateRow } from '@/lib/whatsapp/template-body'
 import {
@@ -92,6 +92,7 @@ export async function POST(request: Request) {
       template_name,
       template_language,
       template_params,
+      whatsapp_config_id,
     } = body
 
     // Normalize to a list of {phone, params} regardless of shape.
@@ -123,23 +124,26 @@ export async function POST(request: Request) {
       )
     }
 
-    const { data: config, error: configError } = await supabase
-      .from('whatsapp_config')
-      .select('*')
-      .eq('account_id', accountId)
-      .single()
-
-    if (configError || !config) {
-      return NextResponse.json(
-        {
-          error:
-            t('common.whatsappNotConfiguredSetup'),
-        },
-        { status: 400 }
-      )
+    let config
+    try {
+      config = await resolveWhatsAppConfig(supabase, accountId, whatsapp_config_id)
+    } catch (err) {
+      if (err instanceof AmbiguousConnectionError) {
+        return NextResponse.json(
+          { error: 'This account has more than one WhatsApp connection — specify whatsapp_config_id.' },
+          { status: 400 }
+        )
+      }
+      if (err instanceof NoConnectionError) {
+        return NextResponse.json(
+          { error: t('common.whatsappNotConfiguredSetup') },
+          { status: 400 }
+        )
+      }
+      throw err
     }
 
-    const accessToken = decrypt(config.access_token)
+    const accessToken = resolveWhatsAppCredentials(config).accessToken
 
     // Load the template row once so sendTemplateMessage can build
     // header + button components on each iteration. Loading inside

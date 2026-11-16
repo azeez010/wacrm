@@ -20,6 +20,7 @@
 import { NextResponse } from "next/server";
 
 import { requireRole, toErrorResponse } from "@/lib/auth/account";
+import { PlanLimitError, assertCanAddSeat } from "@/lib/billing/entitlements";
 import {
   clampExpiryDays,
   generateInviteToken,
@@ -181,6 +182,9 @@ export async function POST(request: Request) {
     );
     if (!limit.success) return rateLimitResponse(limit);
 
+    // Plan gate: members + pending invites must stay under the seat limit.
+    await assertCanAddSeat(ctx.supabase, ctx.accountId);
+
     const body = (await request.json().catch(() => null)) as
       | { role?: unknown; expiresInDays?: unknown; label?: unknown }
       | null;
@@ -251,6 +255,12 @@ export async function POST(request: Request) {
       { status: 201 },
     );
   } catch (err) {
+    if (err instanceof PlanLimitError) {
+      return NextResponse.json(
+        { error: err.message, code: "plan_limit", limit_key: err.limitKey, limit: err.limit },
+        { status: 402 },
+      );
+    }
     return toErrorResponse(err);
   }
 }

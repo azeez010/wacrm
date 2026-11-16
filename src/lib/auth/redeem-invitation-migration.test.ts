@@ -14,6 +14,8 @@ const tablesWithoutDomainData = new Set([
   "account_invitations",
   "member_presence",
   "pending_message_statuses",
+  // Auto-created billing row (free plan) — no user-entered data to protect.
+  "account_subscriptions",
 ]);
 
 function accountScopedTables(): Set<string> {

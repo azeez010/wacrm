@@ -34,6 +34,7 @@
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
+    "seed:plans": "node --env-file=.env.local scripts/seed-plans.ts",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "vitest run",

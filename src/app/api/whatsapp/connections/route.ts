@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { PlanLimitError, assertCanAddWhatsAppConnection } from '@/lib/billing/entitlements';
 import { createClient as createAdminClient } from '@supabase/supabase-js';
 import {
   ForbiddenError,
@@ -128,6 +129,9 @@ export async function POST(request: Request) {
       RATE_LIMITS.whatsappAdmin
     );
     if (!limit.success) return rateLimitResponse(limit);
+
+    // Plan gate — before any Meta side effects.
+    await assertCanAddWhatsAppConnection(supabase, accountId);
 
     const body = await request.json();
     const { phone_number_id, waba_id, access_token, verify_token, pin, label } =
@@ -349,6 +353,12 @@ export async function POST(request: Request) {
       phone_info: phoneInfo,
     });
   } catch (error) {
+    if (error instanceof PlanLimitError) {
+      return NextResponse.json(
+        { error: error.message, code: 'plan_limit', limit_key: error.limitKey, limit: error.limit, plan: error.planName },
+        { status: 402 }
+      );
+    }
     if (error instanceof UnauthorizedError || error instanceof ForbiddenError) {
       return toErrorResponse(error);
     }

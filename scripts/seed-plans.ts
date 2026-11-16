@@ -19,6 +19,7 @@ const PLANS = [
     price_quarterly: 0,
     price_annual: 0,
     sort_order: 0,
+    is_featured: false,
     limits: {
       whatsapp_connections: 1,
       seats: 2,
@@ -50,6 +51,7 @@ const PLANS = [
     price_quarterly: 40500,
     price_annual: 144000,
     sort_order: 1,
+    is_featured: false,
     limits: {
       whatsapp_connections: 2,
       seats: 5,
@@ -118,7 +120,9 @@ const res = await fetch(`${url}/rest/v1/plans?on_conflict=id`, {
   method: 'POST',
   headers: {
     apikey: key,
-    Authorization: `Bearer ${key}`,
+    // New-style sb_secret_ keys aren't JWTs — sending them as a Bearer
+    // token is rejected; legacy service_role JWTs still need it.
+    ...(key.startsWith('sb_') ? {} : { Authorization: `Bearer ${key}` }),
     'Content-Type': 'application/json',
     Prefer: 'resolution=merge-duplicates,return=minimal',
   },

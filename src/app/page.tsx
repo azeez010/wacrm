@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 import { Check, X } from 'lucide-react'
 import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -102,7 +103,18 @@ function PlanCard({ plan }: { plan: PlanRow }) {
   )
 }
 
-export default async function LandingPage() {
+export default async function LandingPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>
+}) {
+  // Safety net: if Supabase falls back to the Site URL (redirect not on
+  // its allow-list) the email link lands here with ?code=… — hand it to
+  // the auth callback instead of showing the landing page.
+  const sp = await searchParams
+  const code = typeof sp.code === 'string' ? sp.code : null
+  if (code) redirect(`/auth/callback?code=${encodeURIComponent(code)}`)
+
   const plans = await getPublicPlans()
 
   return (

@@ -29,6 +29,7 @@ export const FEATURE_DEFS = {
   flows: 'Chatbot flow builder',
   ai_assistant: 'AI reply assistant',
   public_api: 'Public API',
+  mcp: 'Claude / MCP connection',
   outbound_webhooks: 'Outbound webhooks',
   csv_import: 'CSV import / export',
   coexistence: 'Use your existing WhatsApp Business app number',

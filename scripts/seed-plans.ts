@@ -39,7 +39,7 @@ const PLANS = [
     },
     features: {
       broadcasts: false, automations: true, flows: true, ai_assistant: false,
-      public_api: false, outbound_webhooks: false, csv_import: true,
+      public_api: false, mcp: false, outbound_webhooks: false, csv_import: true,
       coexistence: false, custom_connection: false, priority_support: false,
     },
   },
@@ -71,7 +71,7 @@ const PLANS = [
     },
     features: {
       broadcasts: true, automations: true, flows: true, ai_assistant: true,
-      public_api: true, outbound_webhooks: true, csv_import: true,
+      public_api: true, mcp: true, outbound_webhooks: true, csv_import: true,
       coexistence: true, custom_connection: false, priority_support: false,
     },
   },
@@ -103,7 +103,7 @@ const PLANS = [
     },
     features: {
       broadcasts: true, automations: true, flows: true, ai_assistant: true,
-      public_api: true, outbound_webhooks: true, csv_import: true,
+      public_api: true, mcp: true, outbound_webhooks: true, csv_import: true,
       coexistence: true, custom_connection: true, priority_support: true,
     },
   },

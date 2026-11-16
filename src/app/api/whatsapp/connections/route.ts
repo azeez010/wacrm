@@ -324,6 +324,14 @@ export async function POST(request: Request) {
       .single();
 
     if (insertError) {
+      // phone_number_id is globally unique — a repeat within this same
+      // account (the cross-account case is rejected above) lands here.
+      if (insertError.code === '23505') {
+        return NextResponse.json(
+          { error: 'This WhatsApp number is already connected to this account.' },
+          { status: 409 }
+        );
+      }
       console.error('Error inserting whatsapp_config:', insertError);
       return NextResponse.json(
         { error: t('whatsappConfig.saveFailed') },

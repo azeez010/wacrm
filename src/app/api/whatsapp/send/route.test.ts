@@ -56,6 +56,7 @@ function makeSupabaseMock() {
             data: {
               id: 'cfg-1',
               account_id: 'acct-1',
+              mode: 'custom',
               phone_number_id: 'PNID-1',
               access_token: 'enc-token',
             },
@@ -121,8 +122,14 @@ function makeSupabaseMock() {
     })
     b.single = vi.fn(terminal)
     b.maybeSingle = vi.fn(terminal)
-    b.then = (resolve: (v: unknown) => unknown) =>
-      resolve(didInsert ? insertResult() : selectResult())
+    b.then = (resolve: (v: unknown) => unknown) => {
+      // The connection resolver lists an account's connections with a
+      // bare await (no .single()), so it expects an array.
+      if (table === 'whatsapp_config' && !didInsert) {
+        return resolve({ data: [selectResult().data], error: null })
+      }
+      return resolve(didInsert ? insertResult() : selectResult())
+    }
     return b
   }
 

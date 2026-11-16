@@ -17,7 +17,7 @@ function makeSupabaseMock() {
           return { data: { id: 'acct-1', name: 'Acme' }, error: null }
         case 'whatsapp_config':
           return {
-            data: { id: 'cfg-1', account_id: 'acct-1', waba_id: 'WABA-1', access_token: 'enc' },
+            data: { id: 'cfg-1', account_id: 'acct-1', mode: 'custom', phone_number_id: 'pn-1', waba_id: 'WABA-1', access_token: 'enc' },
             error: null,
           }
         case 'message_templates':
@@ -54,8 +54,15 @@ function makeSupabaseMock() {
       }
       return result()
     })
-    b.then = (resolve: (v: unknown) => unknown) =>
-      resolve(pendingUpdate || table !== 'message_templates' ? { data: null, error: null } : result())
+    b.then = (resolve: (v: unknown) => unknown) => {
+      // The sync route lists every connection on the account (bare await).
+      if (table === 'whatsapp_config') {
+        return resolve({ data: [(result() as { data: unknown }).data], error: null })
+      }
+      return resolve(
+        pendingUpdate || table !== 'message_templates' ? { data: null, error: null } : result(),
+      )
+    }
     return b
   }
 

@@ -8,6 +8,14 @@ type Write = {
 
 const writes: Write[] = []
 let existingTemplate: Record<string, unknown> | null = null
+const WA_CONFIG = {
+  id: 'cfg-1',
+  account_id: 'acct-1',
+  mode: 'custom',
+  phone_number_id: 'pn-1',
+  waba_id: 'waba-1',
+  access_token: 'enc',
+}
 
 function makeSupabaseMock() {
   function builder(table: string) {
@@ -19,7 +27,7 @@ function makeSupabaseMock() {
         case 'accounts':
           return { data: { id: 'acct-1', name: 'Acme' }, error: null }
         case 'whatsapp_config':
-          return { data: { waba_id: 'waba-1', access_token: 'enc' }, error: null }
+          return { data: WA_CONFIG, error: null }
         case 'message_templates':
           return write
             ? { data: { id: 'tpl-1', ...write.row }, error: null }
@@ -45,6 +53,10 @@ function makeSupabaseMock() {
     }
     b.single = vi.fn(async () => result())
     b.maybeSingle = vi.fn(async () => result())
+    // The connection resolver lists an account's connections with a
+    // bare await (no .single()), so it expects an array.
+    b.then = (resolve: (v: unknown) => unknown) =>
+      resolve(table === 'whatsapp_config' ? { data: [WA_CONFIG], error: null } : result())
     return b
   }
 

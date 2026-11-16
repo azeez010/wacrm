@@ -220,6 +220,8 @@ function sendPathDb(
   };
   const config = {
     id: 'cfg-1',
+    account_id: 'acct-1',
+    mode: 'custom',
     phone_number_id: 'pn-1',
     access_token: 'token',
   };
@@ -248,10 +250,17 @@ function sendPathDb(
           }
           return { data: null, error: null };
         },
-        // Bare-await result — only message_templates is read this way.
+        // Bare-await result — message_templates, and whatsapp_config
+        // (the connection resolver lists the account's connections
+        // when the conversation carries no whatsapp_config_id).
         then: (resolve: (r: { data: unknown[]; error: null }) => unknown) =>
           resolve({
-            data: table === 'message_templates' ? templateRows : [],
+            data:
+              table === 'message_templates'
+                ? templateRows
+                : table === 'whatsapp_config'
+                  ? [config]
+                  : [],
             error: null,
           }),
       };

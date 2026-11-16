@@ -6,6 +6,7 @@ let signedIn = true
 const configInserts: Record<string, unknown>[] = []
 const configUpdates: Record<string, unknown>[] = []
 let configDeletes = 0
+let insertError: { code: string; message: string } | null = null
 
 const STORED_CONFIG = {
   id: 'cfg-1',
@@ -23,6 +24,7 @@ let storedConfig: Omit<typeof STORED_CONFIG, 'registered_at'> & {
 
 function makeSupabaseMock() {
   function builder(table: string) {
+    let didInsert = false
     const result = () => {
       switch (table) {
         case 'profiles':
@@ -33,7 +35,12 @@ function makeSupabaseMock() {
         case 'accounts':
           return { data: { id: 'acct-1', name: 'Acme' }, error: null }
         case 'whatsapp_config':
-          return { data: storedConfig, error: null }
+          // After an insert the route reads back the new row's id.
+          return didInsert
+            ? insertError
+              ? { data: null, error: insertError }
+              : { data: { id: 'cfg-new' }, error: null }
+            : { data: storedConfig, error: null }
         default:
           return { data: null, error: null }
       }
@@ -44,6 +51,7 @@ function makeSupabaseMock() {
     for (const m of ['select', 'eq', 'neq']) b[m] = vi.fn(chain)
     b.insert = vi.fn((row: Record<string, unknown>) => {
       if (table === 'whatsapp_config') configInserts.push(row)
+      didInsert = true
       return b
     })
     b.update = vi.fn((patch: Record<string, unknown>) => {
@@ -56,7 +64,13 @@ function makeSupabaseMock() {
     })
     b.single = vi.fn(async () => result())
     b.maybeSingle = vi.fn(async () => result())
-    b.then = (resolve: (v: unknown) => unknown) => resolve({ data: null, error: null })
+    b.then = (resolve: (v: unknown) => unknown) =>
+      // The connection resolver / shim list connections with a bare await.
+      resolve(
+        table === 'whatsapp_config'
+          ? { data: storedConfig ? [storedConfig] : [], error: null }
+          : { data: null, error: null },
+      )
     return b
   }
 
@@ -143,6 +157,7 @@ beforeEach(() => {
   configInserts.length = 0
   configUpdates.length = 0
   configDeletes = 0
+  insertError = null
   serviceRole.lookups = 0
   supabaseMock = makeSupabaseMock()
   for (const fn of Object.values(meta)) fn.mockClear()
@@ -189,10 +204,7 @@ describe('POST /api/whatsapp/config', () => {
 })
 
 describe('POST /api/whatsapp/config registration state', () => {
-  const REGISTERED_AT = '2026-01-01T00:00:00.000Z'
-
-  it('clears registered_at when the phone number changes and no PIN is given', async () => {
-    storedConfig = { ...STORED_CONFIG, registered_at: REGISTERED_AT }
+  it('saves a new connection unregistered when no PIN is given', async () => {
     meta.verifyPhoneNumber.mockResolvedValueOnce({
       id: '999888777',
       display_phone_number: '+1 555 0199',
@@ -210,23 +222,24 @@ describe('POST /api/whatsapp/config registration state', () => {
       registration_skipped: true,
     })
     expect(meta.registerPhoneNumber).not.toHaveBeenCalled()
-    expect(configUpdates).toHaveLength(1)
-    expect(configUpdates[0]).toMatchObject({
+    // Multi-connection: always a fresh insert, never an in-place update.
+    expect(configUpdates).toHaveLength(0)
+    expect(configInserts).toHaveLength(1)
+    expect(configInserts[0]).toMatchObject({
+      mode: 'custom',
       phone_number_id: '999888777',
       registered_at: null,
     })
   })
+})
 
-  it('keeps registered_at when the same registered number is saved without a PIN', async () => {
-    storedConfig = { ...STORED_CONFIG, registered_at: REGISTERED_AT }
+describe('POST /api/whatsapp/config duplicates', () => {
+  it('answers 409 when the number is already connected to this account', async () => {
+    insertError = { code: '23505', message: 'duplicate key value' }
 
-    const res = await saveConfig({ pin: undefined })
-    const body = await res.json()
+    const res = await saveConfig()
 
-    expect(res.status).toBe(200)
-    expect(body).toMatchObject({ success: true, registered: true, registration_skipped: false })
-    expect(meta.registerPhoneNumber).not.toHaveBeenCalled()
-    expect(configUpdates[0]).toMatchObject({ registered_at: REGISTERED_AT })
+    expect(res.status).toBe(409)
   })
 })
 

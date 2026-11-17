@@ -16,6 +16,9 @@ const tablesWithoutDomainData = new Set([
   "pending_message_statuses",
   // Auto-created billing row (free plan) - no user-entered data to protect.
   "account_subscriptions",
+  // Financial history: guarded by ON DELETE RESTRICT (063), so account
+  // deletion fails rather than silently dropping payment records.
+  "subscription_payments",
 ]);
 
 function accountScopedTables(): Set<string> {

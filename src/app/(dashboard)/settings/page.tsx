@@ -20,6 +20,7 @@ import { InboxSettings } from '@/components/settings/inbox-settings';
 import { MembersTab } from '@/components/settings/members-tab';
 import { ApiKeysSettings } from '@/components/settings/api-keys-settings';
 import { McpSettings } from '@/components/settings/mcp-settings';
+import { BillingPanel } from '@/components/settings/billing-panel';
 import {
   resolveSection,
   type SettingsSection,
@@ -73,7 +74,12 @@ function SettingsPageInner() {
 
   const panel: Record<SettingsSection, ReactNode> = {
     overview: <SettingsOverview onSelect={go} />,
-    profile: <ProfileForm />,
+    profile: (
+      <>
+        <ProfileForm />
+        <BillingPanel />
+      </>
+    ),
     security: <SecurityPanel />,
     appearance: <AppearancePanel />,
     whatsapp: (

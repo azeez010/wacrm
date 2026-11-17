@@ -39,7 +39,7 @@ export async function GET(
     const limit = checkRateLimit(`whatsapp-media:${user.id}`, RATE_LIMITS.whatsappMedia)
     if (!limit.success) return rateLimitResponse(limit)
 
-    // Resolve the caller's account_id — whatsapp_config is one-per-
+    // Resolve the caller's account_id - whatsapp_config is one-per-
     // account post-multi-user, so a teammate fetching media for a
     // conversation in the shared inbox needs the account's config,
     // not their personal (non-existent) row.

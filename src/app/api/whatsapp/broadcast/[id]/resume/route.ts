@@ -6,7 +6,7 @@
 //
 //   - "Resume" on a campaign abandoned when its browser tab closed
 //     mid-send (the wizard drives the initial fan-out from the tab).
-//   - "Retry failed" — the reporter's ask.
+//   - "Retry failed" - the reporter's ask.
 //   - Both at once (`scope: 'all'`).
 //
 // Responds 202 as soon as the pass is claimed and planned; the fan-out
@@ -52,7 +52,7 @@ export async function POST(
 
   try {
     // Same gate as the batch send endpoint: running a broadcast is a
-    // write, and viewers are read-only. Resuming is no different — it
+    // write, and viewers are read-only. Resuming is no different - it
     // puts real messages on real phones.
     const { supabase, accountId, userId } = await requireRole('agent');
 
@@ -70,7 +70,7 @@ export async function POST(
 
     // Claim BEFORE planning. Two clicks on Resume, or a click while an
     // earlier pass is still running, would otherwise both build a plan
-    // from the same 'pending' rows and message everyone twice — and a
+    // from the same 'pending' rows and message everyone twice - and a
     // WhatsApp message cannot be recalled. The claim is one conditional
     // UPDATE, so exactly one caller wins.
     const claimed = await claimBroadcastDelivery(supabase, accountId, id);
@@ -107,7 +107,7 @@ export async function POST(
           '[broadcast-resume] delivery threw:',
           err instanceof Error ? err.message : err
         );
-        // Don't leave it mid-flight — settle whatever did land.
+        // Don't leave it mid-flight - settle whatever did land.
         await finalizeBroadcastStatus(admin, id).catch(() => {});
       } finally {
         await releaseBroadcastDelivery(admin, id);
@@ -129,7 +129,7 @@ export async function POST(
       { status: 202 }
     );
   } catch (error) {
-    // Planning failed after the claim — release it, or the campaign is
+    // Planning failed after the claim - release it, or the campaign is
     // locked out of resuming until the staleness window expires.
     if (claimedId) {
       await releaseBroadcastDelivery(supabaseAdmin(), claimedId).catch(() => {});

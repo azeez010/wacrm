@@ -1,12 +1,12 @@
 // ============================================================
-// API key store — the *auth-path* data access for public API keys.
+// API key store - the *auth-path* data access for public API keys.
 //
 // Only the read side lives here, and deliberately so: it runs with
 // the service-role client because a public-API caller has no Supabase
 // session, so RLS (which keys off `auth.uid()`) can't scope the
 // lookup. The management side (list / create / revoke) runs in the
 // dashboard under a real cookie session and goes through the RLS
-// client *inline* in the route handlers — same pattern as
+// client *inline* in the route handlers - same pattern as
 // `/api/account/invitations`. Keeping the RLS-bypassing surface tiny
 // and read-only here makes it easy to audit.
 // ============================================================
@@ -27,7 +27,7 @@ export interface ApiKeyRow {
 
 /**
  * Look up an *active* key by its SHA-256 hash. Returns null if no
- * row matches, or if the matching row is revoked or expired — so
+ * row matches, or if the matching row is revoked or expired - so
  * callers never have to re-check liveness. Uses the service-role
  * client (RLS-bypassing); the hash is the only credential, so this
  * is the moment that establishes the caller's account.
@@ -80,7 +80,7 @@ export async function getAccountName(
 
 /**
  * Best-effort `last_used_at` bump. Fire-and-forget from the auth
- * path — a failed update just means the "last used" column lags;
+ * path - a failed update just means the "last used" column lags;
  * it must never fail the request the caller is actually making.
  */
 export function touchLastUsed(id: string): void {

@@ -22,7 +22,7 @@ export function useTotalUnread(): number {
     const supabase = createClient();
     let cancelled = false;
 
-    // Initial load. RLS scopes this to the signed-in user automatically —
+    // Initial load. RLS scopes this to the signed-in user automatically -
     // no explicit user_id filter needed here.
     (async () => {
       let rows: { id: string }[];

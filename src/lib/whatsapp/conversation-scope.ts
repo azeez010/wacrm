@@ -8,7 +8,7 @@ const t = getT('LibErrors')
 //
 // Both engines persist an outbound message as `messages.insert({
 // conversation_id })` plus a `conversations` preview update, through
-// the service-role client — so RLS does not scope either write, and an
+// the service-role client - so RLS does not scope either write, and an
 // INSERT has no `WHERE` clause to hang a tenancy predicate off.
 //
 // The engines already refuse a contact outside the account. A
@@ -26,7 +26,7 @@ const t = getT('LibErrors')
  * Throw unless `conversationId` is a conversation of `accountId`.
  *
  * The message is deliberately the same for "no such conversation" and
- * "not yours" — the engines surface it into automation logs the
+ * "not yours" - the engines surface it into automation logs the
  * triggering user can read, and distinguishing the two would confirm
  * whether a given UUID exists.
  */

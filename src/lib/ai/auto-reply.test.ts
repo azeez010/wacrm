@@ -136,7 +136,7 @@ beforeEach(() => {
   h.sendTypingIndicator.mockResolvedValue(undefined)
 })
 
-describe('dispatchInboundToAiReply — eligibility gates', () => {
+describe('dispatchInboundToAiReply, eligibility gates', () => {
   it('claims a slot and sends on the happy path', async () => {
     await dispatchInboundToAiReply(ARGS)
     expect(h.state.rpcCalls).toEqual([
@@ -248,7 +248,7 @@ describe('dispatchInboundToAiReply — eligibility gates', () => {
   })
 })
 
-describe('dispatchInboundToAiReply — typing indicator (#527)', () => {
+describe('dispatchInboundToAiReply, typing indicator (#527)', () => {
   it('shows "typing…" on the inbound wamid before calling the LLM', async () => {
     await dispatchInboundToAiReply(ARGS)
     expect(h.loadAccountMetaCredentials).toHaveBeenCalledWith(
@@ -312,7 +312,7 @@ describe('dispatchInboundToAiReply — typing indicator (#527)', () => {
   })
 })
 
-describe('dispatchInboundToAiReply — handoff', () => {
+describe('dispatchInboundToAiReply, handoff', () => {
   it('disables auto-reply, writes a summary, and does not send on handoff', async () => {
     h.generateReply.mockResolvedValue({ text: '', handoff: true })
     await dispatchInboundToAiReply(ARGS)

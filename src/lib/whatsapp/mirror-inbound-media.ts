@@ -7,7 +7,7 @@ import { buildMediaPath, MEDIA_MAX_BYTES } from "@/lib/storage/upload-media";
  * outlives Meta's retention window (issue #466).
  *
  * Meta deletes media roughly 30 days after receipt. Before this, the
- * webhook stored only a pointer — `/api/whatsapp/media/<mediaId>` — and
+ * webhook stored only a pointer - `/api/whatsapp/media/<mediaId>` - and
  * the proxy route behind it re-fetched from Meta on every single view,
  * so an attachment quietly became unviewable a month after it arrived.
  * Outbound media never had the problem: the composer uploads to
@@ -18,8 +18,8 @@ import { buildMediaPath, MEDIA_MAX_BYTES } from "@/lib/storage/upload-media";
  * throwing. The caller is the Meta webhook, and a webhook that starts
  * failing is worse than an attachment that expires: Meta retries the
  * delivery, which re-runs contact creation, flows, automations and AI
- * replies. On any failure — oversized file, MIME the bucket refuses,
- * storage outage — the caller keeps the proxy URL, which still works
+ * replies. On any failure - oversized file, MIME the bucket refuses,
+ * storage outage - the caller keeps the proxy URL, which still works
  * for as long as Meta holds the bytes.
  */
 
@@ -47,7 +47,7 @@ export const MIRROR_BUCKET = "chat-media";
 export const MIRROR_FOLDER = "inbound";
 
 export interface MirrorInboundMediaArgs {
-  /** Service-role `supabase.storage` — RLS is bypassed, MIME/size limits are not. */
+  /** Service-role `supabase.storage` - RLS is bypassed, MIME/size limits are not. */
   storage: MirrorStorage;
   /** Tenant. Drives the account-scoped path the bucket's policies expect. */
   accountId: string;
@@ -58,11 +58,11 @@ export interface MirrorInboundMediaArgs {
   accessToken: string;
   /** Meta's `mime_type` for the media. */
   mimeType?: string | null;
-  /** Meta's `file_size`, when it gave us one — lets us skip before downloading. */
+  /** Meta's `file_size`, when it gave us one - lets us skip before downloading. */
   fileSize?: number | null;
   /** `document.filename`, when the sender's client supplied one. */
   fileName?: string | null;
-  /** Meta's message timestamp (epoch SECONDS) — keeps download names distinct. */
+  /** Meta's message timestamp (epoch SECONDS) - keeps download names distinct. */
   messageTimestamp?: string | number | null;
   /** Injected in tests. */
   download?: typeof downloadMedia;
@@ -70,7 +70,7 @@ export interface MirrorInboundMediaArgs {
 
 /**
  * Lower-case a MIME type and drop its parameters, so `audio/ogg;
- * codecs=opus` — which is what Meta actually sends for a voice note —
+ * codecs=opus` - which is what Meta actually sends for a voice note -
  * is matched against the bucket's allow-list as plain `audio/ogg`.
  * Returns null for anything unusable.
  */
@@ -101,14 +101,14 @@ function kindForMime(mimeType: string | null): string {
  * a Meta redelivery of the same message rewrites the same object rather
  * than littering the bucket with a second copy. The id is stripped back
  * off when a download name is derived, because `basenameFromUrl`
- * (`@/lib/media/filename`) drops a leading run of 10+ digits — the same
+ * (`@/lib/media/filename`) drops a leading run of 10+ digits - the same
  * rule that hides `buildMediaPath`'s epoch prefix on outbound uploads.
  * So the agent saves `invoice.pdf`, not `1234567890123456-invoice.pdf`.
  *
  * Names are kept short on purpose: `buildMediaPath` caps the basename it
  * receives at 40 characters, and a 19-digit media id plus a separator
  * already spends half of that. Hence `image-<epoch>` rather than
- * `whatsapp-image-<epoch>` — the latter truncates.
+ * `whatsapp-image-<epoch>` - the latter truncates.
  */
 export function mirrorFileName(args: {
   mediaId: string;
@@ -120,7 +120,7 @@ export function mirrorFileName(args: {
   const ext = extensionForMime(mimeType);
 
   // A document's own name is the best download name there is, so keep
-  // it. Strip any directory part and its extension — `buildMediaPath`
+  // it. Strip any directory part and its extension - `buildMediaPath`
   // re-derives the extension from whatever we hand it, and we'd rather
   // that come from the MIME type than from a sender-controlled string.
   const stem = (fileName ?? "")
@@ -132,7 +132,7 @@ export function mirrorFileName(args: {
 
   // Otherwise synthesise. The message timestamp is in the name so that
   // saving two photos out of one thread doesn't produce two files with
-  // the same name — and it's Meta's timestamp, not the clock, so the
+  // the same name - and it's Meta's timestamp, not the clock, so the
   // path stays deterministic across a redelivery.
   const kind = kindForMime(mimeType);
   const stamp = String(messageTimestamp ?? "").replace(/\D/g, "");
@@ -143,7 +143,7 @@ export function mirrorFileName(args: {
  * Download the bytes from Meta and put them in `chat-media`.
  *
  * @returns the durable public URL, or `null` if the mirror was skipped
- *          or failed — in which case the caller must fall back to the
+ *          or failed - in which case the caller must fall back to the
  *          proxy URL.
  */
 export async function mirrorInboundMedia(

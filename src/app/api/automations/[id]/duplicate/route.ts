@@ -11,7 +11,7 @@ export async function POST(
 ) {
   const { id } = await params
 
-  // Duplicating creates a new automation row — a write. Enforce `agent`
+  // Duplicating creates a new automation row - a write. Enforce `agent`
   // (the service-role client below bypasses the agent-gated
   // automations_insert RLS).
   let accountId: string
@@ -24,7 +24,7 @@ export async function POST(
     return toErrorResponse(err)
   }
 
-  // Match on `account_id`, not `user_id` — see the tenancy note in the
+  // Match on `account_id`, not `user_id` - see the tenancy note in the
   // sibling [id]/route.ts (GHSA-xvrq-88hg-44q6). `user_id` records the
   // author and survives removal from the account, so scoping the source
   // row by it let an ex-member clone an automation straight back into

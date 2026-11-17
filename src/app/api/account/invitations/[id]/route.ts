@@ -8,7 +8,7 @@
 //
 // We intentionally delete the row outright rather than soft-
 // deleting (a "revoked_at" flag). Once revoked, an invite is
-// dead forever — there's no UX where a former invite should be
+// dead forever - there's no UX where a former invite should be
 // listed; the plaintext token is gone too. Hard delete keeps
 // the table small.
 // ============================================================
@@ -40,7 +40,7 @@ export async function DELETE(
 
     const { id } = await params;
 
-    // No `eq('account_id', ctx.accountId)` — the RLS policy
+    // No `eq('account_id', ctx.accountId)` - the RLS policy
     // (`is_account_member(account_id, 'admin')`) already scopes
     // the DELETE to invites in the caller's account. Adding the
     // filter would be redundant; omitting it surfaces a
@@ -61,7 +61,7 @@ export async function DELETE(
 
     if (count === 0) {
       // Either the id doesn't exist or RLS hid it (different
-      // account). 404 either way — surfacing "exists but not
+      // account). 404 either way - surfacing "exists but not
       // yours" would leak existence.
       return NextResponse.json(
         { error: t('account.invitations.notFound') },

@@ -38,7 +38,7 @@ function LoginPageInner() {
   const inviteToken = searchParams.get("invite");
   const t = useTranslations("LoginPage");
   // Set by /auth/callback when an emailed link (confirmation, password
-  // reset) could not be turned into a session — see src/lib/auth/callback.ts.
+  // reset) could not be turned into a session - see src/lib/auth/callback.ts.
   const linkError = searchParams.get("error");
   const linkErrorMessage =
     linkError === "link_expired"
@@ -74,7 +74,7 @@ function LoginPageInner() {
     // auth cookies to the middleware gating /dashboard. A soft
     // client-side navigation can reach the protected route before the
     // server observes the new session, so the middleware bounces it
-    // back to /login — which looks like the page "just refreshing"
+    // back to /login - which looks like the page "just refreshing"
     // instead of signing in (issue #365). Mirrors the deliberate full
     // reload the invite-accept flow already uses in join/[token].
     const destination = inviteToken

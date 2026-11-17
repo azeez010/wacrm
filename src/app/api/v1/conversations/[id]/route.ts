@@ -1,5 +1,5 @@
 // ============================================================
-// GET /api/v1/conversations/{id} — read one conversation
+// GET /api/v1/conversations/{id} - read one conversation
 // (scope: conversations:read). Account-scoped: a foreign id → 404.
 // ============================================================
 

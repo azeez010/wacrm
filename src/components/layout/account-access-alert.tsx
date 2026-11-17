@@ -21,7 +21,7 @@ import {
  * check has no account to test, and `useCan` returns false for every
  * capability when the role is null, so buttons sit disabled with no
  * explanation. Issue #471 was reported as "nothing saves, nothing
- * changes, all blocked" — which was accurate, and invisible.
+ * changes, all blocked" - which was accurate, and invisible.
  *
  * Renders nothing on the happy path.
  */

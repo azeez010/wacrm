@@ -3,7 +3,7 @@
  *
  * Fixed-window counter (not token bucket): every identifier gets a
  * fresh N-request budget each window. Simple, allocation-light, and
- * fine for a single-instance VPS — which is how forkers of this
+ * fine for a single-instance VPS - which is how forkers of this
  * template will usually deploy.
  *
  * Trade-off: a single Node process holds the Map, so horizontal scale
@@ -16,7 +16,7 @@
  * Memory: entries are ~50 bytes each. With LIGHT_SWEEP below, expired
  * keys get cleared opportunistically on every ~1 000th call, so a
  * healthy instance stays in the low-MB range even with thousands of
- * distinct users. No background timer — works in serverless edge
+ * distinct users. No background timer - works in serverless edge
  * runtimes that don't keep timers alive across requests.
  */
 
@@ -145,7 +145,7 @@ export const RATE_LIMITS = {
    *  pacing with headroom while still bounding a script in a loop;
    *  Meta's own per-number limits remain the real throughput ceiling. */
   broadcast: { limit: 60, windowMs: 60_000 },
-  /** Reaction add/swap/remove. More permissive than send — users
+  /** Reaction add/swap/remove. More permissive than send - users
    *  fidget with reactions and a single "swap" is actually two calls
    *  (remove + add) under the hood. */
   react: { limit: 120, windowMs: 60_000 },
@@ -154,7 +154,7 @@ export const RATE_LIMITS = {
    *  enabling brute-force token enumeration. With 256-bit tokens the
    *  enumeration risk is theoretical; this is belt-and-braces. */
   invitationPeek: { limit: 30, windowMs: 60_000 },
-  /** Invitation redeem (authed, per-IP+user). Tighter than peek —
+  /** Invitation redeem (authed, per-IP+user). Tighter than peek -
    *  successful redemption mutates two profiles and an invite row, so
    *  the abuse surface is "spam join attempts." */
   invitationRedeem: { limit: 10, windowMs: 60_000 },
@@ -166,7 +166,7 @@ export const RATE_LIMITS = {
    *  loop or a compromised admin session spamming role flips. */
   adminAction: { limit: 30, windowMs: 60_000 },
   /** Public REST API (`/api/v1/*`), keyed per API key. 120/min ≈ 2
-   *  req/s sustained — comfortable for a polling integration or an
+   *  req/s sustained - comfortable for a polling integration or an
    *  automation firing on inbound events, while bounding a runaway
    *  script. Like every bucket here it's per-process; a multi-
    *  instance deploy needs the Redis swap described at the top of
@@ -178,7 +178,7 @@ export const RATE_LIMITS = {
    *  hold-down / script. */
   aiDraft: { limit: 20, windowMs: 60_000 },
   /** AI draft-reply generation, per account. Caps the WHOLE team's
-   *  draws on the one shared BYO provider key — without this, N agents
+   *  draws on the one shared BYO provider key - without this, N agents
    *  each under their per-user limit could still stampede the account's
    *  key past the provider's own rate limit. 60/min ≈ three busy agents
    *  drafting flat-out. */

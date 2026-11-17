@@ -102,12 +102,12 @@ export function Step2SelectAudience({
   const csvInputRef = useRef<HTMLInputElement>(null);
 
   const csvCount = audience.csvContacts?.length ?? 0;
-  // Only meaningful while the rows it produced are still in play —
+  // Only meaningful while the rows it produced are still in play -
   // picking another audience type wipes `csvContacts`.
   const csvFileName = csvCount > 0 ? pickedCsvName : null;
 
   // Tags are used both by the primary "Filter by Tags" audience type
-  // AND by the exclude-list below — so always load once on mount.
+  // AND by the exclude-list below - so always load once on mount.
   useEffect(() => {
     async function fetchTags() {
       setLoadingTags(true);
@@ -426,7 +426,7 @@ export function Step2SelectAudience({
         </div>
       )}
 
-      {/* Exclude list — applies regardless of audience type */}
+      {/* Exclude list - applies regardless of audience type */}
       <div className="rounded-xl border border-border bg-card/50 p-4">
         <div className="mb-3 flex items-center gap-2">
           <X className="h-4 w-4 text-red-400" />

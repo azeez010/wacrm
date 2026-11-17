@@ -252,7 +252,7 @@ describe('validateSampleValues', () => {
   });
 });
 
-describe('validateTemplatePayload — integration', () => {
+describe('validateTemplatePayload, integration', () => {
   it('passes for a minimal valid payload', () => {
     expect(validateTemplatePayload(baseValid)).toEqual({
       bodyVarCount: 0,

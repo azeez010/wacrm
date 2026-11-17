@@ -84,7 +84,7 @@ export function MediaLightbox({
   // Arrow keys page through the gallery. Bound on window so it works
   // whichever control inside has focus, and in the CAPTURE phase because
   // base-ui's popup stops arrow-key propagation for its own focus
-  // management — a bubble-phase listener here never fires. Esc is left
+  // management - a bubble-phase listener here never fires. Esc is left
   // alone; the dialog already closes on it.
   useEffect(() => {
     if (index < 0) return;
@@ -176,7 +176,7 @@ export function MediaLightbox({
             />
           ) : (
             <video
-              // Plain URL, never a blob — the player should stream.
+              // Plain URL, never a blob - the player should stream.
               src={item.url}
               controls
               preload="metadata"

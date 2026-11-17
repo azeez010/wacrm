@@ -6,7 +6,7 @@ import { getT } from '@/lib/i18n/translate'
 
 /**
  * Meta requires an `example.header_handle` (from the Resumable Upload
- * API) to create/edit a template with a media header — IMAGE, VIDEO or
+ * API) to create/edit a template with a media header - IMAGE, VIDEO or
  * DOCUMENT alike. A plain public URL is not accepted at creation time
  * and fails with "Invalid parameter" (#230 for images, #562 for the
  * other two). This helper turns the template's `header_media_url`
@@ -22,7 +22,7 @@ import { getT } from '@/lib/i18n/translate'
 const t = getT('Validation.templates')
 
 // One message for the SSRF-guard refusal and a genuinely unreachable
-// host, across all three media kinds — see the guard comment below.
+// host, across all three media kinds - see the guard comment below.
 const unreachableMessage = () => t('headerUrlUnreachable')
 
 export async function ensureMediaHeaderHandle(
@@ -45,7 +45,7 @@ export async function ensureMediaHeaderHandle(
   // member can submit a template) and the fetch below happens server-side,
   // so refuse any destination that resolves to a private / loopback /
   // link-local / reserved address. Same guard as the two other
-  // outbound-fetch call sites (see lib/webhooks/ssrf.ts) — matching the
+  // outbound-fetch call sites (see lib/webhooks/ssrf.ts) - matching the
   // unreachable-host message keeps the failure from being an oracle.
   if (!(await isDeliverableUrl(payload.header_media_url))) {
     throw new Error(unreachableMessage())
@@ -56,7 +56,7 @@ export async function ensureMediaHeaderHandle(
   let res: Response
   try {
     res = await fetch(payload.header_media_url, {
-      // Do NOT follow redirects — a public URL could 3xx-bounce to an
+      // Do NOT follow redirects - a public URL could 3xx-bounce to an
       // internal address, defeating the guard above. Bound the request so
       // a hung host can't tie up the template-submit handler.
       redirect: 'manual',

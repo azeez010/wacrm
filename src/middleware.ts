@@ -32,7 +32,7 @@ export async function middleware(request: NextRequest) {
   // is a fresh object that does NOT carry those Set-Cookie headers, so
   // the rotated token never reaches the browser. The next request then
   // replays the old, now-consumed refresh token, the refresh fails, and
-  // the session wedges — the user gets a broken reload after idling and
+  // the session wedges - the user gets a broken reload after idling and
   // can only recover by manually clearing cookies (issue #288). Copy the
   // refreshed cookies onto whatever response we hand back to fix that.
   const withRefreshedCookies = <T extends NextResponse>(response: T): T => {
@@ -70,7 +70,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Protected pages - redirect to login if not authenticated
-  // Every top-level route under src/app/(dashboard)/ belongs here —
+  // Every top-level route under src/app/(dashboard)/ belongs here -
   // middleware.test.ts reads that directory and fails on a missing one.
   const protectedPaths = ['/dashboard', '/inbox', '/contacts', '/pipelines', '/broadcasts', '/automations', '/flows', '/agents', '/notifications', '/settings']
   if (!user && protectedPaths.some(path => request.nextUrl.pathname.startsWith(path))) {

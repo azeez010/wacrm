@@ -5,7 +5,7 @@ import { sendTypingIndicator } from './meta-api'
  * Meta's typing indicator is a field on the read-status update: one
  * POST to /{phone_number_id}/messages both marks the inbound read and
  * shows "typing…" for up to 25 s (or until the business replies). The
- * endpoint answers `{ success: true }` — no message id (issue #527).
+ * endpoint answers `{ success: true }` - no message id (issue #527).
  *
  * Docs: https://developers.facebook.com/docs/whatsapp/cloud-api/typing-indicators
  */

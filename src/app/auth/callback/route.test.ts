@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // The server client wraps `next/headers`, which has no request scope
-// under vitest — stub the whole module and script the two exchange
+// under vitest - stub the whole module and script the two exchange
 // methods the route can call.
 const mocks = vi.hoisted(() => ({
   exchangeCodeForSession: vi.fn(),

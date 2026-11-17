@@ -1,9 +1,9 @@
 // ============================================================
-// GET /api/v1/conversations/{id}/messages — list a conversation's
+// GET /api/v1/conversations/{id}/messages - list a conversation's
 // messages (scope: messages:read), newest first, keyset-paginated.
 //
 // The conversation is verified to belong to the key's account before
-// any message is returned — a foreign or unknown id → 404.
+// any message is returned - a foreign or unknown id → 404.
 // ============================================================
 
 import { requireApiKey } from '@/lib/auth/api-context';

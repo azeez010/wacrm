@@ -1,5 +1,5 @@
 // ============================================================
-// /join/[token] layout — minimal full-bleed dark shell.
+// /join/[token] layout - minimal full-bleed dark shell.
 //
 // The route group sits outside both `(auth)` and `(dashboard)`
 // because it's hybrid: the page must render for anonymous
@@ -10,8 +10,8 @@
 // visitors through its login redirect. A dedicated layout
 // avoids both.
 //
-// Styling matches the login / signup pages — centered card on a
-// slate-950 background — so the join experience feels like a
+// Styling matches the login / signup pages - centered card on a
+// slate-950 background - so the join experience feels like a
 // natural step in the auth funnel rather than a foreign page.
 //
 // Referrer-Policy: no-referrer

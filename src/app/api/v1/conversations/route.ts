@@ -1,5 +1,5 @@
 // ============================================================
-// GET /api/v1/conversations — list conversations (scope: conversations:read)
+// GET /api/v1/conversations - list conversations (scope: conversations:read)
 //
 // Keyset-paginated (newest first). Filters: `?status=` (open/pending/
 // closed) and `?contact_id=`. Each conversation embeds its contact +

@@ -1,7 +1,7 @@
 /**
  * Turn a Meta Graph API failure into something a person can act on.
  *
- * Meta's error envelope is precise but terse — "(#100) Unsupported get
+ * Meta's error envelope is precise but terse - "(#100) Unsupported get
  * request" says nothing about *which* of the four values on the settings
  * form is wrong. This module maps `code` / `error_subcode` (plus the
  * step of the connect flow that failed) onto: a plain-English summary,
@@ -9,7 +9,7 @@
  * (HTTP 400) or Meta's (HTTP 502). The raw code, subcode and
  * `fbtrace_id` ride along so the user can quote them to Meta support.
  *
- * Pure — no I/O, no env. Issue #505.
+ * Pure - no I/O, no env. Issue #505.
  *
  * Error codes: https://developers.facebook.com/docs/whatsapp/cloud-api/support/error-codes
  */
@@ -32,7 +32,7 @@ export type MetaErrorField =
   | null
 
 /**
- * Structural shape of `MetaApiError` from ./meta-api — declared here so
+ * Structural shape of `MetaApiError` from ./meta-api - declared here so
  * this module stays free of I/O imports and so callers can feed it any
  * object carrying Meta's envelope fields.
  */
@@ -61,7 +61,7 @@ export interface MetaErrorExplanation {
   metaMessage: string
 }
 
-/** Values the caller already knows — quoted back so the text names the id that failed. */
+/** Values the caller already knows - quoted back so the text names the id that failed. */
 export interface MetaErrorContext {
   phoneNumberId?: string | null
   wabaId?: string | null
@@ -92,7 +92,7 @@ function isMetaErrorLike(err: unknown): err is MetaErrorLike {
   )
 }
 
-/** Which id the failing step was addressing — and the field it lives in. */
+/** Which id the failing step was addressing - and the field it lives in. */
 function objectForStep(
   step: MetaConnectStep,
   ctx: MetaErrorContext,
@@ -264,7 +264,7 @@ export function explainMetaError(
   if (code === 133015) {
     return build(
       'This phone number was recently deleted from WhatsApp and cannot be registered yet. ' +
-        'Meta blocks re-registration for a period after deletion — try again later.',
+        'Meta blocks re-registration for a period after deletion, try again later.',
       'meta_account',
       'meta',
     )
@@ -293,7 +293,7 @@ export function explainMetaError(
   if (RATE_LIMIT_CODES.has(code ?? -1)) {
     return build(
       'Meta is rate-limiting this app or WhatsApp Business Account right now. Nothing needs ' +
-        'changing — wait a few minutes and try again.',
+        'changing, wait a few minutes and try again.',
       null,
       'meta',
     )
@@ -319,7 +319,7 @@ export function explainMetaError(
 
 /**
  * The `meta` object POST /api/whatsapp/config attaches to every failed
- * Meta call — everything a user needs to quote to support.
+ * Meta call - everything a user needs to quote to support.
  */
 export function metaErrorPayload(x: MetaErrorExplanation): {
   code: number | null

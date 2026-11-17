@@ -19,7 +19,7 @@ describe("batchRetryDelayMs", () => {
   });
 
   it.each([400, 401, 403, 404, 422, 500, 502, 503, 504])(
-    "does not replay a %i — the batch may already have reached Meta",
+    "does not replay a %i, the batch may already have reached Meta",
     (status) => {
       expect(batchRetryDelayMs(status, "1")).toBeNull();
     },

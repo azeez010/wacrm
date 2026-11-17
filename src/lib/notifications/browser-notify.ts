@@ -56,7 +56,7 @@ export interface ShouldNotifyOptions {
  *
  * - Only customer messages qualify (agent/bot sends are our own).
  * - Skipped when the tab is visible AND the user already has that
- *   conversation open — the thread itself is the notification.
+ *   conversation open - the thread itself is the notification.
  * - Deduped by message id within DEDUPE_WINDOW_MS (Realtime can replay
  *   an event on reconnect).
  */

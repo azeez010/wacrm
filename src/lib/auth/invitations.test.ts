@@ -25,7 +25,7 @@ describe("generateInviteToken", () => {
   });
 
   it("produces distinct tokens across calls", () => {
-    // 32 bytes of CSPRNG entropy — a collision in 1000 draws would
+    // 32 bytes of CSPRNG entropy - a collision in 1000 draws would
     // be a thermodynamic miracle. This is a sanity guard for "did
     // someone accidentally swap randomBytes for a constant?".
     const seen = new Set<string>();
@@ -46,7 +46,7 @@ describe("hashInviteToken", () => {
   });
 
   it("matches a known SHA-256 hex digest", () => {
-    // Known fixture — `sha256("invite-token-abc")` hex digest.
+    // Known fixture - `sha256("invite-token-abc")` hex digest.
     // If this assertion ever flips, the hash function changed and
     // every stored token_hash in the DB is suddenly orphaned.
     expect(hashInviteToken("invite-token-abc")).toBe(
@@ -74,7 +74,7 @@ describe("inviteUrl", () => {
     );
   });
 
-  it("preserves the entire token verbatim — including base64url symbols", () => {
+  it("preserves the entire token verbatim, including base64url symbols", () => {
     // The token may contain `-` and `_`. Both are URL-safe; the
     // function must NOT percent-encode them.
     expect(inviteUrl("a-b_c", "https://x")).toBe("https://x/join/a-b_c");
@@ -89,7 +89,7 @@ describe("clampExpiryDays", () => {
   it("defaults when given a non-finite value", () => {
     // Non-finite values (NaN, ±Infinity) are always programmer errors,
     // never legitimate input. We collapse them to the safe default
-    // rather than to MAX — a buggy Infinity passing through and
+    // rather than to MAX - a buggy Infinity passing through and
     // silently producing a year-long invite would be worse than a
     // default 7-day one that the admin can re-issue.
     expect(clampExpiryDays(NaN)).toBe(DEFAULT_INVITE_EXPIRY_DAYS);

@@ -10,7 +10,7 @@ const t = getT('LibErrors')
 //
 // Used for the knowledge base's optional semantic-search path: embed
 // each chunk at ingest, and embed the query at retrieval. Anthropic has
-// no embeddings endpoint, so this is always OpenAI's — the account
+// no embeddings endpoint, so this is always OpenAI's - the account
 // supplies a (possibly separate) embeddings key. 1536-dim
 // text-embedding-3-small matches the `vector(1536)` column in
 // migration 030.
@@ -80,7 +80,7 @@ export async function embedTexts(
     }
 
     // Sort by index so order matches the input batch regardless of how
-    // the provider returns them. Require a real numeric index — defaulting
+    // the provider returns them. Require a real numeric index - defaulting
     // a missing one to 0 would silently misalign chunks with their
     // vectors (chunk N gets chunk M's embedding), so fail loud instead.
     if (rows.some((r) => typeof r.index !== 'number')) {

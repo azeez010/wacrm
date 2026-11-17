@@ -1,5 +1,5 @@
 /**
- * Currency — single source of truth for deal-value formatting and
+ * Currency - single source of truth for deal-value formatting and
  * the currency picker options.
  *
  * Before this module, ~6 components each defined their own
@@ -29,7 +29,7 @@ const t = getT("Currency");
 /**
  * The currencies offered in pickers. Codes must be valid ISO-4217 so
  * `Intl.NumberFormat` renders the right symbol/grouping. Extend this
- * list to offer more — nothing else needs to change.
+ * list to offer more - nothing else needs to change.
  */
 export const CURRENCIES: CurrencyOption[] = [
   { code: "USD", label: t("USD"), symbol: "$" },
@@ -51,7 +51,7 @@ export const CURRENCIES: CurrencyOption[] = [
 
 /**
  * Format a deal value as a currency string. Whole-number output
- * (no minor units) — deal values are tracked to the dollar across
+ * (no minor units) - deal values are tracked to the dollar across
  * the app. `currency` defaults to USD so callers with nothing better
  * stay safe, but pass the account/deal currency wherever known.
  *
@@ -59,7 +59,7 @@ export const CURRENCIES: CurrencyOption[] = [
  * structurally invalid currency code, and `deals.currency` carries
  * NO DB CHECK (only `accounts.default_currency` does), so legacy
  * rows, imports, or hand-edited data can hold malformed values like
- * "United States". We never let that crash a render — on a bad code
+ * "United States". We never let that crash a render - on a bad code
  * we fall back to "CODE 1,234".
  */
 export function formatCurrency(
@@ -76,7 +76,7 @@ export function formatCurrency(
       maximumFractionDigits: 0,
     }).format(amount);
   } catch {
-    // Invalid ISO code — show the raw code + grouped number so the
+    // Invalid ISO code - show the raw code + grouped number so the
     // value is still legible instead of throwing.
     return `${code} ${new Intl.NumberFormat(undefined, {
       maximumFractionDigits: 0,

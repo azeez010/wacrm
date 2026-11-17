@@ -6,7 +6,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 // The per-automation handlers mutate through the service-role client,
 // so tenancy is theirs to enforce. They used to match the row on
 // `automations.user_id` (the immutable author), which a user removed
-// from the account still satisfies — `remove_account_member` reseats
+// from the account still satisfies - `remove_account_member` reseats
 // them as `owner` of a fresh personal account, so `requireRole('agent')`
 // passes and the account is never compared.
 //

@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
  * (Overview tiles, WhatsApp banner, the "Active" appearance markers).
  *
  * Status colours (emerald = good, amber = attention) follow the same
- * Tailwind palette the members tab already uses for role chips — they
+ * Tailwind palette the members tab already uses for role chips - they
  * are semantic accents, not neutrals, so they're intentionally not
  * tokenized. Neutrals stay on design tokens.
  */

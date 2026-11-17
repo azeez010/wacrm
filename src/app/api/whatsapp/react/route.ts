@@ -23,12 +23,12 @@ const t = getT('Api');
  *
  * Sends the reaction to Meta and mirrors it into `message_reactions`
  * (delete on empty emoji). Customer-side reactions are handled by the
- * webhook — this route only writes `actor_type = 'agent'` rows.
+ * webhook - this route only writes `actor_type = 'agent'` rows.
  */
 export async function POST(request: Request) {
   try {
     // Reacting is a write operation (`canSendMessages`), and it pushes the
-    // reaction to Meta before mirroring it locally — so, as on /send, a
+    // reaction to Meta before mirroring it locally - so, as on /send, a
     // missing role check let a read-only viewer put a visible reaction on
     // the customer's message even though RLS blocked the local mirror.
     const { supabase, accountId, userId } = await requireRole('agent');
@@ -63,7 +63,7 @@ export async function POST(request: Request) {
     }
 
     if (!targetMessage.message_id) {
-      // No Meta ID yet — usually a sending/failed agent message. We can't
+      // No Meta ID yet - usually a sending/failed agent message. We can't
       // tell Meta to react to a message it never received.
       return NextResponse.json(
         { error: t('react.notSent') },

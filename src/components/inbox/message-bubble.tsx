@@ -56,7 +56,7 @@ interface MessageBubbleProps {
 }
 
 /**
- * "[title] — [details]" for a failed message, or null when the row
+ * "[title] - [details]" for a failed message, or null when the row
  * predates migration 042 / Meta sent no reason. Shared by the status
  * icon's tooltip and the line under the bubble.
  */
@@ -130,7 +130,7 @@ function TemplateHeader({
 function failureReason(message: Message): string | null {
   if (message.status !== "failed" || !message.error_title) return null;
   return message.error_details
-    ? `${message.error_title} — ${message.error_details}`
+    ? `${message.error_title}, ${message.error_details}`
     : message.error_title;
 }
 
@@ -139,7 +139,7 @@ function StatusIcon({
   title,
 }: {
   status: Message["status"];
-  /** Tooltip for the failed state — Meta's reason, when we have one. */
+  /** Tooltip for the failed state - Meta's reason, when we have one. */
   title?: string | null;
 }) {
   switch (status) {
@@ -172,7 +172,7 @@ function MessageContent({
   message: Message;
   template: MessageTemplate | null;
   t: ReturnType<typeof useTranslations>;
-  /** Outbound bubbles sit on the primary fill — badges must invert. */
+  /** Outbound bubbles sit on the primary fill - badges must invert. */
   isAgent: boolean;
   onOpenMedia?: (messageId: string) => void;
 }) {
@@ -239,7 +239,7 @@ function MessageContent({
 
     case "template": {
       // Templates are almost always outbound, where the bubble fill IS
-      // `primary` — so the old `bg-primary/20 text-primary` chip was
+      // `primary` - so the old `bg-primary/20 text-primary` chip was
       // primary-on-primary and invisible. Paired with a null
       // content_text (issue #483) that rendered a bubble with nothing
       // in it at all. Invert on the primary fill, and fall back to the
@@ -329,7 +329,7 @@ function MessageContent({
       //    no payload; show the tapped option's title with a reply affordance
       //    so agents can tell it's a tap, not the customer typing.
       //  - OUTBOUND with NO payload (legacy bot/Flow sends from before
-      //    migration 035 backfilled the column): show the body text plainly —
+      //    migration 035 backfilled the column): show the body text plainly -
       //    it is our own message, NOT a customer tap.
       if (message.interactive_payload) {
         return <LocalizedInteractivePreview payload={message.interactive_payload} />;
@@ -423,7 +423,7 @@ export function MessageBubble({
             isAgent ? "justify-end" : "justify-start",
           )}
         >
-          {/* AI badge — only on replies the auto-reply bot generated
+          {/* AI badge - only on replies the auto-reply bot generated
               (always outbound, so it sits on the primary fill). Lets
               agents tell an AI reply from their own / a Flow's at a
               glance. */}
@@ -441,7 +441,7 @@ export function MessageBubble({
               "text-[10px]",
               // Outbound bubbles sit on the primary fill, so the
               // timestamp must read against that (not the neutral
-              // foreground) — otherwise it goes low-contrast in light
+              // foreground) - otherwise it goes low-contrast in light
               // mode. Inbound bubbles use the muted surface.
               isAgent ? "text-primary-foreground/70" : "text-muted-foreground",
             )}

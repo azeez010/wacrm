@@ -31,7 +31,7 @@ const validList: InteractiveListPayload = {
   ],
 }
 
-describe('validateInteractivePayload — buttons', () => {
+describe('validateInteractivePayload, buttons', () => {
   it('accepts a well-formed buttons payload', () => {
     expect(validateInteractivePayload(validButtons)).toEqual({ ok: true })
   })
@@ -90,7 +90,7 @@ describe('validateInteractivePayload — buttons', () => {
   })
 })
 
-describe('validateInteractivePayload — list', () => {
+describe('validateInteractivePayload, list', () => {
   it('accepts a well-formed list payload', () => {
     expect(validateInteractivePayload(validList)).toEqual({ ok: true })
   })

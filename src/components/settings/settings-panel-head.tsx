@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 
 /**
- * Section header shown at the top of every settings panel — a title,
+ * Section header shown at the top of every settings panel - a title,
  * a one-line description, and an optional right-aligned action (e.g.
  * "New template", "Invite member"). Mirrors the mockup's `.panel-head`.
  */

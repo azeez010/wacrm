@@ -58,7 +58,7 @@ describe('isPrivateOrReservedIp', () => {
     expect(isPrivateOrReservedIp('::ffff:8.8.8.8')).toBe(false);
   });
 
-  // GHSA-m4cp-pqxq-x9f7 — the WHATWG URL parser rewrites the dotted
+  // GHSA-m4cp-pqxq-x9f7 - the WHATWG URL parser rewrites the dotted
   // tail of an IPv4-mapped literal to hex, which the previous
   // dotted-decimal regex could not see.
   it('flags IPv4-mapped addresses written in hexadecimal', () => {
@@ -74,7 +74,7 @@ describe('isPrivateOrReservedIp', () => {
     expect(isPrivateOrReservedIp('::ffff:808:808')).toBe(false); // 8.8.8.8
   });
 
-  // GHSA-q4p6-pj4g-26xx — IPv6 transition encodings carry an IPv4
+  // GHSA-q4p6-pj4g-26xx - IPv6 transition encodings carry an IPv4
   // address inside a prefix that looks like ordinary global unicast.
   it('flags IPv4 embedded in 6to4 / NAT64 / Teredo encodings', () => {
     for (const ip of [

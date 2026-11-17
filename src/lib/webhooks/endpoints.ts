@@ -1,5 +1,5 @@
 // ============================================================
-// Webhook endpoint store helpers — secret generation + the public
+// Webhook endpoint store helpers - secret generation + the public
 // (secret-free) serialization used by the management API.
 //
 // The signing secret is stored AES-256-GCM-encrypted at rest (see
@@ -8,11 +8,11 @@
 
 import { randomBytes } from 'node:crypto';
 
-/** Secret prefix — self-identifying, like `wacrm_live_` for keys. */
+/** Secret prefix - self-identifying, like `wacrm_live_` for keys. */
 export const WEBHOOK_SECRET_PREFIX = 'whsec_';
 
 /**
- * Columns safe to return over the API — everything except the
+ * Columns safe to return over the API - everything except the
  * (encrypted) `secret`, which is only ever surfaced once at creation.
  */
 export const WEBHOOK_PUBLIC_COLUMNS =

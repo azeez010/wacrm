@@ -35,7 +35,7 @@ describe("collectMediaGallery", () => {
 
   it("skips media whose bytes we have no URL for", () => {
     // Meta refusing to verify the id (webhook's verifyAndBuildUrl → null) or
-    // expiring it later both land here — the bubble shows "unavailable", so
+    // expiring it later both land here - the bubble shows "unavailable", so
     // the viewer must not offer a blank frame to page onto.
     const items = collectMediaGallery([
       msg("i1", "image"),
@@ -98,7 +98,7 @@ describe("galleryIndexOf", () => {
 
   it("reports -1 once the message is gone from the thread", () => {
     // Happens when an optimistic `temp-…` bubble is swapped for its real row
-    // while the viewer is open — the viewer closes rather than mis-pointing.
+    // while the viewer is open - the viewer closes rather than mis-pointing.
     expect(galleryIndexOf(items, "temp-123")).toBe(-1);
   });
 });

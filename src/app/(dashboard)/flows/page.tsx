@@ -37,7 +37,7 @@ import { cn } from "@/lib/utils";
 /**
  * Flows list page.
  *
- * Open to every authenticated user. Flows is in soft-GA — the "Beta"
+ * Open to every authenticated user. Flows is in soft-GA - the "Beta"
  * chip in the header is the only remaining signal that the surface
  * is new. The previous per-account beta gate was removed in PR #134.
  */
@@ -107,7 +107,7 @@ export default function FlowsPage() {
         }
         const flowsJson = (await flowsRes.json()) as { flows: FlowRow[] };
         if (!cancelled) setFlows(flowsJson.flows ?? []);
-        // Templates endpoint is forward-looking — if it 404s on an
+        // Templates endpoint is forward-looking - if it 404s on an
         // older deployment, gracefully fall through.
         if (tmplRes.ok) {
           const tmplJson = (await tmplRes.json()) as {
@@ -245,7 +245,7 @@ export default function FlowsPage() {
       )}
 
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>
-        {/* `sm:max-w-4xl` not `max-w-4xl` — shadcn's DialogContent has
+        {/* `sm:max-w-4xl` not `max-w-4xl` - shadcn's DialogContent has
             `sm:max-w-sm` baked into its default classes. Without the
             sm: prefix our override applies at base only and the
             sm-scoped 384px wins at every real desktop breakpoint. */}

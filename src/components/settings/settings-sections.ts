@@ -20,7 +20,7 @@ import {
  *
  * The flat tab strip became a grouped left rail with a new Overview
  * landing. The URL query param stays `?tab=` (deep-linkable, and it
- * keeps the existing links in sidebar.tsx / header.tsx working) — we
+ * keeps the existing links in sidebar.tsx / header.tsx working) - we
  * just map the old values onto the new sections.
  */
 export const SETTINGS_SECTIONS = [

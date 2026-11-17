@@ -14,7 +14,7 @@ type ContactRow = { id: string; phone: string; name?: string | null };
 interface Script {
   config?: { user_id: string } | null; // whatsapp_config.maybeSingle
   contactCandidates?: ContactRow[];
-  /** Per-call results — overrides contactCandidates. Lets a
+  /** Per-call results - overrides contactCandidates. Lets a
    *  test simulate "miss, then hit" for the unique-race path. */
   contactCandidatesByCall?: ContactRow[][];
   insertedContactId?: string; // contacts insert -> single
@@ -22,7 +22,7 @@ interface Script {
   /** Conversation lookup result (oldest-first `.order().limit(1)`).
    *  A single row or null; wrapped into a one-element array internally. */
   existingConversation?: { id: string } | null; // conversations select.limit(1)
-  /** Per-call conversation lookup results — overrides existingConversation.
+  /** Per-call conversation lookup results - overrides existingConversation.
    *  Lets a test simulate "miss, then hit" for the unique-race path. */
   existingConversationByCall?: (({ id: string } | null))[];
   insertedConversationId?: string; // conversations insert -> single
@@ -249,7 +249,7 @@ describe('resolveConversationByPhone', () => {
   it('re-resolves the conversation when the insert loses a unique race', async () => {
     // Existing contact, conversation lookup misses first (→ attempt an
     // insert), the insert hits a 23505 from a concurrent create, and the
-    // post-race re-lookup returns the winning conversation — no duplicate
+    // post-race re-lookup returns the winning conversation - no duplicate
     // conversation is created (issue #363).
     const db = makeDb({
       config: { user_id: 'owner-1' },

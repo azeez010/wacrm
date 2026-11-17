@@ -24,7 +24,7 @@ const t = getT('Api');
 /**
  * GET /api/whatsapp/connections/[id]
  *
- * Health check for one connection — same shape the old singleton
+ * Health check for one connection - same shape the old singleton
  * GET /api/whatsapp/config returned, now scoped by id. Returns 200
  * in every non-auth failure mode so the UI can render a specific
  * message instead of a generic error.
@@ -157,7 +157,7 @@ export async function GET(
  * PATCH /api/whatsapp/connections/[id]
  *
  * Updates a connection's label, or (custom connections only) its
- * access_token / verify_token / pin — re-running the same verify
+ * access_token / verify_token / pin - re-running the same verify
  * step a fresh manual-entry POST would. Shared (Embedded Signup)
  * connections have nothing of this sort to rotate here; disconnect
  * and reconnect through the Embedded Signup flow instead.
@@ -232,7 +232,7 @@ export async function PATCH(
 /**
  * DELETE /api/whatsapp/connections/[id]
  *
- * Removes a connection outright — custom and shared alike. (There is
+ * Removes a connection outright - custom and shared alike. (There is
  * no pool to release a shared connection back to; "shared" only
  * describes whose Meta App the tenant onboarded through, not shared
  * inventory, so deleting it is the same operation either way.)

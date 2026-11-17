@@ -276,7 +276,7 @@ describe("validateTriggerForActivation", () => {
 
   it("accepts the word match_type (issue #409)", () => {
     // Activation validation has to stay in step with the engine and the
-    // builder's dropdown — an automation the UI can save must not be
+    // builder's dropdown - an automation the UI can save must not be
     // rejected on activation.
     expect(
       validateTriggerForActivation("keyword_match", {

@@ -10,7 +10,7 @@
 // `code` is a stable, machine-matchable string (clients branch on
 // it); `message` is human-facing and may be reworded freely. This is
 // intentionally distinct from the internal `{ error: string }` shape
-// used by the dashboard's own `/api/*` routes — the public contract
+// used by the dashboard's own `/api/*` routes - the public contract
 // is versioned and shouldn't inherit internal wording changes.
 // ============================================================
 
@@ -51,22 +51,22 @@ export class ApiError extends Error {
   }
 }
 
-/** 401 — no usable credential. */
+/** 401 - no usable credential. */
 export function unauthorized(message = 'Missing or invalid API key'): ApiError {
   return new ApiError('unauthorized', message, 401);
 }
 
-/** 403 — authenticated, but the key lacks the scope this route needs. */
+/** 403 - authenticated, but the key lacks the scope this route needs. */
 export function forbidden(message: string): ApiError {
   return new ApiError('forbidden', message, 403);
 }
 
-/** 400 — bad input. */
+/** 400 - bad input. */
 export function badRequest(message: string): ApiError {
   return new ApiError('bad_request', message, 400);
 }
 
-/** 429 — built from a `checkRateLimit` miss, with the standard headers. */
+/** 429 - built from a `checkRateLimit` miss, with the standard headers. */
 export function rateLimited(result: RateLimitResult): ApiError {
   const retryAfter = Math.max(1, Math.ceil((result.reset - Date.now()) / 1000));
   return new ApiError(
@@ -89,7 +89,7 @@ export function ok<T>(data: T, status = 200): NextResponse {
 
 /**
  * List envelope: `{ data: [...], meta: { next_cursor } }`. The `meta`
- * block is the pagination contract shared by every v1 list endpoint —
+ * block is the pagination contract shared by every v1 list endpoint -
  * `next_cursor` is an opaque string to pass back as `?cursor=`, or
  * `null` on the last page. See `src/lib/api/v1/pagination.ts`.
  */
@@ -100,7 +100,7 @@ export function okList<T>(items: T[], nextCursor: string | null): NextResponse {
 /**
  * Failure envelope from an explicit (code, message, status). Use for
  * domain errors whose codes live outside `ApiErrorCode` (e.g. the
- * send pipeline's `meta_error` / `whatsapp_not_configured`) — the
+ * send pipeline's `meta_error` / `whatsapp_not_configured`) - the
  * wire `code` is a free string, so any machine-meaningful value is
  * fine. `headers` is rarely needed; omit unless you have a
  * `Retry-After`-style set.

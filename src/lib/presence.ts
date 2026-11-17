@@ -1,10 +1,10 @@
 // ============================================================
-// Presence helpers — pure, unit-testable, no I/O.
+// Presence helpers - pure, unit-testable, no I/O.
 //
 // Mirrors the `member_presence` table from migration
 // 024_member_presence.sql. The DB stores only what the active
 // client reports ('online' / 'away'); "offline" is never stored
-// — it is derived here from staleness so a closed tab resolves to
+// - it is derived here from staleness so a closed tab resolves to
 // offline without an unload write.
 //
 // `now` is always passed in (epoch ms) rather than read from the
@@ -28,7 +28,7 @@ export const IDLE_AFTER_MS = 5 * 60_000;
 /** What the active client reports (and what the DB stores). */
 export type StoredPresence = "online" | "away";
 
-/** What a viewer sees — adds the derived 'offline' state. */
+/** What a viewer sees - adds the derived 'offline' state. */
 export type PresenceStatus = "online" | "away" | "offline";
 
 /** Raw presence row as read from the `member_presence` table. */
@@ -55,15 +55,15 @@ export function derivePresence(
 }
 
 /**
- * Relative "last seen" string for tooltips. Coarse on purpose — the
+ * Relative "last seen" string for tooltips. Coarse on purpose - the
  * issue calls for relative time only, never a precise timestamp.
  *
  * Deliberately separate from `formatRelative` in
  * src/lib/automations/trigger-meta.ts: that one reads `Date.now()`
  * internally (not injectable) and emits terse chip wording ("2h ago"),
- * whereas presence needs an injected `now` — so the dots and labels
- * advance in lockstep and the unit tests stay deterministic — plus
- * full-sentence wording for the tooltip ("Offline — last seen …").
+ * whereas presence needs an injected `now` - so the dots and labels
+ * advance in lockstep and the unit tests stay deterministic - plus
+ * full-sentence wording for the tooltip ("Offline - last seen …").
  */
 export function formatLastSeen(
   lastSeenAt: string | null | undefined,
@@ -90,9 +90,9 @@ export function formatLastSeen(
 
 /**
  * Tooltip / aria label for a presence dot, e.g.
- *   "Online — active now"
- *   "Away — idle"
- *   "Offline — last seen 2 hours ago"
+ *   "Online - active now"
+ *   "Away - idle"
+ *   "Offline - last seen 2 hours ago"
  */
 export function presenceLabel(
   status: PresenceStatus,
@@ -101,11 +101,11 @@ export function presenceLabel(
 ): string {
   switch (status) {
     case "online":
-      return "Online — active now";
+      return "Online, active now";
     case "away":
-      return "Away — idle";
+      return "Away, idle";
     case "offline":
-      return `Offline — last seen ${formatLastSeen(lastSeenAt, now)}`;
+      return `Offline, last seen ${formatLastSeen(lastSeenAt, now)}`;
   }
 }
 

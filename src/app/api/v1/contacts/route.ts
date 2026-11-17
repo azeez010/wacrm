@@ -1,6 +1,6 @@
 // ============================================================
-// GET  /api/v1/contacts  — list contacts (scope: contacts:read)
-// POST /api/v1/contacts  — create a contact  (scope: contacts:write)
+// GET  /api/v1/contacts  - list contacts (scope: contacts:read)
+// POST /api/v1/contacts  - create a contact  (scope: contacts:write)
 //
 // List is keyset-paginated (see src/lib/api/v1/pagination.ts) and
 // supports `?search=` (name/phone) and `?tag=<tagId>` filters. Create
@@ -40,7 +40,7 @@ export async function GET(request: Request) {
     }
 
     // When filtering by tag, add an aliased INNER join on contact_tags
-    // used purely for the WHERE — the parent is kept only if it has the
+    // used purely for the WHERE - the parent is kept only if it has the
     // tag. The main `contact_tags(tags(*))` embed still returns the
     // contact's FULL tag set for serialization. This filters in one
     // bounded query (paged by limit+1) instead of pre-fetching an

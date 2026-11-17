@@ -24,11 +24,11 @@ function buildTemplateRow(
   },
 ) {
   return {
-    // Account tenancy — required NOT NULL on message_templates as
+    // Account tenancy - required NOT NULL on message_templates as
     // of migration 017. Without this an INSERT throws on the
     // not-null constraint.
     account_id: accountId,
-    // Which WABA/connection this template belongs to — a template
+    // Which WABA/connection this template belongs to - a template
     // approved under one WABA doesn't exist under another, so this
     // disambiguates accounts with more than one connection.
     whatsapp_config_id: extras.whatsappConfigId,
@@ -75,7 +75,7 @@ async function findExistingTemplate(
     .eq('account_id', accountId)
     .eq('name', payload.name)
     .eq('language', payload.language)
-  // Scope by connection when known — a name/language pair can
+  // Scope by connection when known - a name/language pair can
   // legitimately repeat across two different WABAs on the same
   // account (060_whatsapp_multi_connection.sql).
   query = whatsappConfigId ? query.eq('whatsapp_config_id', whatsappConfigId) : query.is('whatsapp_config_id', null)
@@ -149,7 +149,7 @@ export async function submitTemplateForAccount(
     process.env.WHATSAPP_TEMPLATES_DRY_RUN === 'true' ||
     process.env.WHATSAPP_TEMPLATES_DRY_RUN === '1'
 
-  // Resolve the connection this template belongs to up front — needed
+  // Resolve the connection this template belongs to up front - needed
   // both for the Meta submit call below and to scope the existing-
   // template lookup correctly for accounts with more than one
   // connection. Dry-run tolerates having none configured at all
@@ -165,7 +165,7 @@ export async function submitTemplateForAccount(
     } catch (err) {
       if (err instanceof AmbiguousConnectionError) {
         return NextResponse.json(
-          { error: 'This account has more than one WhatsApp connection — specify whatsapp_config_id.' },
+          { error: 'This account has more than one WhatsApp connection, specify whatsapp_config_id.' },
           { status: 400 },
         )
       }
@@ -280,7 +280,7 @@ export async function submitTemplateForAccount(
 
   if (saveErr) {
     // The submit succeeded on Meta's side but we failed to persist
-    // locally. That's a data-drift state — surface the meta_template_id
+    // locally. That's a data-drift state - surface the meta_template_id
     // so the user can recover via "Sync from Meta".
     return NextResponse.json(
       {

@@ -24,7 +24,7 @@ const t = getT('Api')
  * insert a row with a synthetic `dry-run-<uuid>` meta_template_id so
  * CI / local dev can exercise the full UI without a real Meta App.
  *
- * On the Meta side this is a one-way trip — a row can only be
+ * On the Meta side this is a one-way trip - a row can only be
  * submitted; editing or deleting requires hsm_id and lives in PR 4.
  */
 export async function POST(request: Request) {
@@ -33,7 +33,7 @@ export async function POST(request: Request) {
     // message_templates_insert/update RLS policies (migration 017) both
     // require 'admin'. Resolving account_id off the profile only proved
     // membership, so a viewer or agent could push a template to Meta for
-    // approval — an external side effect RLS can't roll back — before the
+    // approval - an external side effect RLS can't roll back - before the
     // local upsert was refused.
     const { supabase, accountId, userId } = await requireRole('admin')
 
@@ -50,7 +50,7 @@ export async function POST(request: Request) {
     return submitTemplateForAccount(supabase, accountId, userId, payload)
   } catch (error) {
     // Auth failures map to 401/403. Handled before the generic branch
-    // below, which surfaces `error.message` as a 500 — reporting "you
+    // below, which surfaces `error.message` as a 500 - reporting "you
     // aren't an admin" as a template submission failure would send the
     // user chasing the wrong problem.
     if (

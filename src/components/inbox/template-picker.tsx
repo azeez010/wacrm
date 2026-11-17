@@ -63,7 +63,7 @@ function collectVariableSlots(template: MessageTemplate): {
   headerVar: string | null;
   urlButtonSlots: UrlButtonSlot[];
 } {
-  // Positional ({{1}}) or named ({{customer_name}}) — see
+  // Positional ({{1}}) or named ({{customer_name}}) - see
   // extractTemplateVariables. Missing a named variable here means the
   // send goes out with no parameters and Meta rejects it (#132000).
   const bodyVars = extractTemplateVariables(template.body_text);
@@ -115,7 +115,7 @@ export function TemplatePicker({
 
       // Scope by RLS (message_templates_select → is_account_member), NOT by
       // user_id. Templates are account-owned, so filtering on the caller's
-      // user_id hid templates that a teammate created — leaving them unable
+      // user_id hid templates that a teammate created - leaving them unable
       // to send approved templates in a shared account.
       const { data, error } = await supabase
         .from("message_templates")

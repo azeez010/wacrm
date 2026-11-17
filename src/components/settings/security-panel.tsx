@@ -6,7 +6,7 @@ import { SettingsPanelHead } from './settings-panel-head';
 import { useTranslations } from 'next-intl';
 
 /**
- * "Login & security" section — groups the former Profile-tab password
+ * "Login & security" section - groups the former Profile-tab password
  * and active-sessions cards into their own dedicated home.
  */
 export function SecurityPanel() {

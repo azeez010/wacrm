@@ -10,7 +10,7 @@ export type AiProvider = 'openai' | 'anthropic' | 'openai_compatible'
 
 /**
  * Account AI setup, decrypted and ready to use. Produced by
- * `loadAiConfig` — `apiKey` is the plaintext BYO provider key
+ * `loadAiConfig` - `apiKey` is the plaintext BYO provider key
  * (stored AES-256-GCM-encrypted at rest).
  */
 export interface AiConfig {

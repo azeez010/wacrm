@@ -136,7 +136,7 @@ export function Step3Personalize({
   );
 
   // Templates with an IMAGE/VIDEO/DOCUMENT header need a media URL at
-  // send time — Meta requires the media component on every delivery and
+  // send time - Meta requires the media component on every delivery and
   // rejects the broadcast without it. The field is hidden for text-only
   // headers.
   const mediaHeaderType = isMediaHeaderType(template.header_type)
@@ -165,7 +165,7 @@ export function Step3Personalize({
   /**
    * A placeholder is "unmapped" if the user hasn't picked either a
    * static value or a field/custom-field source. Blocks Next until
-   * every placeholder has something — otherwise the broadcast would
+   * every placeholder has something - otherwise the broadcast would
    * ship with empty strings and confuse recipients.
    */
   const unmappedKeys = useMemo(() => {
@@ -407,7 +407,7 @@ export function Step3Personalize({
         </div>
       )}
 
-      {/* Live Preview — rendered as a WhatsApp-style bubble so the user
+      {/* Live Preview - rendered as a WhatsApp-style bubble so the user
           sees approximately what the recipient will see. */}
       <div className="rounded-xl border border-border bg-card/50 p-4">
         <div className="mb-3 flex items-center gap-2">

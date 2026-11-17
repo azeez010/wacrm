@@ -9,8 +9,8 @@ import type { SubscribedApp, WabaPhoneNumber } from './meta-api'
 
 /**
  * Meta object ids (Phone Number ID, WABA ID, App ID) are decimal digit
- * strings. Anything else — a "+1 555..." phone number, a display name, a
- * pasted URL — is a copy mistake we can name up front instead of letting
+ * strings. Anything else - a "+1 555..." phone number, a display name, a
+ * pasted URL - is a copy mistake we can name up front instead of letting
  * Meta answer with "(#100) Unsupported get request".
  */
 export function isNumericMetaId(value: unknown): value is string {
@@ -55,7 +55,7 @@ export interface AppSubscriptionState {
   subscribed: boolean
   /**
    * Whether META_APP_ID is among them. `null` when META_APP_ID is not
-   * configured — then `subscribed` is the best we can say (the token
+   * configured - then `subscribed` is the best we can say (the token
    * belongs to one app, and Meta only returns apps that token can see).
    */
   appIdMatch: boolean | null

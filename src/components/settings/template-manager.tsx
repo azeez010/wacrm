@@ -145,7 +145,7 @@ export function TemplateManager() {
   const [submitting, setSubmitting] = useState(false);
   const [syncing, setSyncing] = useState(false);
   const [form, setForm] = useState<TemplateFormData>(emptyForm);
-  // Non-null when the dialog is editing an existing row — switches the
+  // Non-null when the dialog is editing an existing row - switches the
   // submit handler from POST /submit to PATCH /[id] and changes the
   // dialog title + CTA. Set to the template id to pre-fill from a row.
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -165,7 +165,7 @@ export function TemplateManager() {
   const [uploadingHeader, setUploadingHeader] = useState(false);
   const headerFileRef = useRef<HTMLInputElement>(null);
 
-  // Body variable indices — `[1, 2, 3]` for "{{1}} {{2}} {{3}}". We
+  // Body variable indices - `[1, 2, 3]` for "{{1}} {{2}} {{3}}". We
   // re-run the extractor on every render to keep the sample-value rows
   // in sync with what the user typed.
   const bodyVarCount = useMemo(
@@ -286,7 +286,7 @@ export function TemplateManager() {
           data?.error || t(isEdit ? 'editFailedHttp' : 'submitFailedHttp', { status: res.status }),
         );
       }
-      // Refresh first, then close — re-opening the dialog
+      // Refresh first, then close - re-opening the dialog
       // immediately should not show a stale list.
       if (accountId) await fetchTemplates(accountId);
       toast.success(
@@ -335,7 +335,7 @@ export function TemplateManager() {
       }
       if (data.truncated) {
         // Use error (not warning) so the message survives long
-        // enough to read — sonner's `warning` auto-dismisses on
+        // enough to read - sonner's `warning` auto-dismisses on
         // the same short timer as `success`.
         toast.error(
           t('toastSyncTruncated'),
@@ -495,7 +495,7 @@ export function TemplateManager() {
       return;
     }
     // The upload lands in the chat-media bucket, whose 16 MB ceiling is
-    // below Meta's 100 MB document cap — so this is the bucket-side
+    // below Meta's 100 MB document cap - so this is the bucket-side
     // limit, not Meta's. A larger document can still be pasted as a link.
     const maxBytes = MEDIA_MAX_BYTES_BY_KIND[kind];
     if (file.size > maxBytes) {
@@ -783,7 +783,7 @@ export function TemplateManager() {
                   // header_sample across format switches. The submit
                   // payload builder only reads the field that matches
                   // the active format, so an orphan value on a hidden
-                  // field is harmless — and keeping it lets the user
+                  // field is harmless - and keeping it lets the user
                   // switch formats to compare without losing typing.
                   setForm({
                     ...form,

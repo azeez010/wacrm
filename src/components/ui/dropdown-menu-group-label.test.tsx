@@ -5,7 +5,7 @@ import { renderToStaticMarkup } from 'react-dom/server'
 import { DropdownMenuGroup, DropdownMenuLabel } from './dropdown-menu'
 
 /**
- * Regression for issue #336 — "clicking Add node reloads the page".
+ * Regression for issue #336 - "clicking Add node reloads the page".
  *
  * DropdownMenuLabel is base-ui's Menu.GroupLabel, which reads a required
  * Menu.Group context and THROWS at render when it's missing. The flow

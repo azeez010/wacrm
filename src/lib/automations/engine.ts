@@ -51,7 +51,7 @@ export interface AutomationContext {
 
 export interface DispatchInput {
   /** Account-level tenancy key. Drives the lookup of which active
-   *  automations to fire — `automations.account_id` is the tenant
+   *  automations to fire - `automations.account_id` is the tenant
    *  isolation after migration 017. Replaces the previous `userId`
    *  field; the per-automation user_id is read off each row when
    *  needed (sender identity for outbound messages, log audit). */
@@ -65,7 +65,7 @@ export interface DispatchInput {
  * Fire all active automations matching the given trigger for an
  * account.
  *
- * Must never throw — callers use fire-and-forget from the webhook.
+ * Must never throw - callers use fire-and-forget from the webhook.
  * All errors are caught and logged; per-automation failures are
  * recorded into automation_logs with status='failed'.
  */
@@ -78,7 +78,7 @@ export async function runAutomationsForTrigger(input: DispatchInput): Promise<vo
     // request body), and every step below runs through the service-role
     // client, which bypasses RLS. So before any step can touch the
     // contact, verify it actually belongs to this account. A foreign or
-    // forged id is refused silently — callers are fire-and-forget, and a
+    // forged id is refused silently - callers are fire-and-forget, and a
     // distinct error would leak whether a given contact UUID exists.
     if (input.contactId) {
       const { data: owned, error: ownErr } = await db
@@ -100,7 +100,7 @@ export async function runAutomationsForTrigger(input: DispatchInput): Promise<vo
     // Same argument for `context.conversation_id` (GHSA-m4fx-g6pr-hrw8).
     // It rides in on the same caller-supplied body, and every send step
     // writes a `messages` row and a `conversations` preview update keyed
-    // on it through the service-role client — so an unvalidated id let a
+    // on it through the service-role client - so an unvalidated id let a
     // caller inject a message into another tenant's conversation. Refuse
     // the same way: silently, with no existence oracle.
     if (input.context?.conversation_id) {
@@ -226,12 +226,12 @@ export interface AwaitingReplyInput {
  * Hand an inbound message to the contact's automation run that is parked
  * at a `wait_for_reply` step, if there is one.
  *
- * Returns true when a parked run took the message — the caller then
+ * Returns true when a parked run took the message - the caller then
  * skips the content triggers (`new_message_received`, `keyword_match`,
  * `interactive_reply`) and AI auto-reply for it, the same way a Flow
  * consuming a message suppresses them.
  *
- * Must never throw — it runs inside the webhook's `after()` block.
+ * Must never throw - it runs inside the webhook's `after()` block.
  */
 export async function resumeAwaitingReply(input: AwaitingReplyInput): Promise<boolean> {
   let claimedId: string | null = null
@@ -436,7 +436,7 @@ async function executeAutomation(automation: Automation, input: DispatchInput) {
       // Seeded pessimistically. The row is written BEFORE any step runs,
       // and every terminal path below overwrites it (`appendResults` at
       // the outermost scope, or `finalizeLog`). Seeding 'success' meant a
-      // run that died mid-flight — the process frozen, the pod recycled —
+      // run that died mid-flight - the process frozen, the pod recycled -
       // left a permanent `status: 'success'` with `steps_executed: []`,
       // indistinguishable from an automation that genuinely had nothing
       // to do. 'failed' inverts that: the status only becomes success if
@@ -464,7 +464,7 @@ async function executeAutomation(automation: Automation, input: DispatchInput) {
 
   // Atomic counter update via the SQL function from migration 007.
   // Doing this with a client-side read-modify-write raced when the
-  // same automation fired for two contacts simultaneously — both
+  // same automation fired for two contacts simultaneously - both
   // would read N and both write N+1, losing one count permanently.
   const { error: rpcErr } = await db.rpc('increment_automation_execution_count', {
     p_automation_id: automation.id,
@@ -631,7 +631,7 @@ async function executeStepsFrom(args: ExecuteArgs): Promise<ScopeOutcome> {
   if (args.parentStepId === null) {
     await appendResults(args.logId, results, status, errorMessage)
   } else {
-    // Nested branch — just append results; parent scope decides final status.
+    // Nested branch - just append results; parent scope decides final status.
     await appendResults(args.logId, results, null, errorMessage)
   }
   return status === 'failed' ? 'failed' : 'completed'
@@ -672,7 +672,7 @@ async function runResumed(args: ExecuteArgs): Promise<void> {
       .eq('automation_id', args.automation.id)
       .maybeSingle()
     if (!cond) {
-      // The condition was deleted while the run was parked — nothing
+      // The condition was deleted while the run was parked - nothing
       // left to climb into. What did run, ran successfully.
       await setLogStatus(args.logId, 'success')
       return
@@ -937,7 +937,7 @@ async function runStep(step: AutomationStep, args: ExecuteArgs): Promise<string>
       const cfg = step.step_config as CreateDealStepConfig
       if (!cfg.pipeline_id || !cfg.stage_id) throw new Error(tErr('needsPipelineStage'))
       // Match the account's configured default currency rather than
-      // the static `deals.currency` DB default — keeps automation-
+      // the static `deals.currency` DB default - keeps automation-
       // created deals consistent with the one-currency-per-account
       // rule (issue #218). Fall back to USD if the row is somehow
       // missing the value (pre-021 forks).
@@ -976,7 +976,7 @@ async function runStep(step: AutomationStep, args: ExecuteArgs): Promise<string>
         method: 'POST',
         headers: { 'content-type': 'application/json', ...(cfg.headers ?? {}) },
         body,
-        // Do NOT follow redirects — a public URL could 3xx-bounce to an
+        // Do NOT follow redirects - a public URL could 3xx-bounce to an
         // internal address, defeating the guard above. Bound the request
         // so a hung/slow internal host can't tie up the runner.
         redirect: 'manual',
@@ -1009,7 +1009,7 @@ async function runStep(step: AutomationStep, args: ExecuteArgs): Promise<string>
  * Pick the conversation a send-type step should use. Prefer the id the
  * webhook handed us (it's the one that just got the inbound message);
  * fall back to the contact's conversation for resumed/wait paths and
- * manual engine POSTs. Throws if none exists — send steps have
+ * manual engine POSTs. Throws if none exists - send steps have
  * no meaningful target without a conversation.
  */
 async function resolveConversationId(args: ExecuteArgs): Promise<string> {
@@ -1045,11 +1045,11 @@ async function resolveConversationId(args: ExecuteArgs): Promise<string> {
   return data.id as string
 }
 
-/** Letter, digit or underscore in any script — the "inside a word" test. */
+/** Letter, digit or underscore in any script - the "inside a word" test. */
 const WORD_CHAR = '[\\p{L}\\p{N}_]'
 
 /**
- * Whole-word keyword test, behind `match_type: 'word'` (issue #409 — a
+ * Whole-word keyword test, behind `match_type: 'word'` (issue #409 - a
  * one-letter keyword under `contains` fires on every message containing
  * that letter, e.g. "k" on "thanks").
  *
@@ -1075,7 +1075,7 @@ export function matchesWholeWord(
 ): boolean {
   if (!keyword) return false
   // The keyword is account-supplied free text, so metacharacters have to
-  // be literal — otherwise "(" is an unterminated group and RegExp throws.
+  // be literal - otherwise "(" is an unterminated group and RegExp throws.
   const escaped = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
   const pattern = new RegExp(
     `(?<!${WORD_CHAR})${escaped}(?!${WORD_CHAR})`,
@@ -1196,7 +1196,7 @@ async function appendResults(
     ...newItems,
   ]
   const update: Record<string, unknown> = { steps_executed: merged }
-  // Only overwrite status on the outermost scope — nested branches pass null.
+  // Only overwrite status on the outermost scope - nested branches pass null.
   if (status !== null) {
     update.status = status
   }

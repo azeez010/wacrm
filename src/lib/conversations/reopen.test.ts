@@ -97,7 +97,7 @@ describe('reopenClosedConversation', () => {
 
   it('swallows a failed update so inbound processing continues', async () => {
     // Throwing here would abort the webhook and make Meta redeliver the
-    // message — a worse outcome than a thread that stays closed.
+    // message - a worse outcome than a thread that stays closed.
     const spy = vi.spyOn(console, 'error').mockImplementation(() => {})
     const { client } = stubClient({ message: 'permission denied' })
 

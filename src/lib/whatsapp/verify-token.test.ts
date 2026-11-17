@@ -16,7 +16,7 @@ import { resolveVerifyTokenForSave } from './verify-token';
  * a wrong token.
  *
  * Contract: an empty incoming token means "keep what is stored". Clearing
- * the token on its own is not a supported operation — "Reset Configuration"
+ * the token on its own is not a supported operation - "Reset Configuration"
  * wipes the whole row for that.
  */
 describe('resolveVerifyTokenForSave', () => {

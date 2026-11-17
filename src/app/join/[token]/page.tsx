@@ -1,7 +1,7 @@
 'use client';
 
 // ============================================================
-// /join/[token] — invitation redemption landing page.
+// /join/[token] - invitation redemption landing page.
 //
 // Four UI states driven by:
 //   - the peek result (server-validated invite payload), and
@@ -10,13 +10,13 @@
 //   ┌──────────────────────┬───────────────┬─────────────────────────┐
 //   │ peek                 │ auth          │ render                   │
 //   ├──────────────────────┼───────────────┼─────────────────────────┤
-//   │ loading              │ —             │ spinner                  │
-//   │ ok:false (any reason)│ —             │ friendly error + signup  │
+//   │ loading              │ -             │ spinner                  │
+//   │ ok:false (any reason)│ -             │ friendly error + signup  │
 //   │ ok:true              │ signed out    │ "Sign up" + "Sign in"    │
 //   │ ok:true              │ signed in     │ "Accept" button → redeem │
 //   └──────────────────────┴───────────────┴─────────────────────────┘
 //
-// We deliberately do NOT redeem automatically on page load — the
+// We deliberately do NOT redeem automatically on page load - the
 // invitee should confirm what account/role they're accepting.
 // Auto-redeem would also race with the signup flow returning to
 // this page after email verification.
@@ -60,7 +60,7 @@ import {
   type PeekResult,
 } from '@/lib/auth/peek-result';
 
-// Message keys per peek failure reason — resolved through `t` inside
+// Message keys per peek failure reason - resolved through `t` inside
 // the component (hooks can't run at module level). Snake_case reasons
 // come from the API; the catalogue uses camelCase leaves.
 const FAIL_KEY: Record<
@@ -83,7 +83,7 @@ export default function JoinPage() {
   const tRoles = useTranslations('Settings.roles');
 
   const [peek, setPeek] = useState<PeekResult | null>(null);
-  // Local auth probe — the AuthProvider lives inside the (dashboard)
+  // Local auth probe - the AuthProvider lives inside the (dashboard)
   // route group, so it doesn't reach this page. We hit Supabase
   // directly the same way `/login` and `/signup` do.
   const [authedUserId, setAuthedUserId] = useState<string | null | undefined>(
@@ -92,7 +92,7 @@ export default function JoinPage() {
   const [accepting, setAccepting] = useState(false);
   // `redeem_invitation` returns 409 when the caller's current account
   // has domain data, or they're already a member of a shared account.
-  // A transient toast wasn't enough — the user has no actionable next
+  // A transient toast wasn't enough - the user has no actionable next
   // step. Surface a blocking modal that walks them through it.
   const [conflictMessage, setConflictMessage] = useState<string | null>(null);
   const [signingOut, setSigningOut] = useState(false);
@@ -237,12 +237,12 @@ export default function JoinPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-2">
-          {/* For server_error the failure is transient — the network
+          {/* For server_error the failure is transient - the network
               flapped or the peek endpoint hiccupped. Try-again is
               the right primary action; the "create account" /
               "sign in" links stay as secondary options. Other
               failure reasons (not_found / used / expired) are
-              terminal for this token, so no retry — just the
+              terminal for this token, so no retry, just the
               signup/sign-in escape hatches. */}
           {RETRYABLE_PEEK_FAIL_REASONS.has(peek.reason) ? (
             <>
@@ -344,7 +344,7 @@ export default function JoinPage() {
           </CardContent>
         </Card>
 
-        {/* Conflict modal — opens when the redeem endpoint returns 409
+        {/* Conflict modal - opens when the redeem endpoint returns 409
             (caller already in a shared account or has domain data).
             Blocks the flow until the user picks a recovery action so
             they aren't stuck retrying an inevitable failure. */}

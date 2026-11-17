@@ -1,15 +1,15 @@
 // ============================================================
-// Account role helpers — pure, unit-testable, no I/O.
+// Account role helpers - pure, unit-testable, no I/O.
 //
 // Mirrors the `account_role_enum` Postgres type from migration
 // 017_account_sharing.sql. The hierarchy is intentionally a flat
-// ordinal (owner=4 … viewer=1) — it matches the same CASE
+// ordinal (owner=4 … viewer=1) - it matches the same CASE
 // expression the `is_account_member(account_id, min_role)` SQL
 // helper uses, so server-side TypeScript guards and database-side
 // RLS speak the same language.
 //
 // Predicates (`canManageMembers`, `canEditSettings`, …) are the
-// single source of truth for "what can this role do?" — both
+// single source of truth for "what can this role do?" - both
 // API route guards and UI gates should call them rather than
 // open-coding their own role checks. That keeps role-policy
 // changes a one-file diff.
@@ -81,7 +81,7 @@ export function canEditSettings(role: AccountRole): boolean {
 }
 
 /**
- * Owner / admin / agent: write operational data — send messages,
+ * Owner / admin / agent: write operational data - send messages,
  * create contacts, move deals, run broadcasts, edit automations.
  * Viewers are read-only.
  */

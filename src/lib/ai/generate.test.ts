@@ -71,11 +71,11 @@ describe('parseGeneration', () => {
   })
 })
 
-describe('generateReply — OpenAI', () => {
+describe('generateReply, OpenAI', () => {
   it('calls the chat completions endpoint and returns the reply', async () => {
     const fetchMock = vi.fn().mockResolvedValue(
       okResponse({
-        choices: [{ message: { content: 'Sure — happy to help!' } }],
+        choices: [{ message: { content: 'Sure, happy to help!' } }],
         usage: { prompt_tokens: 42, completion_tokens: 8, total_tokens: 50 },
       }),
     )
@@ -88,7 +88,7 @@ describe('generateReply — OpenAI', () => {
     })
 
     expect(res).toEqual({
-      text: 'Sure — happy to help!',
+      text: 'Sure, happy to help!',
       handoff: false,
       usage: { promptTokens: 42, completionTokens: 8, totalTokens: 50 },
     })
@@ -129,7 +129,7 @@ describe('generateReply — OpenAI', () => {
   })
 })
 
-describe('generateReply — Anthropic', () => {
+describe('generateReply, Anthropic', () => {
   it('calls the messages endpoint with the version header and parses text blocks', async () => {
     const fetchMock = vi.fn().mockResolvedValue(
       okResponse({
@@ -145,7 +145,7 @@ describe('generateReply — Anthropic', () => {
       messages: [{ role: 'user', content: 'Hello' }],
     })
 
-    // Anthropic reports input/output only — total is summed by normalizeUsage.
+    // Anthropic reports input/output only - total is summed by normalizeUsage.
     expect(res).toEqual({
       text: 'Hi there!',
       handoff: false,
@@ -195,7 +195,7 @@ describe('generateReply — Anthropic', () => {
 })
 
 
-describe('generateReply — OpenAI-compatible', () => {
+describe('generateReply, OpenAI-compatible', () => {
   it('uses the configured endpoint and max_tokens', async () => {
     const fetchMock = vi.fn().mockResolvedValue(
       new Response(

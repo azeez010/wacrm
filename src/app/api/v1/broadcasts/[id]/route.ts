@@ -1,5 +1,5 @@
 // ============================================================
-// GET /api/v1/broadcasts/{id} — broadcast status + counts
+// GET /api/v1/broadcasts/{id} - broadcast status + counts
 // (scope: broadcasts:send).
 //
 // Poll this after POST /api/v1/broadcasts to watch the fan-out

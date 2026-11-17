@@ -9,7 +9,7 @@ import { useTranslations } from "next-intl";
 import { SettingsPanelHead } from "./settings-panel-head";
 
 /**
- * Appearance panel — light/dark mode + accent-color picker.
+ * Appearance panel - light/dark mode + accent-color picker.
  *
  * Two independent controls: a mode toggle (light / dark) and the
  * accent grid. Either applies + persists immediately. No save button:

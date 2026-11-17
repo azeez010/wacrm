@@ -10,7 +10,7 @@ type Params = { params: Promise<{ conversationId: string }> }
 /**
  * POST /api/ai/autoreply/[conversationId]  (agent+)
  *
- * Toggle the AI auto-reply bot for one conversation from the inbox — the
+ * Toggle the AI auto-reply bot for one conversation from the inbox - the
  * "Take over" / "Resume AI" banner.
  *
  * Body: { paused: boolean, assign_to_me?: boolean }
@@ -71,7 +71,7 @@ export async function POST(request: Request, { params }: Params) {
       if (assignToMe) update.assigned_agent_id = userId
     } else {
       // Resuming hands the thread *back to the bot*. Clear the pause and
-      // the handoff note, and — crucially — release ANY assignment, not
+      // the handoff note, and - crucially - release ANY assignment, not
       // just the caller's own: the auto-reply eligibility gate stands
       // down whenever a human is assigned, so leaving a stale assignee
       // (e.g. the agent a prior handoff routed to) would silently keep
@@ -80,7 +80,7 @@ export async function POST(request: Request, { params }: Params) {
       update.assigned_agent_id = null
       // Give the bot a fresh reply budget on this thread. This is a
       // deliberate, manual, rate-limited action (not automatable), so it
-      // can't be used to bypass the per-conversation cap at scale — it's
+      // can't be used to bypass the per-conversation cap at scale - it's
       // a human choosing to re-engage the assistant.
       update.ai_reply_count = 0
       update.ai_handoff_summary = null

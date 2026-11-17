@@ -1,15 +1,15 @@
 // ============================================================
-// GET /auth/callback — where every link Supabase emails on our behalf
+// GET /auth/callback - where every link Supabase emails on our behalf
 // lands (email confirmation after sign-up, password reset, invite,
 // magic link).
 //
 // Before this route existed, the password-reset email pointed here
-// and 404'd (issue #592) — anyone who forgot their password was locked
+// and 404'd (issue #592) - anyone who forgot their password was locked
 // out. Sign-up relied on Supabase's default redirect (the Site URL),
 // which on a mis-configured or self-hosted instance is
 // `http://localhost:3000` (issue #595), and even when correct dropped
 // the user on `/` with an unexchanged `?code=` that the root redirect
-// discarded — so they had to sign in again after verifying.
+// discarded - so they had to sign in again after verifying.
 //
 // Flow:
 //   1. `?error=...`         → Supabase already rejected the link
@@ -25,7 +25,7 @@
 // server client's cookie adapter, so the redirected-to page (and the
 // middleware in front of it) sees the user signed in.
 //
-// `Location` is emitted as a relative path on purpose — see
+// `Location` is emitted as a relative path on purpose - see
 // `relativeRedirect` for the reverse-proxy reasoning.
 // ============================================================
 

@@ -4,16 +4,16 @@
  * Linear-list flow editor.
  *
  * Renders the trigger panel, entry-node picker, and the per-node card
- * list. Header and validation panel are NOT owned here — they live
+ * list. Header and validation panel are NOT owned here - they live
  * once in FlowEditorShell so they show in both views (lifted in PR 3
  * so canvas users can also save + see validator issues).
  *
- * State lives in the shared `useFlowEditor()` context — toggling
+ * State lives in the shared `useFlowEditor()` context - toggling
  * Canvas ⇄ List never loses edits, and a drag on the canvas updates
  * the same nodes the list view reads.
  *
  * What's still local: the `expanded` set (which cards are open) and
- * the scroll refs used when the validator's flashKey changes — those
+ * the scroll refs used when the validator's flashKey changes - those
  * are list-only and have no canvas analogue.
  */
 
@@ -64,7 +64,7 @@ import { IssueLine } from './validation-panel';
 import { useFlowEditor, type BuilderState } from './flow-editor-state';
 
 // ============================================================
-// Local state shape — mirrors the DB but the configs are typed
+// Local state shape - mirrors the DB but the configs are typed
 // loosely (Record<string, unknown>) since each node_type carries a
 // different shape. The sub-form components narrow as needed.
 // ============================================================
@@ -213,7 +213,7 @@ export function FlowBuilder() {
 /**
  * Comma-separated keyword entry. Keeps a local draft string so the
  * comma (and trailing space) the user types survive until they're done
- * — parsing into the keywords array on every keystroke stripped the
+ * - parsing into the keywords array on every keystroke stripped the
  * trailing comma the instant it was typed, making it impossible to
  * start a second keyword (issue #234). We commit on blur / Enter, then
  * re-display the cleaned, rejoined form. Seeded once on mount; the
@@ -370,7 +370,7 @@ function EntryPicker({
 }
 
 // ============================================================
-// Node card — collapsed summary + expanded config form
+// Node card - collapsed summary + expanded config form
 // ============================================================
 
 function NodeCard({
@@ -507,7 +507,7 @@ function NodeCard({
 }
 
 // ============================================================
-// Per-node-type config form — wraps the extracted dispatcher with
+// Per-node-type config form - wraps the extracted dispatcher with
 // the list-view's "Show advanced" disclosure (which exposes the
 // internal node_key for stable analytics, hidden by default).
 // ============================================================

@@ -11,7 +11,7 @@ import { PresenceHeartbeat } from "@/components/presence/presence-heartbeat";
 import { BrowserNotificationsListener } from "@/components/notifications/browser-notifications-listener";
 
 // Auth-gated dashboard shell. Extracted from the layout so the layout
-// itself can stay a server component and export metadata (noindex) —
+// itself can stay a server component and export metadata (noindex) -
 // client components can't export Next's metadata object.
 
 function DashboardShellInner({ children }: { children: React.ReactNode }) {
@@ -19,7 +19,7 @@ function DashboardShellInner({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const t = useTranslations("DashboardShell");
 
-  // Sidebar drawer state — only used on mobile. On lg+ the sidebar is
+  // Sidebar drawer state - only used on mobile. On lg+ the sidebar is
   // always visible and this stays at `false` (ignored by the component).
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const closeSidebar = useCallback(() => setSidebarOpen(false), []);
@@ -46,10 +46,10 @@ function DashboardShellInner({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex h-screen overflow-hidden bg-background">
       {/* Reports this tab's online/away presence once we know a user is
-          signed in. Headless — renders nothing. */}
+          signed in. Headless, renders nothing. */}
       <PresenceHeartbeat />
       {/* Desktop alerts for new customer messages (opt-in via Settings →
-          Your profile). Headless — renders nothing. */}
+          Your profile). Headless, renders nothing. */}
       <BrowserNotificationsListener />
       <Sidebar open={sidebarOpen} onClose={closeSidebar} />
       <div className="flex flex-1 flex-col overflow-hidden">

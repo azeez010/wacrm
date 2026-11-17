@@ -18,7 +18,7 @@ const t = getT('Api')
  * POST /api/ai/draft  (agent+)
  *
  * Body: { conversation_id }
- * Returns: { draft } — a suggested reply for the agent to edit + send.
+ * Returns: { draft } - a suggested reply for the agent to edit + send.
  *
  * Uses the account's configured provider/key (BYO). Read-only: it never
  * sends or stores anything, just hands text back to the composer.
@@ -62,7 +62,7 @@ export async function POST(request: Request) {
     }
 
     const config = await loadAiConfig(supabase, accountId).catch((err) => {
-      // Decrypt failure — surface distinctly from "not configured".
+      // Decrypt failure - surface distinctly from "not configured".
       console.error('[ai/draft] loadAiConfig error:', err)
       throw new AiError(t('ai.storedKeyUndecryptable'), {
         code: 'key_decrypt_failed',
@@ -80,7 +80,7 @@ export async function POST(request: Request) {
     }
 
     const messages = await buildConversationContext(supabase, conversationId)
-    // Nothing to draft from — a brand-new thread with no customer text
+    // Nothing to draft from - a brand-new thread with no customer text
     // would otherwise produce a nonsensical reply-to-nothing.
     if (messages.length === 0) {
       return NextResponse.json(
@@ -92,7 +92,7 @@ export async function POST(request: Request) {
       )
     }
 
-    // Ground the draft in the account's knowledge base (best-effort —
+    // Ground the draft in the account's knowledge base (best-effort -
     // returns [] when there's no KB or retrieval fails).
     const knowledge = await retrieveKnowledge(
       supabase,
@@ -113,7 +113,7 @@ export async function POST(request: Request) {
     // service role (the log has no `authenticated` INSERT policy). This
     // must not fail or delay the draft the agent is waiting on, so:
     //  - the whole thing is wrapped (constructing the admin client throws
-    //    if the service-role key is unset — that must not 500 the draft);
+    //    if the service-role key is unset - that must not 500 the draft);
     //  - it's fire-and-forget (`void`), not awaited, so the response
     //    isn't held for a DB round-trip.
     try {

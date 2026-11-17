@@ -87,7 +87,7 @@ export function PipelineSettings({
   const wasOpen = useRef(false);
 
   // Reset form state when the dialog opens or its prop inputs change
-  // — legitimate prop-driven sync.
+  // - legitimate prop-driven sync.
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (!open) {
@@ -132,7 +132,7 @@ export function PipelineSettings({
     }
     const existingIds = new Set((existing.data ?? []).map((row) => row.id as string));
 
-    // One upsert for all stages — batches N stage writes into a single
+    // One upsert for all stages - batches N stage writes into a single
     // round-trip. Previous implementation did N sequential UPDATEs which
     // latency-scaled linearly with stage count.
     const stageRows = buildStageUpdateRows(localStages, existingIds);

@@ -8,8 +8,8 @@ import { getT } from '@/lib/i18n/translate'
 const t = getT('Api')
 
 /**
- * GET /api/flows — list the caller's flows.
- * POST /api/flows — create a new (draft) flow.
+ * GET /api/flows - list the caller's flows.
+ * POST /api/flows - create a new (draft) flow.
  *
  * Available to every authenticated user. The previous per-account
  * beta gate was removed when Flows went to soft-GA; the UI still
@@ -49,7 +49,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  // Creating a flow is a write — the RLS flows_insert policy requires
+  // Creating a flow is a write - the RLS flows_insert policy requires
   // `agent`, but this route inserts via the service-role client which
   // bypasses RLS, so the role must be enforced here.
   try {
@@ -64,7 +64,7 @@ export async function POST(request: Request) {
   }
   const { userId, supabase } = guard
 
-  // Resolve the caller's account_id — `flows.account_id` is NOT NULL
+  // Resolve the caller's account_id - `flows.account_id` is NOT NULL
   // post-017, so an INSERT without it trips the not-null constraint
   // even though the admin client below bypasses RLS.
   const { data: profile } = await supabase

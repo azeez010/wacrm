@@ -9,7 +9,7 @@ const t = getT('Validation.automations')
 // Pre-flight config validation for automations about to be activated.
 //
 // Activating a broken automation (e.g. an add_tag step with tag_id="")
-// used to succeed silently — every trigger then produced a failed log
+// used to succeed silently - every trigger then produced a failed log
 // row with a cryptic "add_tag needs contact + tag_id" message, and
 // users often didn't notice until reviewing logs. This module lets
 // the API refuse activation with a useful 400 response instead.
@@ -182,7 +182,7 @@ export function validateTriggerForActivation(
     // automations/engine.ts and flows/engine.ts, which both read
     // `match_type ?? "contains"`), so only an explicit, unrecognised
     // value is invalid here. This keeps activation validation in step
-    // with the engine and with the builder's "Contains" default — an
+    // with the engine and with the builder's "Contains" default - an
     // automation that shows the default in the UI must not be rejected.
     if (
       cfg.match_type != null &&

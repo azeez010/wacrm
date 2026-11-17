@@ -7,7 +7,7 @@
  *     consistently (icon, label, color, 1-line summary).
  *   - Editing-only helpers (defaultConfigFor, slugify, uniqueNodeKey,
  *     BuilderState) stay in flow-builder.tsx until the canvas grows
- *     editing affordances — pulled across in the PR that adds them.
+ *     editing affordances - pulled across in the PR that adds them.
  *
  * Why .tsx and not .ts: NODE_META holds lucide icon components, which
  * are typed as React components; importing them from a .ts module
@@ -33,7 +33,7 @@ import {
 import { cn } from '@/lib/utils';
 
 // ============================================================
-// Node-type union — single source of truth for every place the UI
+// Node-type union - single source of truth for every place the UI
 // enumerates types (add menu, type pickers, switch statements). Kept
 // in lockstep with `FlowNodeType` in src/lib/flows/types.ts (which
 // drives the engine's exhaustiveness check); a divergence between the
@@ -56,7 +56,7 @@ export interface BuilderNode {
   node_key: string;
   node_type: NodeType;
   config: Record<string, unknown>;
-  /** Optional in v1 — defaults to 0 in the DB. Canvas view reads it
+  /** Optional in v1 - defaults to 0 in the DB. Canvas view reads it
    *  to position nodes; list view ignores it. */
   position_x?: number;
   position_y?: number;
@@ -70,7 +70,7 @@ export interface BuilderNode {
 // ============================================================
 
 // ------------------------------------------------------------
-// Node categories — buckets the add-step menu groups types under so
+// Node categories - buckets the add-step menu groups types under so
 // the picker stays scannable as the type list grows, and so a fork
 // adding its own node types has an obvious place to slot them.
 //
@@ -177,7 +177,7 @@ export function groupNodeTypesByCategory(
 // ============================================================
 // Per-node-type color system.
 //
-// Each node type gets its own hue so the canvas reads at a glance —
+// Each node type gets its own hue so the canvas reads at a glance -
 // what KIND of step is this. Kept as raw oklch (not Tailwind classes)
 // so a node card can tint its icon chip, type label, selection ring,
 // and edge ports from one source, the way the Flow Builder design
@@ -187,24 +187,24 @@ export function groupNodeTypesByCategory(
 // ============================================================
 
 const NODE_HUE: Record<NodeType, { l: number; c: number; h: number }> = {
-  start: { l: 0.62, c: 0.13, h: 162 }, // emerald — the start, echoes WhatsApp green
-  send_message: { l: 0.6, c: 0.18, h: 293 }, // violet — the workhorse
+  start: { l: 0.62, c: 0.13, h: 162 }, // emerald - the start, echoes WhatsApp green
+  send_message: { l: 0.6, c: 0.18, h: 293 }, // violet - the workhorse
   send_buttons: { l: 0.62, c: 0.16, h: 254 }, // cobalt
   send_list: { l: 0.62, c: 0.15, h: 277 }, // indigo
   send_media: { l: 0.65, c: 0.12, h: 210 }, // sky
-  collect_input: { l: 0.65, c: 0.1, h: 185 }, // teal — capture
-  condition: { l: 0.72, c: 0.15, h: 65 }, // amber — a fork in the road
+  collect_input: { l: 0.65, c: 0.1, h: 185 }, // teal - capture
+  condition: { l: 0.72, c: 0.15, h: 65 }, // amber - a fork in the road
   set_tag: { l: 0.65, c: 0.15, h: 350 }, // pink
-  handoff: { l: 0.65, c: 0.17, h: 16 }, // rose — hands off
-  end: { l: 0.55, c: 0.01, h: 260 }, // neutral grey — terminal
+  handoff: { l: 0.65, c: 0.17, h: 16 }, // rose - hands off
+  end: { l: 0.55, c: 0.01, h: 260 }, // neutral grey - terminal
 };
 
 export interface NodeColors {
-  /** Full-strength hue — icon glyph, selection ring, port fill. */
+  /** Full-strength hue - icon glyph, selection ring, port fill. */
   solid: string;
-  /** ~14% tint — icon chip background, soft fills. */
+  /** ~14% tint - icon chip background, soft fills. */
   soft: string;
-  /** ~45% tint — hover border / focus ring. */
+  /** ~45% tint - hover border / focus ring. */
   ring: string;
   /** Hue for the uppercase type label, kept readable in BOTH modes. */
   text: string;
@@ -227,7 +227,7 @@ export function nodeColors(type: NodeType): NodeColors {
 }
 
 // ============================================================
-// Shared node icon chip — the per-type colored glyph badge used in
+// Shared node icon chip - the per-type colored glyph badge used in
 // the canvas node card, list-view card, inspector header, and the
 // add-step menu. One component so a styling change (radius, contrast,
 // hover) lands in every place at once and the `nodeColors()` lookup
@@ -264,7 +264,7 @@ export function NodeIconChip({
 }
 
 // ============================================================
-// Pure editing helpers — used by forms in both views.
+// Pure editing helpers - used by forms in both views.
 // ============================================================
 
 /**
@@ -283,7 +283,7 @@ export function slugify(s: string, fallback: string): string {
 }
 
 // ============================================================
-// Summary helpers — short, single-line content previews used in
+// Summary helpers - short, single-line content previews used in
 // collapsed node cards (list view) and node tiles (canvas view).
 // Returns null when there's nothing meaningful to show (start/end,
 // or a freshly-added node with no fields filled in).

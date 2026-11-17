@@ -21,9 +21,9 @@ import {
 } from "@/lib/themes";
 
 /**
- * ThemeProvider — wraps the whole app, owns the two theming axes:
- *   • `theme` — the accent color (`data-theme` on <html>)
- *   • `mode`  — light / dark (`data-mode` on <html>)
+ * ThemeProvider - wraps the whole app, owns the two theming axes:
+ *   • `theme` - the accent color (`data-theme` on <html>)
+ *   • `mode`  - light / dark (`data-mode` on <html>)
  * The two are independent, so any accent renders in either mode.
  *
  * The boot script in `src/app/layout.tsx` has already applied both
@@ -33,7 +33,7 @@ import {
  *
  * Persistence is localStorage only (device-scoped). A future
  * follow-up could mirror to `profiles.preferences` for cross-device
- * sync, but a per-device choice is also defensible — your phone may
+ * sync, but a per-device choice is also defensible - your phone may
  * deserve a different theme than your laptop.
  */
 
@@ -109,7 +109,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     setMode(mode === "dark" ? "light" : "dark");
   }, [mode, setMode]);
 
-  // Sync from other tabs — change theme or mode in tab A, tab B
+  // Sync from other tabs - change theme or mode in tab A, tab B
   // catches up without a refresh.
   useEffect(() => {
     function onStorage(e: StorageEvent) {
@@ -141,7 +141,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 export function useTheme(): ThemeContextValue {
   const ctx = useContext(ThemeContext);
   if (!ctx) {
-    // Fallback for components rendered outside the provider — return
+    // Fallback for components rendered outside the provider - return
     // no-op setters so callers don't crash. The boot script still
     // applied the right CSS attributes, so visually the page is fine.
     return {

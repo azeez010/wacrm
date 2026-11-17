@@ -1,12 +1,12 @@
 import type { ChatMessage } from './types'
 
-/** Longest the quoted customer message runs before we ellipsize it —
+/** Longest the quoted customer message runs before we ellipsize it -
  *  keeps the internal note to a glanceable one-liner. */
 const MAX_QUOTE_LEN = 160
 
 /**
  * Build the short internal note the auto-reply bot leaves on a
- * conversation when it hands off to a human. Deterministic — composed
+ * conversation when it hands off to a human. Deterministic - composed
  * from context we already have (no extra LLM call / token spend), so it
  * can't fail or add latency to the handoff.
  *

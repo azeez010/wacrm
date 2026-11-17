@@ -1,14 +1,14 @@
 // ============================================================
 // /api/account/invitations
 //
-//   GET  — list outstanding (un-redeemed, non-expired) invites.
-//   POST — create a new invite link.
+//   GET  - list outstanding (un-redeemed, non-expired) invites.
+//   POST - create a new invite link.
 //
 // Both admin+. The list endpoint is what the Members tab uses to
 // populate the "Pending invitations" section; create is what the
 // "Invite member" dialog calls.
 //
-// IMPORTANT: the plaintext token is returned exactly ONCE — in
+// IMPORTANT: the plaintext token is returned exactly ONCE - in
 // the POST response. We store only the SHA-256 hash on the row,
 // so neither GET nor a future PATCH can ever resurface the
 // link. The admin sees it in the creation modal, copies it, and
@@ -41,14 +41,14 @@ const t = getT("Api");
 //
 // Resolution order, first match wins:
 //
-//   1. `NEXT_PUBLIC_SITE_URL` — admin's explicit config. Trumps
+//   1. `NEXT_PUBLIC_SITE_URL` - admin's explicit config. Trumps
 //      everything; if you set this, that's where links point.
-//   2. `X-Forwarded-Host` (+ `X-Forwarded-Proto`) — set by every
+//   2. `X-Forwarded-Host` (+ `X-Forwarded-Proto`) - set by every
 //      reverse proxy in front of the app: Hostinger Managed
 //      Node.js, Vercel, Cloudflare, nginx. This is what makes
 //      invite links Just Work in production without forcing the
 //      operator to set an env var.
-//   3. `Host` header + the protocol the request arrived on —
+//   3. `Host` header + the protocol the request arrived on -
 //      bare deployments without a proxy.
 //   4. Last-resort marketing-site fallback. Only hit if the
 //      request has no Host header at all, which is essentially
@@ -114,7 +114,7 @@ function getBaseUrl(request: Request): string {
 
   const host = request.headers.get("host")?.trim();
   if (host && isHostAllowed(host, allowList)) {
-    // The protocol on `request.url` is whatever the framework saw —
+    // The protocol on `request.url` is whatever the framework saw -
     // reliable for bare deployments where no proxy is rewriting it.
     const reqProto = new URL(request.url).protocol.replace(":", "");
     return `${reqProto}://${host}`;
@@ -247,7 +247,7 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         invitation: data,
-        // Plaintext payload — visible to the admin exactly once.
+        // Plaintext payload - visible to the admin exactly once.
         token,
         url: inviteUrl(token, getBaseUrl(request)),
         expiresInDays: expiryDays,

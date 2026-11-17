@@ -6,11 +6,11 @@ import type { AutomationTriggerType } from '@/types'
 
 /**
  * Manual trigger for testing or for external integrations that want
- * to fire automations. Auth is required — we resolve the caller's
+ * to fire automations. Auth is required - we resolve the caller's
  * account_id and dispatch over the account's automations.
  */
 export async function POST(request: Request) {
-  // Firing automations sends outbound WhatsApp — a write action. Require
+  // Firing automations sends outbound WhatsApp - a write action. Require
   // at least `agent`; a viewer must not be able to trigger sends.
   let accountId: string
   let userId: string

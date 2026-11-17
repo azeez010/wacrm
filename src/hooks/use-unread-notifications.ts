@@ -23,7 +23,7 @@ export function useUnreadNotifications(): number {
     let cancelled = false;
 
     const loadCount = async () => {
-      // head:true skips fetching rows — we only need the `count`
+      // head:true skips fetching rows - we only need the `count`
       // supabase-js returns alongside the (empty) response body.
       const { count: unreadCount, error } = await supabase
         .from("notifications")

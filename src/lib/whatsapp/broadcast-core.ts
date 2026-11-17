@@ -4,10 +4,10 @@
 // Splits a broadcast into two phases so the HTTP route can persist +
 // acknowledge fast and fan out afterwards (in `after()`):
 //
-//   createBroadcast()  — validate, resolve contacts, insert the
+//   createBroadcast()  - validate, resolve contacts, insert the
 //                        `broadcasts` row + `broadcast_recipients`
 //                        rows (status 'pending'), return a plan.
-//   deliverBroadcast() — send each recipient's template via Meta
+//   deliverBroadcast() - send each recipient's template via Meta
 //                        (phone-variant retry), stamp each recipient
 //                        row + the aggregate counts, finalize status.
 //
@@ -69,7 +69,7 @@ export interface BroadcastPlan {
   accessToken: string;
   templateRow: MessageTemplate | null;
   planned: PlannedRecipient[];
-  /** Phones rejected up front (invalid E.164) — counted as failed. */
+  /** Phones rejected up front (invalid E.164) - counted as failed. */
   rejected: number;
 }
 
@@ -83,7 +83,7 @@ const MAX_RECIPIENTS = 1000;
  * Validate + persist a broadcast, resolving each recipient to a
  * contact. Returns a plan for {@link deliverBroadcast}. Throws
  * {@link BroadcastError} on bad input / missing config / a malformed
- * template / a DB failure — nothing is sent in this phase.
+ * template / a DB failure - nothing is sent in this phase.
  */
 export async function createBroadcast(
   db: SupabaseClient,
@@ -138,7 +138,7 @@ export async function createBroadcast(
   if (resolvedTemplate.malformed) {
     throw new BroadcastError(
       'template_malformed',
-      'Template row is malformed locally — run "Sync from Meta" in Settings to repair it before broadcasting.',
+      'Template row is malformed locally, run "Sync from Meta" in Settings to repair it before broadcasting.',
       500
     );
   }
@@ -146,7 +146,7 @@ export async function createBroadcast(
 
   // Resolve each recipient to a contact. Invalid phones are dropped
   // (counted as rejected) rather than aborting the whole broadcast.
-  // `to` is raw integrator input, so the leading `+` is required — a
+  // `to` is raw integrator input, so the leading `+` is required - a
   // national-format number would otherwise be delivered to whichever
   // country its leading digits spell (issue #586).
   const resolved: { contactId: string; phone: string; params: string[] }[] = [];
@@ -173,7 +173,7 @@ export async function createBroadcast(
   // Collapse recipients that resolved to the SAME contact (the caller
   // listed a phone twice, or two numbers fuzzy-matched to one contact).
   // Keep the first occurrence so the contact is messaged once and its
-  // params aren't silently overwritten by a later duplicate — and so
+  // params aren't silently overwritten by a later duplicate - and so
   // the row↔params pairing below (keyed by contact_id) is unambiguous.
   const seenContact = new Set<string>();
   const deduped = resolved.filter((r) => {
@@ -193,7 +193,7 @@ export async function createBroadcast(
   // Persist the broadcast + its recipients. The count columns
   // (sent/delivered/read/replied/failed) are owned by the DB aggregate
   // trigger (migrations 003/005) and derived purely from
-  // broadcast_recipients rows — we deliberately do NOT seed them here
+  // broadcast_recipients rows - we deliberately do NOT seed them here
   // (a manual value would be clobbered by the trigger on the first
   // recipient change). `rejected` phones have no recipient row, so they
   // are reported to the caller in the POST response, not in these
@@ -215,7 +215,7 @@ export async function createBroadcast(
       p_template_language: resolvedTemplate.language,
       p_total_recipients: deduped.length,
       p_contact_ids: deduped.map((r) => r.contactId),
-      // Frozen per-recipient params (migration 038) — without them a
+      // Frozen per-recipient params (migration 038) - without them a
       // resume of this broadcast has no way to reconstruct {{1}}.
       p_template_params: deduped.map((r) => r.params),
     }
@@ -228,7 +228,7 @@ export async function createBroadcast(
   const broadcastId = createdRows[0].broadcast_id as string;
 
   // Pair each inserted recipient row back to its phone/params by
-  // contact_id — unambiguous now that duplicates are collapsed.
+  // contact_id - unambiguous now that duplicates are collapsed.
   const byContact = new Map(deduped.map((r) => [r.contactId, r]));
   const planned: PlannedRecipient[] = createdRows.map(
     (row: { recipient_id: string; contact_id: string }) => {
@@ -253,14 +253,14 @@ export async function createBroadcast(
 /**
  * Fan out a {@link BroadcastPlan}: send each recipient's template
  * (phone-variant retry) and stamp its `broadcast_recipients` row.
- * Best-effort per recipient — one failure never aborts the rest.
+ * Best-effort per recipient - one failure never aborts the rest.
  * Designed to run inside `after()`.
  *
  * The per-status count columns on `broadcasts` are owned by the DB
  * aggregate trigger (migrations 003/005): each recipient-row update
  * below advances them automatically, and later Meta delivery/read
  * webhooks keep advancing them. We therefore never write those columns
- * here — only the terminal `status` — otherwise a manual value would
+ * here - only the terminal `status` - otherwise a manual value would
  * race and clobber the trigger-maintained counts.
  */
 export async function deliverBroadcast(
@@ -328,7 +328,7 @@ export async function deliverBroadcast(
  * single recipient failed; anything else that reached Meta is `sent`,
  * with the per-recipient failures visible in `failed_count`.
  *
- * Per-status counts stay trigger-owned (migrations 003/005) — only the
+ * Per-status counts stay trigger-owned (migrations 003/005) - only the
  * terminal `status` is written here.
  */
 export async function finalizeBroadcastStatus(
@@ -344,7 +344,7 @@ export async function finalizeBroadcastStatus(
     return count ?? 0;
   };
 
-  // Still work outstanding (a capped resume pass) — leave it 'sending'
+  // Still work outstanding (a capped resume pass) - leave it 'sending'
   // so the UI keeps offering Resume.
   if ((await countWhere('pending')) > 0) return;
 

@@ -40,7 +40,7 @@ function subscribePermission(onChange: () => void): () => void {
 const serverPermission = (): BrowserNotifyPermission => 'unsupported';
 
 /**
- * "Browser notifications" card — device-scoped opt-in for desktop
+ * "Browser notifications" card - device-scoped opt-in for desktop
  * alerts about new customer messages (issue #516). Persistence is
  * localStorage; the browser's own permission grant is the real gate,
  * so the switch reads as off whenever that grant is missing.

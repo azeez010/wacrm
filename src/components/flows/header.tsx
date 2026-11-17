@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Editor toolbar — flow name / description, status chip, dirty
+ * Editor toolbar - flow name / description, status chip, dirty
  * indicator, and the action buttons (Save, Activate/Pause, Delete,
  * View runs, Back).
  *
@@ -19,7 +19,7 @@
  * Reads everything from the editor context (`useFlowEditor`) so it
  * stays in sync with whichever view is mutating state, and routes
  * router navigation locally (back to /flows, View runs to
- * /flows/[id]/runs) — those don't belong in the hook.
+ * /flows/[id]/runs) - those don't belong in the hook.
  */
 
 import { useRouter } from "next/navigation";
@@ -180,7 +180,7 @@ function StatusChip({ status }: { status: BuilderState["status"] }) {
   const t = useTranslations("Flows.list");
   const cfg = {
     draft: {
-      // Neutral, not amber — amber is reserved for the adjacent
+      // Neutral, not amber - amber is reserved for the adjacent
       // "Edited" dirty signal, so the two don't read as the same alert.
       cls: "border-border bg-muted text-muted-foreground",
       label: t("statusDraft"),

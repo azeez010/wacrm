@@ -58,7 +58,7 @@ export function SettingsOverview({
     const supabase = createClient();
     const acctId = accountId;
 
-    // Cheap counts — resolve fast, render immediately.
+    // Cheap counts - resolve fast, render immediately.
     (async () => {
       setCountsLoading(true);
       const [membersRes, invitesRes, templatesTotal, templatesPending, tagsRes, fieldsRes] =
@@ -116,7 +116,7 @@ export function SettingsOverview({
       setCountsLoading(false);
     })();
 
-    // WhatsApp connection status — slower, independent.
+    // WhatsApp connection status - slower, independent.
     (async () => {
       setWhatsappLoading(true);
       const [row, health] = await Promise.allSettled([
@@ -199,7 +199,7 @@ export function SettingsOverview({
     {
       section: 'deals',
       loading: false,
-      subtitle: `${defaultCurrency} — ${currencyLabel}`,
+      subtitle: `${defaultCurrency}, ${currencyLabel}`,
     },
     {
       section: 'fields',

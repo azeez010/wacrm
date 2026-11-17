@@ -45,7 +45,7 @@ export const ROLE_META: Record<
     label: 'viewer',
     variant: 'muted',
     // Outline-only so it stays quieter than the filled Agent chip in
-    // both modes — bg-card would blend into a card surface in light mode.
+    // both modes - bg-card would blend into a card surface in light mode.
     className: 'border-border bg-transparent text-muted-foreground',
   },
 };

@@ -6,7 +6,7 @@ import { getT } from '@/lib/i18n/translate'
 
 const t = getT('Api')
 
-// Quick replies — reusable snippets (plain text or a saved interactive
+// Quick replies - reusable snippets (plain text or a saved interactive
 // message) shared across the account. GET lists; POST creates. Mirrors
 // the automations route: RLS-scoped read via the user client, service-
 // role write after an explicit role check.

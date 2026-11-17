@@ -14,14 +14,14 @@ export interface LogAiUsageArgs {
 }
 
 /**
- * Best-effort append to `ai_usage_log` — one row per LLM call, for cost
+ * Best-effort append to `ai_usage_log` - one row per LLM call, for cost
  * visibility on the account's BYO key. NEVER throws: usage accounting
  * must not fail a reply the customer is waiting on, so any DB error is
  * logged and swallowed. Skips entirely when the provider didn't report
  * usage (we'd only be writing zeros).
  *
  * Pass the service-role admin client from the webhook, or the RLS-scoped
- * SSR client from a route — writes land either way (there's no
+ * SSR client from a route - writes land either way (there's no
  * `authenticated` INSERT policy, so an SSR write relies on the service
  * role; callers that must persist from a route should pass the admin
  * client).

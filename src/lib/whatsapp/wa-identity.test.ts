@@ -214,7 +214,7 @@ describe('resolveContactSendTarget', () => {
   })
 
   it('falls back to the BSUID when the phone is unusable', () => {
-    // Too short to be E.164 — the old code sent it to Meta anyway.
+    // Too short to be E.164 - the old code sent it to Meta anyway.
     expect(
       resolveContactSendTarget({
         phone: '123',

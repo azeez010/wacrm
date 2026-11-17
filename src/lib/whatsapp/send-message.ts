@@ -1,5 +1,5 @@
 // ============================================================
-// Outbound message send — the core that both the dashboard's
+// Outbound message send - the core that both the dashboard's
 // `/api/whatsapp/send` route and the public `/api/v1/messages`
 // endpoint call.
 //
@@ -14,7 +14,7 @@
 // `accountId` and throws `SendMessageError` on failure. The callers
 // own auth, rate-limiting, body parsing, and mapping the error to
 // their respective response shapes (internal `{ error }` vs the v1
-// envelope). Behaviour is identical to the original inline route —
+// envelope). Behaviour is identical to the original inline route -
 // this is a straight extraction so the public endpoint can reuse it
 // without duplicating ~250 lines of Meta plumbing.
 // ============================================================
@@ -107,14 +107,14 @@ export interface SendMessageResult {
  * Send a message in an existing conversation and persist it.
  *
  * `db` may be an RLS-scoped user client (dashboard) or the service-
- * role client (public API) — every query is filtered by `accountId`
+ * role client (public API) - every query is filtered by `accountId`
  * either way, so tenancy holds regardless of which client is passed.
  */
 /**
  * Validate the message-shape params (type, required content, caption
  * cap) independently of any DB state, throwing `SendMessageError` on a
  * bad payload. Exported so a caller can reject a malformed request
- * *before* it finds-or-creates a contact/conversation — otherwise an
+ * *before* it finds-or-creates a contact/conversation - otherwise an
  * invalid payload leaves an orphan empty conversation behind. The send
  * core calls this too, so validation can't be skipped.
  */
@@ -267,7 +267,7 @@ export async function sendMessageToConversation(
   const hasValidPhone = resolvedTarget.isPhone;
   const sanitizedPhone = hasValidPhone ? sendTarget : '';
 
-  // WhatsApp connection — prefer the one this conversation is already
+  // WhatsApp connection - prefer the one this conversation is already
   // tied to (so a reply goes out from the same number the customer
   // messaged), falling back to the resolver (the account's sole
   // connection, or a clear error if there isn't exactly one) for
@@ -301,7 +301,7 @@ export async function sendMessageToConversation(
 
   const accessToken = resolveWhatsAppCredentials(config).accessToken;
 
-  // Self-heal legacy CBC ciphertexts (custom connections only — shared
+  // Self-heal legacy CBC ciphertexts (custom connections only - shared
   // connections store no token). Fire-and-forget; idempotent.
   if (
     config.mode === 'custom' &&
@@ -323,7 +323,7 @@ export async function sendMessageToConversation(
   }
 
   // Resolve the reply target to its Meta message_id. The parent must
-  // belong to this same conversation — otherwise a caller could quote
+  // belong to this same conversation - otherwise a caller could quote
   // messages they can't see by guessing UUIDs.
   let contextMessageId: string | undefined;
   if (replyToMessageId) {
@@ -350,7 +350,7 @@ export async function sendMessageToConversation(
     }
   }
 
-  // Template row — needed for the send-builder's header + button
+  // Template row - needed for the send-builder's header + button
   // components AND for the body we persist. The lookup tolerates the
   // en / en_US split so a caller that omits the language still resolves
   // a row (see resolveTemplateRow).
@@ -366,7 +366,7 @@ export async function sendMessageToConversation(
     if (resolved.malformed) {
       throw new SendMessageError(
         'template_malformed',
-        'Template row is malformed locally — run "Sync from Meta" in Settings to repair it.',
+        'Template row is malformed locally, run "Sync from Meta" in Settings to repair it.',
         500
       );
     }
@@ -440,13 +440,13 @@ export async function sendMessageToConversation(
     return result.messageId;
   };
 
-  // Send via Meta — retry across phone-number variants if Meta rejects
+  // Send via Meta - retry across phone-number variants if Meta rejects
   // with "recipient not in allowed list"; persist a working variant
   // back to the contact so the next send goes straight through.
   let waMessageId = '';
   let workingPhone = sendTarget;
   try {
-    // Variants only make sense for a phone number — a BSUID is opaque
+    // Variants only make sense for a phone number - a BSUID is opaque
     // and has exactly one correct form, so it gets a single attempt.
     const variants = hasValidPhone
       ? phoneVariants(sanitizedPhone)
@@ -498,7 +498,7 @@ export async function sendMessageToConversation(
   // Templates persist the *substituted* body. The composer pre-renders
   // and posts it as contentText; every other caller (the public API,
   // most importantly) sends none, and storing null there left the
-  // Inbox rendering an empty bubble — issue #483.
+  // Inbox rendering an empty bubble - issue #483.
   const persistedText =
     messageType === 'interactive'
       ? interactivePayload!.body
@@ -557,7 +557,7 @@ export async function sendMessageToConversation(
     })
     .eq('id', conversationId);
 
-  // Pause any active Flow run for this contact — the agent stepping in
+  // Pause any active Flow run for this contact - the agent stepping in
   // is the strongest "yield, human is here" signal. Best-effort.
   try {
     const { error: pauseErr } = await supabaseAdmin()

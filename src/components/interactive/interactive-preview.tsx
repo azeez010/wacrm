@@ -9,7 +9,7 @@ import type { InteractiveMessagePayload } from "@/lib/whatsapp/interactive";
  * in the builder's live preview and by the inbox message bubble so a
  * sent buttons/list message shows the same way it does on the phone.
  *
- * Purely presentational — the buttons/rows are not clickable here (the
+ * Purely presentational - the buttons/rows are not clickable here (the
  * customer taps them on their own device). Kept namespace-free so it can
  * be dropped into the composer, the automation builder, and the
  * quick-replies manager without namespace coupling: the three fallback

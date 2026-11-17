@@ -29,7 +29,7 @@ export interface BroadcastCsvContact {
 }
 
 export type BroadcastCsvError =
-  /** No `phone` header — the one column we can't work without. */
+  /** No `phone` header - the one column we can't work without. */
   | 'missing_phone_column'
   /** Header was fine, but not one row carried a usable number. */
   | 'no_valid_rows';

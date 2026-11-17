@@ -27,7 +27,7 @@ describe("formatCurrency", () => {
   });
 
   it("renders a well-formed but unknown ISO code without throwing", () => {
-    // Intl is lenient here — it uses the code as the symbol.
+    // Intl is lenient here - it uses the code as the symbol.
     const out = formatCurrency(1234, "ZZZ");
     expect(out).toContain("ZZZ");
     expect(out).toContain("1,234");

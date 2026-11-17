@@ -1,5 +1,5 @@
 // ============================================================
-// Webhook payload signing — pure, server-side.
+// Webhook payload signing - pure, server-side.
 //
 // Every delivery carries an `X-Wacrm-Signature` header so receivers
 // can verify the request really came from wacrm and wasn't tampered
@@ -17,7 +17,7 @@ import { createHmac, timingSafeEqual } from 'node:crypto';
 
 /**
  * Build the `X-Wacrm-Signature` header value for `rawBody`, signed
- * with `secret` at time `timestampSeconds` (pass it in — never call
+ * with `secret` at time `timestampSeconds` (pass it in - never call
  * Date.now() here, so the value is testable and callers control the
  * clock).
  */

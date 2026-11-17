@@ -5,7 +5,7 @@ import { createTranslator } from 'next-intl';
 
 // Locale dictionaries are hand-maintained. English is the source of
 // truth (src/i18n/request.ts falls back to en.json only when a whole
-// locale file is missing — there is no per-key fallback), so a key
+// locale file is missing - there is no per-key fallback), so a key
 // that lands in en.json and not in a translation renders as a raw
 // keypath for users on that locale. This guards the parity.
 
@@ -47,12 +47,12 @@ function loadKeys(locale: string): Set<string> {
 // which next-intl reports to onError and then renders the keypath). The
 // signature below is what must be identical between en and a translation:
 //
-//   args  — every ICU argument name the call site must supply (`count`,
+//   args  - every ICU argument name the call site must supply (`count`,
 //           `date`, …). Only the name: plural/select categories are
 //           language-specific (ko has no plural and renders `{count}` alone,
 //           a Slavic locale would add `few`/`many`), and a number/date style
-//           is a presentation choice — neither changes the values contract.
-//   tags  — every rich-text tag name, e.g. `strong`, `link`
+//           is a presentation choice - neither changes the values contract.
+//   tags  - every rich-text tag name, e.g. `strong`, `link`
 //
 // It is a deliberately small ICU MessageFormat tokenizer rather than a
 // dependency: @formatjs/icu-messageformat-parser is only a transitive
@@ -210,7 +210,7 @@ function icuSignature(message: string): Signature {
       tags.add(name[0]);
       return;
     }
-    // next-intl / formatjs tags carry no attributes — `<strong class="x">`
+    // next-intl / formatjs tags carry no attributes - `<strong class="x">`
     // is INVALID_TAG there too, and such strings go through t.raw().
     if (peek() !== '>') fail('tag attributes are not ICU');
     i++;
@@ -310,7 +310,7 @@ describe('message placeholder parity', () => {
         } else {
           // en is ICU-hostile on purpose (read via t.raw()); the translation
           // must carry the same literal {{n}} tokens and raw tags, and must
-          // stay hostile — a translation that suddenly parses would be
+          // stay hostile - a translation that suddenly parses would be
           // rendered differently by the same call site.
           const a = rawSignature(en);
           const b = rawSignature(tr);

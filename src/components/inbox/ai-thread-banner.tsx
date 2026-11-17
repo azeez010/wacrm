@@ -10,14 +10,14 @@ import { fetchAiAccountStatus } from "@/lib/ai/account-status-cache";
 
 interface AiThreadBannerProps {
   conversationId: string;
-  /** `conversations.ai_autoreply_disabled` — bot paused on this thread. */
+  /** `conversations.ai_autoreply_disabled` - bot paused on this thread. */
   disabled: boolean;
-  /** `conversations.ai_handoff_summary` — note the bot left on handoff. */
+  /** `conversations.ai_handoff_summary` - note the bot left on handoff. */
   handoffSummary?: string | null;
   /** Current assignee; when a human owns the thread the bot won't run,
    *  so the "AI active" banner is suppressed. */
   assignedAgentId?: string | null;
-  /** The acting agent — "Take over" assigns the thread to them. */
+  /** The acting agent - "Take over" assigns the thread to them. */
   currentUserId?: string | null;
   /** Called after a successful toggle so the parent can patch its local
    *  conversation state (the realtime UPDATE also arrives, but this keeps

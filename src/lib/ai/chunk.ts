@@ -34,7 +34,7 @@ export function chunkText(
 
   for (const para of paragraphs) {
     if (para.length > maxChars) {
-      // Paragraph alone exceeds the budget — flush what we have, then
+      // Paragraph alone exceeds the budget - flush what we have, then
       // hard-split it into fixed windows.
       flush()
       for (let i = 0; i < para.length; i += maxChars) {

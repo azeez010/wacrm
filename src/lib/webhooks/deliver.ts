@@ -3,7 +3,7 @@
 //
 // `dispatchWebhookEvent` finds the account's active endpoints
 // subscribed to an event, signs one JSON payload, and POSTs it to
-// each in parallel. It is best-effort and never throws — callers fire
+// each in parallel. It is best-effort and never throws - callers fire
 // it from the inbound webhook's `after()` block, where a failed
 // delivery must not affect the 200 OK returned to Meta.
 //
@@ -27,7 +27,7 @@ import { buildSignatureHeader } from '@/lib/webhooks/sign';
 import { isDeliverableUrl } from '@/lib/webhooks/ssrf';
 import type { WebhookEvent } from '@/lib/webhooks/events';
 
-/** Per-endpoint HTTP timeout. Kept short — this runs in `after()`. */
+/** Per-endpoint HTTP timeout. Kept short - this runs in `after()`. */
 export const DELIVERY_TIMEOUT_MS = 5000;
 
 /** Auto-disable an endpoint after this many consecutive failures. */
@@ -104,7 +104,7 @@ async function deliverOne(
     secret = decrypt(row.secret);
   } catch (err) {
     // A row whose secret can't be decrypted can never produce a valid
-    // signature — count it as a failure so it eventually auto-disables.
+    // signature - count it as a failure so it eventually auto-disables.
     console.error('[webhooks] secret decrypt failed for', row.id, err);
     await recordFailure(db, row);
     return;
@@ -120,7 +120,7 @@ async function deliverOne(
         'X-Wacrm-Signature': buildSignatureHeader(payload, secret, tsSeconds),
       },
       body: payload,
-      // Do NOT follow redirects — a public URL could 3xx-bounce to an
+      // Do NOT follow redirects - a public URL could 3xx-bounce to an
       // internal address, bypassing the SSRF check above. A 3xx is a
       // misconfiguration; treat it as a failure.
       redirect: 'manual',
@@ -144,7 +144,7 @@ async function deliverOne(
 
 async function recordFailure(db: SupabaseClient, row: EndpointRow): Promise<void> {
   // Atomic increment (+ auto-disable at the threshold) via a SQL
-  // function — a read-modify-write here would lose increments when two
+  // function - a read-modify-write here would lose increments when two
   // deliveries to the same endpoint run concurrently (e.g.
   // conversation.created + message.received for one inbound message),
   // so a dead endpoint might never reach the disable threshold.

@@ -1,6 +1,6 @@
 /**
  * Sanitize phone number for Meta WhatsApp API.
- * Meta requires digits only — no + prefix, no spaces, no dashes.
+ * Meta requires digits only - no + prefix, no spaces, no dashes.
  * e.g. "+370 63949836" → "37063949836"
  */
 export function sanitizePhoneForMeta(phone: string): string {
@@ -45,8 +45,8 @@ function isTrunkZeroVariant(n1: string, n2: string): boolean {
  * Validate a *stored or inbound* phone number is E.164-like: 8–15 digits
  * starting with a non-zero digit, optional + prefix.
  *
- * This is the check for digit strings we already hold — a contact row,
- * Meta's `wa_id`, a broadcast recipient — so it accepts the digits-only
+ * This is the check for digit strings we already hold - a contact row,
+ * Meta's `wa_id`, a broadcast recipient - so it accepts the digits-only
  * form Meta uses. It cannot tell a national number from an international
  * one ("4155551212" is a US number to the person who typed it and a Swiss
  * one to Meta), which is why numbers entered by a person or an integrator
@@ -54,8 +54,8 @@ function isTrunkZeroVariant(n1: string, n2: string): boolean {
  *
  * The floor is 8 digits, not E.164's theoretical 7: a country code plus the
  * shortest national numbering plans in real use is 8+, and 7 admitted most
- * national formats. (Only a handful of tiny territories — Niue, Tokelau,
- * Saint Helena — have 7-digit international numbers.)
+ * national formats. (Only a handful of tiny territories - Niue, Tokelau,
+ * Saint Helena - have 7-digit international numbers.)
  */
 export function isValidE164(phone: string): boolean {
   return /^\+?[1-9]\d{7,14}$/.test(phone)
@@ -65,7 +65,7 @@ export function isValidE164(phone: string): boolean {
  * Parse a phone number as typed by a person or sent by an API integrator.
  *
  * Requires the international `+` prefix so the country code is explicit,
- * then returns the digits-only form Meta wants — or null. Formatting noise
+ * then returns the digits-only form Meta wants - or null. Formatting noise
  * (spaces, dots, dashes, parentheses) between the digits is tolerated:
  * "+1 (415) 555-1212" → "14155551212".
  *

@@ -27,7 +27,7 @@ const ALLOWED_MIME = new Set([
   'image/gif',
 ]);
 
-// Rough email shape check — the real validator is Supabase Auth, which
+// Rough email shape check - the real validator is Supabase Auth, which
 // rejects anything malformed when we call updateUser({ email }). We
 // just want to stop obvious typos before making a network call.
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -154,7 +154,7 @@ export function ProfileForm() {
 
       // Email change goes through Supabase Auth, which emails a
       // confirmation to both the old and new addresses. We don't
-      // touch profiles.email — Supabase will push the change there
+      // touch profiles.email - Supabase will push the change there
       // after the user clicks the link (handled by the handle_new_user
       // trigger pattern in production deployments).
       let emailSent = false;
@@ -205,7 +205,7 @@ export function ProfileForm() {
         month: 'long',
         day: 'numeric',
       })
-    : '—';
+    : '-';
 
   return (
     <section className="max-w-2xl animate-in fade-in-50 duration-200">
@@ -324,7 +324,7 @@ export function ProfileForm() {
               <div className="sm:col-span-2">
                 <dt className="text-muted-foreground">{t('userId')}</dt>
                 <dd className="mt-0.5 break-all font-mono text-xs text-muted-foreground">
-                  {user?.id ?? '—'}
+                  {user?.id ?? '-'}
                 </dd>
               </div>
             </dl>
@@ -355,7 +355,7 @@ export function ProfileForm() {
       </form>
 
       {/* Device-scoped, so it lives outside the profile form and its
-          Save button — flipping the switch applies immediately. */}
+          Save button, flipping the switch applies immediately. */}
       <BrowserNotificationsCard className="mt-6" />
     </section>
   );

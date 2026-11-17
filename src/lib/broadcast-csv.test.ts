@@ -55,7 +55,7 @@ describe('parseBroadcastCsv', () => {
 
   // The downstream upsert inserts against UNIQUE (account_id,
   // phone_normalized) (migration 022). If two spellings of one number
-  // both reached it, the whole broadcast would die on a 23505 — so
+  // both reached it, the whole broadcast would die on a 23505 - so
   // collapsing them here is the fix, not a nicety.
   it('collapses differently-formatted spellings of the same number', () => {
     const result = parseBroadcastCsv(
@@ -106,7 +106,7 @@ describe('parseBroadcastCsv', () => {
       ok: false,
       error: 'missing_phone_column',
     });
-    // No header at all reads the same way — there is no `phone` column.
+    // No header at all reads the same way - there is no `phone` column.
     expect(parseBroadcastCsv('')).toEqual({
       ok: false,
       error: 'missing_phone_column',

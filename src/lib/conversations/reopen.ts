@@ -5,8 +5,8 @@ import type { SupabaseClient } from '@supabase/supabase-js'
  * (issue #409).
  *
  * Inbound processing bumps `unread_count` but used to leave `status`
- * alone, so a thread an agent closed — or that a `close_conversation`
- * automation step closed — stayed `closed` while accumulating unread
+ * alone, so a thread an agent closed - or that a `close_conversation`
+ * automation step closed - stayed `closed` while accumulating unread
  * customer messages. It read as resolved, and it dropped out of the
  * inbox's Open filter, so an agent working that filter never saw the
  * reply. (Automation dispatch is unaffected either way: it keys on
@@ -20,7 +20,7 @@ export async function reopenClosedConversation(
   db: SupabaseClient,
   conversation: { id: string; status?: string | null },
 ): Promise<boolean> {
-  // Nothing to do for open/pending threads, which is the common case —
+  // Nothing to do for open/pending threads, which is the common case -
   // skipping the round trip keeps inbound processing as cheap as it was.
   if (conversation.status !== 'closed') return false
 

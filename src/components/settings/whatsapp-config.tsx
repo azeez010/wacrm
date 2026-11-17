@@ -37,7 +37,7 @@ const MASKED_TOKEN = '••••••••••••••••';
 type ConnectionStatus = 'connected' | 'disconnected' | 'unknown';
 type ResetReason = 'token_corrupted' | 'meta_api_error' | null;
 
-// Meta ids are decimal digit strings — mirrors the server-side check in
+// Meta ids are decimal digit strings - mirrors the server-side check in
 // POST /api/whatsapp/config so the obvious paste mistakes get a named
 // field before a round-trip.
 const META_ID_RE = /^\d+$/;
@@ -65,7 +65,7 @@ export function WhatsAppConfig() {
   const supabase = createClient();
   // After multi-user, whatsapp_config is one-row-per-account, not
   // one-row-per-user. We pull `accountId` straight off the auth
-  // context and key every read off it — so a teammate who just
+  // context and key every read off it - so a teammate who just
   // joined an account sees the inviter's saved config without
   // having to re-enter anything.
   const {
@@ -86,12 +86,12 @@ export function WhatsAppConfig() {
   const [resetReason, setResetReason] = useState<ResetReason>(null);
   const [statusMessage, setStatusMessage] = useState<string>('');
   // Structured details of the last failed Meta call (health check or
-  // save) — rendered as small muted text under the actionable message.
+  // save) - rendered as small muted text under the actionable message.
   const [statusMeta, setStatusMeta] = useState<MetaErrorMeta | null>(null);
   const [saveFailure, setSaveFailure] = useState<MetaFailure | null>(null);
   const [wabaSubscription, setWabaSubscription] = useState<WabaSubscription | null>(null);
   // Guards against re-hydrating the form when the load effect below
-  // re-runs for reasons unrelated to actually switching accounts —
+  // re-runs for reasons unrelated to actually switching accounts -
   // e.g. Supabase's onAuthStateChange fires a token refresh (new
   // `user` object, profileLoading flips true/false) when the browser
   // tab regains focus. Without this, that churn calls fetchConfig()
@@ -110,7 +110,7 @@ export function WhatsAppConfig() {
   // page it is NOT part of handleSave: that path insists on re-entering
   // the access token so it can re-verify with Meta, which is a silly
   // toll to pay for flipping a boolean. The switch writes straight to
-  // the row instead — RLS (migration 017) restricts whatsapp_config
+  // the row instead - RLS (migration 017) restricts whatsapp_config
   // UPDATE to admins, hence the canEditSettings gate below; without it
   // a viewer's toggle would match zero rows and appear to work.
   const [mirrorMedia, setMirrorMedia] = useState(true);
@@ -118,7 +118,7 @@ export function WhatsAppConfig() {
 
   // True once /register has succeeded on Meta's side (timestamp set
   // in the row). When false, the saved config is metadata-only and
-  // Meta will silently drop every inbound event — that's the
+  // Meta will silently drop every inbound event - that's the
   // multi-number bug that prompted this work.
   const isRegistered = Boolean(config?.registered_at);
   const lastRegistrationError = config?.last_registration_error ?? null;
@@ -171,7 +171,7 @@ export function WhatsAppConfig() {
         setVerifyEdited(false);
         setPin('');
         setTokenEdited(false);
-        // Undefined on a row read before migration 039 — treat that as
+        // Undefined on a row read before migration 039 - treat that as
         // on, matching the webhook's own default.
         setMirrorMedia(data.mirror_inbound_media !== false);
       } else {
@@ -245,7 +245,7 @@ export function WhatsAppConfig() {
 
   async function handleToggleMirrorMedia(next: boolean) {
     if (!config || !accountId || savingMirror) return;
-    // Optimistic — the switch should feel instant; a failure rolls it
+    // Optimistic - the switch should feel instant; a failure rolls it
     // back rather than leaving the UI ahead of the row.
     const previous = mirrorMedia;
     setMirrorMedia(next);
@@ -287,7 +287,7 @@ export function WhatsAppConfig() {
     try {
       setSaving(true);
 
-      // Always POST through the API — it verifies with Meta and encrypts
+      // Always POST through the API - it verifies with Meta and encrypts
       // the access_token server-side with ENCRYPTION_KEY. Skipping this
       // and writing direct to Supabase stores the token in plaintext,
       // which then fails decryption on every subsequent health check.
@@ -296,13 +296,13 @@ export function WhatsAppConfig() {
         waba_id: wabaId.trim() || null,
         // Only sent when the user actually typed one. Left out otherwise
         // (undefined is dropped from the JSON body) so the server keeps the
-        // stored token instead of nulling it — see resolveVerifyTokenForSave.
+        // stored token instead of nulling it - see resolveVerifyTokenForSave.
         ...(verifyEdited &&
         verifyToken.trim() &&
         verifyToken.trim() !== MASKED_TOKEN
           ? { verify_token: verifyToken.trim() }
           : {}),
-        // Optional — only sent when the user filled it in. The server
+        // Optional - only sent when the user filled it in. The server
         // requires it on first save or when changing numbers; for a
         // simple token rotation, leaving it blank skips re-register.
         pin: pin.trim() || null,
@@ -311,7 +311,7 @@ export function WhatsAppConfig() {
       if (tokenEdited && accessToken !== MASKED_TOKEN && accessToken.trim()) {
         payload.access_token = accessToken.trim();
       } else if (config) {
-        // Existing config — reuse stored encrypted token by decrypting on the
+        // Existing config - reuse stored encrypted token by decrypting on the
         // server. But our POST handler requires an access_token to verify
         // with Meta. If the user didn't change the token, we need to signal
         // that. Simplest: require token re-entry if they're updating.
@@ -330,7 +330,7 @@ export function WhatsAppConfig() {
 
       if (!res.ok) {
         // The route names the failing step and which field to check
-        // (issue #505). Keep the details on screen — a toast is too
+        // (issue #505). Keep the details on screen - a toast is too
         // short-lived to copy a trace id out of.
         setSaveFailure({
           message: data.error || t('saveFailed'),
@@ -360,7 +360,7 @@ export function WhatsAppConfig() {
       } else if (data.registration_skipped) {
         // Credentials saved + verified, but /register was skipped
         // because no PIN was supplied (e.g. a Meta test number).
-        // Don't claim the number is "Live" — point at the
+        // Don't claim the number is "Live" - point at the
         // Registration status banner instead.
         toast.success(
           t('savedRegistrationSkipped'),
@@ -583,7 +583,7 @@ export function WhatsAppConfig() {
           </Alert>
         )}
 
-        {/* Last save failed — why, which field, and what to quote to Meta */}
+        {/* Last save failed - why, which field, and what to quote to Meta */}
         {saveFailure && (
           <Alert className="bg-red-950/30 border-red-700/50">
             <div className="flex items-start gap-3">
@@ -636,7 +636,7 @@ export function WhatsAppConfig() {
           {connectionStatus !== 'connected' && statusMeta && renderMetaDetails(statusMeta)}
         </Alert>
 
-        {/* Registration Status — the "is it actually live?" check.
+        {/* Registration Status - the "is it actually live?" check.
             Credentials being valid is necessary but not sufficient;
             without a successful /register call the number won't
             receive inbound events. Surface this dimension separately

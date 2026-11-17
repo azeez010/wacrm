@@ -34,7 +34,7 @@ interface ContactFormProps {
   contact?: Contact | null;
   contactTags?: ContactTag[];
   onSaved: () => void;
-  /** Open an existing contact's detail view — used by the duplicate
+  /** Open an existing contact's detail view - used by the duplicate
    *  notice to jump to the contact that already owns this number. */
   onViewExisting?: (contactId: string) => void;
 }
@@ -60,7 +60,7 @@ export function ContactForm({
 
   // Duplicate-phone detection for NEW contacts. `exact` (same digits)
   // hard-blocks the save; a fuzzy trunk-variant match only warns. The
-  // DB unique index (migration 022) is the real backstop — this is the
+  // DB unique index (migration 022) is the real backstop - this is the
   // friendly heads-up before we get there.
   const [dupMatch, setDupMatch] = useState<
     { contact: ExistingContact; exact: boolean } | null
@@ -134,7 +134,7 @@ export function ContactForm({
     // A number typed here must carry its country code (leading `+`):
     // "4155551212" reads as a US number to the person typing it but is
     // delivered to +41 (Switzerland) by Meta (issue #586). Only checked
-    // when the number actually changed — contacts created by the inbound
+    // when the number actually changed - contacts created by the inbound
     // webhook store Meta's digits-only form, and editing their name must
     // not be blocked by a phone the user never touched.
     const phoneChanged = !isEdit || phone.trim() !== (contact?.phone ?? '');

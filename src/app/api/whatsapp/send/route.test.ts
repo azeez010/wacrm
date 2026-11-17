@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 // Tests for the `contact_id` send path (issue #296): sending an approved
 // template to a single contact from the Contact detail view. The route must
 // find-or-create the contact's conversation server-side, then run the normal
-// send + persistence path — no inbound message required to bootstrap a thread.
+// send + persistence path - no inbound message required to bootstrap a thread.
 // ---------------------------------------------------------------------------
 
 // Records of what the route wrote, so we can assert the right rows landed.
@@ -17,7 +17,7 @@ let contactRow: Record<string, unknown> | null = null
 // The caller's role, as `requireRole` reads it off the profile. Sending
 // requires 'agent'; 'viewer' must be refused before anything reaches Meta.
 let callerRole: string = 'admin'
-// A conversation created during the request becomes retrievable by id —
+// A conversation created during the request becomes retrievable by id -
 // the shared send core re-loads the conversation (with its contact) from
 // just the id, so the mock must model insert-then-select-by-id.
 let createdConversation: Record<string, unknown> | null = null
@@ -198,7 +198,7 @@ function postContactTemplate(overrides: Record<string, unknown> = {}) {
   )
 }
 
-describe('POST /api/whatsapp/send — contact_id template path', () => {
+describe('POST /api/whatsapp/send, contact_id template path', () => {
   beforeEach(() => {
     conversationInserts.length = 0
     messageInserts.length = 0
@@ -236,7 +236,7 @@ describe('POST /api/whatsapp/send — contact_id template path', () => {
       string,
       unknown
     >
-    // Meta wants the bare E.164 digits — sanitizePhoneForMeta strips the '+'.
+    // Meta wants the bare E.164 digits - sanitizePhoneForMeta strips the '+'.
     expect(args.to).toBe('15551234567')
     expect(args.templateName).toBe('order_update')
 
@@ -304,7 +304,7 @@ describe('POST /api/whatsapp/send — contact_id template path', () => {
   })
 })
 
-describe('POST /api/whatsapp/send — role enforcement', () => {
+describe('POST /api/whatsapp/send, role enforcement', () => {
   beforeEach(() => {
     conversationInserts.length = 0
     messageInserts.length = 0

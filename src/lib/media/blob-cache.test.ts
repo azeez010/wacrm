@@ -43,7 +43,7 @@ describe("loadMediaBlob", () => {
     const second = await loadMediaBlob(`${PROXY}1`, fetchImpl);
 
     expect(fetchImpl.calls).toEqual([`${PROXY}1`]);
-    // Same Blob instance — the thumbnail, the viewer and a download all end
+    // Same Blob instance - the thumbnail, the viewer and a download all end
     // up holding the bytes that were fetched once.
     expect(second).toBe(first);
   });

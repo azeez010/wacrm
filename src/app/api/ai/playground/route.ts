@@ -18,8 +18,8 @@ const MAX_TURNS = 20
  * POST /api/ai/playground  (agent+)
  *
  * Test-chat with the account's agent WITHOUT touching WhatsApp. Runs the
- * exact same path the auto-reply bot uses — knowledge-base retrieval +
- * `auto_reply` system prompt + the configured provider — so what you see
+ * exact same path the auto-reply bot uses - knowledge-base retrieval +
+ * `auto_reply` system prompt + the configured provider - so what you see
  * here is what a real customer would get. Reads the config even when the
  * master switch is off (requireActive:false) so you can try it before
  * going live. Stateless: the client sends the running transcript each turn.

@@ -19,8 +19,8 @@ const t = getT('Api')
 //
 // Every handler here reads/writes through the service-role client,
 // which bypasses the account-scoped `automations_*` RLS policies. So
-// the row has to be matched on `account_id` — the tenancy column
-// migration 017 introduced — and NOT on `user_id`, which records the
+// the row has to be matched on `account_id` - the tenancy column
+// migration 017 introduced - and NOT on `user_id`, which records the
 // original *author* and is never rewritten.
 //
 // `user_id` is not an authorization fact: `remove_account_member`
@@ -68,7 +68,7 @@ export async function PATCH(
 ) {
   const { id } = await params
 
-  // Editing an automation is a write — the RLS automations_update policy
+  // Editing an automation is a write - the RLS automations_update policy
   // requires `agent`, but this route mutates via the service-role client
   // which bypasses RLS, so enforce the role here.
   let accountId: string
@@ -109,7 +109,7 @@ export async function PATCH(
 
   // If this PATCH leaves the automation active (either explicitly
   // activating it OR editing an already-active one), validate the
-  // merged configuration first. Activation is the natural gate — drafts
+  // merged configuration first. Activation is the natural gate - drafts
   // are still allowed to be incomplete.
   const willBeActive =
     typeof update.is_active === 'boolean' ? update.is_active : existing.is_active
@@ -157,7 +157,7 @@ export async function DELETE(
 ) {
   const { id } = await params
 
-  // Deleting an automation is a write — enforce `agent` (the service-role
+  // Deleting an automation is a write - enforce `agent` (the service-role
   // client below bypasses the agent-gated automations_delete RLS).
   let accountId: string
   try {

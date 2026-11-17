@@ -64,14 +64,14 @@ function metaFailure(
 /**
  * POST /api/whatsapp/connections/embedded-signup
  *
- * Completes a Tech Provider Embedded Signup — ported from the user's
+ * Completes a Tech Provider Embedded Signup - ported from the user's
  * own working implementation of this exact flow in a sister product.
  * Body: `{ code, wabaId, phoneNumberId, isCoexistence }`, matching what
  * the frontend's FB.login callback + WA_EMBEDDED_SIGNUP postMessage
  * listener captures.
  *
  * Unlike the manual/custom connection flow, no access token is ever
- * persisted — the `code` exchange only finalizes Meta's Tech Provider
+ * persisted - the `code` exchange only finalizes Meta's Tech Provider
  * asset-sharing grant (needed for the webhook subscribe call below);
  * every later Graph API call for this connection reuses the
  * platform's own long-lived META_SYSTEM_USER_ACCESS_TOKEN instead,
@@ -87,7 +87,7 @@ export async function POST(request: Request) {
     );
     if (!limit.success) return rateLimitResponse(limit);
 
-    // Plan gate — before any Meta side effects.
+    // Plan gate - before any Meta side effects.
     await assertCanAddWhatsAppConnection(supabase, accountId);
 
     const body = await request.json();
@@ -120,7 +120,7 @@ export async function POST(request: Request) {
 
     const metaCtx: MetaErrorContext = { phoneNumberId, wabaId };
 
-    // A phone_number_id still maps to exactly one account at a time —
+    // A phone_number_id still maps to exactly one account at a time -
     // reject if a different account already claimed it (same check
     // custom connections get).
     const { data: claimed, error: claimedError } = await supabaseAdmin()
@@ -143,7 +143,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // Step 1 — finalize the Tech Provider grant. Never persisted.
+    // Step 1 - finalize the Tech Provider grant. Never persisted.
     let exchangedToken: string;
     try {
       exchangedToken = (
@@ -153,7 +153,7 @@ export async function POST(request: Request) {
       return metaFailure(err, 'verify_number', metaCtx);
     }
 
-    // Step 2 — register the number, UNLESS this is a coexistence
+    // Step 2 - register the number, UNLESS this is a coexistence
     // connection: the number is already live in the WhatsApp Business
     // app, and Cloud API's /register + PIN flow doesn't apply to it.
     if (!isCoexistence) {
@@ -169,8 +169,8 @@ export async function POST(request: Request) {
       }
     }
 
-    // Step 3 — subscribe the WABA to our app. Must use the just-
-    // exchanged token, not the system token — the system token lacks
+    // Step 3 - subscribe the WABA to our app. Must use the just-
+    // exchanged token, not the system token - the system token lacks
     // subscribe-rights on a WABA it wasn't itself party to granting
     // access to at this moment.
     try {
@@ -179,7 +179,7 @@ export async function POST(request: Request) {
       return metaFailure(err, 'subscribe_waba', metaCtx);
     }
 
-    // Step 4 — phone details, for display in the connections list.
+    // Step 4 - phone details, for display in the connections list.
     let phoneInfo;
     try {
       phoneInfo = await verifyPhoneNumber({

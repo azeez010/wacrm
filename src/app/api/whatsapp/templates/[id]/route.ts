@@ -25,30 +25,30 @@ const t = getT('Api')
 /**
  * Per-template lifecycle endpoint.
  *
- * PATCH  — edit an existing Meta-side template (and re-submit). Used
+ * PATCH  - edit an existing Meta-side template (and re-submit). Used
  *          by the "Edit" action on APPROVED rows and the "Resubmit"
  *          action on REJECTED / PAUSED rows. Meta replaces components
  *          wholesale on edit and bumps status back to PENDING.
  *
- * DELETE — remove the template on Meta (when meta_template_id is set,
+ * DELETE - remove the template on Meta (when meta_template_id is set,
  *          scoped to a single language variant via hsm_id) AND drop
  *          the local row. Local-only rows skip the Meta call.
  *
  * Initial submission (DRAFT → PENDING) lives at the sibling
- * /submit endpoint — keep this route narrowly about lifecycle of
+ * /submit endpoint - keep this route narrowly about lifecycle of
  * already-submitted templates.
  *
  * Both handlers require 'admin' (GHSA-m4fx-g6pr-hrw8): message
  * templates are settings-class data, and the Meta call happens before
  * the local mutation, so the admin-only message_templates_update /
- * _delete RLS policies were no backstop at all — a viewer or agent got
+ * _delete RLS policies were no backstop at all - a viewer or agent got
  * the remote edit or delete through and only the local write bounced.
  */
 
 const EDITABLE_STATUSES = new Set(['APPROVED', 'REJECTED', 'PAUSED'])
 
 // uuid v4 plus the looser shape Postgres gen_random_uuid emits.
-// We don't need exhaustive RFC parsing — just enough to reject
+// We don't need exhaustive RFC parsing - just enough to reject
 // "../etc/passwd"-style payloads before they hit Supabase.
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
@@ -87,7 +87,7 @@ export async function PATCH(
     }
 
     // RLS handles ownership, but we need the existing row to read
-    // meta_template_id and status — fetch explicitly.
+    // meta_template_id and status - fetch explicitly.
     const { data: existing, error: lookupErr } = await supabase
       .from('message_templates')
       .select('id, name, status, category, meta_template_id, language')
@@ -192,7 +192,7 @@ export async function PATCH(
       }
     }
 
-    // Meta accepted the edit — status flips back to PENDING for review.
+    // Meta accepted the edit - status flips back to PENDING for review.
     const { data: row, error: updErr } = await supabase
       .from('message_templates')
       .update({

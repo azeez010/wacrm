@@ -7,7 +7,7 @@ import { useTranslations } from "next-intl";
 
 interface ReplyQuoteProps {
   /** Sender label of the quoted message: "You" for our own messages,
-   *  contact name for customer-sent messages. Caller resolves this — the
+   *  contact name for customer-sent messages. Caller resolves this - the
    *  quote component doesn't see the parent Message. */
   authorLabel: string;
   /** Compact text preview. Falls back to a placeholder for media types. */
@@ -17,7 +17,7 @@ interface ReplyQuoteProps {
   onDismiss?: () => void;
   /** True when embedded inside an outbound (primary-filled) bubble, so the
    *  quote must read against the primary surface rather than the neutral
-   *  foreground — otherwise it goes low-contrast in light mode. */
+   *  foreground - otherwise it goes low-contrast in light mode. */
   onPrimary?: boolean;
 }
 
@@ -52,8 +52,8 @@ export function ReplyQuote({
         </div>
         {/* Wrap the preview instead of truncating to a single line.
          *  `truncate` (white-space: nowrap) forced the quote onto one
-         *  impossibly-wide line and — because the parent flex chain
-         *  lacked `min-w-0` at every step — pushed the entire inbox
+         *  impossibly-wide line and - because the parent flex chain
+         *  lacked `min-w-0` at every step - pushed the entire inbox
          *  layout wider, shoving the contact sidebar off-screen.
          *  `break-words` also wraps long URLs that have no whitespace
          *  to break on. Issue #165. */}

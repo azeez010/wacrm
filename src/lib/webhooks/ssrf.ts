@@ -13,7 +13,7 @@
 // routable. Combined with `redirect: 'manual'` at the call site (so a
 // public URL can't 3xx-bounce to an internal one), this blocks the
 // common SSRF vectors. It is NOT a defense against DNS rebinding (a
-// host that resolves public here but flips to private before connect) —
+// host that resolves public here but flips to private before connect) -
 // that needs pinning the resolved IP into the socket, which fetch
 // doesn't expose; documented as a residual risk.
 // ============================================================
@@ -53,7 +53,7 @@ function parseIPv4(ip: string): number[] | null {
 }
 
 /**
- * True for any IPv4 address outside global unicast — RFC 6890
+ * True for any IPv4 address outside global unicast - RFC 6890
  * special-purpose space, not just the three RFC 1918 ranges.
  */
 function isReservedIPv4([a, b, c]: number[]): boolean {
@@ -78,7 +78,7 @@ function isReservedIPv4([a, b, c]: number[]): boolean {
  * Expand an IPv6 literal to its 16 octets, else null.
  *
  * Handles `::` compression, a trailing dotted-quad (`::ffff:1.2.3.4`)
- * and a scope/zone id (`fe80::1%eth0`) — the zone is dropped, the
+ * and a scope/zone id (`fe80::1%eth0`) - the zone is dropped, the
  * address bytes are what get classified.
  */
 function parseIPv6(ip: string): number[] | null {
@@ -128,7 +128,7 @@ function isReservedIPv6(b: number[]): boolean {
   // ::/128 unspecified and ::1/128 loopback.
   if (zerosThrough(15) && b[15] <= 1) return true;
 
-  // IPv4-mapped ::ffff:0:0/96 — classify the address it actually names.
+  // IPv4-mapped ::ffff:0:0/96 - classify the address it actually names.
   if (zerosThrough(10) && b[10] === 0xff && b[11] === 0xff) {
     return isReservedIPv4(b.slice(12));
   }
@@ -137,7 +137,7 @@ function isReservedIPv6(b: number[]): boolean {
   // space; nothing in it is a routable webhook target.
   if (zerosThrough(12)) return true;
 
-  // NAT64 64:ff9b::/32 — covers the well-known /96 prefix and the
+  // NAT64 64:ff9b::/32 - covers the well-known /96 prefix and the
   // local-use 64:ff9b:1::/48. RFC 6052 allows the embedded IPv4 at
   // several offsets, so block the whole prefix rather than guessing
   // which one is in play.
@@ -145,7 +145,7 @@ function isReservedIPv6(b: number[]): boolean {
     return true;
   }
 
-  // 6to4 2002::/16 — the embedded IPv4 is bits 16..47, and that is the
+  // 6to4 2002::/16 - the embedded IPv4 is bits 16..47, and that is the
   // address the packet ends up at.
   if (b[0] === 0x20 && b[1] === 0x02) {
     return isReservedIPv4(b.slice(2, 6));
@@ -155,7 +155,7 @@ function isReservedIPv6(b: number[]): boolean {
     // Teredo 2001::/32 always embeds a client IPv4 (bit-inverted) and
     // is deprecated; block the prefix outright.
     if (b[2] === 0x00 && b[3] === 0x00) return true;
-    // ORCHID 2001:10::/28 and 2001:20::/28 — non-routed identifiers.
+    // ORCHID 2001:10::/28 and 2001:20::/28 - non-routed identifiers.
     if (b[2] === 0x00 && ((b[3] & 0xf0) === 0x10 || (b[3] & 0xf0) === 0x20)) {
       return true;
     }

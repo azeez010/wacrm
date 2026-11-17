@@ -2,7 +2,7 @@ import { createTranslator } from 'next-intl';
 import activeMessages from '@app-messages';
 
 /**
- * Translator for code that runs outside React — API route handlers,
+ * Translator for code that runs outside React - API route handlers,
  * validators shared by client and server, starter templates, and so on.
  * Components should keep using `useTranslations` / `getTranslations`.
  *

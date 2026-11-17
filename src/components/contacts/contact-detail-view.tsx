@@ -66,7 +66,7 @@ export function ContactDetailView({
   const [loading, setLoading] = useState(false);
   const [copiedPhone, setCopiedPhone] = useState(false);
 
-  // Send template — lets the business initiate (or re-open) a conversation
+  // Send template - lets the business initiate (or re-open) a conversation
   // with this contact by sending an approved template. The send route
   // find-or-creates the conversation, so no inbound message is required.
   const [templatePickerOpen, setTemplatePickerOpen] = useState(false);
@@ -207,8 +207,8 @@ export function ContactDetailView({
     }
 
     // Same rule as the create form: a changed number must start with `+`
-    // and a country code (issue #586). Unchanged numbers — including the
-    // digits-only form the inbound webhook stores — are left alone so a
+    // and a country code (issue #586). Unchanged numbers - including the
+    // digits-only form the inbound webhook stores - are left alone so a
     // name/email edit is never blocked by the phone field.
     const phoneChanged = editPhone.trim() !== (contact?.phone ?? '');
     if (phoneChanged && !parseInternationalPhone(editPhone)) {
@@ -348,7 +348,7 @@ export function ContactDetailView({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          // No conversation_id — the route find-or-creates one for this
+          // No conversation_id - the route find-or-creates one for this
           // contact, mirroring the inbox template-send payload otherwise.
           contact_id: contactId,
           message_type: 'template',

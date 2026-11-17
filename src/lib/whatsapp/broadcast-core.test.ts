@@ -6,7 +6,7 @@ import {
   BroadcastError,
 } from './broadcast-core';
 
-// Contact resolution and token decryption are exercised elsewhere — stub
+// Contact resolution and token decryption are exercised elsewhere - stub
 // them so these tests focus on the persistence boundary.
 vi.mock('@/lib/whatsapp/encryption', () => ({
   decrypt: () => 'plain-access-token',
@@ -16,7 +16,7 @@ vi.mock('@/lib/api/v1/contacts', () => ({
 }));
 
 // These assertions all fire in the pure validation prologue, before
-// any Supabase call — a bare stub is enough.
+// any Supabase call - a bare stub is enough.
 const db = {} as SupabaseClient;
 
 describe('createBroadcast validation', () => {
@@ -55,7 +55,7 @@ function makeDb(rpcResult: { data: unknown; error: unknown }) {
   const calls = {
     rpc: [] as { name: string; args: unknown }[],
     // Incremented if the OLD non-atomic path (a direct broadcasts /
-    // broadcast_recipients insert) is ever reached — it must not be.
+    // broadcast_recipients insert) is ever reached - it must not be.
     usedDirectInsert: 0,
   };
   const database = {
@@ -113,7 +113,7 @@ describe('createBroadcast recipient validation (#586)', () => {
       templateName: 'promo',
       recipients: [
         { to: '4155551212' }, // US national → Meta would read +41 (Switzerland)
-        { to: '14155550123' }, // country code but no + — indistinguishable
+        { to: '14155550123' }, // country code but no + - indistinguishable
         { to: '+14155550123' },
       ],
     });
@@ -212,7 +212,7 @@ describe('createBroadcast atomicity (#370)', () => {
     ).rejects.toBeInstanceOf(BroadcastError);
 
     // The RPC was the only persistence attempt; because it runs both
-    // inserts in a single transaction, its failure rolls the parent back —
+    // inserts in a single transaction, its failure rolls the parent back -
     // there is no separate parent insert that could survive as an orphan.
     expect(calls.rpc).toHaveLength(1);
     expect(calls.usedDirectInsert).toBe(0);
@@ -221,7 +221,7 @@ describe('createBroadcast atomicity (#370)', () => {
 
 // ============================================================
 // Terminal status (#472). Derived from the recipient rows, not from a
-// counter local to one delivery pass — a resume only sends the
+// counter local to one delivery pass - a resume only sends the
 // leftovers, so "nothing sent this pass" must not condemn a campaign
 // that already delivered hundreds.
 // ============================================================
@@ -259,7 +259,7 @@ describe('finalizeBroadcastStatus', () => {
   it('leaves a capped pass in "sending" while recipients are still pending', async () => {
     const writes: { update?: Record<string, unknown> } = {};
     await finalizeBroadcastStatus(statusDb({ pending: 25 }, 1025, writes), 'b-1');
-    // No write at all — the UI keeps offering Resume.
+    // No write at all - the UI keeps offering Resume.
     expect(writes.update).toBeUndefined();
   });
 

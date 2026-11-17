@@ -66,24 +66,24 @@ export const CHAT_MEDIA_BUCKET = "chat-media";
 export const MEDIA_CAPTION_MAX = 1024;
 
 /** Hard cap on a single voice recording so it can't blow the upload/
- *  transcode limits — auto-stops the recorder when reached. */
+ *  transcode limits - auto-stops the recorder when reached. */
 const MAX_RECORDING_SECONDS = 5 * 60;
 
 export interface SendMediaPayload {
   kind: ComposerMediaKind;
   /** Public chat-media URL Meta fetches at send time. */
   mediaUrl: string;
-  /** Storage object path — lets the caller GC the object if the send fails. */
+  /** Storage object path - lets the caller GC the object if the send fails. */
   path: string;
   /** Optional caption (image/video/document only). */
   caption?: string;
-  /** Original file name — surfaced to the recipient for documents. */
+  /** Original file name - surfaced to the recipient for documents. */
   filename?: string;
   replyToId?: string;
 }
 
 interface ReplyDraft {
-  /** Internal UUID of the message being replied to — sent back through onSend. */
+  /** Internal UUID of the message being replied to - sent back through onSend. */
   id: string;
   authorLabel: string;
   preview: string;
@@ -91,7 +91,7 @@ interface ReplyDraft {
 
 // Mirrors the chat-media bucket's allowed_mime_types (migration 023) for
 // the file picker so unsupported files are rejected before upload rather
-// than failing with a confusing Storage error. Audio has no picker — it's
+// than failing with a confusing Storage error. Audio has no picker - it's
 // captured via the recorder.
 const PICKER_ACCEPT: Record<"image" | "video" | "document", string> = {
   image: "image/png,image/jpeg,image/webp",
@@ -103,7 +103,7 @@ const PICKER_ACCEPT: Record<"image" | "video" | "document", string> = {
 interface MediaDraft {
   kind: ComposerMediaKind;
   mediaUrl: string;
-  /** Storage path — used to GC the object if the draft is discarded. */
+  /** Storage path - used to GC the object if the draft is discarded. */
   path: string;
   filename: string;
   caption: string;
@@ -151,7 +151,7 @@ export function MessageComposer({
 
   // Enter-to-send only on devices with a mouse/keyboard (fine pointer).
   // On touch devices (phones) Enter inserts a newline and the Send button
-  // is the only way to send — there's no practical Shift+Enter on a phone,
+  // is the only way to send - there's no practical Shift+Enter on a phone,
   // so intercepting Enter there blocks multi-line messages.
   const [enterSends, setEnterSends] = useState(false);
   useEffect(() => {
@@ -200,8 +200,8 @@ export function MessageComposer({
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Viewers (read-only role) can browse the inbox but never send.
-  // For solo users this is always true — single-owner accounts pass
-  // every capability — so the disabled branch is a no-op there.
+  // For solo users this is always true - single-owner accounts pass
+  // every capability - so the disabled branch is a no-op there.
   const canSend = useCan("send-messages");
   const readOnly = !canSend;
   // Media (like free-form text) is only allowed inside the 24h window.
@@ -270,7 +270,7 @@ export function MessageComposer({
   );
 
   // Ask the AI assistant for a suggested reply and drop it into the
-  // composer for the agent to edit + send. Read-only server-side —
+  // composer for the agent to edit + send. Read-only server-side -
   // nothing is sent until the agent hits Send.
   const handleDraft = useCallback(async () => {
     if (drafting) return;
@@ -478,7 +478,7 @@ export function MessageComposer({
       const recorder = new Recorder({
         encoderPath: OPUS_ENCODER_PATH,
         numberOfChannels: 1,
-        encoderApplication: 2048, // VOIP — tuned for speech
+        encoderApplication: 2048, // VOIP - tuned for speech
         encoderSampleRate: 48000,
         streamPages: false, // one callback with the complete file on stop
       });
@@ -535,12 +535,12 @@ export function MessageComposer({
       filename: draft.kind === "document" ? draft.filename : undefined,
       replyToId: replyTo?.id,
     });
-    // The object is now owned by the sent message — clear without GC.
+    // The object is now owned by the sent message - clear without GC.
     setDraft(null);
     onClearReply?.();
   }, [draft, busy, onSendMedia, replyTo?.id, onClearReply]);
 
-  // Discard GCs the staged object — it was uploaded but never sent.
+  // Discard GCs the staged object - it was uploaded but never sent.
   const discardDraft = useCallback(() => {
     removeStaged(draft?.path);
     setDraft(null);
@@ -623,7 +623,7 @@ export function MessageComposer({
           t={t}
         />
       ) : recording ? (
-        // Recording bar — replaces the composer while the mic is live.
+        // Recording bar - replaces the composer while the mic is live.
         <div className="flex items-center gap-3 rounded-xl border border-border bg-muted px-4 py-2.5">
           <span className="flex h-2.5 w-2.5 shrink-0 animate-pulse rounded-full bg-red-500" />
           <span className="flex-1 text-sm text-foreground">
@@ -651,7 +651,7 @@ export function MessageComposer({
               below the textarea (basis-full + order-2) so the input gets
               the full width; on sm+ it sits inline before the textarea. */}
           <div className="order-2 flex basis-full items-end gap-2 sm:order-1 sm:basis-auto">
-          {/* Attach menu — photo / video / document / voice. */}
+          {/* Attach menu - photo / video / document / voice. */}
           <DropdownMenu>
             <DropdownMenuTrigger
               disabled={inputsDisabled || busy}
@@ -690,7 +690,7 @@ export function MessageComposer({
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {/* + menu — interactive messages + quick replies. Gated on the
+          {/* + menu - interactive messages + quick replies. Gated on the
               24h window like free-form text (interactive requires it). */}
           <DropdownMenu>
             <DropdownMenuTrigger
@@ -762,7 +762,7 @@ export function MessageComposer({
             }
             disabled={sessionExpired || readOnly}
             rows={1}
-            // Textarea keeps its own inline title — the GatedButton
+            // Textarea keeps its own inline title - the GatedButton
             // wrapping pattern doesn't apply to non-button inputs.
             // The placeholder text also surfaces the read-only state.
             title={readOnly ? t("readOnlyTitle") : undefined}
@@ -840,7 +840,7 @@ export function MessageComposer({
 /**
  * Staged-attachment preview with caption + send/discard. Declared at
  * module scope (not nested in MessageComposer) so React keeps it mounted
- * across the parent's re-renders — a nested component would remount the
+ * across the parent's re-renders - a nested component would remount the
  * caption input on every keystroke and drop focus.
  */
 function MediaDraftPreview({

@@ -1,5 +1,5 @@
 // ============================================================
-// Public API authentication — resolve a request's API key into an
+// Public API authentication - resolve a request's API key into an
 // account context.
 //
 // This is the machine-to-machine counterpart of `getCurrentAccount`
@@ -7,14 +7,14 @@
 // human via Supabase cookies, the public API authenticates a caller
 // via `Authorization: Bearer wacrm_live_…`.
 //
-// Calling convention — every `/api/v1` route does:
+// Calling convention - every `/api/v1` route does:
 //
 //   try {
 //     const ctx = await requireApiKey(request, "messages:send");
-//     // ctx.supabase   — service-role client (no user session exists)
-//     // ctx.accountId  — the key's account; scope every query by it
-//     // ctx.scopes     — granted scopes
-//     // ctx.keyId      — for logging / the rate-limit bucket
+//     // ctx.supabase   - service-role client (no user session exists)
+//     // ctx.accountId  - the key's account; scope every query by it
+//     // ctx.scopes     - granted scopes
+//     // ctx.keyId      - for logging / the rate-limit bucket
 //   } catch (err) {
 //     return toApiErrorResponse(err);   // maps ApiError → envelope
 //   }
@@ -37,13 +37,13 @@ import { forbidden, rateLimited, unauthorized } from '@/lib/api/v1/respond';
 import { checkRateLimit, RATE_LIMITS } from '@/lib/rate-limit';
 
 export interface ApiKeyContext {
-  /** Discriminant — lets shared logic tell key auth from cookie auth. */
+  /** Discriminant - lets shared logic tell key auth from cookie auth. */
   authType: 'api_key';
   /** Service-role Supabase client. RLS-bypassing; scope by accountId. */
   supabase: SupabaseClient;
   /** The account this key belongs to. */
   accountId: string;
-  /** The key row id — for audit logging and the rate-limit bucket. */
+  /** The key row id - for audit logging and the rate-limit bucket. */
   keyId: string;
   /** Scopes granted to this key. */
   scopes: string[];
@@ -68,9 +68,9 @@ function extractKey(request: Request): string | null {
  * single scope. Throws an `ApiError` (mapped to the envelope by
  * `toApiErrorResponse`) on any failure:
  *
- *   401 unauthorized — no key, malformed, unknown, revoked, expired
- *   403 forbidden    — valid key without the required scope
- *   429 rate_limited — per-key budget exhausted
+ *   401 unauthorized - no key, malformed, unknown, revoked, expired
+ *   403 forbidden    - valid key without the required scope
+ *   429 rate_limited - per-key budget exhausted
  *
  * On success, bumps `last_used_at` (fire-and-forget) and returns the
  * account context.
@@ -86,7 +86,7 @@ export async function requireApiKey(
 
   const row = await findActiveKeyByHash(hashApiKey(presented));
   if (!row) {
-    // Covers unknown, revoked, and expired keys alike — we don't
+    // Covers unknown, revoked, and expired keys alike - we don't
     // distinguish them on the wire so a probe can't learn whether a
     // key ever existed.
     throw unauthorized();

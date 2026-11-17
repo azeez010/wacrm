@@ -42,7 +42,7 @@ interface MetaErrorResponse {
     error_subcode?: number
     type?: string
     fbtrace_id?: string
-    /** WhatsApp-specific envelope — `details` is the human-readable part. */
+    /** WhatsApp-specific envelope - `details` is the human-readable part. */
     error_data?: { messaging_product?: string; details?: string }
   }
 }
@@ -54,7 +54,7 @@ interface MetaErrorResponse {
  * caller's fallback when the body wasn't JSON) so every existing
  * `err.message` consumer keeps working. The extra fields are what
  * `meta-error-explain.ts` needs to say *why* a call failed and which
- * setting to check — and what a user has to quote to Meta support
+ * setting to check - and what a user has to quote to Meta support
  * (`fbtrace_id`). Issue #505.
  */
 export class MetaApiError extends Error {
@@ -63,7 +63,7 @@ export class MetaApiError extends Error {
   readonly type: string | null
   readonly fbtraceId: string | null
   readonly httpStatus: number
-  /** `error.error_data.details` — WhatsApp endpoints put the useful text here. */
+  /** `error.error_data.details` - WhatsApp endpoints put the useful text here. */
   readonly details: string | null
 
   constructor(
@@ -90,7 +90,7 @@ export class MetaApiError extends Error {
 
 /**
  * Read a failed Graph response into a MetaApiError without throwing.
- * Consumes the body — call at most once per response.
+ * Consumes the body - call at most once per response.
  */
 async function readMetaError(response: Response, fallback: string): Promise<MetaApiError> {
   let message = fallback
@@ -100,7 +100,7 @@ async function readMetaError(response: Response, fallback: string): Promise<Meta
     envelope = data.error
     if (envelope?.message) message = envelope.message
   } catch {
-    // response body wasn't JSON — keep the fallback
+    // response body wasn't JSON - keep the fallback
   }
   return new MetaApiError(message, {
     code: typeof envelope?.code === 'number' ? envelope.code : null,
@@ -183,7 +183,7 @@ export async function getPhoneNumberHealth(
 //     6-digit 2FA PIN the user previously set in Meta WhatsApp
 //     Manager → Two-step verification. Without /register, inbound
 //     events are routed to whichever app last claimed the number
-//     (often the one that did Embedded Signup) — so a second user
+//     (often the one that did Embedded Signup) - so a second user
 //     adding a second number under the same WABA silently loses
 //     every inbound message.
 //
@@ -192,7 +192,7 @@ export async function getPhoneNumberHealth(
 //     once per WABA, but idempotent so calling on every save is
 //     safe and cheap.
 //
-// Both calls are no-ops when already done — Meta returns success +
+// Both calls are no-ops when already done - Meta returns success +
 // the helpers below treat that as success.
 
 export interface RegisterPhoneNumberArgs {
@@ -211,7 +211,7 @@ export interface RegisterPhoneNumberResult {
   success: boolean
   /**
    * True when Meta indicated the number was already registered to
-   * THIS app — same outcome as a fresh registration from the
+   * THIS app - same outcome as a fresh registration from the
    * caller's POV, surfaced separately for logging clarity.
    */
   alreadyRegistered: boolean
@@ -245,7 +245,7 @@ export async function registerPhoneNumber(
 
   // Meta returns an error envelope with a code. Code 133005 + the
   // text "already registered" appears when the number is already
-  // subscribed to this app — that's success from the caller's
+  // subscribed to this app - that's success from the caller's
   // perspective, surface it as such.
   const error = await readMetaError(response, `Meta API error: ${response.status}`)
   if (/already.*registered/i.test(error.message)) {
@@ -260,7 +260,7 @@ export interface SubscribeWabaToAppArgs {
 }
 
 /**
- * Subscribe the WABA to this Meta app's webhook. Idempotent — Meta
+ * Subscribe the WABA to this Meta app's webhook. Idempotent - Meta
  * returns success even when the subscription already exists.
  */
 export async function subscribeWabaToApp(
@@ -294,7 +294,7 @@ export interface WabaPhoneNumber {
  * Used by POST /api/whatsapp/config to prove the Phone Number ID the
  * user typed actually belongs to the WABA ID they typed. A mismatch
  * used to save fine and surface days later as "the webhook never
- * fires" — the WABA that got subscribed wasn't the one owning the
+ * fires" - the WABA that got subscribed wasn't the one owning the
  * number (issue #505). Follows `paging.next` a few pages in case a
  * WABA holds more numbers than one page returns.
  */
@@ -336,7 +336,7 @@ export interface SubscribedApp {
 }
 
 /**
- * Diagnostic — fetch the list of apps currently subscribed to this
+ * Diagnostic - fetch the list of apps currently subscribed to this
  * WABA. The UI uses this to confirm OUR app is in the list when
  * the user clicks Verify Registration.
  */
@@ -363,7 +363,7 @@ export async function getSubscribedApps(
 // FB.login hands back for a short-lived access token scoped to the
 // WABA the tenant just granted the Tech Provider access to. That
 // token is used ONLY to finish the grant (subscribing the WABA to
-// our app — see subscribeWabaToApp) and is never persisted; every
+// our app - see subscribeWabaToApp) and is never persisted; every
 // later Graph API call for a 'shared' connection reuses the
 // platform's own long-lived system-user token instead, per Meta's
 // Tech Provider permission model.
@@ -468,7 +468,7 @@ export interface SendMediaMessageArgs {
   kind: MediaKind
   /** Public URL Meta fetches at send time. */
   link: string
-  /** Optional caption — Meta caps at 1024 chars. Documents + images + videos accept it; audio does NOT. */
+  /** Optional caption - Meta caps at 1024 chars. Documents + images + videos accept it; audio does NOT. */
   caption?: string
   /** Document-only. Shown in the recipient's chat as the file name. Ignored for image/video/audio. */
   filename?: string
@@ -479,7 +479,7 @@ export interface SendMediaMessageArgs {
  * Send an image, video, document, or audio (voice note) via a public URL.
  *
  * Used by the Flows engine's `send_media` node and the inbox composer's
- * agent-initiated media sends. Mirrors `sendTextMessage` — single fetch,
+ * agent-initiated media sends. Mirrors `sendTextMessage` - single fetch,
  * throws on non-2xx, returns Meta's message id.
  *
  * Audio is special-cased: Meta rejects `caption` and `filename` on audio
@@ -494,7 +494,7 @@ export async function sendMediaMessage(
   if (!link) throw new Error('sendMediaMessage requires a link.')
   const url = `${META_API_BASE}/${phoneNumberId}/messages`
 
-  // Audio accepts neither caption nor filename per Meta's spec — adding
+  // Audio accepts neither caption nor filename per Meta's spec - adding
   // either yields a 400. image/video/document accept a caption; only
   // document accepts a filename.
   const media: Record<string, unknown> = { link }
@@ -546,7 +546,7 @@ export interface SendTemplateMessageArgs {
   /**
    * The template row from message_templates. When provided, the helper
    * builds the full components array (header + body + buttons) via
-   * buildSendComponents — that's the only way image/video/document
+   * buildSendComponents - that's the only way image/video/document
    * headers and URL-with-variable buttons actually reach the recipient.
    */
   template?: MessageTemplate
@@ -607,7 +607,7 @@ export async function sendTemplateMessage(
       templatePayload.components = components
     }
   } else if (params && params.length > 0) {
-    // Legacy body-only path — no template row available.
+    // Legacy body-only path - no template row available.
     templatePayload.components = [
       {
         type: 'body',
@@ -646,7 +646,7 @@ export async function sendTemplateMessage(
 // ============================================================
 //
 // Creating a message template with a media HEADER (image/video/
-// document) requires an `example.header_handle` — Meta does NOT accept
+// document) requires an `example.header_handle` - Meta does NOT accept
 // a plain public URL at creation time. The handle comes from the
 // two-step Resumable Upload API, which is keyed on the Meta APP id (not
 // the phone number / WABA):
@@ -659,7 +659,7 @@ export async function sendTemplateMessage(
 // See https://developers.facebook.com/docs/graph-api/guides/upload
 
 export interface UploadResumableMediaArgs {
-  /** Meta App id (env META_APP_ID) — resumable upload is app-scoped. */
+  /** Meta App id (env META_APP_ID) - resumable upload is app-scoped. */
   appId: string
   accessToken: string
   fileName: string
@@ -677,7 +677,7 @@ export async function uploadResumableMedia(
 ): Promise<{ handle: string }> {
   const { appId, accessToken, fileName, mimeType, bytes } = args
 
-  // Step 1 — open an upload session.
+  // Step 1 - open an upload session.
   const startParams = new URLSearchParams({
     file_name: fileName,
     file_length: String(bytes.byteLength),
@@ -696,7 +696,7 @@ export async function uploadResumableMedia(
     throw new Error('Resumable upload did not return a session id.')
   }
 
-  // Step 2 — upload the bytes. Note the `OAuth` auth scheme (not Bearer)
+  // Step 2 - upload the bytes. Note the `OAuth` auth scheme (not Bearer)
   // and the file_offset header, both required by this endpoint.
   const uploadRes = await fetch(`${META_API_BASE}/${startData.id}`, {
     method: 'POST',
@@ -780,9 +780,9 @@ export interface EditMessageTemplateArgs {
   /** Meta's template id (stored locally as `meta_template_id`). */
   metaTemplateId: string
   accessToken: string
-  /** Send the full components array — Meta replaces, not patches. */
+  /** Send the full components array - Meta replaces, not patches. */
   components: MetaTemplateSubmitPayload['components']
-  /** Optional — only certain category transitions are allowed by Meta. */
+  /** Optional - only certain category transitions are allowed by Meta. */
   category?: MetaTemplateSubmitPayload['category']
 }
 
@@ -798,7 +798,7 @@ export interface EditMessageTemplateResult {
  * back to PENDING until Meta approves the new components.
  *
  * Note: PENDING / DISABLED / IN_APPEAL templates cannot be edited
- * — the route handler enforces that before calling here.
+ * - the route handler enforces that before calling here.
  */
 export async function editMessageTemplate(
   args: EditMessageTemplateArgs
@@ -835,7 +835,7 @@ export interface DeleteMessageTemplateArgs {
 
 /**
  * Delete a message template on Meta. Pass `metaTemplateId` to scope
- * to a single language variant — otherwise Meta nukes every variant
+ * to a single language variant - otherwise Meta nukes every variant
  * sharing the same `name`.
  */
 export async function deleteMessageTemplate(
@@ -849,7 +849,7 @@ export async function deleteMessageTemplate(
     method: 'DELETE',
     headers: { Authorization: `Bearer ${accessToken}` },
   })
-  // Treat a 404 as a no-op — the template is already gone on Meta's
+  // Treat a 404 as a no-op - the template is already gone on Meta's
   // side, and we still want the local row removed.
   if (response.status === 404) return
   if (!response.ok) {
@@ -907,7 +907,7 @@ export async function sendReactionMessage(
 export interface SendTypingIndicatorArgs {
   phoneNumberId: string
   accessToken: string
-  /** Meta's wamid of the INBOUND message we're about to answer — must
+  /** Meta's wamid of the INBOUND message we're about to answer - must
    *  come from a received-message webhook, not one of our own sends. */
   messageId: string
 }
@@ -922,7 +922,7 @@ export interface SendTypingIndicatorArgs {
  * actually coming.
  *   https://developers.facebook.com/docs/whatsapp/cloud-api/typing-indicators
  *
- * Returns nothing — the endpoint answers `{ success: true }` and mints
+ * Returns nothing - the endpoint answers `{ success: true }` and mints
  * no message id. Callers should treat it as best-effort: a failure here
  * must never block the reply that follows.
  */
@@ -953,7 +953,7 @@ export async function sendTypingIndicator(
 // Interactive (button replies + list messages)
 // ============================================================
 //
-// Meta's two flavours of interactive message — used by the Flows
+// Meta's two flavours of interactive message - used by the Flows
 // engine to drive scripted chatbot menus. Caller passes plain
 // JS values; helpers shape the Meta payload and enforce Meta's
 // limits BEFORE the network call so the failure mode is a
@@ -989,7 +989,7 @@ export interface SendInteractiveButtonsArgs {
   phoneNumberId: string
   accessToken: string
   to: string
-  /** The body text — what the customer reads above the buttons. */
+  /** The body text - what the customer reads above the buttons. */
   bodyText: string
   /** Optional plain-text header (≤ 60 chars). */
   headerText?: string
@@ -1026,7 +1026,7 @@ export async function sendInteractiveButtons(
   const seenButtonIds = new Set<string>()
   for (const btn of buttons) {
     if (!btn.id) throw new Error(ti('buttonMissingId'))
-    // Duplicate button ids make the tapped-button webhook ambiguous —
+    // Duplicate button ids make the tapped-button webhook ambiguous -
     // Meta rejects them, and the pre-flight validator (interactive.ts)
     // rejects them too, so guard here to keep the two paths in step.
     if (seenButtonIds.has(btn.id)) {
@@ -1249,7 +1249,7 @@ export interface GetMediaUrlArgs {
  *
  * `fileSize` is Meta's `file_size` (bytes) and is what lets the
  * inbound mirror (issue #466) reject a file the `chat-media` bucket
- * would refuse WITHOUT downloading it first — a 90 MB document costs
+ * would refuse WITHOUT downloading it first - a 90 MB document costs
  * nothing to skip here and a full transfer to skip after the fact.
  * Null when Meta omits the field or sends something non-numeric.
  */

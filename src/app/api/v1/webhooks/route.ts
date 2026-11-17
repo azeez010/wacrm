@@ -1,8 +1,8 @@
 // ============================================================
-// GET  /api/v1/webhooks — list webhook endpoints (scope: webhooks:manage)
-// POST /api/v1/webhooks — register an endpoint    (scope: webhooks:manage)
+// GET  /api/v1/webhooks - list webhook endpoints (scope: webhooks:manage)
+// POST /api/v1/webhooks - register an endpoint    (scope: webhooks:manage)
 //
-// POST returns the signing `secret` in plaintext exactly once — store
+// POST returns the signing `secret` in plaintext exactly once - store
 // it to verify the `X-Wacrm-Signature` on deliveries. wacrm keeps only
 // an encrypted copy and can never show it again.
 // ============================================================
@@ -33,7 +33,7 @@ export async function GET(request: Request) {
       return fail('internal', 'Failed to list webhooks', 500);
     }
 
-    // The roster is small and settings-class — return it whole (the
+    // The roster is small and settings-class - return it whole (the
     // list envelope's cursor is always null here).
     return okList(
       (data ?? []).map((r) =>

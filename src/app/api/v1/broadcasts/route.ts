@@ -1,5 +1,5 @@
 // ============================================================
-// POST /api/v1/broadcasts — launch a template broadcast
+// POST /api/v1/broadcasts - launch a template broadcast
 // (scope: broadcasts:send).
 //
 // Body:
@@ -29,7 +29,7 @@ import { requireApiKey } from '@/lib/auth/api-context';
 // The `after()` fan-out below sends to every recipient sequentially and
 // runs within this route's max duration (the same constraint the
 // webhook route documents). Give it headroom beyond the platform
-// default so a modest batch isn't cut off mid-send — which would leave
+// default so a modest batch isn't cut off mid-send - which would leave
 // recipient rows 'pending' and the broadcast stuck 'sending'. This is a
 // bound, not a guarantee: a near-cap (MAX_RECIPIENTS) audience can
 // still exceed 60s, so very large sends should be split across
@@ -75,7 +75,7 @@ export async function POST(request: Request) {
     });
 
     // Fan out after the response is sent. Uses the same service-role
-    // client — no request-scoped auth needed for the Meta calls or
+    // client - no request-scoped auth needed for the Meta calls or
     // the account-scoped row updates.
     after(() => deliverBroadcast(ctx.supabase, plan));
 

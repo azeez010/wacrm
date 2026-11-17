@@ -26,7 +26,7 @@ export type CanAction =
 
 /**
  * Inline alternative to `<RequireRole>` for places that need a
- * boolean rather than a render conditional — typically disabled-
+ * boolean rather than a render conditional - typically disabled-
  * state on buttons, the readOnly flag on inputs, or controlling
  * tooltip copy ("Read-only" vs the action label).
  *
@@ -55,7 +55,7 @@ export function useCan(action: CanAction): boolean {
     case "transfer-ownership":
       return canTransferOwnership(accountRole);
     default: {
-      // Exhaustiveness check — adding a new `CanAction` without a
+      // Exhaustiveness check - adding a new `CanAction` without a
       // case here fails the typecheck because TS narrows `action`
       // to `never` in this branch. The runtime throw is unreachable
       // for valid inputs; it only fires if someone bypasses the

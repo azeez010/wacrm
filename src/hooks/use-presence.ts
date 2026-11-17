@@ -45,7 +45,7 @@ interface UsePresenceResult {
 export function usePresence(enabled = true): UsePresenceResult {
   const { accountId } = useAuth();
 
-  // Presence rows keyed by user_id, held in immutable state — each
+  // Presence rows keyed by user_id, held in immutable state - each
   // update replaces the Map so React renders and the derived getters
   // recompute. No ref/version dance needed.
   const [rows, setRows] = useState<PresenceMap>(() => new Map());
@@ -78,7 +78,7 @@ export function usePresence(enabled = true): UsePresenceResult {
 
     // Subscribe FIRST, then snapshot. The snapshot MERGES into whatever
     // Realtime has already delivered (keeping the newer last_seen_at)
-    // rather than replacing the map — so an event that lands while the
+    // rather than replacing the map - so an event that lands while the
     // fetch is in flight isn't clobbered by a staler snapshot row.
     const channel: RealtimeChannel = supabase
       .channel(`presence:${accountId}`)

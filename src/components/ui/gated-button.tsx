@@ -1,11 +1,11 @@
 "use client";
 
 // ============================================================
-// GatedButton — Button + role-gated "Read-only" tooltip helper.
+// GatedButton - Button + role-gated "Read-only" tooltip helper.
 //
 // The wider problem this solves:
 //
-//   A bare `<Button disabled title="Read-only — ...">` doesn't
+//   A bare `<Button disabled title="Read-only - ...">` doesn't
 //   render a tooltip in Safari or older Firefox because those
 //   browsers don't fire mouse events on disabled form controls.
 //   Title attributes only render when the element receives a
@@ -24,7 +24,7 @@
 // The minor problem it also solves:
 //
 //   Five list pages had near-identical
-//   `READ_ONLY_TITLE = "Read-only — your role can't ..."`
+//   `READ_ONLY_TITLE = "Read-only - your role can't ..."`
 //   constants. GatedButton takes a single `gateReason` prop
 //   and centralises the tooltip wording (with per-action
 //   defaults).
@@ -41,7 +41,7 @@
 //
 // `canAct` defaults to true so unrelated usages still work.
 // When `canAct` is false, the button is `disabled` and the
-// wrapping span gets a `title` of `"Read-only — your role
+// wrapping span gets a `title` of `"Read-only - your role
 // can't ${gateReason}"`.
 // ============================================================
 
@@ -57,7 +57,7 @@ interface GatedButtonProps extends Omit<ComponentProps<typeof Button>, "title"> 
    *  without the prop is just a Button. */
   canAct?: boolean;
   /** Already-translated verb phrase that completes the sentence
-   *  `"Read-only — your role can't <gateReason>"` (see the
+   *  `"Read-only - your role can't <gateReason>"` (see the
    *  `GatedButton.reasons.*` messages). Provided per-call so each
    *  CTA can name what it does ("create flows", "send messages"). */
   gateReason?: string;
@@ -86,7 +86,7 @@ export function GatedButton({
       // `inline-flex` so the span sizes to the button and doesn't
       // collapse to zero width / break inline layouts. `title`
       // here (not on the button) is what makes the tooltip work
-      // in Safari / older Firefox — those browsers don't fire
+      // in Safari / older Firefox - those browsers don't fire
       // mouseover on disabled buttons.
       className={cn("inline-flex", !canAct && "cursor-not-allowed")}
       title={tooltip}

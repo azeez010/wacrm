@@ -15,7 +15,7 @@ const t = getT('Api')
 type Params = { params: Promise<{ id: string }> }
 
 /**
- * GET /api/ai/knowledge/[id] — full document (any member).
+ * GET /api/ai/knowledge/[id] - full document (any member).
  */
 export async function GET(_request: Request, { params }: Params) {
   try {
@@ -39,7 +39,7 @@ export async function GET(_request: Request, { params }: Params) {
 }
 
 /**
- * PATCH /api/ai/knowledge/[id]  (admin+) — update title/content and
+ * PATCH /api/ai/knowledge/[id]  (admin+) - update title/content and
  * re-index when the content changed.
  */
 export async function PATCH(request: Request, { params }: Params) {
@@ -126,7 +126,7 @@ export async function PATCH(request: Request, { params }: Params) {
 }
 
 /**
- * DELETE /api/ai/knowledge/[id]  (admin+) — chunks cascade.
+ * DELETE /api/ai/knowledge/[id]  (admin+) - chunks cascade.
  */
 export async function DELETE(_request: Request, { params }: Params) {
   try {

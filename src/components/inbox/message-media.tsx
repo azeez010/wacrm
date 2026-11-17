@@ -20,7 +20,7 @@ import { useMediaBlobUrl } from "@/hooks/use-media-blob-url";
 /**
  * The media renderers behind `<MessageBubble>`'s image / video / audio /
  * document cases. Split out of message-bubble.tsx so that file stays a
- * thin content switch — everything here is about the two affordances
+ * thin content switch - everything here is about the two affordances
  * issue #373 asked for: open it full-size, and save it.
  *
  * Both are less trivial than they look, because the two flavours of
@@ -51,7 +51,7 @@ export function MediaUnavailable({
 
 /**
  * Kicks off a download and reports failure as a toast. Kept as a hook so
- * each bubble owns its own in-flight state — a slow 16 MB video shouldn't
+ * each bubble owns its own in-flight state - a slow 16 MB video shouldn't
  * put a spinner on every other attachment in the thread.
  */
 function useMediaDownload(message: Message, t: Translator) {
@@ -202,7 +202,7 @@ export function MediaVideoBubble({
         preload="metadata"
         className={cn(MEDIA_BOX, "rounded-lg")}
       />
-      {/* Top-right, clear of the native controls — and always visible, since
+      {/* Top-right, clear of the native controls - and always visible, since
           expanding is the only way to watch a clip capped at 15rem wide and
           a touch device gets no hover. */}
       <div className="absolute right-2 top-2 flex gap-1">

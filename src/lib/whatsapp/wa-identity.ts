@@ -3,8 +3,8 @@
  *
  * Until 2026 a customer was always a phone number: `messages[].from`
  * and `contacts[].wa_id`. With WhatsApp usernames, Meta assigns every
- * user a **business-scoped user ID** (BSUID) — an id that is unique to
- * one business portfolio — and once a user adopts a username and the
+ * user a **business-scoped user ID** (BSUID) - an id that is unique to
+ * one business portfolio - and once a user adopts a username and the
  * business has no recent interaction history with them, Meta **omits
  * the phone number entirely**:
  *
@@ -14,14 +14,14 @@
  * `wa_id` and `from` are simply absent. Keying a contact on the phone
  * alone therefore resolved to the empty string for those senders, and
  * because the account-wide unique index is partial
- * (`WHERE phone_normalized <> ''`) nothing stopped a fresh contact —
- * and a fresh conversation — being created for *every single inbound
+ * (`WHERE phone_normalized <> ''`) nothing stopped a fresh contact -
+ * and a fresh conversation - being created for *every single inbound
  * message* from that person.
  *
  * A BSUID is stable per (user, business portfolio), so it is the
  * better key when present. Phone stays the fallback, and the webhook
  * backfills the BSUID onto an already-known phone contact the first
- * time Meta sends one — which is what keeps a customer's history in
+ * time Meta sends one - which is what keeps a customer's history in
  * one place across the transition.
  *
  * Docs: https://developers.facebook.com/documentation/business-messaging/whatsapp/business-scoped-user-ids/
@@ -68,7 +68,7 @@ export interface WaIdentity {
 /**
  * BSUIDs are `COUNTRY.digits` or `COUNTRY.ENT.digits`. The only
  * property we rely on elsewhere is that they contain a `.` and a phone
- * number never does — see `isBusinessScopedUserId`.
+ * number never does - see `isBusinessScopedUserId`.
  */
 const BSUID_PATTERN = /^[A-Za-z]{2}\.(?:ENT\.)?[A-Za-z0-9]{4,}$/
 
@@ -94,7 +94,7 @@ function cleanBsuid(value: string | undefined): string | null {
   const trimmed = value?.trim()
   if (!trimmed) return null
   // Refuse anything that doesn't look like a BSUID rather than storing
-  // it — a bad value in `wa_user_id` becomes a permanent wrong contact
+  // it - a bad value in `wa_user_id` becomes a permanent wrong contact
   // key, and the phone fallback is still available.
   return isBusinessScopedUserId(trimmed) ? trimmed : null
 }
@@ -122,7 +122,7 @@ export function resolveInboundIdentity(
 }
 
 /**
- * False when Meta gave us neither a phone nor a BSUID — there is no key
+ * False when Meta gave us neither a phone nor a BSUID - there is no key
  * to find or create a contact under, so the delivery has to be dropped
  * rather than turned into an anonymous row.
  */
@@ -133,7 +133,7 @@ export function hasUsableIdentity(identity: WaIdentity): boolean {
 /**
  * Best available label for a contact row's `name`, which is what the
  * inbox and contact list render. Prefers the profile name, then the
- * username, then the phone, and only falls back to the BSUID — an
+ * username, then the phone, and only falls back to the BSUID - an
  * opaque string, but better than a blank row.
  */
 export function identityDisplayName(identity: WaIdentity): string {
@@ -167,7 +167,7 @@ export interface WaSendTarget {
   target: string
   /**
    * True when `target` is a phone number. Callers use it to decide
-   * whether the trunk-prefix variant retry (`phoneVariants`) applies —
+   * whether the trunk-prefix variant retry (`phoneVariants`) applies -
    * a BSUID is opaque and has exactly one correct form.
    */
   isPhone: boolean
@@ -180,8 +180,8 @@ export interface WaSendTarget {
  * automations, reactions) used to demand a valid phone number and throw
  * otherwise, which made a customer who had adopted a WhatsApp username
  * unanswerable: their messages arrived, and every reply failed
- * (issue #519). Phone stays preferred — it's the only branch the
- * variant retry can help — with the BSUID as the fallback.
+ * (issue #519). Phone stays preferred - it's the only branch the
+ * variant retry can help - with the BSUID as the fallback.
  */
 export function resolveContactSendTarget(contact: {
   phone?: string | null

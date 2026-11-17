@@ -87,7 +87,7 @@ import {
 } from "@/lib/automations/time-of-day"
 
 // ------------------------------------------------------------
-// Types (builder-local — mirror the flattened rows we POST)
+// Types (builder-local - mirror the flattened rows we POST)
 // ------------------------------------------------------------
 
 export interface BuilderStep {
@@ -110,7 +110,7 @@ export interface BuilderInitial {
 }
 
 // ------------------------------------------------------------
-// Step metadata — one source of truth for icon + label + border color
+// Step metadata - one source of truth for icon + label + border color
 // ------------------------------------------------------------
 
 interface StepMeta {
@@ -278,7 +278,7 @@ function ResourcesProvider({ children }: { children: ReactNode }) {
     let cancelled = false
     const supabase = createClient()
 
-    // Tags, templates and custom fields come straight from the DB — RLS
+    // Tags, templates and custom fields come straight from the DB - RLS
     // scopes them to the caller's account. Only APPROVED templates can
     // actually be sent (anything else 400s at send time), matching the
     // broadcast picker.
@@ -316,7 +316,7 @@ function ResourcesProvider({ children }: { children: ReactNode }) {
         const json = (await res.json()) as { members?: AccountMember[] }
         if (!cancelled) setMembers(json.members ?? [])
       } catch {
-        // Members endpoint absent — caller falls back to raw input.
+        // Members endpoint absent - caller falls back to raw input.
       }
     })()
 
@@ -936,7 +936,7 @@ function KeywordMatchConfig({
 
   // Persist the default the <select> displays. The dropdown falls back to
   // "contains" for display, but leaving it untouched would otherwise omit
-  // match_type from the saved config — and activation validation then
+  // match_type from the saved config - and activation validation then
   // rejected it (trigger.match_type). Seed once on mount; the component
   // remounts when the trigger type changes, matching the keywords draft.
   useEffect(() => {
@@ -993,7 +993,7 @@ function KeywordMatchConfig({
           <option value="word">{t("config.matchWord")}</option>
           <option value="exact">{t("config.matchExact")}</option>
         </select>
-        {/* Only worth explaining for `word` — "contains" and "exact" read
+        {/* Only worth explaining for `word` - "contains" and "exact" read
             for themselves, and this is the one that changes which messages
             fire an automation in a way that isn't obvious. */}
         {config?.match_type === "word" && (
@@ -1059,7 +1059,7 @@ function InteractiveReplyConfig({
 interface StepListProps {
   steps: BuilderStep[]
   /**
-   * Path of the step that owns this list — `[]` for the root canvas,
+   * Path of the step that owns this list - `[]` for the root canvas,
    * the condition's own path for a branch column. Combined with
    * `scope` by `childPath` to address each child.
    */
@@ -1118,7 +1118,7 @@ function StepRenderer({
   const nested = basePath.length > 0
   // Card widths on mobile fill the full canvas column (max-w-2xl px-4
   // still keeps them reasonable). On sm+ fixed widths come back so the
-  // flow visual stays recognisable — but only at the top level: a
+  // flow visual stays recognisable - but only at the top level: a
   // branch column is a fraction of its condition's width, so a 320px
   // card inside one overflowed its own column and dragged the editor's
   // controls out of reach (issue #474). Nested cards fill the column
@@ -1126,7 +1126,7 @@ function StepRenderer({
   //
   // A condition is wider than a plain step because it has to hold two
   // branch columns side by side; 600px (the canvas is max-w-2xl, i.e.
-  // 640px of content) leaves each branch ~294px — near enough to the
+  // 640px of content) leaves each branch ~294px - near enough to the
   // 320px a step gets at the top level for the same editors to fit.
   const width = nested
     ? "w-full"
@@ -1209,7 +1209,7 @@ function StepRenderer({
       </div>
 
       {/* A condition branches into Yes/No (rendered above by
-          ConditionBranches), so it has no linear "continue" path — adding
+          ConditionBranches), so it has no linear "continue" path, adding
           the trailing connector here would produce a spurious third output. */}
       {!isCondition && (
         <AddButton onPick={(t) => props.addStepAt(scope, index + 1, t)} />

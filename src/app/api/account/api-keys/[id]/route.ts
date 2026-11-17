@@ -1,5 +1,5 @@
 // ============================================================
-// DELETE /api/account/api-keys/[id] — revoke a key.
+// DELETE /api/account/api-keys/[id] - revoke a key.
 //
 // Soft revoke: sets `revoked_at` rather than deleting the row, so
 // the key's name/prefix stay visible in the roster as an audit

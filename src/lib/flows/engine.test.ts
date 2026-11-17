@@ -6,7 +6,7 @@ import { beforeEach, describe, it, expect, vi } from "vitest";
 // query-builder stand-in plus a stubbed meta-send, so we can drive the
 // real `dispatchInboundToFlows` and assert on the payload that would
 // have gone to Meta. vi.mock is hoisted above the imports below, so
-// the pure-helper tests are unaffected — they never touch either.
+// the pure-helper tests are unaffected - they never touch either.
 // ============================================================
 
 const h = vi.hoisted(() => ({
@@ -394,7 +394,7 @@ describe("evaluateConditionPredicate", () => {
 // {{vars.*}} interpolation in send_buttons / send_list (issue #553).
 //
 // A send_buttons node placed after a collect_input used to send
-// "Hi {{vars.name}}" literally — only send_message, send_media
+// "Hi {{vars.name}}" literally - only send_message, send_media
 // captions and collect_input prompts were interpolated.
 // ============================================================
 
@@ -442,7 +442,7 @@ const BUTTONS_NODE = {
   config: {
     text: "Hi {{vars.name}}, please choose an option.",
     header_text: "Welcome {{vars.name}}",
-    // footer_text deliberately absent — must stay absent, not become "".
+    // footer_text deliberately absent - must stay absent, not become "".
     buttons: [
       { reply_id: "yes", title: "Yes, {{vars.name}}", next_node_key: "done" },
       // A reply_id is a routing key, not customer-visible text; it must
@@ -473,7 +473,7 @@ const LIST_NODE = {
             description: "Best for {{vars.name}}",
             next_node_key: "done",
           },
-          // No description — must stay absent.
+          // No description - must stay absent.
           { reply_id: "pro", title: "Pro", next_node_key: "done" },
         ],
       },

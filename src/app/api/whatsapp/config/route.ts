@@ -18,7 +18,7 @@ const t = getT('Api')
  * Delegates to the new /api/whatsapp/connections endpoints when an
  * account has exactly one connection (the common case, and every
  * account's state before this migration). Returns 409 when an
- * account has more than one — any caller still on this path needs to
+ * account has more than one - any caller still on this path needs to
  * move to /api/whatsapp/connections and pick one explicitly.
  *
  * Kept for one release, then delete this file along with any
@@ -53,7 +53,7 @@ export async function GET() {
     }
     if (error instanceof AmbiguousConnectionError) {
       return NextResponse.json(
-        { error: 'This account has more than one WhatsApp connection — use /api/whatsapp/connections.' },
+        { error: 'This account has more than one WhatsApp connection, use /api/whatsapp/connections.' },
         { status: 409 },
       )
     }
@@ -66,7 +66,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  // POST always creates a new custom connection — unambiguous even
+  // POST always creates a new custom connection - unambiguous even
   // with multiple existing rows, so no shim branching needed here.
   return connectionsPost(request)
 }
@@ -87,7 +87,7 @@ export async function DELETE() {
     }
     if (error instanceof AmbiguousConnectionError) {
       return NextResponse.json(
-        { error: 'This account has more than one WhatsApp connection — use /api/whatsapp/connections.' },
+        { error: 'This account has more than one WhatsApp connection, use /api/whatsapp/connections.' },
         { status: 409 },
       )
     }

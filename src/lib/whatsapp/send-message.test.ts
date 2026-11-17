@@ -7,7 +7,7 @@ import {
   type SendMessageParams,
 } from './send-message';
 
-// A db that explodes if touched — these tests cover the param
+// A db that explodes if touched - these tests cover the param
 // validation that MUST short-circuit before any query runs.
 function noDb(): SupabaseClient {
   return {
@@ -33,7 +33,7 @@ async function expectSendError(
   );
 }
 
-describe('sendMessageToConversation — param validation (pre-DB)', () => {
+describe('sendMessageToConversation, param validation (pre-DB)', () => {
   const base = { conversationId: 'cv-1' };
 
   it('requires conversation_id and message_type', async () => {
@@ -130,9 +130,9 @@ describe('sendMessageToConversation — param validation (pre-DB)', () => {
     );
   });
 
-  it('allows a long "caption" on audio (audio carries none) — so it reaches the DB', async () => {
+  it('allows a long "caption" on audio (audio carries none), so it reaches the DB', async () => {
     // Audio is exempt from the caption cap, so validation passes and we
-    // proceed to the conversation lookup — proven by the stub throwing.
+    // proceed to the conversation lookup - proven by the stub throwing.
     const spy = vi.fn(() => {
       throw new Error('reached DB');
     });
@@ -159,12 +159,12 @@ describe('SendMessageError', () => {
 });
 
 // ============================================================
-// Full send path — what actually lands in `messages` (issue #483).
+// Full send path - what actually lands in `messages` (issue #483).
 // ============================================================
 
 const sendTemplateMessage = vi.fn(async () => ({ messageId: 'wamid.1' }));
 
-// Stub only the senders — the module also exports INTERACTIVE_LIMITS,
+// Stub only the senders - the module also exports INTERACTIVE_LIMITS,
 // which `interactive.ts` needs for the payload validation covered above.
 vi.mock('@/lib/whatsapp/meta-api', async (importOriginal) => ({
   ...(await importOriginal<Record<string, unknown>>()),
@@ -250,7 +250,7 @@ function sendPathDb(
           }
           return { data: null, error: null };
         },
-        // Bare-await result — message_templates, and whatsapp_config
+        // Bare-await result - message_templates, and whatsapp_config
         // (the connection resolver lists the account's connections
         // when the conversation carries no whatsapp_config_id).
         then: (resolve: (r: { data: unknown[]; error: null }) => unknown) =>
@@ -279,7 +279,7 @@ const TEMPLATE_ROW = {
   created_at: '2026-01-01T00:00:00Z',
 };
 
-describe('sendMessageToConversation — template persistence (#483)', () => {
+describe('sendMessageToConversation, template persistence (#483)', () => {
   it('stores the substituted body when the caller sends no text', async () => {
     const captured: CapturedWrites = {};
     const result = await sendMessageToConversation(
@@ -294,7 +294,7 @@ describe('sendMessageToConversation — template persistence (#483)', () => {
     );
 
     expect(result.whatsappMessageId).toBe('wamid.1');
-    // Was NULL before the fix — the Inbox rendered an empty bubble.
+    // Was NULL before the fix - the Inbox rendered an empty bubble.
     expect(captured.message?.content_text).toBe(
       'Your order A123 ships on Friday'
     );
@@ -378,7 +378,7 @@ describe('sendMessageToConversation — template persistence (#483)', () => {
       templateName: 'never_synced',
       templateParams: ['A123'],
     });
-    // Nothing to render from — the bubble falls back to the template
+    // Nothing to render from - the bubble falls back to the template
     // name rather than inventing a body.
     expect(captured.message?.content_text).toBeNull();
     expect(captured.conversation?.last_message_text).toBe('[template]');
@@ -429,13 +429,13 @@ describe('sendMessageToConversation — template persistence (#483)', () => {
 // Meta withholds the phone number for a customer who has adopted a
 // WhatsApp username, so their contact row carries only `wa_user_id`.
 // The send path used to reject those outright with "Contact phone
-// number not found" — the business could receive their messages but
+// number not found" - the business could receive their messages but
 // never answer them.
 // ============================================================
 
 const BSUID = 'US.13491208655302741918';
 
-describe('sendMessageToConversation — BSUID recipients (#519)', () => {
+describe('sendMessageToConversation, BSUID recipients (#519)', () => {
   it('sends to the BSUID when the contact has no phone number', async () => {
     const captured: CapturedWrites = {};
     const { sendTextMessage } = await import('@/lib/whatsapp/meta-api');
@@ -521,7 +521,7 @@ describe('sendMessageToConversation — BSUID recipients (#519)', () => {
   });
 });
 
-describe('sendMessageToConversation — statuses that beat the insert', () => {
+describe('sendMessageToConversation, statuses that beat the insert', () => {
   it('applies any status Meta delivered before the row existed', async () => {
     applyPendingMessageStatuses.mockClear();
 

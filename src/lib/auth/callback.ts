@@ -1,11 +1,11 @@
 // ============================================================
-// Helpers for /auth/callback — the landing route for every link
+// Helpers for /auth/callback - the landing route for every link
 // Supabase emails on the app's behalf (email confirmation, password
 // reset, invite, magic link).
 //
 // Pure functions, kept out of the route file so they can be unit
 // tested without Next request plumbing (vitest runs `environment:
-// "node"` with no jsdom — see vitest.config.ts).
+// "node"` with no jsdom - see vitest.config.ts).
 // ============================================================
 
 import type { EmailOtpType } from '@supabase/supabase-js';

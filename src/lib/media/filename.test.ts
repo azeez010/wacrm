@@ -11,7 +11,7 @@ const AT = "2026-08-04T14:15:30.000Z";
 /**
  * A media message row carries no filename and no MIME type, so the name a
  * download lands under is reconstructed. These pin the three sources and,
- * more importantly, the sanitisation — the document filename comes straight
+ * more importantly, the sanitisation - the document filename comes straight
  * from whatever the customer's phone sent.
  */
 describe("extensionForMime", () => {

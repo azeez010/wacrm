@@ -212,7 +212,7 @@ export interface ContactTagAssignment {
  * Insert contact_tags rows for imported contacts (ignores duplicates).
  *
  * Returns the number of contact–tag pairs *requested* for upsert, not
- * rows actually inserted — `ignoreDuplicates` can drop pairs that already
+ * rows actually inserted - `ignoreDuplicates` can drop pairs that already
  * exist without changing the returned count.
  */
 export async function assignImportedContactTags(

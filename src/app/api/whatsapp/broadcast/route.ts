@@ -29,13 +29,13 @@ interface BroadcastResult {
 /**
  * Two input shapes are accepted:
  *
- *   NEW (preferred — supports per-recipient variable substitution):
+ *   NEW (preferred - supports per-recipient variable substitution):
  *     {
  *       recipients: Array<{ phone: string; params: string[] }>,
  *       template_name, template_language
  *     }
  *
- *   LEGACY (all phones receive the same params — kept so existing
+ *   LEGACY (all phones receive the same params - kept so existing
  *   callers don't break):
  *     {
  *       phone_numbers: string[],
@@ -45,7 +45,7 @@ interface BroadcastResult {
  *
  * Previous implementation only supported the legacy shape, and the
  * sending hook was forced to ship every batch with `templateParams[0]`
- * — meaning every recipient got contact-0's personalization. The new
+ * - meaning every recipient got contact-0's personalization. The new
  * shape is what actually fixes that.
  */
 interface NewRecipient {
@@ -55,7 +55,7 @@ interface NewRecipient {
   /**
    * Structured per-send values (header text variable, media URL
    * override, URL/COPY_CODE button values). When set, takes
-   * precedence over `params` for the body too — see
+   * precedence over `params` for the body too - see
    * sendTemplateMessage for the merge rules.
    */
   messageParams?: SendTimeParams
@@ -63,13 +63,13 @@ interface NewRecipient {
 
 export async function POST(request: Request) {
   try {
-    // Requires the 'agent' role — `canSendMessages` in lib/auth/roles is
+    // Requires the 'agent' role - `canSendMessages` in lib/auth/roles is
     // explicit that running broadcasts is a write operation and that
     // viewers are read-only.
     //
     // This endpoint writes NOTHING to the database: it reads the config
     // and template, then calls Meta directly. So unlike the rest of the
-    // app there was no RLS policy backstopping a missing role check —
+    // app there was no RLS policy backstopping a missing role check -
     // resolving `account_id` straight off the profile (which only needs
     // 'viewer') was the ONLY gate, and it let a viewer blast a template
     // to arbitrary phone numbers from the account's WhatsApp number.
@@ -79,7 +79,7 @@ export async function POST(request: Request) {
 
     // Per-user broadcast budget. Note: this limits how often a user
     // can *start* a campaign, not how many messages go out inside
-    // one — the fan-out loop below runs without additional gating.
+    // one - the fan-out loop below runs without additional gating.
     const limit = checkRateLimit(`broadcast:${userId}`, RATE_LIMITS.broadcast)
     if (!limit.success) {
       return rateLimitResponse(limit)
@@ -130,7 +130,7 @@ export async function POST(request: Request) {
     } catch (err) {
       if (err instanceof AmbiguousConnectionError) {
         return NextResponse.json(
-          { error: 'This account has more than one WhatsApp connection — specify whatsapp_config_id.' },
+          { error: 'This account has more than one WhatsApp connection, specify whatsapp_config_id.' },
           { status: 400 }
         )
       }
@@ -149,7 +149,7 @@ export async function POST(request: Request) {
     // header + button components on each iteration. Loading inside
     // the loop would N+1 against Supabase for every recipient.
     // Guard against a malformed local row crashing every send in
-    // the loop with the same opaque TypeError — fail loudly once.
+    // the loop with the same opaque TypeError - fail loudly once.
     const resolvedTemplate = await resolveTemplateRow(
       supabase,
       accountId,

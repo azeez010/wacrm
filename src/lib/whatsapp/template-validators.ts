@@ -4,7 +4,7 @@
  * field-level error) rather than at the Meta API boundary (where the
  * error is a generic 400 + opaque rejection_reason hours later).
  *
- * Every validator throws `Error(message)` — callers catch and surface
+ * Every validator throws `Error(message)` - callers catch and surface
  * to the UI. Caps follow Meta's published limits for the Cloud API
  * template surface (v21.0):
  *   https://developers.facebook.com/docs/whatsapp/business-management-api/message-templates
@@ -101,7 +101,7 @@ export function isNamedVariable(key: string): boolean {
 
 /**
  * Meta requires contiguous, 1-indexed variables. `{{1}} {{3}}` is
- * invalid — it must be `{{1}} {{2}}`.
+ * invalid - it must be `{{1}} {{2}}`.
  */
 function assertBodyContiguous(indices: number[]): void {
   for (let i = 0; i < indices.length; i++) {
@@ -141,7 +141,7 @@ export function validateFooter(footerText: string | undefined): void {
 }
 
 export interface HeaderValidationResult {
-  /** number of {{N}} placeholders in a TEXT header — 0 or 1. */
+  /** number of {{N}} placeholders in a TEXT header - 0 or 1. */
   variableCount: number;
 }
 
@@ -179,7 +179,7 @@ export function validateHeader(
   }
 
   // image / video / document need either a public URL or a Resumable
-  // Upload handle. Either one — Meta accepts both example forms.
+  // Upload handle. Either one - Meta accepts both example forms.
   if (!header_media_url && !header_handle) {
     throw new Error(
       t('mediaHeaderRequiresSource', { type: header_type }),
@@ -242,7 +242,7 @@ export function validateButtons(buttons: TemplateButton[] | undefined): void {
     );
   }
 
-  // Meta rule: QUICK_REPLY buttons must be contiguous — they can't be
+  // Meta rule: QUICK_REPLY buttons must be contiguous - they can't be
   // interleaved with CTA buttons. Easiest check: walk the array; once
   // we leave the QUICK_REPLY block, we must not see another.
   let sawNonQR = false;

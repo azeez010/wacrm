@@ -70,7 +70,7 @@ export async function providerHttpError(
         ? body.error
         : (body?.error?.message ?? '')
   } catch {
-    // Non-JSON error body — fall back to the status line.
+    // Non-JSON error body - fall back to the status line.
   }
 
   const { status } = res

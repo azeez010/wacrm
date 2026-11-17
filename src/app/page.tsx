@@ -37,7 +37,7 @@ function money(amount: number, currency: string) {
 
 function limitText(v: number | null | undefined) {
   if (v === null) return 'Unlimited'
-  if (v === undefined) return '—'
+  if (v === undefined) return '-'
   return v.toLocaleString('en-US')
 }
 
@@ -109,7 +109,7 @@ export default async function LandingPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>
 }) {
   // Safety net: if Supabase falls back to the Site URL (redirect not on
-  // its allow-list) the email link lands here with ?code=… — hand it to
+  // its allow-list) the email link lands here with ?code=… - hand it to
   // the auth callback instead of showing the landing page.
   const sp = await searchParams
   const code = typeof sp.code === 'string' ? sp.code : null
@@ -141,7 +141,7 @@ export default async function LandingPage({
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground">
             A shared team inbox, broadcasts, automations and chatbot flows on the official WhatsApp
-            Business API. Sign up with Meta in a few clicks — get a new number, or keep using the
+            Business API. Sign up with Meta in a few clicks, get a new number, or keep using the
             one on your WhatsApp Business app.
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
@@ -156,7 +156,7 @@ export default async function LandingPage({
 
         <section className="mx-auto grid max-w-6xl gap-4 px-4 pb-16 sm:grid-cols-3 sm:px-6">
           {[
-            ['Connect in minutes', 'Embedded Signup with Meta — no developer account needed. Or bring your own Meta app.'],
+            ['Connect in minutes', 'Embedded Signup with Meta, no developer account needed. Or bring your own Meta app.'],
             ['Keep your existing number', 'Link your WhatsApp Business app and import your chat history.'],
             ['Built for teams', 'Multiple numbers, roles, a shared inbox and a public API.'],
           ].map(([title, body]) => (
@@ -174,7 +174,7 @@ export default async function LandingPage({
           </p>
           {plans.length === 0 ? (
             <p className="mt-10 text-center text-muted-foreground">
-              Pricing is unavailable right now — please check back shortly.
+              Pricing is unavailable right now, please check back shortly.
             </p>
           ) : (
             <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">

@@ -11,7 +11,7 @@ import { createTranslator } from 'next-intl';
 // It rejects them *quietly*: `t()` reports INVALID_MESSAGE / FORMATTING_ERROR
 // to onError and then renders the keypath itself, so the field shows
 // "Settings.templates.bodyPlaceholder" instead of the placeholder. Nothing
-// throws, no build fails, and dev looks the same as prod — which is how
+// throws, no build fails, and dev looks the same as prod - which is how
 // twelve of these shipped unnoticed.
 //
 // Such strings must be read with `t.raw()` (bypasses the parser) or
@@ -44,7 +44,7 @@ function icuHostileKeys(): string[] {
       },
     });
     t(key as never);
-    // INVALID_MESSAGE only — the parser could not read the string at all,
+    // INVALID_MESSAGE only - the parser could not read the string at all,
     // so no call site can rescue it. Deliberately excludes FORMATTING_ERROR,
     // which a well-formed message raises merely because this probe passes no
     // values and no tag handlers; those are `t.rich()` / interpolation sites
@@ -94,7 +94,7 @@ describe('ICU-hostile strings are not read with plain t()', () => {
           String.raw`(?<![.\w])t\(\s*['"](?:[\w.]+\.)?${leaf}['"]`,
         );
         if (plainCall.test(text)) {
-          offenders.push(`${key} — plain t() in ${path.replace(process.cwd() + '/', '')}`);
+          offenders.push(`${key}, plain t() in ${path.replace(process.cwd() + '/', '')}`);
         }
       }
     }

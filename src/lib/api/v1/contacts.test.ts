@@ -35,7 +35,7 @@ describe('serializeContact', () => {
       updated_at: '2026-01-02T00:00:00Z',
       contact_tags: [
         { tags: { id: 't1', name: 'vip', color: '#fff' } },
-        { tags: null }, // orphaned join — dropped
+        { tags: null }, // orphaned join - dropped
       ],
     };
     expect(serializeContact(row)).toEqual({
@@ -82,7 +82,7 @@ describe('findOrCreateContact', () => {
     // "4155551212" is a US national number to the integrator but Meta
     // would deliver it to +41 (Switzerland); persisting it would repeat
     // that on every later send. Digits with a country code but no `+`
-    // are refused too — the API can't tell the two apart.
+    // are refused too - the API can't tell the two apart.
     for (const phone of ['4155551212', '14155551212', '+1234567']) {
       await expect(
         findOrCreateContact(noopDb, 'acc', 'user', { phone })

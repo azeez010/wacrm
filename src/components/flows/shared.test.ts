@@ -20,7 +20,7 @@ describe('node categories', () => {
 
 describe('groupNodeTypesByCategory', () => {
   it('keeps the categories in NODE_CATEGORIES order and drops empty ones', () => {
-    // Only messaging + flow types — the logic group must not appear.
+    // Only messaging + flow types - the logic group must not appear.
     const groups = groupNodeTypesByCategory(['send_message', 'start', 'end']);
     expect(groups.map((g) => g.id)).toEqual(['messaging', 'flow']);
   });

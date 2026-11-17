@@ -1,12 +1,12 @@
 "use client";
 
 // ============================================================
-// /reset-password — the form the password-reset email leads to.
+// /reset-password - the form the password-reset email leads to.
 //
 // The emailed link lands on /auth/callback, which exchanges it for a
 // session and 303s here. So on arrival the visitor either has a
 // recovery session (show the form) or doesn't (the link was spent,
-// expired, or opened in a browser without the PKCE verifier cookie —
+// expired, or opened in a browser without the PKCE verifier cookie -
 // say so, with a way to request a new one). Bouncing to /login with
 // no explanation was the locked-out experience issue #592 describes.
 //

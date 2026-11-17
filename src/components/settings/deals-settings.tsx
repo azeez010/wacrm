@@ -20,7 +20,7 @@ import { useTranslations } from "next-intl";
 import { SettingsPanelHead } from "./settings-panel-head";
 
 /**
- * Deals settings — account-wide default currency.
+ * Deals settings - account-wide default currency.
  *
  * One currency per account (issue #218): the chosen code seeds new
  * deals and formats every aggregated total. Existing deals keep their
@@ -96,7 +96,7 @@ export function DealsSettings() {
             >
               {CURRENCIES.map((c) => (
                 <option key={c.code} value={c.code}>
-                  {c.code} — {c.label}
+                  {c.code}, {c.label}
                 </option>
               ))}
             </select>

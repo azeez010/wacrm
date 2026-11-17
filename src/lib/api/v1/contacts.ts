@@ -61,11 +61,11 @@ export function serializeContact(row: Record<string, unknown>): ApiContact {
 }
 
 /**
- * Resolve the audit `user_id` for API-created rows — the SINGLE source
+ * Resolve the audit `user_id` for API-created rows - the SINGLE source
  * of truth used by every public-API write (contacts, messages,
  * broadcasts, resolve-conversation), so the same key's writes are
  * always attributed to the same human. API callers have no logged-in
- * user, so — like the inbound webhook — we attribute writes to the
+ * user, so - like the inbound webhook - we attribute writes to the
  * **WhatsApp config owner** (the webhook's own convention). Contacts
  * can be created before WhatsApp is connected, so we fall back to the
  * account owner when there's no config yet.
@@ -142,7 +142,7 @@ export async function findOrCreateContact(
     .single();
 
   if (error || !created) {
-    // Lost a race against a concurrent create — the unique index
+    // Lost a race against a concurrent create - the unique index
     // rejected the duplicate. Re-resolve to the winner.
     if (isUniqueViolation(error)) {
       const raced = await findExistingContact(db, accountId, sanitized);

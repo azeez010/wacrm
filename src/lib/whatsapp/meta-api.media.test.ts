@@ -29,7 +29,7 @@ const BASE = {
   link: "https://cdn.example.com/file",
 } as const;
 
-describe("sendMediaMessage — payload shape", () => {
+describe("sendMediaMessage, payload shape", () => {
   beforeEach(() => {
     captured = null;
     vi.stubGlobal("fetch", okFetch());

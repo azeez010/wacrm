@@ -2,7 +2,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import { decrypt } from './encryption';
 
 /**
- * A `whatsapp_config` row, typed loosely (selects `*` at call sites) —
+ * A `whatsapp_config` row, typed loosely (selects `*` at call sites) -
  * narrowed here to the fields the resolver and its callers touch.
  */
 export interface WhatsAppConfigRow {
@@ -21,7 +21,7 @@ export interface WhatsAppConfigRow {
 export class AmbiguousConnectionError extends Error {
   constructor() {
     super(
-      'This account has more than one WhatsApp connection — specify whatsapp_config_id.'
+      'This account has more than one WhatsApp connection, specify whatsapp_config_id.'
     );
     this.name = 'AmbiguousConnectionError';
   }
@@ -76,9 +76,9 @@ export async function resolveWhatsAppConfig(
 /**
  * Resolve the Graph API credentials for a connection row.
  *
- * - `mode === 'custom'` — decrypt the row's own `access_token`, as
+ * - `mode === 'custom'` - decrypt the row's own `access_token`, as
  *   every connection did before multi-connection support existed.
- * - `mode === 'shared'` — the row never stores a token. Every shared
+ * - `mode === 'shared'` - the row never stores a token. Every shared
  *   connection's Graph API calls reuse one platform-level system-user
  *   token (`META_SYSTEM_USER_ACCESS_TOKEN`), since Meta's Tech
  *   Provider permission model already grants that token access to
@@ -93,7 +93,7 @@ export function resolveWhatsAppCredentials(config: WhatsAppConfigRow): {
     const accessToken = process.env.META_SYSTEM_USER_ACCESS_TOKEN;
     if (!accessToken) {
       throw new Error(
-        'META_SYSTEM_USER_ACCESS_TOKEN is not configured — shared WhatsApp connections cannot send.'
+        'META_SYSTEM_USER_ACCESS_TOKEN is not configured, shared WhatsApp connections cannot send.'
       );
     }
     return {

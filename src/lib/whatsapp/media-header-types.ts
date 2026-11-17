@@ -14,7 +14,7 @@ export interface MediaHeaderSpec {
   /** Meta's accepted MIME types. The first entry is the fallback when a
    *  fetched sample carries no Content-Type. */
   mimeTypes: readonly string[]
-  /** File extension per MIME type — names the Resumable Upload. */
+  /** File extension per MIME type - names the Resumable Upload. */
   extensions: Readonly<Record<string, string>>
   /** Meta's per-sample ceiling for this header type, in bytes. */
   maxBytes: number

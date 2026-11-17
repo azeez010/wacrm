@@ -68,13 +68,13 @@ function loadFacebookSdk(
 type Variant = 'standard' | 'coexistence';
 
 /**
- * Primary "shared" WhatsApp connection flow — Embedded Signup under
+ * Primary "shared" WhatsApp connection flow - Embedded Signup under
  * the platform operator's own Tech Provider Meta App. No Meta
  * Developer App or access token of the tenant's own required.
  *
  * Two sub-flows: a brand-new Cloud API number, or an existing number
  * already active on the WhatsApp Business mobile app (which enables
- * coexistence — the app keeps working — and imports its prior chat
+ * coexistence - the app keeps working - and imports its prior chat
  * history).
  */
 function useEmbeddedSignup(onConnected?: () => void) {
@@ -387,7 +387,7 @@ export function WhatsAppEmbeddedSignup({
               title="Connect a number"
               description={
                 platformReady
-                  ? 'Quick and guided — no Meta developer account needed. We connect it through our platform.'
+                  ? 'Quick and guided, no Meta developer account needed. We connect it through our platform.'
                   : 'Not available on this deployment yet.'
               }
               disabled={!platformReady}
@@ -418,7 +418,7 @@ export function WhatsAppEmbeddedSignup({
               title="Connect an existing number"
               description={
                 clientConfig?.coexistenceConfigId
-                  ? 'Already use the WhatsApp Business app? Link that number — the app keeps working and your chat history is imported.'
+                  ? 'Already use the WhatsApp Business app? Link that number, the app keeps working and your chat history is imported.'
                   : 'Not available on this deployment yet.'
               }
               disabled={
@@ -448,7 +448,7 @@ export function WhatsAppEmbeddedSignup({
         </div>
       )}
 
-      {/* No connections yet and still loading — render nothing flashy. */}
+      {/* No connections yet and still loading - render nothing flashy. */}
     </div>
   );
 }

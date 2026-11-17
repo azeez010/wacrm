@@ -6,7 +6,7 @@ import type { Message } from "@/types";
  *
  * Only images and videos qualify: an audio bubble has nothing to look at,
  * and a document is handed to the OS rather than rendered. Rows with no
- * `media_url` are skipped — that's either media Meta refused to verify
+ * `media_url` are skipped - that's either media Meta refused to verify
  * (`verifyAndBuildUrl` returns null in the webhook) or media whose bytes
  * Meta has since expired, and both render as "unavailable" in the bubble.
  */
@@ -14,7 +14,7 @@ import type { Message } from "@/types";
 export type MediaGalleryKind = "image" | "video";
 
 export interface MediaGalleryItem {
-  /** `messages.id` — the lightbox's identity for "which one is open". */
+  /** `messages.id` - the lightbox's identity for "which one is open". */
   messageId: string;
   url: string;
   kind: MediaGalleryKind;
@@ -34,7 +34,7 @@ function galleryKind(message: Message): MediaGalleryKind | null {
 }
 
 /**
- * Viewable media in thread order. Order matters — it's what ← / → walk,
+ * Viewable media in thread order. Order matters - it's what ← / → walk,
  * and the thread hands messages over already sorted by `created_at`.
  */
 export function collectMediaGallery(messages: Message[]): MediaGalleryItem[] {

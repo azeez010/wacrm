@@ -10,14 +10,14 @@ import type { ContentType } from "@/types";
  *
  *   1. A document's `content_text`. That's where the webhook puts
  *      `document.filename`, and where the composer puts the uploaded file's
- *      name — but only when the sender typed no caption, hence the
+ *      name - but only when the sender typed no caption, hence the
  *      "does it look like a filename" guard.
  *   2. The basename of a `chat-media` bucket URL, minus the leading id/epoch
  *      prefix that `buildMediaPath` (`@/lib/storage/upload-media`) puts in
  *      front of it. Covers outbound uploads and, since migration 039,
  *      inbound media mirrored into the same bucket.
  *   3. A synthesised `whatsapp-<kind>-<timestamp>.<ext>`. The extension comes
- *      from `media_type` when the row has one (migration 039 — the webhook
+ *      from `media_type` when the row has one (migration 039 - the webhook
  *      used to discard Meta's MIME type), falling back to whatever the
  *      browser reported for the fetched bytes.
  */
@@ -86,7 +86,7 @@ export function sanitizeFilename(raw: string): string {
 
   if (cleaned.length <= MAX_FILENAME_LENGTH) return cleaned;
 
-  // Truncate the stem, never the extension — a shortened `.pdf` opens, a
+  // Truncate the stem, never the extension - a shortened `.pdf` opens, a
   // truncated one doesn't.
   const dot = cleaned.lastIndexOf(".");
   if (dot <= 0) return cleaned.slice(0, MAX_FILENAME_LENGTH);
@@ -95,7 +95,7 @@ export function sanitizeFilename(raw: string): string {
   return stem.slice(0, Math.max(1, MAX_FILENAME_LENGTH - ext.length)) + ext;
 }
 
-/** A trailing `.ext` of 1–8 alphanumerics — good enough to call it a file. */
+/** A trailing `.ext` of 1–8 alphanumerics - good enough to call it a file. */
 function hasExtension(name: string): boolean {
   return /\.[A-Za-z0-9]{1,8}$/.test(name);
 }
@@ -112,7 +112,7 @@ export function basenameFromUrl(url: string): string {
     // Base only matters for the relative-URL case; it's discarded either way.
     path = new URL(url, "http://media.invalid").pathname;
   } catch {
-    // Not parseable — fall back to chopping the query off by hand.
+    // Not parseable - fall back to chopping the query off by hand.
     path = url.split(/[?#]/)[0];
   }
 
@@ -121,7 +121,7 @@ export function basenameFromUrl(url: string): string {
   try {
     decoded = decodeURIComponent(last);
   } catch {
-    // Malformed escape sequence — keep the raw segment.
+    // Malformed escape sequence - keep the raw segment.
   }
 
   const withoutStamp = decoded.replace(/^\d{10,}-/, "");
@@ -139,7 +139,7 @@ export interface MediaFilenameInput {
 
 /**
  * Filename for a media message. `mimeType` is what the browser reported
- * for the downloaded bytes (`blob.type`) — pass it when available.
+ * for the downloaded bytes (`blob.type`) - pass it when available.
  *
  * The row's own `media_type` takes precedence over it: a `Blob` minted
  * from a response with no usable `Content-Type` has `type === ""`, and
@@ -180,7 +180,7 @@ export function mediaFilename(
 }
 
 /**
- * The stored `media_type`, but only when it maps to a real extension —
+ * The stored `media_type`, but only when it maps to a real extension -
  * so a row carrying `application/octet-stream` doesn't beat a browser
  * blob that knows it's a JPEG.
  */

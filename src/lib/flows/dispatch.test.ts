@@ -150,7 +150,7 @@ function startedRuns() {
 }
 
 beforeEach(() => {
-  // No run in progress — the whole point is the entry-trigger path.
+  // No run in progress - the whole point is the entry-trigger path.
   h.state.activeRuns = [];
   h.state.flows = [];
   h.state.nodes = NODES;
@@ -202,7 +202,7 @@ describe("entryTriggerTexts", () => {
   });
 });
 
-describe("dispatchInboundToFlows — entry triggers (#490)", () => {
+describe("dispatchInboundToFlows, entry triggers (#490)", () => {
   it("starts a keyword flow when the customer taps a matching button", async () => {
     h.state.flows = [KEYWORD_FLOW];
 
@@ -214,7 +214,7 @@ describe("dispatchInboundToFlows — entry triggers (#490)", () => {
     });
 
     // Before the fix this returned {consumed: false, outcome: "no_match"}
-    // — the tap was rejected before the keyword matcher ever ran.
+    // - the tap was rejected before the keyword matcher ever ran.
     expect(result.consumed).toBe(true);
     expect(result.flow_run_id).toBe("run-1");
     expect(

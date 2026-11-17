@@ -11,7 +11,7 @@ import {
  * manual contact form, and CSV import so all paths agree on what
  * "same number" means (issue #212).
  *
- * The canonical key is `normalizePhone` (digits-only) — the same form
+ * The canonical key is `normalizePhone` (digits-only) - the same form
  * the DB stores in the generated `contacts.phone_normalized` column
  * and enforces unique per account. `phonesMatch` adds trunk-prefix
  * tolerance for the softer "possible duplicate" surfaces.
@@ -88,14 +88,14 @@ export function isUniqueViolation(error: unknown): boolean {
  * De-duplicate parsed CSV rows by normalized phone, keeping the first
  * occurrence of each. Rows whose phone is not a usable international
  * number are dropped too, but counted separately as `invalid` rather
- * than folded into `duplicates` — they never duplicated anything, and
+ * than folded into `duplicates` - they never duplicated anything, and
  * the import result should say so instead of telling the user a
  * contact with a real, unique number was skipped as a dupe.
  *
  * "Usable" means `parseInternationalPhone` accepts it: a leading `+`
  * and country code are required. A CSV of national-format numbers
- * ("4155551212") is the bulk version of issue #586 — every row would
- * be stored and later delivered to the wrong country — so those rows
+ * ("4155551212") is the bulk version of issue #586 - every row would
+ * be stored and later delivered to the wrong country - so those rows
  * are reported as invalid here, before anything is written.
  */
 export function dedupeByPhone<T extends { phone: string }>(

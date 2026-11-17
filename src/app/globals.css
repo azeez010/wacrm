@@ -62,7 +62,7 @@
 }
 
 /* ============================================================
- * THEMING — two orthogonal dimensions
+ * THEMING - two orthogonal dimensions
  *
  *   1. MODE   (light / dark)  → neutral surfaces. Selected with
  *      `document.documentElement.dataset.mode`. Defaults to dark.
@@ -85,7 +85,7 @@
  * active pill, validation badges).
  *
  * Token shapes come straight from the design handoff at
- * project/Color Themes.html — change one, change the other.
+ * project/Color Themes.html - change one, change the other.
  * ============================================================ */
 
 /* ---- MODE: neutral surfaces ---- */
@@ -159,7 +159,7 @@ html[data-mode="light"] {
 
 /* ---- ACCENT: primary color ---- */
 
-/* TraderSense teal — the default. Mirrors tradersense-admin: #0f766e in
+/* TraderSense teal - the default. Mirrors tradersense-admin: #0f766e in
    light mode, brighter #2dd4bf in dark mode (the accent needs more
    luminance to read on dark surfaces). `:root` is listed so the very
    first paint, before the boot script sets data-theme, is already teal. */

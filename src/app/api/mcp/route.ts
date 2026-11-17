@@ -5,7 +5,7 @@
  *
  * Auth is the same API key as the public API; its scopes decide which
  * tools exist (see lib/mcp/server.ts). A fresh server + transport is
- * built per request — no session state, safe on Workers isolates.
+ * built per request - no session state, safe on Workers isolates.
  */
 import { WebStandardStreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js'
 import { requireApiKey } from '@/lib/auth/api-context'

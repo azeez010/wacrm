@@ -3,7 +3,7 @@
  *
  * Deliberately narrow: a batch is retried ONLY on 429. That is the one
  * status where the route is known to have rejected the request before
- * calling Meta — `checkRateLimit` runs before any send — so replaying
+ * calling Meta - `checkRateLimit` runs before any send - so replaying
  * the batch cannot double-message a customer. A 500, a timeout, or a
  * dropped connection may all have sent some or all of the batch
  * already; those recipients are recorded as failed for the operator to

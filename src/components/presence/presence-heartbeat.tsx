@@ -7,7 +7,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { HEARTBEAT_MS, IDLE_AFTER_MS, type StoredPresence } from "@/lib/presence";
 
 /**
- * PresenceHeartbeat — headless. Mount ONCE per signed-in dashboard tab
+ * PresenceHeartbeat - headless. Mount ONCE per signed-in dashboard tab
  * (in the dashboard shell, below the auth gate). Reports this tab's
  * presence to the `member_presence` table via the `touch_presence` RPC
  * roughly every HEARTBEAT_MS.
@@ -17,7 +17,7 @@ import { HEARTBEAT_MS, IDLE_AFTER_MS, type StoredPresence } from "@/lib/presence
  *   - 'online' otherwise
  * It keeps heartbeating while away (so the row stays fresh, i.e. not
  * offline). When the tab closes the beats simply stop and viewers derive
- * 'offline' from staleness — no unreliable unload write needed.
+ * 'offline' from staleness - no unreliable unload write needed.
  */
 export function PresenceHeartbeat() {
   const { accountId } = useAuth();
@@ -28,8 +28,8 @@ export function PresenceHeartbeat() {
 
   useEffect(() => {
     // Hold off until the account is known. Beating during the brief
-    // window on a fresh signup — authed but profile/account row not yet
-    // created — would make touch_presence raise "No account for caller"
+    // window on a fresh signup - authed but profile/account row not yet
+    // created - would make touch_presence raise "No account for caller"
     // and log a spurious error. The effect re-runs once accountId lands.
     if (!accountId) return;
 

@@ -12,7 +12,7 @@ const t = getT("LibErrors");
  * of media we have: browsers ignore `download` on a cross-origin href (so
  * a `chat-media` bucket URL would just navigate), and inbound media lives
  * behind an auth-gated proxy with no filename in its path. Fetching the
- * bytes ourselves solves both — we get a real `Blob` (already cached by
+ * bytes ourselves solves both - we get a real `Blob` (already cached by
  * `loadMediaBlob` if the thumbnail or lightbox pulled it) and full control
  * over the filename.
  *
@@ -27,7 +27,7 @@ export async function downloadMediaMessage(message: Message): Promise<void> {
   try {
     blob = await loadMediaBlob(url);
   } catch (error) {
-    // A refused *response* is a real failure — inbound media Meta has
+    // A refused *response* is a real failure - inbound media Meta has
     // expired 401s here, and quietly opening a tab onto that error would
     // hide it. Let the caller toast instead.
     if (error instanceof MediaResponseError) throw error;

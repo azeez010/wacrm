@@ -1,19 +1,19 @@
 // ============================================================
 // /api/account/api-keys
 //
-//   GET  — list this account's API keys (safe columns only).
-//   POST — mint a new key.
+//   GET  - list this account's API keys (safe columns only).
+//   POST - mint a new key.
 //
 // These are the *dashboard* endpoints for managing keys, so they
 // authenticate the normal way (cookie session) and go through the
-// RLS client. Listing is open to any member (viewer+) — the roster
+// RLS client. Listing is open to any member (viewer+) - the roster
 // is not secret; the secret (the key itself) is never in it. Minting
 // is admin+ (a key hands out capabilities), enforced by both
 // `requireRole('admin')` here and the `api_keys_insert` RLS policy.
 //
 // IMPORTANT: the plaintext key is returned exactly ONCE, in the POST
 // response. We persist only its SHA-256 hash, so neither GET nor any
-// future endpoint can resurface it — same one-time-reveal contract
+// future endpoint can resurface it - same one-time-reveal contract
 // as invite links. If the admin loses it, they revoke and re-issue.
 // ============================================================
 
@@ -40,7 +40,7 @@ const MAX_NAME_LEN = 80;
 // invite-link clamp. NULL/absent = never expires.
 const MAX_EXPIRY_DAYS = 365;
 
-// Columns safe to expose. `key_hash` is deliberately excluded — it
+// Columns safe to expose. `key_hash` is deliberately excluded - it
 // never leaves the server.
 const SAFE_COLUMNS =
   'id, name, key_prefix, scopes, last_used_at, expires_at, revoked_at, created_at';
@@ -101,7 +101,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // Scopes default to none if omitted — that yields a key that can
+    // Scopes default to none if omitted - that yields a key that can
     // only call the scope-free endpoints (e.g. GET /api/v1/me).
     const scopes = normalizeScopes(body?.scopes ?? []);
     if (scopes === null) {
@@ -151,7 +151,7 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         key: data,
-        // Plaintext — shown to the admin exactly once.
+        // Plaintext - shown to the admin exactly once.
         plaintext,
       },
       { status: 201 }

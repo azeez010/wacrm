@@ -15,12 +15,12 @@
  *
  * Why a separate component:
  *   - The page itself stays trivially small (loading + error + this).
- *   - Either view can stay unaware of the other — they share data
+ *   - Either view can stay unaware of the other - they share data
  *     (`{flow, nodes}`) and nothing else.
  *
  * View choice persists per-browser via localStorage so a power user
  * who prefers the list isn't fighting the default on every load.
- * Canvas is the default for everyone else — the original user
+ * Canvas is the default for everyone else - the original user
  * feedback was that the list shape made flows "hard to understand".
  */
 
@@ -39,7 +39,7 @@ import { useTranslations } from "next-intl";
 
 /**
  * Below this viewport width we force list view and hide the toggle.
- * Canvas with drag-to-connect on a phone is unusable — handles are
+ * Canvas with drag-to-connect on a phone is unusable - handles are
  * ~10px and live finger drags from one node to another aren't a
  * practical workflow. Matches Tailwind's `md` breakpoint.
  */
@@ -64,7 +64,7 @@ export function FlowEditorShell({ initialFlow, initialNodes }: Props) {
 
   // Read the persisted choice in the useState initializer. Safe even
   // though this is a client component because the parent page only
-  // mounts us AFTER a client-side fetch resolves — there's no SSR
+  // mounts us AFTER a client-side fetch resolves - there's no SSR
   // pass for this subtree, so no hydration mismatch to worry about.
   // Default to `canvas` (the new default) when nothing is saved.
   const [view, setView] = useState<View>(() => {
@@ -72,13 +72,13 @@ export function FlowEditorShell({ initialFlow, initialNodes }: Props) {
       const saved = window.localStorage.getItem(STORAGE_KEY);
       if (saved === "canvas" || saved === "list") return saved;
     } catch {
-      // Private browsing / disabled storage — fall through to default.
+      // Private browsing / disabled storage - fall through to default.
     }
     return "canvas";
   });
 
   // Live mobile detection. We don't render canvas under the
-  // breakpoint regardless of `view` — but we keep `view` itself
+  // breakpoint regardless of `view` - but we keep `view` itself
   // intact so the user's preference comes back when they widen
   // again (e.g. rotating a tablet, resizing a window).
   const isMobile = useMatchMedia(MOBILE_BREAKPOINT);

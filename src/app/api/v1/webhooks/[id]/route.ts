@@ -1,10 +1,10 @@
 // ============================================================
-// GET    /api/v1/webhooks/{id} — read an endpoint   (webhooks:manage)
-// PATCH  /api/v1/webhooks/{id} — update url/events/is_active
-// DELETE /api/v1/webhooks/{id} — remove an endpoint
+// GET    /api/v1/webhooks/{id} - read an endpoint   (webhooks:manage)
+// PATCH  /api/v1/webhooks/{id} - update url/events/is_active
+// DELETE /api/v1/webhooks/{id} - remove an endpoint
 //
 // All account-scoped: a foreign id → 404 (never 403). The signing
-// secret is never returned here — it's shown once at creation only.
+// secret is never returned here - it's shown once at creation only.
 // ============================================================
 
 import { requireApiKey } from '@/lib/auth/api-context';

@@ -85,14 +85,14 @@ export function ConversationList({
   // Keep the latest callback in a ref so the fetch effect below can
   // have a stable, empty-dep identity. Previously the fetch useCallback
   // depended on `onConversationsLoaded`, which depends on the parent's
-  // `deepLinkConvId` — so every URL change (including one the parent
+  // `deepLinkConvId` - so every URL change (including one the parent
   // triggered via router.replace after a click) caused a fresh
   // conversations fetch. That extra refetch was the trigger for the
   // deep-link auto-select running a second time and wiping the active
   // thread's messages.
   // Mutation lives in an effect (not render) per React 19's refs rule;
   // the fetch runs once on mount so it's fine to read the slightly
-  // older value — the very next render updates the ref for any
+  // older value - the very next render updates the ref for any
   // subsequent async completion.
   const onConversationsLoadedRef = useRef(onConversationsLoaded);
   useEffect(() => {
@@ -112,7 +112,7 @@ export function ConversationList({
       if (cancelled) return;
 
       if (error) {
-        // Supabase errors have non-enumerable properties — log fields explicitly
+        // Supabase errors have non-enumerable properties - log fields explicitly
         console.error("Failed to fetch conversations:", {
           message: error.message,
           details: error.details,
@@ -131,11 +131,11 @@ export function ConversationList({
       cancelled = true;
     };
     // `resyncToken` is included so the parent can force a refetch when
-    // the realtime channel reconnects or the tab regains focus — catches
+    // the realtime channel reconnects or the tab regains focus - catches
     // up on any events sent while the WS was disconnected or throttled.
   }, [resyncToken]);
 
-  // Tag definitions for the filter picker — loaded once so labels/colours
+  // Tag definitions for the filter picker - loaded once so labels/colours
   // stay stable regardless of which conversations happen to be loaded.
   useEffect(() => {
     const supabase = createClient();
@@ -149,7 +149,7 @@ export function ConversationList({
     };
   }, []);
 
-  // Company options are derived from the loaded conversations — there's no
+  // Company options are derived from the loaded conversations - there's no
   // separate companies table, and only companies with a live conversation
   // are worth offering as an inbox filter.
   const companies = useMemo(() => {
@@ -397,7 +397,7 @@ export function ConversationList({
           `min-h-0` is load-bearing: a flex child defaults to
           min-height:auto, so without it this ScrollArea grows to fit
           every conversation instead of shrinking to the remaining
-          space — the list then overflows and gets clipped by the
+          space, the list then overflows and gets clipped by the
           parent's overflow-hidden with no scrollbar (issue #229). */}
       <ScrollArea className="min-h-0 flex-1">
         {loading ? (

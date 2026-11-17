@@ -1,14 +1,14 @@
 // ============================================================
 // /api/account/members/[userId]
 //
-//   PATCH  — change a member's role.   Admin+.
-//   DELETE — remove a member.          Admin+.
+//   PATCH  - change a member's role.   Admin+.
+//   DELETE - remove a member.          Admin+.
 //
 // Both delegate to SECURITY DEFINER RPCs from migration 018:
 //   - set_member_role(p_user_id, p_new_role)
 //   - remove_account_member(p_user_id)
 //
-// The RPCs do the *real* authorisation work — caller must be
+// The RPCs do the *real* authorisation work - caller must be
 // admin+, target must be in caller's account, target can't be the
 // owner, can't be self. The TS layer here only forwards the call
 // and maps Postgres SQLSTATEs back to HTTP statuses.

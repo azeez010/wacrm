@@ -1,8 +1,8 @@
 // ============================================================
 // /api/account
 //
-//   GET   — current caller's account + role. Any member.
-//   PATCH — rename the account.                  Admin+.
+//   GET   - current caller's account + role. Any member.
+//   PATCH - rename the account.                  Admin+.
 //
 // Why both verbs share a route file
 //   They speak about the same singular resource (the caller's

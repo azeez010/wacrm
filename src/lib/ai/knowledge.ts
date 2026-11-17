@@ -22,8 +22,8 @@ interface MatchRow {
 }
 
 /**
- * (Re)build the chunks for one document. Re-chunks the content and —
- * when the account has an embeddings key — embeds each chunk. Runs under
+ * (Re)build the chunks for one document. Re-chunks the content and -
+ * when the account has an embeddings key - embeds each chunk. Runs under
  * whatever client the caller passes (service-role for ingest routes).
  */
 export async function ingestDocument(
@@ -97,7 +97,7 @@ export async function retrieveKnowledge(
   const query = queryText.trim()
   if (!query || k <= 0) return []
 
-  // Skip everything when the account has no knowledge base — otherwise
+  // Skip everything when the account has no knowledge base - otherwise
   // every draft / auto-reply would pay for a query embedding + two RPCs
   // just to get []. One cheap indexed COUNT (head, no rows) instead of a
   // paid embeddings call on the hot path.

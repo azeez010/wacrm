@@ -15,7 +15,7 @@ const t = getT('Api');
  * The non-secret bag the frontend needs to load the Facebook JS SDK
  * and call FB.login with the Tech Provider's Embedded Signup Login
  * Configuration. Deliberately NOT exposed as NEXT_PUBLIC_ build-time
- * vars — fetched at runtime instead, so a self-hosted deployment can
+ * vars - fetched at runtime instead, so a self-hosted deployment can
  * set these as ordinary server env vars without a rebuild, and so a
  * Worker secret never needs to be inlined into the client bundle.
  */

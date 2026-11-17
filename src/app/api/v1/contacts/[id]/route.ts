@@ -1,9 +1,9 @@
 // ============================================================
-// GET   /api/v1/contacts/{id} — read a contact  (scope: contacts:read)
-// PATCH /api/v1/contacts/{id} — update a contact (scope: contacts:write)
+// GET   /api/v1/contacts/{id} - read a contact  (scope: contacts:read)
+// PATCH /api/v1/contacts/{id} - update a contact (scope: contacts:write)
 //
 // Both are account-scoped: a contact belonging to another account
-// returns 404 (never 403 — don't reveal it exists elsewhere).
+// returns 404 (never 403 - don't reveal it exists elsewhere).
 // PATCH updates only the fields present in the body; pass `tags` (an
 // array of tag names) to replace the contact's tags.
 // ============================================================

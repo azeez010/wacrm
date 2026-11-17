@@ -13,7 +13,7 @@ const t = getT('Api')
  * Body: { status: 'draft' | 'active' | 'archived' }
  *
  * Activating runs the full validator and refuses on any 'error'
- * severity issue. Drafts and archives are unconditional — users
+ * severity issue. Drafts and archives are unconditional - users
  * need to be able to save broken-work-in-progress and pause flows
  * without first fixing them.
  *
@@ -27,7 +27,7 @@ export async function POST(
 ) {
   const { id } = await context.params
 
-  // Changing status (activate / draft / archive) is a write — the RLS
+  // Changing status (activate / draft / archive) is a write - the RLS
   // flows_update policy requires `agent`, but the service-role client
   // below bypasses RLS, so enforce the role here (a viewer passes the
   // membership-only ownership check).
@@ -56,7 +56,7 @@ export async function POST(
     )
   }
 
-  // Ownership via RLS — caller's client.
+  // Ownership via RLS - caller's client.
   const { data: existing } = await supabase
     .from('flows')
     .select('id')

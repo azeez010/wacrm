@@ -4,12 +4,12 @@ import { join } from "node:path";
 import { NextRequest } from "next/server";
 
 // --- Scenario knobs the mock reads -----------------------------------------
-// `mockUser`         — what getUser() resolves to (a refreshed session ⇒ user,
+// `mockUser`         - what getUser() resolves to (a refreshed session ⇒ user,
 //                      or null for the logged-out path).
-// `refreshedCookies` — cookies Supabase writes via setAll() during getUser(),
+// `refreshedCookies` - cookies Supabase writes via setAll() during getUser(),
 //                      i.e. the freshly *rotated* auth token. The whole point
 //                      of the test is that these must survive onto whatever
-//                      response the middleware returns — including redirects.
+//                      response the middleware returns - including redirects.
 let mockUser: { id: string } | null = null;
 let refreshedCookies: Array<{
   name: string;
@@ -55,7 +55,7 @@ const ROTATED = {
   options: { path: "/", httpOnly: true },
 };
 
-describe("middleware — refreshed auth cookies survive redirects", () => {
+describe("middleware, refreshed auth cookies survive redirects", () => {
   it("carries the rotated token when redirecting a signed-in user off /login", async () => {
     mockUser = { id: "user-1" };
     refreshedCookies = [ROTATED];
@@ -108,13 +108,13 @@ describe("middleware — refreshed auth cookies survive redirects", () => {
       new NextRequest("https://app.test/dashboard"),
     );
 
-    // No redirect — the normal NextResponse.next() already carries cookies.
+    // No redirect - the normal NextResponse.next() already carries cookies.
     expect(res.headers.get("location")).toBeNull();
     expect(res.cookies.get(ROTATED.name)?.value).toBe(ROTATED.value);
   });
 });
 
-describe("middleware — every dashboard route requires a session", () => {
+describe("middleware, every dashboard route requires a session", () => {
   // Read the route group rather than hard-coding a list, so a new page added
   // under src/app/(dashboard)/ fails here until it is added to
   // protectedPaths. /flows, /agents and /notifications were missed that way

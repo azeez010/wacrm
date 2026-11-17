@@ -13,7 +13,7 @@
 // `(created_at, id)` descending and the cursor encodes the last row's
 // `(created_at, id)`. This is stable under concurrent inserts (an
 // offset would skip/repeat rows when new data lands mid-scan) and
-// stays fast at any depth. The cursor is an opaque base64 string —
+// stays fast at any depth. The cursor is an opaque base64 string -
 // clients pass it back verbatim and never parse it.
 // ============================================================
 
@@ -36,7 +36,7 @@ export interface ListParams {
  * Parse `?limit` and `?cursor` off a request URL. `limit` is clamped
  * to [1, MAX_LIMIT] (default {@link DEFAULT_LIMIT}); a malformed or
  * unparseable `cursor` is treated as absent (first page) rather than
- * erroring — the worst case is the client re-reads from the top.
+ * erroring - the worst case is the client re-reads from the top.
  */
 export function parseListParams(request: Request): ListParams {
   const url = new URL(request.url);
@@ -62,7 +62,7 @@ export function encodeCursor(row: { created_at: string; id: string }): string {
 // decode so a hand-crafted cursor can't smuggle PostgREST filter
 // syntax into `keysetFilter`'s `.or()` string (the values are
 // interpolated raw). Anything that doesn't look server-issued is
-// treated as "no cursor" — the documented tolerance is to restart
+// treated as "no cursor" - the documented tolerance is to restart
 // from the first page, never to run an attacker-shaped query.
 export const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;

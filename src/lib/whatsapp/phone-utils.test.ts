@@ -85,7 +85,7 @@ describe("phonesMatch", () => {
   });
 
   it("rejects very short inputs that would false-positive on tail match", () => {
-    // Only 7 digits — the last-8 fallback is gated to len>=8 on both
+    // Only 7 digits - the last-8 fallback is gated to len>=8 on both
     // sides to avoid declaring "12345" and "67890-12345" a match.
     expect(phonesMatch("1234567", "1234567")).toBe(true);
     expect(phonesMatch("1234567", "9991234567")).toBe(false);
@@ -105,11 +105,11 @@ describe("isValidE164", () => {
   it("accepts numbers 8–15 digits with optional + and non-zero start", () => {
     expect(isValidE164("+37063949836")).toBe(true);
     expect(isValidE164("37063949836")).toBe(true);
-    expect(isValidE164("+12345678")).toBe(true); // 8 digits — lower bound
-    expect(isValidE164("+123456789012345")).toBe(true); // 15 digits — upper bound
+    expect(isValidE164("+12345678")).toBe(true); // 8 digits - lower bound
+    expect(isValidE164("+123456789012345")).toBe(true); // 15 digits - upper bound
   });
 
-  it("still accepts a national-format digit string — rejecting those is parseInternationalPhone's job", () => {
+  it("still accepts a national-format digit string, rejecting those is parseInternationalPhone's job", () => {
     // A stored/inbound digit string carries no country-code marker, so
     // "4155551212" is indistinguishable from a Swiss number here. Raw
     // input must go through parseInternationalPhone (issue #586).
@@ -160,7 +160,7 @@ describe("parseInternationalPhone", () => {
 
   it("rejects a + followed by an invalid digit string", () => {
     expect(parseInternationalPhone("+0123456789")).toBeNull(); // leading 0 after +
-    expect(parseInternationalPhone("+1234567")).toBeNull(); // 7 digits — below the floor
+    expect(parseInternationalPhone("+1234567")).toBeNull(); // 7 digits - below the floor
     expect(parseInternationalPhone("++14155551212")).toBeNull();
     expect(parseInternationalPhone("+1415555abcd")).toBeNull();
     expect(parseInternationalPhone("+")).toBeNull();
@@ -193,7 +193,7 @@ describe("phoneVariants", () => {
   });
 
   it("inserts a trunk 0 after each plausible country-code length", () => {
-    // Input "37063949836" — CC-1 → "3" + "0" + "7063949836",
+    // Input "37063949836" - CC-1 → "3" + "0" + "7063949836",
     //                       CC-3 → "370" + "0" + "63949836".
     // CC-2 is skipped because "063949836" already starts with 0.
     const out = phoneVariants("37063949836");
@@ -207,7 +207,7 @@ describe("phoneVariants", () => {
   });
 
   it("removes a leading 0 after the country code when present", () => {
-    // Input "370063949836" — CC-2 strips one leading 0 from
+    // Input "370063949836" - CC-2 strips one leading 0 from
     // "0063949836" → "37" + "063949836" = "37063949836". Only one zero
     // comes off per pass; that's what the live retry loop needs.
     const out = phoneVariants("370063949836");

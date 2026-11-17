@@ -18,7 +18,7 @@ export interface StatusDisplay {
   classes: string;
   /**
    * Set true for statuses that should pulse in the UI to convey
-   * "live / in-flight" — currently only `sending`.
+   * "live / in-flight" - currently only `sending`.
    */
   pulse?: boolean;
 }
@@ -75,7 +75,7 @@ export const recipientStatusConfig: Record<RecipientStatus, StatusDisplay> = {
 };
 
 /**
- * Tolerant lookup — callers often have a generic string status
+ * Tolerant lookup - callers often have a generic string status
  * coming from Supabase. Falls back to the "draft" / "pending"
  * entry so the UI never crashes on an unknown value.
  */

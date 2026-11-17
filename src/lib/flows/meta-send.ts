@@ -26,7 +26,7 @@ const t = getT('LibErrors')
 // Mirrors src/lib/automations/meta-send.ts (engineSendText /
 // engineSendTemplate) but emits interactive button + list messages.
 // Kept separate from the automations file so the two engines don't
-// fight over each other's shape — once both stabilize, the
+// fight over each other's shape - once both stabilize, the
 // phone-variant retry + DB persistence are obvious extraction
 // candidates into a shared base.
 //
@@ -38,7 +38,7 @@ const t = getT('LibErrors')
 /**
  * Resolve the account's Meta sending credentials: the phone number id
  * plus the DECRYPTED access token from `whatsapp_config`. The single
- * home for that decrypt step — callers outside this file (the AI
+ * home for that decrypt step - callers outside this file (the AI
  * auto-reply's typing indicator) reuse it rather than growing a copy.
  */
 export async function loadAccountMetaCredentials(
@@ -64,7 +64,7 @@ interface SendTextEngineArgs {
    *  lookups so a flow authored by user A still sends through the
    *  WhatsApp number user B saved on the same account. */
   accountId: string
-  /** Original author of the flow — used for INSERT audit columns
+  /** Original author of the flow - used for INSERT audit columns
    *  and for resolving the agent's identity in logs. Not consulted
    *  for tenancy. */
   userId: string
@@ -80,7 +80,7 @@ interface SendTextEngineArgs {
 /**
  * Send a plain-text WhatsApp message from the Flows engine.
  *
- * Used by the runner's `send_message` and `collect_input` nodes —
+ * Used by the runner's `send_message` and `collect_input` nodes -
  * both prompt the customer with text and either auto-advance (the
  * send_message case) or suspend awaiting a text reply (collect_input).
  *
@@ -104,7 +104,7 @@ export async function engineSendText(
     throw new Error(t('send.contactNotFound'))
   }
 
-  // Same for the conversation the message lands in — see
+  // Same for the conversation the message lands in - see
   // conversation-scope.ts (GHSA-m4fx-g6pr-hrw8).
   await assertConversationInAccount(db, args.conversationId, args.accountId)
 
@@ -218,7 +218,7 @@ export async function engineSendMedia(
     throw new Error(t('send.contactNotFound'))
   }
 
-  // Same for the conversation the message lands in — see
+  // Same for the conversation the message lands in - see
   // conversation-scope.ts (GHSA-m4fx-g6pr-hrw8).
   await assertConversationInAccount(db, args.conversationId, args.accountId)
 
@@ -272,7 +272,7 @@ export async function engineSendMedia(
     await db.from('contacts').update({ phone: workingPhone }).eq('id', contact.id)
   }
 
-  // content_type='image'|'video'|'document' — these are already in the
+  // content_type='image'|'video'|'document' - these are already in the
   // messages_content_type_check constraint (migration 001 + 010).
   // content_text carries the caption (or empty) so the conversation
   // list preview shows something meaningful when the user glances at it.
@@ -361,7 +361,7 @@ async function sendInteractiveViaMeta(
 ): Promise<{ whatsapp_message_id: string }> {
   const db = supabaseAdmin()
 
-  // Scope the contact + whatsapp_config lookups by account_id —
+  // Scope the contact + whatsapp_config lookups by account_id -
   // same defense-in-depth rationale as automations/meta-send.ts.
   // Migration 017 moved both tables to account-scoped tenancy.
   const { data: contact, error: contactErr } = await db
@@ -374,7 +374,7 @@ async function sendInteractiveViaMeta(
     throw new Error(t('send.contactNotFound'))
   }
 
-  // Same for the conversation the message lands in — see
+  // Same for the conversation the message lands in - see
   // conversation-scope.ts (GHSA-m4fx-g6pr-hrw8).
   await assertConversationInAccount(db, input.conversationId, input.accountId)
 
@@ -450,7 +450,7 @@ async function sendInteractiveViaMeta(
   // manual agent sends (the conversation list preview will pick up
   // last_message_text as a sensible summary).
   //
-  // We do NOT set interactive_reply_id here — that column is reserved
+  // We do NOT set interactive_reply_id here - that column is reserved
   // for the customer's tap on this message, populated by the webhook
   // when their reply arrives. We DO persist the structured payload so
   // the inbox thread re-renders the buttons/rows the bot sent (round-

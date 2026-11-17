@@ -1,5 +1,5 @@
 // ============================================================
-// /api/v1/templates — public API for message templates.
+// /api/v1/templates - public API for message templates.
 //
 //   GET  list templates + approval status      (templates:read)
 //   POST create a template and submit it to Meta (templates:write)

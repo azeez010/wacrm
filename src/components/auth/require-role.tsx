@@ -11,7 +11,7 @@ interface RequireRoleProps {
   min: AccountRole;
   /** What to render while the role is below `min` OR while we don't
    *  yet know the role (`profileLoading` is true). Defaults to
-   *  `null` — most call sites just want the gated element to be
+   *  `null` - most call sites just want the gated element to be
    *  absent until we're sure. Pass a placeholder if a layout slot
    *  would collapse and re-flow when the role resolves. */
   fallback?: ReactNode;
@@ -19,7 +19,7 @@ interface RequireRoleProps {
 }
 
 /**
- * `<RequireRole min="admin">…</RequireRole>` — conditional render
+ * `<RequireRole min="admin">…</RequireRole>` - conditional render
  * helper for UI gated by account role.
  *
  * Three states:

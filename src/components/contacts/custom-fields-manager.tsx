@@ -51,7 +51,7 @@ export function CustomFieldsManager({
 /**
  * Create / rename / delete account-wide custom contact field definitions.
  * Per-contact values are edited elsewhere (contact detail → Custom Fields);
- * this only manages the field catalogue. Admin+ gated by the caller — the
+ * this only manages the field catalogue. Admin+ gated by the caller - the
  * `custom_fields` RLS also rejects non-admin writes as defense in depth.
  */
 export function CustomFieldsPanel() {
@@ -77,8 +77,8 @@ export function CustomFieldsPanel() {
   }, [supabase, accountId]);
 
   // Load the field list on mount once the account is known. The setters
-  // inside fetchFields run after the Supabase await — not synchronously in
-  // the effect body — so the cascade the lint rule warns about doesn't apply.
+  // inside fetchFields run after the Supabase await - not synchronously in
+  // the effect body - so the cascade the lint rule warns about doesn't apply.
   useEffect(() => {
     if (accountId) {
       // eslint-disable-next-line react-hooks/set-state-in-effect

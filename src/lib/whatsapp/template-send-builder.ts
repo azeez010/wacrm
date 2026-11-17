@@ -2,7 +2,7 @@
  * Build the Meta `components` array used by POST /{phone_number_id}/messages
  * when sending an APPROVED template.
  *
- * Distinct from `template-components.ts` — that module builds the
+ * Distinct from `template-components.ts` - that module builds the
  * `components` for TEMPLATE CREATION (where you describe headers,
  * footers, buttons, examples). This module builds the per-send
  * `components` (where you fill in variable values and supply the
@@ -25,7 +25,7 @@
  *     and PHONE_NUMBER buttons, don't need send-time parameters.
  *   - COPY_CODE buttons need the actual code to display. We fall
  *     back to the template's `example` value if the caller doesn't
- *     override — that matches the most common use case (a static
+ *     override - that matches the most common use case (a static
  *     promo code) without forcing UI work.
  *
  * Validation throws here (not at the Meta API boundary) so a missing
@@ -107,7 +107,7 @@ function buildHeaderComponent(
     };
   }
 
-  // image / video / document — Meta requires the media component on
+  // image / video / document - Meta requires the media component on
   // every send. Prefer the caller's explicit override; fall back to the
   // template's stored public URL.
   //
@@ -149,7 +149,7 @@ function buildBodyComponent(
       t('bodyValuesMissing', { count: varCount, got: body.length }),
     );
   }
-  // Trim to the variable count — extra values are dropped silently so
+  // Trim to the variable count - extra values are dropped silently so
   // a legacy caller that passes too many doesn't error out.
   const values = body.slice(0, varCount);
   return {
@@ -217,7 +217,7 @@ function buildButtonComponent(
     }
     case 'QUICK_REPLY': {
       // Only included when the caller explicitly overrides the
-      // payload (rare — usually QR buttons use their default text).
+      // payload (rare - usually QR buttons use their default text).
       return {
         type: 'button',
         sub_type: 'quick_reply',
@@ -226,7 +226,7 @@ function buildButtonComponent(
       };
     }
     case 'PHONE_NUMBER':
-      // PHONE_NUMBER buttons never accept send-time params per Meta —
+      // PHONE_NUMBER buttons never accept send-time params per Meta -
       // return null even if an override snuck through.
       return null;
   }

@@ -12,12 +12,12 @@
  * the list editor: PR 2 (canvas editing) needs to mount the same
  * form in a side panel when a user clicks a node on the canvas.
  * Keeping the per-node forms here means there's exactly one place
- * where each form's behaviour and validation lives — drift between
+ * where each form's behaviour and validation lives - drift between
  * "what the list editor shows" and "what the canvas side panel
  * shows" becomes impossible.
  *
  * `showAdvanced` is the disclosure that surfaces internal
- * identifiers (node_key, button reply_id, list row reply_id) — owned
+ * identifiers (node_key, button reply_id, list row reply_id) - owned
  * by the host (NodeCard / SideSheet) so the toggle is rendered
  * outside this form alongside whatever delete/cancel buttons that
  * host wants. The form just reads the boolean and conditionally
@@ -840,7 +840,7 @@ function SetTagForm({
 /**
  * Shared loader for both `condition` (subject=tag) and `set_tag`.
  * Falls back to raw UUID input if the endpoint is absent on older
- * deployments — the form remains authorable in that case.
+ * deployments - the form remains authorable in that case.
  */
 function useUserTags(): UserTag[] {
   const [tags, setTags] = useState<UserTag[]>([]);
@@ -853,7 +853,7 @@ function useUserTags(): UserTag[] {
         const json = (await res.json()) as { tags?: UserTag[] };
         if (!cancelled) setTags(json.tags ?? []);
       } catch {
-        // Tags endpoint absent — caller falls back to raw input.
+        // Tags endpoint absent - caller falls back to raw input.
       }
     })();
     return () => {
@@ -920,7 +920,7 @@ function SendMediaForm({
       }
       setUploading(true);
       try {
-        // Account-scoped upload (path `account-<id>/...`) — see
+        // Account-scoped upload (path `account-<id>/...`) - see
         // uploadAccountMedia + migration 020's flow-media RLS policy.
         const { publicUrl } = await uploadAccountMedia(FLOW_MEDIA_BUCKET, file);
         // Patch all fields in one call so the form doesn't re-render
@@ -951,7 +951,7 @@ function SendMediaForm({
         <Select
           value={mediaType}
           onValueChange={(v) => {
-            // Changing type clears the existing file — the bucket
+            // Changing type clears the existing file - the bucket
             // accepts different MIME sets per type and a previously
             // uploaded PDF can't be sent as an image.
             onUpdateConfig({

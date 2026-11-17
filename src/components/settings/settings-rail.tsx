@@ -13,11 +13,11 @@ import {
 
 // Width at/above which the rail is a vertical column (already in view, so
 // no auto-scroll needed). Mirrors the Tailwind `lg:` breakpoint that
-// drives the row→column switch in the markup below — keep the two in sync.
+// drives the row→column switch in the markup below - keep the two in sync.
 const RAIL_DESKTOP_MIN_PX = 1024;
 
 /**
- * The settings left rail — grouped, vertical on desktop and a
+ * The settings left rail - grouped, vertical on desktop and a
  * horizontal scroller on narrow screens (mirrors the mockup's ≤920px
  * behaviour). The active item auto-scrolls into view when the rail is
  * horizontal so a deep-linked section is never off-screen.

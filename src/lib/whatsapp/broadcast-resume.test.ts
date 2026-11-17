@@ -15,7 +15,7 @@ vi.mock('@/lib/whatsapp/encryption', () => ({
 }));
 
 // ============================================================
-// Claim / release — the mutex that stops a double-send.
+// Claim / release - the mutex that stops a double-send.
 // ============================================================
 
 interface ClaimCall {
@@ -69,7 +69,7 @@ describe('claimBroadcastDelivery', () => {
   });
 
   it('refuses when another pass already holds the lock', async () => {
-    // The UPDATE's WHERE didn't match — someone else got there first.
+    // The UPDATE's WHERE didn't match - someone else got there first.
     const ok = await claimBroadcastDelivery(
       claimDb([], []),
       'acct-1',
@@ -86,7 +86,7 @@ describe('claimBroadcastDelivery', () => {
       'bc-1',
       new Date('2026-08-11T12:00:00Z'),
     );
-    // 30 minutes before "now" — a pass whose process died is recoverable
+    // 30 minutes before "now" - a pass whose process died is recoverable
     // without touching the database by hand.
     expect(calls[0].or).toBe(
       'and(or(delivery_locked_at.is.null,delivery_locked_at.lt.2026-08-11T11:30:00.000Z),or(delivery_lease_until.is.null,delivery_lease_until.lt.2026-08-11T12:00:00.000Z))',
@@ -122,7 +122,7 @@ describe('releaseBroadcastDelivery', () => {
 });
 
 // ============================================================
-// Planning — which recipients a pass picks up, and with what params.
+// Planning - which recipients a pass picks up, and with what params.
 // ============================================================
 
 interface PlanFixture {
@@ -238,7 +238,7 @@ describe('planBroadcastResume', () => {
 
     expect(writes.statusFilter).toEqual(['pending']);
     // Phones are stored sanitized (no leading '+'), same as the shape
-    // createBroadcast plans — deliverBroadcast feeds them to
+    // createBroadcast plans - deliverBroadcast feeds them to
     // phoneVariants from here.
     expect(plan.planned).toEqual([
       {
@@ -330,7 +330,7 @@ describe('planBroadcastResume', () => {
     );
 
     // Left 'pending', these would keep the broadcast in 'sending'
-    // forever — the exact symptom being fixed.
+    // forever - the exact symptom being fixed.
     expect(unsendable).toBe(2);
     expect(writes.failedIds).toEqual(['r2', 'r3']);
     expect(writes.failedUpdate?.status).toBe('failed');
@@ -502,7 +502,7 @@ describe('planBroadcastResume', () => {
             id: 'tpl-1',
             user_id: 'u-1',
             name: 'order_update',
-            // Synced from Meta as bare 'en' — the resolver bridges it.
+            // Synced from Meta as bare 'en' - the resolver bridges it.
             language: 'en',
             body_text: 'Your order {{1}} ships on {{2}}',
           },

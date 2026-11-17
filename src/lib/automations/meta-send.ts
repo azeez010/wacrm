@@ -28,7 +28,7 @@ const t = getT('LibErrors')
 // the service-role client (engine has no cookies) and accepts the
 // user / conversation / contact identifiers the engine already has
 // on hand. Kept here (rather than refactoring the user-facing send
-// route) to avoid risk to the working manual-send path — they can
+// route) to avoid risk to the working manual-send path - they can
 // converge in a later refactor.
 // ------------------------------------------------------------
 
@@ -37,7 +37,7 @@ interface SendTextArgs {
    *  lookups so an automation authored by user A still sends through
    *  the WhatsApp number user B saved on the same account. */
   accountId: string
-  /** Original author of the automation/flow — used for INSERT audit
+  /** Original author of the automation/flow - used for INSERT audit
    *  columns (messages.sender_id-ish) and for resolving the agent's
    *  identity in logs. Not consulted for tenancy. */
   userId: string
@@ -134,7 +134,7 @@ async function sendViaMeta(input: SendInput): Promise<{ whatsapp_message_id: str
     throw new Error(t('send.contactNotFound'))
   }
 
-  // Same for the conversation the message lands in — see
+  // Same for the conversation the message lands in - see
   // conversation-scope.ts (GHSA-m4fx-g6pr-hrw8).
   await assertConversationInAccount(db, input.conversationId, input.accountId)
 
@@ -195,7 +195,7 @@ async function sendViaMeta(input: SendInput): Promise<{ whatsapp_message_id: str
     return r.messageId
   }
 
-  // Same phone-variant retry as /api/whatsapp/send — Meta sandbox and
+  // Same phone-variant retry as /api/whatsapp/send - Meta sandbox and
   // numbers registered with/without a trunk 0 both require this to
   // reliably land a message.
   const variants = sendTarget.isPhone ? phoneVariants(sanitized) : [sanitized]

@@ -99,7 +99,7 @@ afterEach(() => {
   vi.unstubAllGlobals()
 })
 
-describe('engineSendTemplate — header component', () => {
+describe('engineSendTemplate, header component', () => {
   it.each(['image', 'video', 'document'] as const)(
     'sends the stored %s header as a header parameter',
     async (headerType) => {
@@ -157,7 +157,7 @@ describe('engineSendTemplate — header component', () => {
   })
 })
 
-describe('engineSendTemplate — templates without a header keep their payload', () => {
+describe('engineSendTemplate, templates without a header keep their payload', () => {
   it('sends only the body component for a header-less template', async () => {
     state.templateRows = [BASE_ROW]
 

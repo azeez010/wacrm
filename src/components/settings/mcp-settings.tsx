@@ -1,7 +1,7 @@
 'use client';
 
 // ============================================================
-// McpSettings — Settings → Claude (MCP)
+// McpSettings - Settings → Claude (MCP)
 //
 // Connect Claude (Code / Desktop) or any MCP client to this CRM over
 // the hosted endpoint at /api/mcp. Auth is a normal API key; its
@@ -22,6 +22,24 @@ import { cn } from '@/lib/utils';
 import type { ApiScope } from '@/lib/api-keys/scopes';
 import { SettingsPanelHead } from './settings-panel-head';
 
+const READ_SCOPES: ApiScope[] = [
+  'contacts:read',
+  'conversations:read',
+  'messages:read',
+  'templates:read',
+  'pipelines:read',
+  'automations:read',
+  'flows:read',
+];
+
+const BUILDER_SCOPES: ApiScope[] = [
+  ...READ_SCOPES,
+  'pipelines:write',
+  'automations:write',
+  'flows:write',
+  'templates:write',
+];
+
 const PRESETS: {
   id: string;
   label: string;
@@ -31,37 +49,20 @@ const PRESETS: {
   {
     id: 'read',
     label: 'Read-only',
-    hint: 'Look up contacts, conversations and messages. Cannot change anything or send messages. Recommended.',
-    scopes: ['contacts:read', 'conversations:read', 'messages:read', 'templates:read'],
+    hint: 'Look up contacts, conversations, messages, pipelines, automations and flows. Cannot change anything. Recommended for getting started.',
+    scopes: READ_SCOPES,
   },
   {
-    id: 'write',
-    label: 'Read & write',
-    hint: 'Also create/update contacts, send WhatsApp messages and create message templates (submitted to Meta for approval).',
-    scopes: [
-      'contacts:read',
-      'conversations:read',
-      'messages:read',
-      'templates:read',
-      'contacts:write',
-      'messages:send',
-      'templates:write',
-    ],
+    id: 'builder',
+    label: 'Campaign builder',
+    hint: 'Everything in Read-only, plus build pipelines, automations, chatbot flows and message templates. New automations and flows are saved as drafts. It cannot message customers directly.',
+    scopes: BUILDER_SCOPES,
   },
   {
     id: 'full',
     label: 'Full access',
-    hint: 'Everything above plus launching broadcast campaigns (mass sends).',
-    scopes: [
-      'contacts:read',
-      'conversations:read',
-      'messages:read',
-      'templates:read',
-      'contacts:write',
-      'messages:send',
-      'templates:write',
-      'broadcasts:send',
-    ],
+    hint: 'Campaign builder, plus edit contacts and deals, send WhatsApp messages and launch broadcasts (mass sends).',
+    scopes: [...BUILDER_SCOPES, 'contacts:write', 'messages:send', 'broadcasts:send'],
   },
 ];
 
@@ -73,9 +74,15 @@ const CAPABILITIES: { scope: string; title: string; examples: string }[] = [
       '“How many conversations are still open?” · “Summarise my last chat with +234…” · “Which contacts are tagged VIP?”',
   },
   {
+    scope: 'Build',
+    title: 'Set up whole campaigns for you',
+    examples:
+      '“Build a 3-day follow-up sequence for people tagged Webinar” · “Create a support menu flow with Sales / Billing / Human options” · “Make a Leads pipeline with 5 stages”',
+  },
+  {
     scope: 'Write',
-    title: 'Keep contacts up to date',
-    examples: '“Add this lead with the tag Webinar” · “Update Ada’s company to Acme”',
+    title: 'Keep contacts and deals up to date',
+    examples: '“Add this lead with the tag Webinar” · “Move Ada’s deal to Negotiation” · “Mark it won”',
   },
   {
     scope: 'Send',
@@ -86,7 +93,7 @@ const CAPABILITIES: { scope: string; title: string; examples: string }[] = [
     scope: 'Templates',
     title: 'Create message templates',
     examples:
-      '“Create a Utility template for order shipping updates in English” — submitted to Meta for approval (needs a connected WhatsApp number)',
+      '“Create a Utility template for order shipping updates in English”, submitted to Meta for approval (needs a connected WhatsApp number)',
   },
   {
     scope: 'Broadcast',
@@ -103,7 +110,7 @@ function CopyBlock({ label, value }: { label: string; value: string }) {
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
     } catch {
-      toast.error('Could not copy — select the text manually.');
+      toast.error('Could not copy, select the text manually.');
     }
   }
   return (
@@ -147,7 +154,7 @@ export function McpSettings() {
       }
       setKey(payload.plaintext as string);
     } catch {
-      toast.error('Network error — try again.');
+      toast.error('Network error, try again.');
     } finally {
       setCreating(false);
     }
@@ -176,7 +183,7 @@ export function McpSettings() {
     <div className="flex flex-col gap-6">
       <SettingsPanelHead
         title="Claude (MCP)"
-        description="Let Claude — or any MCP client — look things up in this CRM and act on it, using a scoped API key."
+        description="Let Claude, or any MCP client, look things up in this CRM and act on it, using a scoped API key."
       />
 
       <Card>
@@ -219,7 +226,7 @@ export function McpSettings() {
             {key ? (
               <div className="space-y-2">
                 <p className="text-xs text-amber-600 dark:text-amber-400">
-                  This key is shown once. Copy the commands below now — it can&apos;t be displayed
+                  This key is shown once. Copy the commands below now, it can&apos;t be displayed
                   again (you can revoke it any time under{' '}
                   <Link href="/settings?tab=api" className="underline">
                     API keys
@@ -255,13 +262,13 @@ export function McpSettings() {
           <CopyBlock label="Server URL" value={url} />
           <CopyBlock label="Claude Code (terminal)" value={claudeCode} />
           <CopyBlock
-            label="Claude Desktop — add to claude_desktop_config.json (needs Node.js)"
+            label="Claude Desktop, add to claude_desktop_config.json (needs Node.js)"
             value={desktopJson}
           />
           <CopyBlock label="Cursor / Windsurf / other clients that accept a URL" value={cursorJson} />
           <p className="text-muted-foreground text-xs">
             Claude.ai&apos;s browser “custom connectors” require OAuth sign-in, which isn&apos;t
-            supported yet — use Claude Code or Desktop for now. Treat the key like a password.
+            supported yet, use Claude Code or Desktop for now. Treat the key like a password.
           </p>
         </CardContent>
       </Card>

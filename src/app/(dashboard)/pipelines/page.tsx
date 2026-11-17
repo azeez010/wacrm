@@ -36,7 +36,7 @@ import { useTranslations } from "next-intl";
 // agent+. The two CTAs gate on different `useCan` capabilities,
 // not on different copy.
 
-// Spec-defined seed — name and color per the product spec. Names are
+// Spec-defined seed - name and color per the product spec. Names are
 // message keys under `Pipelines.page.defaultStages` so the seeded
 // stages come out in the UI language.
 const SPEC_DEFAULT_STAGES = [
@@ -219,7 +219,7 @@ export default function PipelinesPage() {
 
   const handleDealMoved = useCallback(
     async (dealId: string, newStageId: string) => {
-      // Optimistic update — board already animated; just persist.
+      // Optimistic update - board already animated; just persist.
       setDeals((prev) =>
         prev.map((d) => (d.id === dealId ? { ...d, stage_id: newStageId } : d)),
       );

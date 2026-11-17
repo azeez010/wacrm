@@ -4,7 +4,7 @@
 // The dashboard wizard drives its own send loop from the browser tab
 // that started the campaign, so closing the tab abandons the campaign
 // mid-flight: the remaining recipients stay 'pending' and the
-// broadcast sits in 'sending' forever. This module is the recovery —
+// broadcast sits in 'sending' forever. This module is the recovery -
 // and the same machinery answers the reporter's other two asks,
 // "reprocess pending" and "reprocess failed".
 //
@@ -36,7 +36,7 @@ export const RESUME_SCOPES: readonly ResumeScope[] = [
 
 /**
  * Recipients delivered per resume request. One pass runs inside
- * `after()`, so it is bounded by the host's function timeout — the cap
+ * `after()`, so it is bounded by the host's function timeout - the cap
  * keeps a 5 000-recipient backlog from being one un-completable unit
  * of work. Whatever is left stays 'pending' and the caller is told how
  * many, so the UI can offer Resume again. Matches the public API's
@@ -57,7 +57,7 @@ function scopeStatuses(scope: ResumeScope): string[] {
  *
  * One conditional UPDATE, so the claim is atomic: a concurrent caller's
  * WHERE no longer matches and it gets `false`. Returns false when the
- * broadcast doesn't exist on this account, too — the caller treats both
+ * broadcast doesn't exist on this account, too - the caller treats both
  * as "not yours to run".
  */
 export async function claimBroadcastDelivery(
@@ -247,7 +247,7 @@ export async function planBroadcastResume(
   if (resolvedTemplate.malformed) {
     throw new BroadcastError(
       'template_malformed',
-      'Template row is malformed locally — run "Sync from Meta" in Settings to repair it before resuming.',
+      'Template row is malformed locally, run "Sync from Meta" in Settings to repair it before resuming.',
       500
     );
   }

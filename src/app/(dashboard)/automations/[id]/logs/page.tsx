@@ -201,7 +201,7 @@ function StepRow({ result }: { result: AutomationLogStepResult }) {
       </span>
       <span className="text-muted-foreground">{result.step_type}</span>
       {result.detail && (
-        <span className="truncate text-muted-foreground">— {result.detail}</span>
+        <span className="truncate text-muted-foreground">- {result.detail}</span>
       )}
     </li>
   )

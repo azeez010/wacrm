@@ -1,10 +1,10 @@
 // ============================================================
-// Outbound webhook event vocabulary — pure, no I/O.
+// Outbound webhook event vocabulary - pure, no I/O.
 //
 // An endpoint subscribes to one or more of these. Adding an event is
 // one entry here plus a `dispatchWebhookEvent` call at the source of
 // the event (the DB stores subscriptions as a free `text[]`, so no
-// migration is needed — same model as API scopes).
+// migration is needed - same model as API scopes).
 // ============================================================
 
 export const WEBHOOK_EVENTS = [
@@ -34,7 +34,7 @@ export function isWebhookEvent(value: unknown): value is WebhookEvent {
 /**
  * Validate + de-duplicate a caller-supplied event list. Returns the
  * cleaned list, or `null` if any entry is unknown (callers turn that
- * into a 400). An empty list is rejected as `null` too — an endpoint
+ * into a 400). An empty list is rejected as `null` too - an endpoint
  * subscribed to nothing is almost certainly a mistake.
  */
 export function normalizeEvents(input: unknown): WebhookEvent[] | null {

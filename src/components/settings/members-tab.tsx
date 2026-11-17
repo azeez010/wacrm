@@ -1,14 +1,14 @@
 'use client';
 
 // ============================================================
-// MembersTab — Settings → Members
+// MembersTab - Settings → Members
 //
 // Two stacked sections:
-//   1. Roster   — every member of the account. Admin+ can change a
+//   1. Roster   - every member of the account. Admin+ can change a
 //                 teammate's role inline and remove them. Owner row
 //                 is non-editable everywhere (transfer is its own
 //                 separate flow, deferred to a later PR).
-//   2. Pending  — outstanding invite links. Admin+ can revoke. The
+//   2. Pending  - outstanding invite links. Admin+ can revoke. The
 //                 plaintext URL is gone after the create dialog
 //                 closes, so we surface a "revoke + new link" hint
 //                 rather than pretending we can resurface it.
@@ -102,7 +102,7 @@ const EDITABLE_ROLES: { value: AccountRole }[] = [
 
 // Per-role chip metadata (icon / label / colour) lives in the shared
 // ROLE_META module so this roster and the Overview identity chip can't
-// drift. The colour scale runs amber (owner — scarce, immutable) →
+// drift. The colour scale runs amber (owner - scarce, immutable) →
 // primary (admin) → muted (agent / viewer).
 
 function fmtDate(iso: string): string {
@@ -182,7 +182,7 @@ export function MembersTab() {
 
   async function handleRoleChange(member: Member, nextRole: AccountRole) {
     if (member.role === nextRole) return;
-    // Optimistic update — flip the dropdown immediately so the UI
+    // Optimistic update - flip the dropdown immediately so the UI
     // feels snappy. If the server PATCH fails we revert below so
     // the dropdown doesn't lie about the persisted state.
     const previousRole = member.role;
@@ -200,7 +200,7 @@ export function MembersTab() {
       });
       if (!res.ok) {
         // Revert the optimistic flip. The toast on its own wasn't
-        // enough — the dropdown was left showing the new role
+        // enough - the dropdown was left showing the new role
         // forever, so the next interaction operated on a wrong
         // baseline (re-trying the same change would no-op via the
         // `member.role === nextRole` guard at the top).
@@ -366,7 +366,7 @@ export function MembersTab() {
                                 .toUpperCase()}
                             </AvatarFallback>
                             {/* role+label so screen readers announce
-                                presence — the hover tooltip alone isn't
+                                presence, the hover tooltip alone isn't
                                 reachable by keyboard/AT on a non-focusable
                                 avatar. */}
                             <AvatarBadge
@@ -419,7 +419,7 @@ export function MembersTab() {
                         onValueChange={(v) =>
                           // Base UI Select can emit null on clear. We
                           // don't expose a clear affordance, so the
-                          // guard is defensive — but the typed
+                          // guard is defensive - but the typed
                           // signature requires it.
                           v && handleRoleChange(member, v as AccountRole)
                         }
@@ -449,7 +449,7 @@ export function MembersTab() {
 
                     {/* Remove. Admin+ only; never on the owner row;
                         never on yourself. Pre-polish styling was
-                        neutral-default + red-on-hover — the
+                        neutral-default + red-on-hover, the
                         destructive intent was invisible until the
                         user moused over. Now red is the default
                         state with a darker shade on hover so the
@@ -473,7 +473,7 @@ export function MembersTab() {
         </CardContent>
       </Card>
 
-      {/* Pending invitations — admin+ only */}
+      {/* Pending invitations - admin+ only */}
       <RequireRole min="admin">
         <div>
           <div className="mb-2 flex items-center gap-2">
@@ -485,7 +485,7 @@ export function MembersTab() {
               {invitations.length}
             </Badge>
           </div>
-          {/* P10 — make the no-resend design explicit. Admins were
+          {/* P10 - make the no-resend design explicit. Admins were
               confused why the pending list shows roles + expiry but
               no "copy link again" button. Stating the constraint up
               front (rather than letting the user discover it by

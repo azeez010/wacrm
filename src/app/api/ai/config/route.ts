@@ -23,7 +23,7 @@ function bad(message: string) {
  * GET /api/ai/config
  *
  * Any member may read the config so the inbox/settings can reflect
- * whether AI is set up. The encrypted key is NEVER returned — only a
+ * whether AI is set up. The encrypted key is NEVER returned - only a
  * `has_key` flag; the settings form shows a masked placeholder.
  */
 export async function GET() {
@@ -32,7 +32,7 @@ export async function GET() {
 
     const { data, error } = await supabase
       .from('ai_configs')
-      // `api_key` is selected only to derive `has_key` — it is stripped
+      // `api_key` is selected only to derive `has_key` - it is stripped
       // out below and never returned to the client.
       .select(
         'provider, model, base_url, system_prompt, is_active, auto_reply_enabled, auto_reply_max_per_conversation, handoff_agent_id, api_key, embeddings_api_key',
@@ -171,7 +171,7 @@ export async function POST(request: Request) {
     // Only spend a provider round-trip when the credentials that affect
     // reachability actually changed. A save that just flips a toggle or
     // edits the system prompt on an existing, already-validated config
-    // skips the call — no wasted token/latency on the account's key.
+    // skips the call - no wasted token/latency on the account's key.
     const credentialsChanged =
       !existing ||
       rawKey !== '' ||

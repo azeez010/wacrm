@@ -1,7 +1,7 @@
 // ============================================================
 // GET /api/invitations/[token]/peek
 //
-// Public — no auth required. Lets the /join/<token> page render
+// Public - no auth required. Lets the /join/<token> page render
 // "You're being invited to <Account> as <Role>" before the
 // visitor signs up or signs in.
 //
@@ -9,7 +9,7 @@
 //   - Token is in the URL path, not the query, so it doesn't
 //     show up in standard access-log "referer" fields the way a
 //     `?token=` would.
-//   - The plaintext token never crosses the DB boundary — we
+//   - The plaintext token never crosses the DB boundary - we
 //     hash it in TS first and look up by `token_hash`.
 //   - The peek RPC is SECURITY DEFINER so it bypasses the RLS
 //     that would otherwise block an anonymous SELECT on
@@ -63,7 +63,7 @@ export async function GET(
     );
   }
 
-  // The RPC always returns a json object — either ok:true with
+  // The RPC always returns a json object - either ok:true with
   // metadata or ok:false with a reason. Forward verbatim.
   return NextResponse.json(data);
 }

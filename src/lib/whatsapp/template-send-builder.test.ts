@@ -15,7 +15,7 @@ function row(overrides: Partial<MessageTemplate> = {}): MessageTemplate {
   };
 }
 
-describe('buildSendComponents — body', () => {
+describe('buildSendComponents, body', () => {
   it('returns [] for a fully-static template (no vars, no media header)', () => {
     expect(buildSendComponents(row())).toEqual([]);
   });
@@ -56,7 +56,7 @@ describe('buildSendComponents — body', () => {
   });
 });
 
-describe('buildSendComponents — header', () => {
+describe('buildSendComponents, header', () => {
   it('skips static TEXT headers (template carries them)', () => {
     expect(
       buildSendComponents(
@@ -116,7 +116,7 @@ describe('buildSendComponents — header', () => {
     });
   });
 
-  it('does NOT use the resumable header_handle at send — falls back to the stored link', () => {
+  it('does NOT use the resumable header_handle at send, falls back to the stored link', () => {
     // header_handle is a template-CREATION sample handle, invalid as a
     // send-time media id. The send must use the public link instead.
     const components = buildSendComponents(
@@ -150,7 +150,7 @@ describe('buildSendComponents — header', () => {
   });
 });
 
-describe('buildSendComponents — buttons', () => {
+describe('buildSendComponents, buttons', () => {
   it('omits URL buttons without variables (template carries the URL)', () => {
     const components = buildSendComponents(
       row({
@@ -255,7 +255,7 @@ describe('buildSendComponents — buttons', () => {
   });
 });
 
-describe('buildSendComponents — end-to-end mix', () => {
+describe('buildSendComponents, end-to-end mix', () => {
   it('orders components header → body → buttons and includes all', () => {
     const components = buildSendComponents(
       row({
@@ -276,7 +276,7 @@ describe('buildSendComponents — end-to-end mix', () => {
   });
 });
 
-describe('buildSendComponents — named variables', () => {
+describe('buildSendComponents, named variables', () => {
   it('sends body values with parameter_name, in sorted-name order', () => {
     const components = buildSendComponents(
       row({ body_text: 'Hi {{name}}, your slot is {{date}}.' }),

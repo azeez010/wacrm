@@ -1,30 +1,30 @@
 /**
  * Handlers for Meta's WhatsApp Business App coexistence webhook
- * fields — only arrive on connections created via Embedded Signup's
+ * fields - only arrive on connections created via Embedded Signup's
  * existing-number flow (`whatsapp_config.signup_type = 'existing_number'`).
  *
  * Three fields, ported from the user's own working implementation of
  * this exact feature in a sister product (see the plan this was built
- * from for file references) — field names and payload shapes below
+ * from for file references) - field names and payload shapes below
  * are carried over from that implementation, not independently
  * re-verified against Meta's live docs, so treat anything marked
  * "best-guess" as worth confirming during a real coexistence connect:
  *
- *   - smb_app_state_sync   — contact add/edit/remove made directly in
+ *   - smb_app_state_sync   - contact add/edit/remove made directly in
  *                            the WhatsApp Business app. Log-only for
  *                            v1; nothing meaningful to sync yet (it
  *                            does not carry WhatsApp's "Labels"
  *                            feature, only contact state).
- *   - smb_message_echoes   — a message the tenant sent FROM THE PHONE
+ *   - smb_message_echoes   - a message the tenant sent FROM THE PHONE
  *                            APP itself, mirrored by Meta so the inbox
  *                            stays complete. Ingested as an outbound
  *                            message with `source = 'whatsapp_app'`
- *                            (060_whatsapp_multi_connection.sql) — and
+ *                            (060_whatsapp_multi_connection.sql) - and
  *                            critically must NOT trigger automations,
  *                            flows, or AI auto-reply, since it's an
  *                            already-sent business message, not
  *                            something awaiting a response.
- *   - history              — first-connect backfill of the number's
+ *   - history              - first-connect backfill of the number's
  *                            prior chat history. A pure webhook burst,
  *                            not a Graph API fetch. Must not bump
  *                            unread_count, must not trigger AI
@@ -170,7 +170,7 @@ export async function handleCoexistenceWebhookChange(
 interface EchoValue {
   metadata?: { phone_number_id?: string };
   contacts?: Array<{ wa_id?: string; profile?: { name?: string } }>;
-  // Best-guess key — not confirmed against live Meta docs; `messages`
+  // Best-guess key - not confirmed against live Meta docs; `messages`
   // is tried as a fallback shape.
   message_echoes?: Array<{
     id?: string;
@@ -232,10 +232,10 @@ async function handleMessageEchoes(
       ? new Date(Number.parseInt(echo.timestamp, 10) * 1000).toISOString()
       : new Date().toISOString();
 
-    // Idempotent insert — same (conversation_id, message_id) unique
+    // Idempotent insert - same (conversation_id, message_id) unique
     // index the standard inbound path relies on. Deliberately does
     // NOT run any of processMessage's automation/flow/AI-reply
-    // dispatch — an echo is a message the business already sent from
+    // dispatch - an echo is a message the business already sent from
     // their phone, not something awaiting a response.
     await supabase.from('messages').upsert(
       {
@@ -285,7 +285,7 @@ interface HistoryValue {
 
 function mapHistoryStatus(status: string | undefined): string {
   // The local `messages.status` CHECK has no "read" state distinct
-  // from "delivered" — collapse read/played into delivered.
+  // from "delivered" - collapse read/played into delivered.
   if (status === 'failed') return 'failed';
   return 'delivered';
 }
@@ -331,7 +331,7 @@ async function handleHistoryBackfill(
       for (const message of thread.messages || []) {
         if (!message.id) continue;
         // Direction is derived against the THREAD's contact id, not
-        // the business's own number — avoids a formatting mismatch
+        // the business's own number - avoids a formatting mismatch
         // between the two Meta sends in this payload.
         const senderType = message.from === thread.id ? 'customer' : 'agent';
         const createdAt = message.timestamp
@@ -358,7 +358,7 @@ async function handleHistoryBackfill(
       }
 
       if (latestAt) {
-        // Only ever move forward — a backfill chunk must never
+        // Only ever move forward - a backfill chunk must never
         // overwrite more-recent live traffic that arrived before it
         // finished processing.
         const { data: current } = await supabase

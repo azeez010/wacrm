@@ -416,7 +416,7 @@ describe('inbound webhook: idempotent insert (#367)', () => {
     await runWebhook()
 
     // Inserted via upsert with the (conversation_id, message_id) conflict
-    // target — not a bare insert.
+    // target - not a bare insert.
     expect(h.state.upsertCalls).toHaveLength(1)
     expect(h.state.upsertCalls[0].options).toMatchObject({
       onConflict: 'conversation_id,message_id',
@@ -458,7 +458,7 @@ describe('inbound webhook: atomic unread bump (#369)', () => {
 
 describe('inbound webhook: template quick-reply buttons (#478)', () => {
   // A customer tapping a QUICK_REPLY button on a broadcast template.
-  // `context.id` points at the template message we sent — which the
+  // `context.id` points at the template message we sent - which the
   // broadcast path never wrote to `messages`, so the parent lookup
   // legitimately misses and the reply is stored unquoted.
   const templateButtonTap = {
@@ -499,7 +499,7 @@ describe('inbound webhook: template quick-reply buttons (#478)', () => {
       (call) => (call[0] as { triggerType: string }).triggerType,
     )
     expect(triggers).toContain('interactive_reply')
-    // The AI auto-reply must stay out of it — a button tap is not a
+    // The AI auto-reply must stay out of it - a button tap is not a
     // free-text question.
     expect(h.dispatchInboundToAiReply).not.toHaveBeenCalled()
   })
@@ -548,7 +548,7 @@ describe('inbound webhook: inbound media is mirrored (#466)', () => {
 
     await runWebhook(IMAGE_MESSAGE)
 
-    // The message still lands, and it still lands with a usable URL —
+    // The message still lands, and it still lands with a usable URL -
     // the mirror failing must never cost us the message.
     expect(h.state.upsertCalls).toHaveLength(1)
     expect(h.state.upsertCalls[0].row).toMatchObject({
@@ -632,7 +632,7 @@ describe('inbound webhook: inbound media is mirrored (#466)', () => {
     expect(h.state.storageUploads).toHaveLength(0)
     expect(h.state.upsertCalls[0].row).toMatchObject({
       media_url: '/api/whatsapp/media/1234567890123456',
-      // Still recorded — the MIME type costs nothing and makes the
+      // Still recorded - the MIME type costs nothing and makes the
       // download name right even for proxied media.
       media_type: 'image/jpeg',
     })
@@ -662,7 +662,7 @@ describe('inbound webhook: after() awaits automations (#368)', () => {
     // first_inbound_message + new_message_received + keyword_match.
     expect(h.state.automationStarted).toBe(3)
     // If the dispatches were fire-and-forget, completed would still be 0
-    // here — the callback would have resolved before the timers fired.
+    // here - the callback would have resolved before the timers fired.
     expect(h.state.automationCompleted).toBe(3)
   })
 })
@@ -676,7 +676,7 @@ describe('inbound webhook: after() awaits automations (#368)', () => {
 //
 // Before the fix, `normalizePhone(undefined)` gave '', which
 // `findExistingContact` refuses to look up, so every such delivery
-// inserted a NEW contact — and migration 022's unique index is partial
+// inserted a NEW contact - and migration 022's unique index is partial
 // (`WHERE phone_normalized <> ''`) so nothing stopped it. One contact
 // and one conversation per inbound message.
 // ============================================================
@@ -827,7 +827,7 @@ describe('inbound webhook: business-scoped user IDs (#519)', () => {
 
     expect(h.state.contactInserts).toHaveLength(0)
     expect(h.state.upsertCalls).toHaveLength(0)
-    // Still a 200 — Meta must not be told to retry a payload we can
+    // Still a 200 - Meta must not be told to retry a payload we can
     // never process.
     expect(
       (res as unknown as { init?: { status?: number } }).init?.status,
@@ -852,7 +852,7 @@ describe('inbound webhook: contact name backfill (#519 regression guard)', () =>
   it('never overwrites an edited name with the phone number', async () => {
     // Meta sends no profile name. The display fallback would resolve to
     // the phone number, and writing that back would replace whatever an
-    // agent typed on the contact — on every single inbound message.
+    // agent typed on the contact - on every single inbound message.
     mockFindExistingContact.mockResolvedValue({
       id: 'contact-1',
       name: 'Ada (VIP, calls Mondays)',
@@ -999,7 +999,7 @@ describe('status webhook: failed statuses keep Meta\'s reason (#535)', () => {
     })
   })
 
-  it('a plain delivered status updates only status — error columns untouched', async () => {
+  it('a plain delivered status updates only status, error columns untouched', async () => {
     h.state.broadcastRecipient = { id: 'rec-1', status: 'sent' }
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
     try {

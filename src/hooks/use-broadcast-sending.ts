@@ -28,7 +28,7 @@ export type {
 } from '@/lib/broadcast-audience';
 
 /**
- * Variable mapping — each template placeholder (by key, usually "1",
+ * Variable mapping - each template placeholder (by key, usually "1",
  * "2", …) is resolved at send time. `field` maps to a built-in contact
  * field (name/phone/email/company); `custom_field` maps to a
  * contact_custom_values.value row keyed by the custom_fields.id stored
@@ -46,7 +46,7 @@ interface BroadcastPayload {
   variables: Record<string, VariableMapping>;
   /**
    * Media URL for an IMAGE/VIDEO/DOCUMENT header. Required at send
-   * time for media-header templates — Meta rejects the send without
+   * time for media-header templates - Meta rejects the send without
    * it. Passed through as `messageParams.headerMediaUrl`; the builder
    * falls back to the template's stored URL only when this is empty.
    */
@@ -122,7 +122,7 @@ export function resolveVariables(
   contact: Contact,
   customValues?: Map<string, string>,
 ): string[] {
-  // Keys are typically "1","2",... — numeric-aware sort keeps
+  // Keys are typically "1","2",... - numeric-aware sort keeps
   // {{1}} before {{10}}.
   const keys = Object.keys(variables).sort((a, b) => {
     const an = Number(a);
@@ -200,7 +200,7 @@ export function useBroadcastSending(): UseBroadcastSendingReturn {
    * resolved set.
    *
    * Pre-existing implementation synthesized `csv-N` strings as
-   * contact_id, which failed the UUID cast on insert — every CSV
+   * contact_id, which failed the UUID cast on insert - every CSV
    * broadcast silently created zero recipients.
    *
    * Matching is on the normalized number throughout, so it agrees with
@@ -223,7 +223,7 @@ export function useBroadcastSending(): UseBroadcastSendingReturn {
       throw new Error(t('notLinkedToAccount'));
     }
 
-    // De-duplicate within the CSV on the NORMALIZED number — the same
+    // De-duplicate within the CSV on the NORMALIZED number - the same
     // key the DB's UNIQUE (account_id, phone_normalized) index uses
     // (migration 022). Keyed on the raw string instead, "+1 555-0100"
     // and "15550100" survived as two rows and the insert below died on
@@ -264,7 +264,7 @@ export function useBroadcastSending(): UseBroadcastSendingReturn {
     }
 
     // Insert only missing contacts, in one batch per 200 rows (PostgREST
-    // has a default payload cap — 200 keeps individual requests small).
+    // has a default payload cap - 200 keeps individual requests small).
     const missing = keys
       .filter((k) => !byKey.has(k))
       .map((k) => uniqueByKey.get(k)!)
@@ -307,7 +307,7 @@ export function useBroadcastSending(): UseBroadcastSendingReturn {
       // ── Step 0: Resolve current user ──────────────────────────────
       // broadcasts.user_id is NOT NULL + guarded by RLS
       // (auth.uid() = user_id). Without this, the INSERT below was
-      // silently failing with 23502 / 42501 — the wizard would
+      // silently failing with 23502 / 42501 - the wizard would
       // no-op with no feedback.
       const {
         data: { session },
@@ -400,7 +400,7 @@ export function useBroadcastSending(): UseBroadcastSendingReturn {
           .from('broadcast_recipients')
           .insert(batch);
         if (recipientError) {
-          // Previous impl logged and marched on — the broadcast then ran
+          // Previous impl logged and marched on - the broadcast then ran
           // with an incomplete recipient set, so webhook status updates
           // couldn't find some rows and the aggregate counts drifted.
           // Flip the broadcast to failed so the user sees the problem
@@ -490,7 +490,7 @@ export function useBroadcastSending(): UseBroadcastSendingReturn {
 
         try {
           // Send the batch, waiting out a 429 rather than writing the
-          // whole batch off as failed. Only 429 is replayed — see
+          // whole batch off as failed. Only 429 is replayed - see
           // batchRetryDelayMs for why nothing else can be.
           let data: { error?: string; results?: BroadcastApiResult[] } = {};
           for (let attempt = 1; ; attempt++) {

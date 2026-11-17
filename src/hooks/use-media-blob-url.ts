@@ -21,7 +21,7 @@ interface ResolvedMedia {
 /**
  * Resolve a `messages.media_url` into something an `<img>` can render.
  *
- * Public `chat-media` URLs are handed straight back — the browser fetches
+ * Public `chat-media` URLs are handed straight back - the browser fetches
  * and caches them itself. Inbound `/api/whatsapp/media/*` URLs are pulled
  * through `loadMediaBlob` (credentialed, cached, de-duplicated) and turned
  * into an object URL that is revoked when the URL changes or the component
@@ -62,7 +62,7 @@ export function useMediaBlobUrl(url: string | undefined): MediaBlobUrlState {
 
   if (!url) return { src: null, status: "idle" };
 
-  // Nothing to load for a public URL — derived here rather than pushed
+  // Nothing to load for a public URL - derived here rather than pushed
   // through state so the first paint already has the image.
   if (!isProxiedMediaUrl(url)) return { src: url, status: "ready" };
 

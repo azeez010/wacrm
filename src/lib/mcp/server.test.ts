@@ -32,14 +32,14 @@ describe('hosted MCP server', () => {
   it('exposes read tools for read scopes and hides every write tool', async () => {
     const t = await names(await connect(['contacts:read', 'conversations:read', 'messages:read']))
     expect(t).toEqual(
-      ['get_contact', 'get_conversation', 'list_contacts', 'list_conversations', 'list_messages', 'whoami'].sort(),
+      ['get_contact', 'get_conversation', 'list_contacts', 'list_conversations', 'list_messages', 'list_tags', 'whoami'].sort(),
     )
   })
 
   it('adds write tools only with their scope', async () => {
     const t = await names(await connect(['contacts:write', 'messages:send', 'broadcasts:send']))
     expect(t).toEqual(
-      ['create_contact', 'get_broadcast', 'send_broadcast', 'send_message', 'update_contact', 'whoami'].sort(),
+      ['create_contact', 'create_tag', 'get_broadcast', 'list_tags', 'send_broadcast', 'send_message', 'update_contact', 'whoami'].sort(),
     )
   })
 
@@ -90,5 +90,52 @@ describe('hosted MCP server', () => {
     const r = await c.callTool({ name: 'list_contacts', arguments: {} })
     expect(r.isError).toBe(true)
     expect((r.content as { text: string }[])[0].text).toContain('[forbidden]')
+  })
+
+  describe('campaign-builder tools', () => {
+    it('offers automation tools only with automations scopes (read vs write)', async () => {
+      const read = await names(await connect(['automations:read']))
+      expect(read).toEqual(
+        ['get_automation', 'get_automation_reference', 'list_automations', 'list_tags', 'list_team_members', 'validate_automation', 'whoami'].sort(),
+      )
+      const write = await names(await connect(['automations:read', 'automations:write']))
+      for (const t of ['create_automation', 'update_automation', 'delete_automation', 'create_tag']) {
+        expect(write).toContain(t)
+      }
+      expect(read).not.toContain('create_automation')
+    })
+
+    it('offers flow and pipeline tools only with their scopes', async () => {
+      const flows = await names(await connect(['flows:read', 'flows:write']))
+      for (const t of ['get_flow_reference', 'create_flow', 'update_flow', 'set_flow_status', 'delete_flow', 'validate_flow']) {
+        expect(flows).toContain(t)
+      }
+      expect(flows).not.toContain('create_pipeline')
+      const pipes = await names(await connect(['pipelines:read', 'pipelines:write']))
+      for (const t of ['list_pipelines', 'list_deals', 'create_pipeline', 'update_pipeline', 'delete_pipeline', 'create_deal', 'update_deal']) {
+        expect(pipes).toContain(t)
+      }
+      expect(pipes).not.toContain('create_flow')
+    })
+
+    it('serves the authoring references without touching the API', async () => {
+      const c = await connect(['automations:read', 'flows:read'])
+      const a = await c.callTool({ name: 'get_automation_reference', arguments: {} })
+      expect((a.content as { text: string }[])[0].text).toContain('keyword_match')
+      const f = await c.callTool({ name: 'get_flow_reference', arguments: {} })
+      expect((f.content as { text: string }[])[0].text).toContain('send_buttons')
+    })
+
+    it('refuses destructive deletes without confirm=true', async () => {
+      const c = await connect(['flows:write', 'automations:write', 'pipelines:write'])
+      for (const [name, args] of [
+        ['delete_flow', { id: 'x', confirm: false }],
+        ['delete_automation', { id: 'x', confirm: false }],
+        ['delete_pipeline', { id: 'x', confirm: false }],
+      ] as const) {
+        const r = await c.callTool({ name, arguments: args })
+        expect(r.isError).toBe(true)
+      }
+    })
   })
 })

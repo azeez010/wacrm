@@ -1,5 +1,5 @@
 // ============================================================
-// Interactive message payload — shared shape + validation.
+// Interactive message payload - shared shape + validation.
 //
 // The persisted, round-trippable representation of a WhatsApp
 // interactive message (reply buttons or a list). This is the single
@@ -228,7 +228,7 @@ export function validateInteractivePayload(
 
 /**
  * Short single-line summary used for `conversations.last_message_text`
- * and quick-reply list rows — the body, trimmed, or a sensible fallback.
+ * and quick-reply list rows - the body, trimmed, or a sensible fallback.
  */
 export function interactivePayloadPreviewText(
   payload: InteractiveMessagePayload,

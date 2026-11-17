@@ -12,7 +12,7 @@
 //   - SQLSTATE 23505 → 409 (caller's account already has data /
 //     they're already in this or another shared account)
 //
-// Rate limit (per IP) is the same shape as peek but tighter —
+// Rate limit (per IP) is the same shape as peek but tighter -
 // a successful redeem changes data, and the RPC's data-loss
 // guard makes brute-force retries pointless past a few attempts.
 // ============================================================

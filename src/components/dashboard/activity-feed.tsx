@@ -36,7 +36,7 @@ import { useTranslations } from 'next-intl'
 
 export function ActivityFeed({ items, loading }: ActivityFeedProps) {
   const t = useTranslations('Dashboard.activityFeed')
-  // Start at 5 — a quick scan of the most recent events without
+  // Start at 5 - a quick scan of the most recent events without
   // dominating vertical real estate. User expands explicitly via the
   // footer control when they want deeper history.
   const [pageSize, setPageSize] = useState<PageSize>(5)

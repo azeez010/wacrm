@@ -18,7 +18,7 @@ function metaErr(overrides: Partial<MetaErrorLike> & { message?: string } = {}):
   };
 }
 
-describe("explainMetaError — access token", () => {
+describe("explainMetaError, access token", () => {
   it("maps 190 to a regenerate-the-System-User-token instruction", () => {
     const x = explainMetaError(metaErr({ code: 190, message: "Invalid OAuth access token." }), "verify_number");
     expect(x.field).toBe("access_token");
@@ -42,7 +42,7 @@ describe("explainMetaError — access token", () => {
   });
 });
 
-describe("explainMetaError — permissions", () => {
+describe("explainMetaError, permissions", () => {
   it.each([10, 200, 230, 299])("maps code %i to the missing-permission explanation", (code) => {
     const x = explainMetaError(metaErr({ code }), "subscribe_waba");
     expect(x.field).toBe("access_token");
@@ -61,7 +61,7 @@ describe("explainMetaError — permissions", () => {
   });
 });
 
-describe("explainMetaError — wrong object ids", () => {
+describe("explainMetaError, wrong object ids", () => {
   const unsupported =
     "Unsupported get request. Object with ID '123' does not exist, cannot be loaded due to missing permissions, or does not support this operation";
 
@@ -120,7 +120,7 @@ describe("explainMetaError — wrong object ids", () => {
   });
 });
 
-describe("explainMetaError — registration and PIN", () => {
+describe("explainMetaError, registration and PIN", () => {
   it("133010 → number not registered → needs PIN + /register", () => {
     const x = explainMetaError(metaErr({ code: 133010 }), "verify_number");
     expect(x.field).toBe("pin");
@@ -143,7 +143,7 @@ describe("explainMetaError — registration and PIN", () => {
   });
 });
 
-describe("explainMetaError — account state and throttling", () => {
+describe("explainMetaError, account state and throttling", () => {
   it("131031 → account restricted, Meta side, nothing to fix in wacrm", () => {
     const x = explainMetaError(metaErr({ code: 131031 }), "verify_number");
     expect(x.field).toBe("meta_account");
@@ -165,7 +165,7 @@ describe("explainMetaError — account state and throttling", () => {
   });
 });
 
-describe("explainMetaError — fallbacks", () => {
+describe("explainMetaError, fallbacks", () => {
   it("keeps Meta's message, details, code and trace id for unknown codes", () => {
     const x = explainMetaError(
       metaErr({

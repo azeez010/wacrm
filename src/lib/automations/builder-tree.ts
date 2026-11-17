@@ -3,14 +3,14 @@
 //
 // The builder edits a tree, not a list: root steps run in order, and a
 // `condition` step nests its children under `branches.yes` /
-// `branches.no`. Every mutation is addressed by a StepPath — one
+// `branches.no`. Every mutation is addressed by a StepPath - one
 // element per level, each naming the bucket it descends into and the
 // index within that bucket.
 //
 // The addressing rule is: a step's path is its parent's path plus its
 // own marker. `childPath` is the only place that rule is written down;
 // build paths with it rather than by hand. Getting it wrong doesn't
-// throw — the walkers below simply find nothing and return the tree
+// throw - the walkers below simply find nothing and return the tree
 // unchanged, so the UI silently drops the edit. That is how issue #474
 // hid: every keystroke in a step nested under a condition was a no-op.
 //
@@ -21,7 +21,7 @@
 
 /**
  * Structural minimum the walkers need. Generic in the concrete node
- * type so callers keep their own richer step type end-to-end —
+ * type so callers keep their own richer step type end-to-end -
  * `BuilderStep` in the builder satisfies `TreeStep<BuilderStep>`.
  */
 export interface TreeStep<T> {
@@ -55,7 +55,7 @@ export type StepPath = StepMarker[]
  * that the first one's index would be "replaced during the walk".
  * Nothing replaced it: the walkers consumed both markers, so an edit
  * addressed the first child of the branch and then looked for the real
- * target inside *that* child's branches — which a `send_buttons` step
+ * target inside *that* child's branches - which a `send_buttons` step
  * doesn't have, so the update was dropped (issue #474).
  */
 export function childPath(
@@ -73,7 +73,7 @@ export function childPath(
 
 /**
  * Insert `node` at `index` within `scope`. Searches the whole tree for
- * the scope's owning condition, not just the root list — a condition
+ * the scope's owning condition, not just the root list - a condition
  * nested inside another condition's branch is a normal thing to build,
  * and only matching at the top level meant the Add button under it did
  * nothing at all.
@@ -99,7 +99,7 @@ export function insertAt<T extends TreeStep<T>>(
         branches: { ...step.branches, [scope.branch]: bucket },
       }
     }
-    // Not this condition — keep looking inside both of its branches.
+    // Not this condition - keep looking inside both of its branches.
     return {
       ...step,
       branches: {

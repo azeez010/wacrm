@@ -78,7 +78,7 @@ describe("editing a step nested under a condition (#474)", () => {
     expect(next[0].branches!.yes.every((s) => s.text === "")).toBe(true)
   })
 
-  it("keeps a nested step's own shape intact — no stray branches key", () => {
+  it("keeps a nested step's own shape intact, no stray branches key", () => {
     const next = mapAtPath(tree(), branchPath(c1, "c1", "yes", 0), setText("typed"))
 
     expect(next[0].branches!.yes[0]).toEqual({ cid: "a", text: "typed" })
@@ -177,7 +177,7 @@ describe("unresolvable paths", () => {
   })
 
   it("descending into a step that has no branches changes nothing", () => {
-    // Marker chain says "root index 1, then its yes branch" — but
+    // Marker chain says "root index 1, then its yes branch" - but
     // `tail` is a plain step.
     const path: StepPath = [
       { kind: "root", index: 1 },

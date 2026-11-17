@@ -31,7 +31,7 @@ export async function generateMetadata(): Promise<Metadata> {
 const metadata: Metadata = {
   title: {
     default: "wacrm",
-    template: "%s — wacrm",
+    template: "%s - wacrm",
   },
   robots: {
     index: false,
@@ -52,13 +52,13 @@ export const viewport: Viewport = {
   colorScheme: "dark light",
 };
 
-// Inline boot script — runs before React hydrates so the user's
+// Inline boot script - runs before React hydrates so the user's
 // chosen accent (data-theme) AND mode (data-mode) are on the <html>
 // element before first paint. Without this every page load flashes
 // the server-rendered defaults for a frame before the React tree
 // mounts and applies the picked values.
 //
-// Kept dependency-free (no imports, no JSX) — must be a string the
+// Kept dependency-free (no imports, no JSX) - must be a string the
 // browser can run as a single <script>. Knowledge of valid ids is
 // sourced from the THEME_IDS / MODES constants so adding one doesn't
 // silently break the boot path.
@@ -102,7 +102,7 @@ export default async function RootLayout({
       // `data-mode` on <html> from localStorage before React hydrates,
       // so for any non-default choice the client DOM intentionally
       // differs from the server-rendered defaults. suppressHydration-
-      // Warning silences the expected mismatch — it only applies to
+      // Warning silences the expected mismatch - it only applies to
       // this element's own attributes, so genuine mismatches in
       // children still surface.
       suppressHydrationWarning

@@ -6,7 +6,7 @@ import { Toaster } from "sonner";
 import { useTheme } from "@/hooks/use-theme";
 import { DEFAULT_MODE } from "@/lib/themes";
 
-// Returns false during SSR and the first hydration render, true after —
+// Returns false during SSR and the first hydration render, true after -
 // the sanctioned (warning-free, no setState-in-effect) way to diverge
 // server vs client. Lets us match the server-rendered default on first
 // paint, then adopt the real mode.

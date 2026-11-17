@@ -24,7 +24,7 @@ function row(over: Partial<MessageTemplate>): MessageTemplate {
 }
 
 /**
- * Minimal `from().select().eq().eq()` thenable — the same surface
+ * Minimal `from().select().eq().eq()` thenable - the same surface
  * resolveTemplateRow uses. Records the filters so a test can assert
  * the lookup is account-scoped.
  */
@@ -121,7 +121,7 @@ describe('resolveTemplateRow', () => {
       'en_US'
     );
     expect(resolved.row?.language).toBe('en');
-    // Caller pinned a language — that is what Meta is sent.
+    // Caller pinned a language - that is what Meta is sent.
     expect(resolved.language).toBe('en_US');
   });
 

@@ -81,7 +81,7 @@ export async function generateAnthropic(args: ProviderArgs): Promise<ProviderRes
       code: 'empty_response',
     })
   }
-  // Anthropic reports input/output but no total — normalizeUsage sums.
+  // Anthropic reports input/output but no total - normalizeUsage sums.
   const usage = normalizeUsage({
     prompt: data?.usage?.input_tokens,
     completion: data?.usage?.output_tokens,

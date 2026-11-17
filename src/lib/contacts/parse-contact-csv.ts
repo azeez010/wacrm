@@ -84,7 +84,7 @@ export function parseContactCsv(text: string): ParseContactCsvResult {
 
     const values = parseCsvLine(line);
     // A row with no usable phone is pushed through rather than dropped
-    // here — dedupeByPhone (shared with the webhook/manual-form paths)
+    // here - dedupeByPhone (shared with the webhook/manual-form paths)
     // already treats an empty normalized key as invalid, and counting
     // it there means the import result can tell the user "N contacts
     // had no phone" instead of the row just vanishing with the total

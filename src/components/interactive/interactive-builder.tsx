@@ -20,7 +20,7 @@ import {
 import { InteractivePreview } from "./interactive-preview";
 
 // ------------------------------------------------------------
-// Blank payload factories — used to seed a fresh builder and to
+// Blank payload factories - used to seed a fresh builder and to
 // switch kind without losing the shared body/header/footer.
 // ------------------------------------------------------------
 
@@ -65,7 +65,7 @@ interface InteractiveBuilderProps {
  * Controlled builder for a WhatsApp interactive message (reply buttons
  * or list). Enforces Meta's char limits inline (maxLength + counters)
  * and surfaces a single validation error via `validateInteractivePayload`
- * — the same check the server runs before sending. Shared by the inbox
+ * - the same check the server runs before sending. Shared by the inbox
  * composer, the automation Send node, and the quick-replies manager.
  */
 export function InteractiveBuilder({
@@ -92,7 +92,7 @@ export function InteractiveBuilder({
 
   return (
     // Editor and preview sit side by side only when the SPACE WE WERE
-    // GIVEN can hold both — a container query, not a viewport one. This
+    // GIVEN can hold both - a container query, not a viewport one. This
     // builder is embedded in places far narrower than the screen (an
     // automation step card, and a step nested in a condition branch is
     // narrower still); keying the split to `md:` meant a desktop

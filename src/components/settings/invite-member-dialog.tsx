@@ -4,13 +4,13 @@
 // InviteMemberDialog
 //
 // Two-step modal:
-//   1. Form  — role + expiry + optional label → POST creates the invite.
-//   2. Result — the share URL, returned ONCE. Copy-to-clipboard, plus a
+//   1. Form  - role + expiry + optional label → POST creates the invite.
+//   2. Result - the share URL, returned ONCE. Copy-to-clipboard, plus a
 //              "Send via WhatsApp" deep link that pre-fills wa.me with
 //              a friendly message containing the URL.
 //
 // The plaintext token is server-stored only as a SHA-256 hash, so once
-// the result step is dismissed the link is gone forever — the dialog
+// the result step is dismissed the link is gone forever - the dialog
 // shouts this in copy.
 // ============================================================
 
@@ -96,7 +96,7 @@ export function InviteMemberDialog({
     // obviously-too-long label across the wire just to bounce off
     // a 400. The Input also has a `maxLength={MAX_LABEL_LEN}` cap
     // but a paste can land an over-limit string into state before
-    // the limit kicks in on the next keystroke — this is the safety
+    // the limit kicks in on the next keystroke - this is the safety
     // net for that path.
     const trimmedLabel = label.trim();
     if (trimmedLabel.length > MAX_LABEL_LEN) {
@@ -133,8 +133,8 @@ export function InviteMemberDialog({
         // Snapshot the account name into the result so the wa.me
         // share message has team context. Falls back to a generic
         // string if `account` hasn't loaded yet (shouldn't happen
-        // — the dialog requires admin+ which requires a loaded
-        // profile — but stay safe).
+        // - the dialog requires admin+ which requires a loaded
+        // profile - but stay safe).
         accountName: account?.name ?? t('fallbackAccountName'),
       });
       onCreated();
@@ -152,7 +152,7 @@ export function InviteMemberDialog({
       await navigator.clipboard.writeText(result.url);
       toast.success(t('copied'));
     } catch {
-      // Most likely "not in a secure context" — happens on http://
+      // Most likely "not in a secure context" - happens on http://
       // local IPs. Surface the link in the toast so the admin can
       // hand-copy it.
       toast.error(t('clipboardBlocked'));
@@ -173,7 +173,7 @@ export function InviteMemberDialog({
     <Dialog
       open={open}
       onOpenChange={(next) => {
-        // Reset state when the dialog closes — both for cancel and
+        // Reset state when the dialog closes - both for cancel and
         // for dismissal after a successful create. The plaintext URL
         // is intentionally NOT preserved across opens.
         if (!next) reset();
@@ -230,7 +230,7 @@ export function InviteMemberDialog({
 
               {/* Anchor styled with `buttonVariants` rather than wrapping
                   in <Button asChild>. The wacrm Button is the Base UI
-                  ButtonPrimitive — it has no Radix-style asChild slot.
+                  ButtonPrimitive, it has no Radix-style asChild slot.
                   Direct anchor preserves right-click "Open in new tab"
                   behaviour too. */}
               <a

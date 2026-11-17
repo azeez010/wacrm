@@ -45,7 +45,7 @@ function rpcErrorToResponse(err: PostgrestError): NextResponse {
   );
 }
 
-// Crude shape check — full UUID validation happens DB-side when
+// Crude shape check - full UUID validation happens DB-side when
 // the FK / lookup runs. This guards against obviously-wrong input
 // (numbers, objects) before we round-trip.
 function looksLikeUuid(v: unknown): v is string {
@@ -57,7 +57,7 @@ function looksLikeUuid(v: unknown): v is string {
 
 export async function POST(request: Request) {
   try {
-    // `requireRole('owner')` is belt-and-braces — the RPC checks
+    // `requireRole('owner')` is belt-and-braces - the RPC checks
     // this too, but failing fast here saves a Supabase round trip
     // on the obvious "admin trying to transfer" case.
     const ctx = await requireRole("owner");

@@ -1,7 +1,7 @@
 'use client';
 
 // ============================================================
-// ApiKeysSettings — Settings → API keys
+// ApiKeysSettings - Settings → API keys
 //
 // Manage the credentials that authenticate the public REST API
 // (`/api/v1/*`). Any member sees the roster (read-only); admin+ can
@@ -9,7 +9,7 @@
 // admin-only API routes + RLS on the server).
 //
 // One-time reveal: a freshly-minted key's plaintext is shown ONCE in
-// the creation dialog. After it closes, only the prefix remains —
+// the creation dialog. After it closes, only the prefix remains -
 // the server stores just the hash. The UI states this explicitly so
 // the absence of a "copy again" button reads as intentional, not a
 // bug (same lesson as the invite-link flow).
@@ -277,7 +277,7 @@ export function ApiKeysSettings() {
 }
 
 // ------------------------------------------------------------
-// Create dialog — form → one-time plaintext reveal.
+// Create dialog - form → one-time plaintext reveal.
 // ------------------------------------------------------------
 
 function CreateKeyDialog({

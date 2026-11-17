@@ -1,5 +1,5 @@
 // ============================================================
-// GET /api/v1/me — public API identity probe.
+// GET /api/v1/me - public API identity probe.
 //
 // The reference endpoint for the public API: it requires nothing
 // but a valid key (no scope), and returns the account the key is
@@ -7,8 +7,8 @@
 // their key works and to discover what it's allowed to do before
 // wiring up real calls.
 //
-// It also exercises the entire public-API stack end to end — bearer
-// parse → hash lookup → liveness → rate limit → envelope — so a
+// It also exercises the entire public-API stack end to end - bearer
+// parse → hash lookup → liveness → rate limit → envelope - so a
 // green response here means the plumbing every future endpoint
 // depends on is sound.
 // ============================================================

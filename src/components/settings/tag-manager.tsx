@@ -39,7 +39,7 @@ const PRESET_COLORS = [
 ];
 
 /**
- * Tags card — colour-coded contact labels. Creation is an inline row
+ * Tags card - colour-coded contact labels. Creation is an inline row
  * (name + colour swatch + Add); deletion goes through a confirmation
  * dialog since it detaches the tag from every contact.
  */

@@ -1,10 +1,10 @@
 // ============================================================
-// POST /api/v1/messages — send a WhatsApp message via the public API.
+// POST /api/v1/messages - send a WhatsApp message via the public API.
 //
 // The headline public endpoint (issue #245). Unlike the dashboard's
 // `/api/whatsapp/send` (which takes an internal `conversation_id`),
-// this takes a phone number — what an external automation actually
-// has — resolves-or-creates the contact + conversation, then runs the
+// this takes a phone number - what an external automation actually
+// has - resolves-or-creates the contact + conversation, then runs the
 // same shared send core.
 //
 // Auth: API key with the `messages:send` scope. Account context (and

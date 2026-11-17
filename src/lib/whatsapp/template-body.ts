@@ -1,5 +1,5 @@
 // ============================================================
-// Template body resolution — the local `message_templates` row for a
+// Template body resolution - the local `message_templates` row for a
 // send, and the substituted body text we persist alongside it.
 //
 // Every path that sends a template needs the same two things:
@@ -8,7 +8,7 @@
 //   2. the rendered body, so `messages.content_text` carries the text
 //      the customer actually received rather than NULL (issue #483).
 //
-// Both used to be done ad hoc per caller — the dashboard composer
+// Both used to be done ad hoc per caller - the dashboard composer
 // rendered the body client-side and posted it as `content_text`, while
 // the public API and the automation engine stored nothing, so their
 // sends landed in the Inbox as empty bubbles.
@@ -38,7 +38,7 @@ export function renderTemplateBody(body: string, params: string[]): string {
 /**
  * Positional body values out of either param shape a caller may send:
  * the structured `{ body: [...] }` object the composer posts, or the
- * legacy flat array. Structured wins — `sendTemplateMessage` merges
+ * legacy flat array. Structured wins - `sendTemplateMessage` merges
  * them the same way, so what we render matches what Meta is sent.
  */
 export function templateBodyParams(
@@ -68,7 +68,7 @@ export interface ResolvedTemplate {
   row: MessageTemplate | null;
   /**
    * True when a row matched by name but failed the shape guard. Callers
-   * surface their own error type — a malformed row would otherwise
+   * surface their own error type - a malformed row would otherwise
    * crash deep inside the send-builder with an opaque TypeError.
    */
   malformed: boolean;
@@ -76,7 +76,7 @@ export interface ResolvedTemplate {
    * The language code to send to Meta: the caller's when they named
    * one, otherwise the matched row's, otherwise `en_US`. Callers that
    * pinned `en_US` unconditionally could not send an `en` template at
-   * all — Meta rejects the pair as a missing translation.
+   * all - Meta rejects the pair as a missing translation.
    */
   language: string;
 }
@@ -104,7 +104,7 @@ export async function resolveTemplateRow(
     .eq('name', templateName);
 
   // Sorted here rather than with `.order()` so the only query-builder
-  // surface this helper depends on is select + eq — the same shape the
+  // surface this helper depends on is select + eq - the same shape the
   // callers' existing fakes implement.
   const rows = ((Array.isArray(data) ? data : []) as { language?: string }[])
     .slice()
@@ -136,7 +136,7 @@ export async function resolveTemplateRow(
 
   const chosen = pick();
   if (!chosen) {
-    // Rows exist but none in the requested language — the caller pinned
+    // Rows exist but none in the requested language - the caller pinned
     // a translation this account hasn't synced. Send it anyway; Meta is
     // the authority on which translations are approved.
     return { row: null, malformed: false, language: fallbackLanguage };
@@ -156,7 +156,7 @@ export async function resolveTemplateRow(
 /**
  * The text to persist as `messages.content_text` for a template send.
  *
- * `callerText` wins when supplied — the dashboard composer renders the
+ * `callerText` wins when supplied - the dashboard composer renders the
  * body client-side and posts it, and it knows about header/button
  * values this function doesn't. Otherwise the body is rendered from the
  * local row. Null only when the account has no local copy of the

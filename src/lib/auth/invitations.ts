@@ -1,12 +1,12 @@
 // ============================================================
-// Invitation token utilities — pure, server-side, no Supabase.
+// Invitation token utilities - pure, server-side, no Supabase.
 //
 // Why we hash tokens at rest
 // --------------------------
 // The DB stores only `account_invitations.token_hash` (SHA-256
 // of the random token), never the plaintext. A leaked DB snapshot
 // (logs, backups, support exports) therefore can't be used to
-// redeem invites — the attacker would need the original token,
+// redeem invites - the attacker would need the original token,
 // which is returned exactly once at creation time.
 //
 // Why 32 bytes
@@ -32,7 +32,7 @@ export const DEFAULT_INVITE_EXPIRY_DAYS = 7;
 export const MAX_INVITE_EXPIRY_DAYS = 365;
 
 export interface GeneratedToken {
-  /** Plaintext token — return to the creator ONCE, never persist. */
+  /** Plaintext token - return to the creator ONCE, never persist. */
   token: string;
   /** SHA-256 hex digest of the token. Persist this in the DB. */
   hash: string;
@@ -52,7 +52,7 @@ export function generateInviteToken(): GeneratedToken {
 /**
  * Deterministic SHA-256 of a plaintext token. Used at redeem time
  * to look up the matching `account_invitations` row by `token_hash`.
- * Pure function — same input always produces the same output.
+ * Pure function - same input always produces the same output.
  */
 export function hashInviteToken(token: string): string {
   return createHash("sha256").update(token).digest("hex");

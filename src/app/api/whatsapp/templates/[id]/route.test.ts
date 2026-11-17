@@ -10,8 +10,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 // through and only the local mirror bounced. Nothing un-edits a template on
 // Meta, so the role has to be checked before the outbound call.
 //
-// `requireRole` is the real implementation here — only the profile row it
-// reads is mocked — so these tests exercise the actual role comparison.
+// `requireRole` is the real implementation here - only the profile row it
+// reads is mocked - so these tests exercise the actual role comparison.
 // ---------------------------------------------------------------------------
 
 /** Role `requireRole` reads off the caller's profile row. */

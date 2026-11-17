@@ -201,9 +201,9 @@ beforeEach(() => {
   vi.clearAllMocks();
 });
 
-describe("runAutomationsForTrigger — tenant isolation", () => {
+describe("runAutomationsForTrigger, tenant isolation", () => {
   it("refuses to dispatch when the contact is not in the account (GHSA-63cv-2c49-m5v3)", async () => {
-    // Ownership lookup returns nothing — the contact belongs to another tenant.
+    // Ownership lookup returns nothing - the contact belongs to another tenant.
     h.state.owned = null;
     // If the guard failed, this automation would run an update_contact_field step.
     h.state.automations = [automationWithUpdateStep()];
@@ -239,7 +239,7 @@ describe("runAutomationsForTrigger — tenant isolation", () => {
   it("refuses a caller-supplied conversation_id from another account (GHSA-m4fx-g6pr-hrw8)", async () => {
     // POST /api/automations/engine copies `body.context` verbatim into
     // the run, so this id is attacker-controlled. The contact is the
-    // caller's own — only the conversation is foreign, which is exactly
+    // caller's own - only the conversation is foreign, which is exactly
     // what made this a cross-tenant message-injection primitive.
     h.state.owned = { id: "c1" };
     h.state.ownedConversation = null; // not in this account
@@ -292,7 +292,7 @@ describe("runAutomationsForTrigger — tenant isolation", () => {
   });
 });
 
-describe("automation_logs — status is seeded pessimistically (issue #409)", () => {
+describe("automation_logs, status is seeded pessimistically (issue #409)", () => {
   it("writes the log row as 'failed' before any step runs", async () => {
     h.state.owned = { id: "c1" };
     h.state.automations = [automationWithUpdateStep()];
@@ -326,14 +326,14 @@ describe("automation_logs — status is seeded pessimistically (issue #409)", ()
       context: {},
     });
 
-    // The seed is only a floor — the outermost scope still writes the real
+    // The seed is only a floor - the outermost scope still writes the real
     // verdict, so a completed run reports success as it always did.
     const withStatus = h.state.logUpdates.filter((u) => "status" in u);
     expect(withStatus.at(-1)).toMatchObject({ status: "success" });
   });
 });
 
-describe("update_contact_field — custom fields", () => {
+describe("update_contact_field, custom fields", () => {
   it("upserts contact_custom_values when the field is account-owned", async () => {
     h.state.owned = { id: "c1" };
     h.state.ownedCustomField = { id: "cf1" };
@@ -394,14 +394,14 @@ describe("update_contact_field — custom fields", () => {
   });
 });
 
-describe("send_webhook — SSRF guard (GHSA-8jqh-598v-rfxc)", () => {
+describe("send_webhook, SSRF guard (GHSA-8jqh-598v-rfxc)", () => {
   it("refuses a private / link-local destination and never calls fetch", async () => {
     const fetchSpy = vi.fn(async () => ({ ok: true, status: 200 }));
     vi.stubGlobal("fetch", fetchSpy);
 
     h.state.owned = { id: "c1" };
     h.state.automations = [automationWithUpdateStep()];
-    // Aimed at the cloud metadata endpoint — the classic SSRF target.
+    // Aimed at the cloud metadata endpoint - the classic SSRF target.
     h.state.steps = [webhookStep("http://169.254.169.254/latest/meta-data/")];
 
     await runAutomationsForTrigger({
@@ -465,7 +465,7 @@ function customStep(field: string, value: string) {
   };
 }
 
-describe("triggerMatches — interactive_reply", () => {
+describe("triggerMatches, interactive_reply", () => {
   function automation(reply_ids: string[]): Automation {
     return {
       id: "a1",
@@ -505,7 +505,7 @@ describe("triggerMatches — interactive_reply", () => {
   });
 });
 
-describe("triggerMatches — tag_added", () => {
+describe("triggerMatches, tag_added", () => {
   function automation(tagId?: string): Automation {
     return {
       id: "a1",
@@ -533,7 +533,7 @@ describe("triggerMatches — tag_added", () => {
   });
 });
 
-describe("tag_added — conversation policy", () => {
+describe("tag_added, conversation policy", () => {
   it("records a clear failed step when the contact has no conversation", async () => {
     h.state.owned = { id: "c1" };
     h.state.automations = [{
@@ -568,7 +568,7 @@ describe("tag_added — conversation policy", () => {
   });
 });
 
-describe("triggerMatches — keyword_match", () => {
+describe("triggerMatches, keyword_match", () => {
   function automation(
     cfg: Partial<KeywordMatchTriggerConfig> & { keywords: string[] },
   ): Automation {
@@ -622,7 +622,7 @@ describe("triggerMatches — keyword_match", () => {
   });
 
   it("`word` treats regex metacharacters in a keyword as literal", () => {
-    // Account-supplied free text — an unescaped "(" would throw.
+    // Account-supplied free text - an unescaped "(" would throw.
     const a = automation({ keywords: ["c++ (beginner)"], match_type: "word" });
     expect(on(a, "I want the c++ (beginner) course")).toBe(true);
     expect(on(a, "I want the cxx beginner course")).toBe(false);
@@ -646,7 +646,7 @@ describe("triggerMatches — keyword_match", () => {
   });
 
   it("`word` finds a space-delimited keyword in a non-Latin script", () => {
-    // ASCII `\b` fails outright here — every character of "안녕" is a
+    // ASCII `\b` fails outright here - every character of "안녕" is a
     // non-word character to it, so /\b안녕\b/ matches nothing.
     const a = automation({ keywords: ["안녕"], match_type: "word" });
     expect(on(a, "안녕")).toBe(true);
@@ -669,7 +669,7 @@ describe("triggerMatches — keyword_match", () => {
 });
 
 // ------------------------------------------------------------
-// wait_for_reply — park after Send Buttons / List, resume on reply
+// wait_for_reply - park after Send Buttons / List, resume on reply
 // ------------------------------------------------------------
 
 describe("wait_for_reply", () => {
@@ -1011,7 +1011,7 @@ describe("wait_for_reply", () => {
     await trigger("Hii");
 
     expect(h.state.pending).toHaveLength(0);
-    // The condition ran immediately against "Hii" — the documented
+    // The condition ran immediately against "Hii" - the documented
     // single-pass semantics that wait_for_reply exists to opt out of.
     expect(sentTexts()).toEqual(["Other options", "Thanks for contacting"]);
   });

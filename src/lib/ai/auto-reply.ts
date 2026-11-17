@@ -15,7 +15,7 @@ import { sendTypingIndicator } from '@/lib/whatsapp/meta-api'
 import { checkRateLimit, RATE_LIMITS } from '@/lib/rate-limit'
 
 interface DispatchArgs {
-  /** Tenancy key — drives config, contact, and whatsapp_config lookups. */
+  /** Tenancy key - drives config, contact, and whatsapp_config lookups. */
   accountId: string
   conversationId: string
   contactId: string
@@ -33,7 +33,7 @@ interface DispatchArgs {
  *
  * Invoked from the WhatsApp webhook's `after()` block, only when no
  * deterministic flow consumed the message (flows win). Mirrors the flow
- * runner's contract: it owns its try/catch and NEVER throws — a failing
+ * runner's contract: it owns its try/catch and NEVER throws - a failing
  * or slow LLM call must not affect the webhook's 200 to Meta.
  *
  * Eligibility gates (any → silent no-op):
@@ -43,8 +43,8 @@ interface DispatchArgs {
  *   - the per-conversation reply cap is reached
  *   - there's nothing to reply to
  *
- * The 24h WhatsApp session window is inherently open here — we're
- * reacting to a customer message that just landed — so no separate
+ * The 24h WhatsApp session window is inherently open here - we're
+ * reacting to a customer message that just landed - so no separate
  * window check is needed.
  */
 export async function dispatchInboundToAiReply(
@@ -64,13 +64,13 @@ export async function dispatchInboundToAiReply(
     const config = await loadAiConfig(db, accountId)
     if (!config || !config.autoReplyEnabled) return
 
-    // Deterministic, user-configured responders win over the LLM — the
+    // Deterministic, user-configured responders win over the LLM - the
     // caller already excludes messages a Flow consumed. Message-level
     // automations (`new_message_received` / `keyword_match`) are
     // dispatched independently for this same inbound and may send their
     // own reply, so if the account has any active one we stand down to
     // avoid double-texting the customer. (Relationship triggers like
-    // `first_inbound_message` don't count — they're not per-message
+    // `first_inbound_message` don't count - they're not per-message
     // auto-responders.)
     const { data: autoResponders } = await db
       .from('automations')
@@ -107,12 +107,12 @@ export async function dispatchInboundToAiReply(
     )
     if (!acctLimit.success) {
       console.warn(
-        `[ai auto-reply] account ${accountId} hit the per-account rate limit — skipping this inbound.`,
+        `[ai auto-reply] account ${accountId} hit the per-account rate limit, skipping this inbound.`,
       )
       return
     }
 
-    // Every gate has passed — we're committed to attempting a reply, so
+    // Every gate has passed - we're committed to attempting a reply, so
     // show the customer "typing…" (and mark their message read) while the
     // retrieval + LLM round trips run. Meta clears the indicator after
     // 25 s or when our reply lands, whichever is first, so there's
@@ -145,7 +145,7 @@ export async function dispatchInboundToAiReply(
     // Record token spend on the account's BYO key. Fire-and-forget so it
     // never adds latency to the customer-facing send: `logAiUsage`
     // swallows its own errors, so the floating promise can't reject.
-    // Logged regardless of handoff — the provider call happened either
+    // Logged regardless of handoff - the provider call happened either
     // way.
     void logAiUsage(db, {
       accountId,
@@ -157,10 +157,10 @@ export async function dispatchInboundToAiReply(
     })
 
     if (handoff || !text) {
-      // The model can't (or shouldn't) answer — stop auto-replying on
+      // The model can't (or shouldn't) answer - stop auto-replying on
       // this thread and hand it to a human. We (a) pause the bot here
       // (sticky until re-enabled), (b) route the conversation to the
-      // configured handoff agent — null leaves it in the shared queue —
+      // configured handoff agent - null leaves it in the shared queue -
       // and (c) leave a short internal note so whoever picks it up has
       // context. Assigning fires the `on_conversation_assigned` trigger,
       // which notifies the agent.
@@ -173,7 +173,7 @@ export async function dispatchInboundToAiReply(
         .update({ ai_autoreply_disabled: true, ai_handoff_summary: summary })
         .eq('id', conversationId)
       // Only set the assignee when a target is configured AND the thread
-      // isn't already owned — never stomp an existing human assignment.
+      // isn't already owned - never stomp an existing human assignment.
       if (config.handoffAgentId) {
         await db
           .from('conversations')
@@ -194,7 +194,7 @@ export async function dispatchInboundToAiReply(
     // Atomically claim a reply slot: the cap check + increment happen in
     // one UPDATE, so concurrent inbounds can never overshoot the cap. If
     // another inbound just took the last slot, `claimed` is false and we
-    // skip the send. (We consume a slot slightly before the send lands —
+    // skip the send. (We consume a slot slightly before the send lands -
     // fail-safe: under-reply rather than over-reply.)
     const { data: claimed, error: claimErr } = await db.rpc(
       'claim_ai_reply_slot',
@@ -205,7 +205,7 @@ export async function dispatchInboundToAiReply(
     )
     if (claimErr) {
       // A real error here (vs. losing the cap race) is almost always a
-      // deploy issue — e.g. `claim_ai_reply_slot` not EXECUTE-able by the
+      // deploy issue - e.g. `claim_ai_reply_slot` not EXECUTE-able by the
       // service role, or the migration not applied. Log it loudly: a
       // silent return makes "auto-reply never fires" undiagnosable.
       console.error('[ai auto-reply] claim_ai_reply_slot failed:', claimErr)
@@ -245,7 +245,7 @@ async function hasNewerInbound(
 /**
  * Best-effort "typing…" for the inbound we're about to answer. Swallows
  * every failure (no WhatsApp config, bad token, Meta 4xx) with a warning
- * — the indicator is cosmetic, the reply is not.
+ * - the indicator is cosmetic, the reply is not.
  */
 async function showTypingIndicator(
   db: ReturnType<typeof supabaseAdmin>,

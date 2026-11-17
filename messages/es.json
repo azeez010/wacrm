@@ -183,7 +183,7 @@
         "readRateInfo": "Mensajes leídos entre mensajes entregados, para las difusiones enviadas en este periodo.",
         "readOfDelivered": "{read} leídos de {delivered} entregados",
         "noBroadcasts": "No hay difusiones en este periodo",
-        "none": "—",
+        "none": "-",
         "vsPrevious": {
           "1": "frente a ayer",
           "7": "frente a los 7 días anteriores",
@@ -214,7 +214,7 @@
         "busiestHour": "Hora con más mensajes",
         "peakHour": "Hora con más mensajes",
         "secondPeak": "Segunda hora con más mensajes",
-        "none": "—",
+        "none": "-",
         "empty": "No hay mensajes en este periodo",
         "emptyHint": "Los mensajes aparecen aquí cuando los clientes te escriben."
       },
@@ -241,7 +241,7 @@
         "winRate": "Tasa de éxito",
         "avgToWin": "Tiempo medio hasta ganar",
         "days": "{count, plural, =1 {1 día} other {# días}}",
-        "none": "—",
+        "none": "-",
         "idle": "{count, plural, =1 {1 negocio abierto lleva} other {# negocios abiertos llevan}} 7 días o más sin actividad",
         "empty": "No hay negocios abiertos",
         "emptyHint": "Crea negocios en Pipelines para verlos aquí."
@@ -256,7 +256,7 @@
         "median": "Mediana de respuesta",
         "teammate": "Compañero",
         "ai": "Agente de IA",
-        "none": "—",
+        "none": "-",
         "presence": {
           "online": "Conectado",
           "away": "Ausente",
@@ -285,7 +285,7 @@
         "templates": "{count, plural, =1 {Plantillas · 1 aprobada} other {Plantillas · # aprobadas}}",
         "templatesRejected": "{count, plural, =1 {1 rechazada} other {# rechazadas}}",
         "templatesOk": "Ninguna rechazada",
-        "none": "—"
+        "none": "-"
       },
       "setup": {
         "title": "Configura tu cuenta",
@@ -611,7 +611,7 @@
       "loadingTags": "Cargando etiquetas...",
       "noTagsAvailable": "No hay etiquetas disponibles. Crea etiquetas en Configuración.",
       "phoneRequired": "El número de teléfono es obligatorio",
-      "phoneNeedsCountryCode": "Incluye el código de país — el número debe empezar con + (p. ej. +5215512345678)",
+      "phoneNeedsCountryCode": "Incluye el código de país, el número debe empezar con + (p. ej. +5215512345678)",
       "notAuthenticated": "No autenticado",
       "notLinkedToAccount": "Tu perfil no está vinculado a una cuenta."
     },
@@ -665,7 +665,7 @@
       "saveChangesBtn": "Guardar cambios",
       "saveCustomFieldsBtn": "Guardar campos personalizados",
       "toastPhoneRequired": "El número de teléfono es obligatorio",
-      "toastPhoneNeedsCountryCode": "Incluye el código de país — el número debe empezar con + (p. ej. +5215512345678)",
+      "toastPhoneNeedsCountryCode": "Incluye el código de país, el número debe empezar con + (p. ej. +5215512345678)",
       "toastUpdateFailed": "Error al actualizar el contacto",
       "toastUpdated": "Contacto actualizado",
       "toastNotAuthenticated": "No autenticado",
@@ -1491,7 +1491,7 @@
         "filenamePlaceholder": "factura.pdf",
         "advanceAfterSending": "Después de enviar, avanzar a",
         "pickNextNode": "Elige el siguiente nodo…",
-        "none": "— Ninguno —",
+        "none": "- Ninguno -",
         "removeSection": "Quitar sección",
         "fileUploaded": "Archivo subido.",
         "uploadFailed": "Error al subir.",
@@ -1680,7 +1680,7 @@
       "days30": "30 días",
       "labelTitle": "Etiqueta",
       "optional": "(opcional)",
-      "labelPlaceholder": "p. ej. Sara — equipo de soporte",
+      "labelPlaceholder": "p. ej. Sara, equipo de soporte",
       "labelHint": "Te ayuda a recordar a quién enviaste el enlace en la lista de pendientes de abajo.",
       "cancel": "Cancelar",
       "creating": "Creando...",
@@ -1870,7 +1870,7 @@
       "lastAttemptFailed": "El último intento falló con: ",
       "retryHint": "Ingresa (o corrige) el PIN de dos pasos abajo y haz clic en Guardar configuración para reintentar.",
       "noRegistrationHint": "Este número se guardó antes de que existiera el seguimiento de registro, o el registro se omitió. Ingresa el PIN de dos pasos abajo y haz clic en Guardar configuración para suscribirlo.",
-      "diagnosticLastRun": "Diagnóstico — última ejecución: ",
+      "diagnosticLastRun": "Diagnóstico, última ejecución: ",
       "live": "activo",
       "notLive": "inactivo",
       "apiCredentialsTitle": "Credenciales de la API",
@@ -2338,7 +2338,7 @@
     "tabUsage": "Uso",
     "playground": {
       "title": "Playground",
-      "subtitle": "— prueba respuestas como si fueras un cliente",
+      "subtitle": "- prueba respuestas como si fueras un cliente",
       "reset": "Reiniciar",
       "emptyTitle": "Envía un mensaje para ver cómo respondería tu agente.",
       "emptyDesc": "Usa tu base de conocimiento y se comporta exactamente como el bot de respuesta automática, incluida la derivación.",

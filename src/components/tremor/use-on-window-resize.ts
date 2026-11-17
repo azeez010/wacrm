@@ -1,4 +1,4 @@
-// Tremor useOnWindowResize hook — copied from tremorlabs/tremor.
+// Tremor useOnWindowResize hook - copied from tremorlabs/tremor.
 // License: Apache 2.0 (Tremor).
 // Source: https://github.com/tremorlabs/tremor/blob/main/src/hooks/useOnWindowResize.ts
 

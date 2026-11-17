@@ -7,7 +7,7 @@ import {
 
 // Tiny mock that records the .update payload and the .eq filter for
 // inspection. Mirrors the surface this module actually uses on the
-// Supabase client — anything beyond throws, so unintended calls fail
+// Supabase client - anything beyond throws, so unintended calls fail
 // loudly:
 //   message_templates: .update().eq().select()  → selectResult (then
 //                      retrySelectResult for the 2nd call, if given)
@@ -109,7 +109,7 @@ describe('isTemplateWebhookField', () => {
   });
 });
 
-describe('handleTemplateWebhookChange — status update', () => {
+describe('handleTemplateWebhookChange, status update', () => {
   let supabaseCalls: ReturnType<typeof makeSupabaseStub>['calls'];
 
   beforeEach(() => {
@@ -274,14 +274,14 @@ describe('handleTemplateWebhookChange — status update', () => {
     );
     expect(warn).toHaveBeenCalled();
     expect(String(warn.mock.calls[0][0])).toContain('no WABA id');
-    // Without a WABA id there is nothing to resolve the account with —
+    // Without a WABA id there is nothing to resolve the account with -
     // no config lookup, no insert.
     expect(calls).toHaveLength(1);
     expect(calls[0].insert).toBeUndefined();
   });
 });
 
-describe('handleTemplateWebhookChange — unknown template stub (#534)', () => {
+describe('handleTemplateWebhookChange, unknown template stub (#534)', () => {
   const CONFIG = { account_id: 'acc-1', user_id: 'admin-1' };
 
   beforeEach(() => {
@@ -435,7 +435,7 @@ describe('handleTemplateWebhookChange — unknown template stub (#534)', () => {
       body_text: '',
       quality_score: 'RED',
     });
-    // `status` is deliberately absent — the column default applies.
+    // `status` is deliberately absent - the column default applies.
     expect(calls[2].insert).not.toHaveProperty('status');
     expect(warn).not.toHaveBeenCalled();
   });
@@ -514,7 +514,7 @@ describe('handleTemplateWebhookChange — unknown template stub (#534)', () => {
   });
 });
 
-describe('handleTemplateWebhookChange — quality update', () => {
+describe('handleTemplateWebhookChange, quality update', () => {
   it('sets quality_score from new_quality_score', async () => {
     const { stub, calls } = makeSupabaseStub();
     await handleTemplateWebhookChange(
@@ -551,7 +551,7 @@ describe('handleTemplateWebhookChange — quality update', () => {
   });
 });
 
-describe('handleTemplateWebhookChange — components update', () => {
+describe('handleTemplateWebhookChange, components update', () => {
   it('is an info-log no-op (does not write to DB)', async () => {
     const info = vi.spyOn(console, 'info').mockImplementation(() => {});
     const { stub, calls } = makeSupabaseStub();
@@ -570,7 +570,7 @@ describe('handleTemplateWebhookChange — components update', () => {
   });
 });
 
-describe('handleTemplateWebhookChange — unknown field', () => {
+describe('handleTemplateWebhookChange, unknown field', () => {
   it('is a defensive no-op', async () => {
     const { stub, calls } = makeSupabaseStub();
     await handleTemplateWebhookChange(

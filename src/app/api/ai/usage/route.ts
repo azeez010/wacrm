@@ -30,7 +30,7 @@ interface UsageRow {
  * Token-spend summary for the account's BYO key over the last `days`
  * (1–90, default 30): totals, per-mode + per-model breakdowns, and a
  * zero-filled daily series for charting. Admin-only, mirroring the
- * `ai_usage_log` SELECT policy — spend is billing-class.
+ * `ai_usage_log` SELECT policy - spend is billing-class.
  */
 export async function GET(request: Request) {
   try {
@@ -39,7 +39,7 @@ export async function GET(request: Request) {
     const url = new URL(request.url)
     const rawDays = Number(url.searchParams.get('days'))
     // Guard `>= 1`, not just `isFinite`: a missing/blank param is
-    // Number(null)/Number('') === 0, which is finite — without the lower
+    // Number(null)/Number('') === 0, which is finite - without the lower
     // bound the default would never apply and the window would collapse
     // to a single day.
     const days =

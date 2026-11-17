@@ -7,7 +7,7 @@ import {
 
 /**
  * Meta addresses a send by EITHER `to` + `recipient_type` (phone
- * number) or `recipient` (business-scoped user ID) — never both. A
+ * number) or `recipient` (business-scoped user ID) - never both. A
  * contact who has adopted a WhatsApp username has no phone number for
  * us to put in `to`, so the send helpers have to switch fields based on
  * the identifier they're handed (issue #519).

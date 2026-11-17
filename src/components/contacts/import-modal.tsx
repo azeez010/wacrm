@@ -83,7 +83,7 @@ function ImportPreviewTags({
   const t = useTranslations('Contacts.importModal');
 
   if (tagNames.length === 0) {
-    return <span className="text-muted-foreground">—</span>;
+    return <span className="text-muted-foreground">-</span>;
   }
 
   return (
@@ -227,7 +227,7 @@ export function ImportModal({
         [];
 
       // 1) De-dupe within the file by normalized phone (keep first).
-      //    Rows with no usable phone at all are counted separately —
+      //    Rows with no usable phone at all are counted separately -
       //    they never duplicated anything, so lumping them into
       //    `skipped` would misreport them as dupes (see dedupeByPhone).
       const {
@@ -320,7 +320,7 @@ export function ImportModal({
               skipped++;
             } else {
               failed++;
-              // Keep the actual DB error instead of discarding it —
+              // Keep the actual DB error instead of discarding it -
               // "N contacts failed" with no reason attached left no
               // way to tell an RLS/constraint failure from a fluke,
               // let alone which contact it was.
@@ -407,11 +407,11 @@ export function ImportModal({
   }
 
   const preview = parsedRows.slice(0, PREVIEW_LIMIT);
-  // Tags: OR — show when the CSV declares a column or preview rows carry
+  // Tags: OR - show when the CSV declares a column or preview rows carry
   // values, so an all-empty tags column still renders for validation.
   const previewHasTags =
     hasTagsColumn || preview.some((row) => row.tagNames.length > 0);
-  // Company: AND — hide unless the CSV declares it and preview has data,
+  // Company: AND - hide unless the CSV declares it and preview has data,
   // avoiding an all-dash column that wastes horizontal space.
   const previewHasCompany =
     hasCompanyColumn && preview.some((row) => row.company?.trim());
@@ -560,20 +560,20 @@ export function ImportModal({
                           </td>
                           <td className="px-3 py-2 text-popover-foreground">
                             <PreviewCell
-                              value={row.name || '—'}
+                              value={row.name || '-'}
                               maxWidth="max-w-[8.5rem]"
                             />
                           </td>
                           <td className="px-3 py-2 text-muted-foreground">
                             <PreviewCell
-                              value={row.email || '—'}
+                              value={row.email || '-'}
                               maxWidth="max-w-[10rem]"
                             />
                           </td>
                           {previewHasCompany && (
                             <td className="px-3 py-2 text-muted-foreground">
                               <PreviewCell
-                                value={row.company || '—'}
+                                value={row.company || '-'}
                                 maxWidth="max-w-[7rem]"
                               />
                             </td>

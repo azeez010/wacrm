@@ -5,7 +5,7 @@ vi.mock('./meta-api', () => ({
   uploadResumableMedia: vi.fn(async () => ({ handle: 'HANDLE123' })),
 }));
 
-// The SSRF guard does a real DNS lookup, so stub it — the fixtures below use
+// The SSRF guard does a real DNS lookup, so stub it - the fixtures below use
 // a `.test` hostname that would never resolve. Each test sets the verdict.
 vi.mock('@/lib/webhooks/ssrf', () => ({
   isDeliverableUrl: vi.fn(async () => true),
@@ -177,7 +177,7 @@ describe('ensureMediaHeaderHandle', () => {
       vi.stubEnv('META_APP_ID', 'app-1');
       vi.stubGlobal('fetch', vi.fn(async () => mediaResponse('application/pdf', 101 * MB)));
       await expect(ensureMediaHeaderHandle(doc(), 'tok')).rejects.toThrow(
-        /Header document is 101\.0 MB — Meta's limit is 100 MB/,
+        /Header document is 101\.0 MB, Meta's limit is 100 MB/,
       );
       expect(uploadResumableMedia).not.toHaveBeenCalled();
     });
@@ -222,7 +222,7 @@ describe('ensureMediaHeaderHandle', () => {
 
   // Regression: `header_media_url` is caller-supplied and any authenticated
   // member can submit a template, so a non-public destination has to be
-  // refused *before* the server issues the request — otherwise the status
+  // refused *before* the server issues the request - otherwise the status
   // and content-type carried back in the thrown error are an SSRF oracle for
   // loopback, RFC1918 and cloud-metadata addresses.
   it('refuses a non-public header URL without fetching it', async () => {
@@ -279,7 +279,7 @@ describe('ensureMediaHeaderHandle', () => {
       expect(blocked).toBe(unreachable);
       messages.add(blocked as string);
     }
-    // The message must not vary by header kind either — otherwise the
+    // The message must not vary by header kind either - otherwise the
     // kind becomes an extra bit of information about the refused URL.
     expect(messages.size).toBe(1);
   });

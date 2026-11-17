@@ -1,11 +1,11 @@
 // ============================================================
-// API key scopes — pure, unit-testable, no I/O.
+// API key scopes - pure, unit-testable, no I/O.
 //
 // Authorization for the public API is *scopes-only*: a key's
 // capabilities are defined entirely by the scopes granted to it at
 // creation, independent of the role of the user who minted it. (We
 // still gate *key creation* at admin+, so only trusted members can
-// hand out capabilities — see the management routes.)
+// hand out capabilities - see the management routes.)
 //
 // A scope is `<resource>:<action>`. Endpoints declare the single
 // scope they require; `requireApiKey(request, scope)` enforces it.
@@ -23,6 +23,12 @@ export const API_SCOPES = [
   'webhooks:manage',
   'templates:read',
   'templates:write',
+  'pipelines:read',
+  'pipelines:write',
+  'automations:read',
+  'automations:write',
+  'flows:read',
+  'flows:write',
 ] as const;
 
 export type ApiScope = (typeof API_SCOPES)[number];
@@ -38,6 +44,12 @@ export const SCOPE_DESCRIPTIONS: Record<ApiScope, string> = {
   'webhooks:manage': 'Register and manage outbound event webhooks',
   'templates:read': 'List message templates and their approval status',
   'templates:write': 'Create message templates and submit them to Meta for approval',
+  'pipelines:read': 'Read pipelines, stages and deals',
+  'pipelines:write': 'Create and edit pipelines, stages and deals',
+  'automations:read': 'Read automations and their steps',
+  'automations:write': 'Create, edit, activate and delete automations',
+  'flows:read': 'Read chatbot flows and their nodes',
+  'flows:write': 'Create, edit, activate and delete chatbot flows',
 };
 
 /** Type-narrow an unknown value into a valid `ApiScope`. */
@@ -51,7 +63,7 @@ export function isApiScope(value: unknown): value is ApiScope {
 /**
  * Validate and de-duplicate a caller-supplied scope list. Returns
  * the cleaned list, or `null` if any entry is not a known scope
- * (callers turn that into a 400). An empty input is valid — it
+ * (callers turn that into a 400). An empty input is valid - it
  * yields a key that authenticates but can't do anything beyond the
  * scope-free endpoints (e.g. `GET /api/v1/me`).
  */
@@ -67,7 +79,7 @@ export function normalizeScopes(input: unknown): ApiScope[] | null {
 
 /**
  * True iff `granted` contains `required`. The single source of
- * truth for "is this key allowed to do X?" — both `requireApiKey`
+ * truth for "is this key allowed to do X?" - both `requireApiKey`
  * and any future inline check should call this rather than poking
  * at the array directly.
  */

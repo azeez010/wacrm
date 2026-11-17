@@ -1,5 +1,5 @@
 // ============================================================
-// Server-side account context — for API routes and server
+// Server-side account context - for API routes and server
 // components. Reads the caller's profile + account in one round
 // trip and verifies role on demand.
 //
@@ -7,18 +7,18 @@
 // SSR client (`@/lib/supabase/server`), which reads `next/headers`
 // cookies. Importing it from a client component will fail at
 // build time with the standard Next.js "You're importing a
-// component that needs `next/headers`" error — that's the
+// component that needs `next/headers`" error - that's the
 // boundary check; we don't need the `server-only` package.
 //
 // Calling convention
 // ------------------
-// API routes don't need to redo `supabase.auth.getUser()` — they
+// API routes don't need to redo `supabase.auth.getUser()` - they
 // receive a fully-loaded context from `requireRole`:
 //
 //   try {
 //     const ctx = await requireRole("admin");
-//     // ctx.supabase — the SSR client (RLS scoped to this user)
-//     // ctx.userId  — auth.uid()
+//     // ctx.supabase - the SSR client (RLS scoped to this user)
+//     // ctx.userId  - auth.uid()
 //     // ctx.accountId / ctx.role / ctx.account
 //   } catch (err) {
 //     return errorResponse(err); // see toErrorResponse() below
@@ -65,7 +65,7 @@ export class ForbiddenError extends Error {
  *     return toErrorResponse(err);
  *   }
  *
- * Unknown errors collapse to 500 with the generic message — we
+ * Unknown errors collapse to 500 with the generic message - we
  * never leak `err.message` for non-classified errors to keep
  * server internals out of the wire.
  */
@@ -90,7 +90,7 @@ export interface AccountContext {
   accountId: string;
   /** Caller's role within their account. */
   role: AccountRole;
-  /** Lightweight account meta — id + name. */
+  /** Lightweight account meta - id + name. */
   account: { id: string; name: string };
 }
 
@@ -104,7 +104,7 @@ export interface AccountContext {
  * inserted by hand).
  *
  * Use `requireRole(min)` instead when the route also needs a
- * minimum-role check — it's a thin wrapper over this.
+ * minimum-role check - it's a thin wrapper over this.
  */
 export async function getCurrentAccount(): Promise<AccountContext> {
   const supabase = await createClient();
@@ -130,22 +130,22 @@ export async function getCurrentAccount(): Promise<AccountContext> {
   if (!data || !data.account_id || !data.account_role) {
     // Pre-migration profile, or a manual insert that skipped the
     // signup trigger. The user is authenticated but the app has
-    // no way to scope their queries — treat as forbidden.
+    // no way to scope their queries - treat as forbidden.
     throw new ForbiddenError(t("notLinked"));
   }
   if (!isAccountRole(data.account_role)) {
     // The DB enum should make this impossible, but a future
     // migration that broadens the enum without updating TS would
-    // hit this — surface it rather than silently widening.
+    // hit this - surface it rather than silently widening.
     throw new ForbiddenError(`Unknown account role: ${data.account_role}`);
   }
 
   // Load the account with a plain point lookup by id rather than an
   // embedded FK join (`account:accounts!inner(...)`). The embed forces
   // PostgREST to resolve the profiles.account_id → accounts.id
-  // relationship from its schema cache; when that cache is stale — a
+  // relationship from its schema cache; when that cache is stale - a
   // common Supabase state right after a migration adds the FK, or when
-  // migrations are applied out of band — the embed fails hard with
+  // migrations are applied out of band - the embed fails hard with
   // PGRST200 ("could not find a relationship … in the schema cache")
   // and takes down the entire account context (issue #294). A lookup by
   // id needs no relationship inference and is gated by the same accounts
@@ -161,7 +161,7 @@ export async function getCurrentAccount(): Promise<AccountContext> {
     throw new ForbiddenError(t("loadContext"));
   }
   if (!account) {
-    // account_id points at no readable account row — orphaned profile
+    // account_id points at no readable account row - orphaned profile
     // or an RLS gap. Same "can't scope this user" outcome as above.
     throw new ForbiddenError(t("notLinked"));
   }

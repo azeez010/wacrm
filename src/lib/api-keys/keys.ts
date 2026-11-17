@@ -1,5 +1,5 @@
 // ============================================================
-// API key generation + hashing — pure, server-side, no Supabase.
+// API key generation + hashing - pure, server-side, no Supabase.
 //
 // Mirrors the invite-token utilities in `src/lib/auth/invitations.ts`:
 // the DB stores only the SHA-256 hash, the plaintext is shown to the
@@ -8,7 +8,7 @@
 // Why SHA-256 (not bcrypt/argon2)
 //   API keys are full-entropy random strings (32 CSPRNG bytes), not
 //   user-chosen passwords. There is no dictionary to attack and no
-//   rainbow table that helps, so a slow KDF buys nothing — it would
+//   rainbow table that helps, so a slow KDF buys nothing - it would
 //   only slow the per-request auth lookup. A fast hash with a UNIQUE
 //   index is the correct, indexable choice for opaque secrets.
 //
@@ -33,7 +33,7 @@ export const API_KEY_PREFIX = 'wacrm_live_';
 const DISPLAY_BODY_CHARS = 8;
 
 export interface GeneratedApiKey {
-  /** Plaintext key — return to the creator ONCE, never persist. */
+  /** Plaintext key - return to the creator ONCE, never persist. */
   plaintext: string;
   /** SHA-256 hex digest. Persist this in `api_keys.key_hash`. */
   hash: string;
@@ -60,7 +60,7 @@ export function generateApiKey(): GeneratedApiKey {
 
 /**
  * Deterministic SHA-256 of a plaintext key. Used at auth time to
- * look up the matching `api_keys` row by `key_hash`. Pure — same
+ * look up the matching `api_keys` row by `key_hash`. Pure - same
  * input always produces the same output.
  */
 export function hashApiKey(plaintext: string): string {

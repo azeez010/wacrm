@@ -71,7 +71,7 @@ function metaFailure(
  * GET /api/whatsapp/connections
  *
  * Lists every WhatsApp connection (custom + shared) for the caller's
- * account. Does not call out to Meta for a health check per row — that
+ * account. Does not call out to Meta for a health check per row - that
  * stays on GET /api/whatsapp/connections/[id], which is what the UI
  * calls when a specific card is expanded.
  */
@@ -111,7 +111,7 @@ export async function GET() {
 /**
  * POST /api/whatsapp/connections
  *
- * Creates a new **custom** (BYO Meta App) connection — the manual
+ * Creates a new **custom** (BYO Meta App) connection - the manual
  * entry flow. Always inserts a new row; an account may hold any
  * number of these alongside any number of shared (Embedded Signup)
  * connections created via POST .../connections/embedded-signup.
@@ -130,7 +130,7 @@ export async function POST(request: Request) {
     );
     if (!limit.success) return rateLimitResponse(limit);
 
-    // Plan gate — before any Meta side effects.
+    // Plan gate - before any Meta side effects.
     await assertCanAddWhatsAppConnection(supabase, accountId);
 
     const body = await request.json();
@@ -175,7 +175,7 @@ export async function POST(request: Request) {
       }
     }
 
-    // A phone_number_id still maps to exactly one account at a time —
+    // A phone_number_id still maps to exactly one account at a time -
     // reject if a different account already claimed it.
     const { data: claimed, error: claimedError } = await supabaseAdmin()
       .from('whatsapp_config')
@@ -265,7 +265,7 @@ export async function POST(request: Request) {
     let registrationSkipped = false;
 
     if (!pin) {
-      // See config/route.ts's historical comment — Meta TEST numbers
+      // See config/route.ts's historical comment - Meta TEST numbers
       // expose no 2FA PIN to set, so /register is best-effort.
       registrationSkipped = true;
     } else {
@@ -324,7 +324,7 @@ export async function POST(request: Request) {
       .single();
 
     if (insertError) {
-      // phone_number_id is globally unique — a repeat within this same
+      // phone_number_id is globally unique - a repeat within this same
       // account (the cross-account case is rejected above) lands here.
       if (insertError.code === '23505') {
         return NextResponse.json(

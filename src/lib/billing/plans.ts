@@ -1,6 +1,6 @@
 /**
  * Catalogue of limit / feature keys (labels for the landing page and
- * settings UI). The VALUES live in the `plans` table — edit
+ * settings UI). The VALUES live in the `plans` table - edit
  * scripts/seed-plans.ts and run `npm run seed:plans`. Unknown keys in
  * the DB are ignored, so adding a limit = add it here + seed + enforce.
  * null = unlimited.

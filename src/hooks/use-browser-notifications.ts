@@ -37,7 +37,7 @@ export function useBrowserNotifyPref(): boolean {
  * per signed-in dashboard tab (the dashboard shell does this via
  * <BrowserNotificationsListener />) so alerts fire on any page.
  *
- * Listens for realtime INSERTs on `messages` — RLS scopes the stream to
+ * Listens for realtime INSERTs on `messages` - RLS scopes the stream to
  * the caller's account, same as useTotalUnread / useRealtime. Only
  * live events are considered: there is no initial fetch, so an existing
  * backlog never produces a burst of alerts on page load.
@@ -45,7 +45,7 @@ export function useBrowserNotifyPref(): boolean {
  * Own channel name so it coexists with the inbox page's subscription
  * and the sidebar's unread counters.
  *
- * Fires only while a dashboard tab is open — there is no service worker
+ * Fires only while a dashboard tab is open - there is no service worker
  * or Web Push here, so a closed browser stays quiet.
  */
 export function useBrowserNotifications(): void {

@@ -50,7 +50,7 @@ export default function NotificationsPage() {
     load();
   }, [load]);
 
-  // Realtime — new assignments appear without a refresh, and a
+  // Realtime - new assignments appear without a refresh, and a
   // "mark all read" fired from another tab/device stays in sync here.
   useEffect(() => {
     if (!accountId) return;
@@ -96,7 +96,7 @@ export default function NotificationsPage() {
 
   const markRead = useCallback(
     async (id: string) => {
-      // Optimistic — the row is already visually "read" by the time the
+      // Optimistic - the row is already visually "read" by the time the
       // request lands, so the UI doesn't wait on the round-trip.
       setNotifications(
         (prev) =>

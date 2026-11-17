@@ -1969,7 +1969,8 @@
       "deals": "Deals & currency",
       "inbox": "Inbox",
       "members": "Team members",
-      "api": "API keys"
+      "api": "API keys",
+      "mcp": "Claude (MCP)"
     },
     "groups": {
       "account": "Account",

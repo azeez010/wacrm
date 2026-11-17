@@ -17,6 +17,7 @@ import { GET as messagesGet } from '@/app/api/v1/conversations/[id]/messages/rou
 import { POST as messagesPost } from '@/app/api/v1/messages/route'
 import { POST as broadcastsPost } from '@/app/api/v1/broadcasts/route'
 import { GET as broadcastGet } from '@/app/api/v1/broadcasts/[id]/route'
+import { GET as templatesGet, POST as templatesPost } from '@/app/api/v1/templates/route'
 
 type Handler = (req: Request, ctx: { params: Promise<{ id: string }> }) => Promise<Response>
 
@@ -91,6 +92,10 @@ export function createApiClient(authorization: string) {
       call(authorization, messagesGet as Handler, 'GET', `/conversations/${enc(id)}/messages`, { id, query: q }),
     sendMessage: (body: unknown) => call(authorization, messagesPost as Handler, 'POST', '/messages', { body }),
     sendBroadcast: (body: unknown) => call(authorization, broadcastsPost as Handler, 'POST', '/broadcasts', { body }),
+    listTemplates: (q: Record<string, string | number | undefined>) =>
+      call(authorization, templatesGet as Handler, 'GET', '/templates', { query: q }),
+    createTemplate: (body: unknown) =>
+      call(authorization, templatesPost as Handler, 'POST', '/templates', { body }),
     getBroadcast: (id: string) =>
       call(authorization, broadcastGet as Handler, 'GET', `/broadcasts/${enc(id)}`, { id }),
   }

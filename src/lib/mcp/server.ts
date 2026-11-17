@@ -36,7 +36,11 @@ const cursor = z.string().optional().describe('Opaque pagination cursor from a p
 
 const has = (scopes: string[], s: string) => scopes.includes(s)
 
-export function createWacrmMcpServer(authorization: string, scopes: string[]) {
+export function createWacrmMcpServer(
+  authorization: string,
+  scopes: string[],
+  opts: { hasWhatsAppConnection?: boolean } = {},
+) {
   const api: ApiClient = createApiClient(authorization)
   const server = new McpServer({ name: 'wacrm', version: '1.0.0' })
 
@@ -184,6 +188,74 @@ export function createWacrmMcpServer(authorization: string, scopes: string[]) {
         annotations: { ...WRITE, title: 'Send WhatsApp message' },
       },
       run(async (a) => api.sendMessage(a)),
+    )
+  }
+
+  if (has(scopes, 'templates:read')) {
+    server.registerTool(
+      'list_templates',
+      {
+        title: 'List message templates',
+        description:
+          'List WhatsApp message templates with their Meta approval status (APPROVED, PENDING, REJECTED, DRAFT…). Only APPROVED templates can be sent. Filter by status. Paginated.',
+        inputSchema: {
+          status: z.string().optional().describe('e.g. APPROVED, PENDING, REJECTED, DRAFT.'),
+          limit,
+          cursor,
+        },
+        annotations: { ...READ, title: 'List message templates' },
+      },
+      run(async (a) => api.listTemplates(a)),
+    )
+  }
+
+  // Creating a template submits it to Meta via a WhatsApp connection,
+  // so the tool only exists when the account has one.
+  if (has(scopes, 'templates:write') && opts.hasWhatsAppConnection) {
+    server.registerTool(
+      'create_template',
+      {
+        title: 'Create message template',
+        description:
+          'Create a WhatsApp message template and submit it to Meta for approval (usually minutes to a day; check with list_templates). Name: lowercase letters, digits and underscores only. Category: "Marketing" or "Utility" (Authentication is not supported). Use {{1}}, {{2}}… in body_text for variables and provide one sample per variable in sample_values.body — Meta rejects templates without examples. Header: optional text (header_content, max 60 chars) or media (header_media_url). Max 10 buttons (≤2 URL, ≤1 phone, ≤1 copy-code). This submits to Meta on the user’s behalf — confirm the wording with the user first. If the account has several WhatsApp numbers, pass whatsapp_config_id.',
+        inputSchema: {
+          name: z.string().describe('Lowercase letters, digits, underscores, e.g. order_update.'),
+          category: z.enum(['Marketing', 'Utility']),
+          language: z.string().describe('Language code, e.g. "en_US".'),
+          body_text: z.string().describe('Body, up to 1024 chars. Variables as {{1}}, {{2}}.'),
+          header_type: z.enum(['text', 'image', 'video', 'document']).optional(),
+          header_content: z.string().optional().describe('Header text when header_type is "text".'),
+          header_media_url: z.string().url().optional().describe('Public URL of the header media.'),
+          footer_text: z.string().optional().describe('Footer, up to 60 chars.'),
+          buttons: z
+            .array(
+              z.discriminatedUnion('type', [
+                z.object({ type: z.literal('QUICK_REPLY'), text: z.string() }),
+                z.object({
+                  type: z.literal('URL'),
+                  text: z.string(),
+                  url: z.string(),
+                  example: z.string().optional(),
+                }),
+                z.object({ type: z.literal('PHONE_NUMBER'), text: z.string(), phone_number: z.string() }),
+                z.object({ type: z.literal('COPY_CODE'), text: z.string(), example: z.string() }),
+              ]),
+            )
+            .optional(),
+          sample_values: z
+            .object({
+              body: z.array(z.string()).optional().describe('One example per body variable, in order.'),
+              header: z.array(z.string()).optional(),
+            })
+            .optional(),
+          whatsapp_config_id: z
+            .string()
+            .optional()
+            .describe('Which WhatsApp number/WABA to submit under, if the account has several.'),
+        },
+        annotations: { ...WRITE, title: 'Create message template' },
+      },
+      run(async (a) => api.createTemplate(a)),
     )
   }
 

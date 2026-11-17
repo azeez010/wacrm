@@ -32,18 +32,20 @@ const PRESETS: {
     id: 'read',
     label: 'Read-only',
     hint: 'Look up contacts, conversations and messages. Cannot change anything or send messages. Recommended.',
-    scopes: ['contacts:read', 'conversations:read', 'messages:read'],
+    scopes: ['contacts:read', 'conversations:read', 'messages:read', 'templates:read'],
   },
   {
     id: 'write',
     label: 'Read & write',
-    hint: 'Also create/update contacts and send WhatsApp messages.',
+    hint: 'Also create/update contacts, send WhatsApp messages and create message templates (submitted to Meta for approval).',
     scopes: [
       'contacts:read',
       'conversations:read',
       'messages:read',
+      'templates:read',
       'contacts:write',
       'messages:send',
+      'templates:write',
     ],
   },
   {
@@ -54,8 +56,10 @@ const PRESETS: {
       'contacts:read',
       'conversations:read',
       'messages:read',
+      'templates:read',
       'contacts:write',
       'messages:send',
+      'templates:write',
       'broadcasts:send',
     ],
   },
@@ -77,6 +81,12 @@ const CAPABILITIES: { scope: string; title: string; examples: string }[] = [
     scope: 'Send',
     title: 'Message customers',
     examples: '“Send the order_update template to +234…” · “Reply to Tunde that his order shipped”',
+  },
+  {
+    scope: 'Templates',
+    title: 'Create message templates',
+    examples:
+      '“Create a Utility template for order shipping updates in English” — submitted to Meta for approval (needs a connected WhatsApp number)',
   },
   {
     scope: 'Broadcast',

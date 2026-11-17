@@ -15,8 +15,8 @@ vi.mock('./dispatch', async () => {
 import { createWacrmMcpServer } from './server'
 import { ApiCallError } from './dispatch'
 
-async function connect(scopes: string[]) {
-  const server = createWacrmMcpServer('Bearer wacrm_live_x', scopes)
+async function connect(scopes: string[], opts: { hasWhatsAppConnection?: boolean } = {}) {
+  const server = createWacrmMcpServer('Bearer wacrm_live_x', scopes, opts)
   const client = new Client({ name: 'test', version: '1.0.0' })
   const [a, b] = InMemoryTransport.createLinkedPair()
   await Promise.all([server.connect(a), client.connect(b)])
@@ -40,6 +40,21 @@ describe('hosted MCP server', () => {
     const t = await names(await connect(['contacts:write', 'messages:send', 'broadcasts:send']))
     expect(t).toEqual(
       ['create_contact', 'get_broadcast', 'send_broadcast', 'send_message', 'update_contact', 'whoami'].sort(),
+    )
+  })
+
+  it('offers create_template only with the scope AND a WhatsApp connection', async () => {
+    const scopes = ['templates:read', 'templates:write']
+    expect(await names(await connect(scopes, { hasWhatsAppConnection: true }))).toEqual(
+      ['create_template', 'list_templates', 'whoami'].sort(),
+    )
+    // Scope but no connection → can list, cannot create.
+    expect(await names(await connect(scopes, { hasWhatsAppConnection: false }))).toEqual(
+      ['list_templates', 'whoami'].sort(),
+    )
+    // Connection but no write scope → cannot create.
+    expect(await names(await connect(['templates:read'], { hasWhatsAppConnection: true }))).toEqual(
+      ['list_templates', 'whoami'].sort(),
     )
   })
 

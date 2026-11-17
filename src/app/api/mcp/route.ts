@@ -50,7 +50,19 @@ async function handle(request: Request): Promise<Response> {
     throw err
   }
 
-  const server = createWacrmMcpServer(request.headers.get('authorization') ?? '', ctx.scopes)
+  // create_template only makes sense with a WhatsApp connection to submit under.
+  let hasWhatsAppConnection = false
+  if (ctx.scopes.includes('templates:write')) {
+    const { count } = await ctx.supabase
+      .from('whatsapp_config')
+      .select('id', { count: 'exact', head: true })
+      .eq('account_id', ctx.accountId)
+    hasWhatsAppConnection = (count ?? 0) > 0
+  }
+
+  const server = createWacrmMcpServer(request.headers.get('authorization') ?? '', ctx.scopes, {
+    hasWhatsAppConnection,
+  })
   const transport = new WebStandardStreamableHTTPServerTransport({
     sessionIdGenerator: undefined, // stateless
     enableJsonResponse: true,

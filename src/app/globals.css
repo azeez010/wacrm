@@ -159,7 +159,39 @@ html[data-mode="light"] {
 
 /* ---- ACCENT: primary color ---- */
 
+/* TraderSense teal — the default. Mirrors tradersense-admin: #0f766e in
+   light mode, brighter #2dd4bf in dark mode (the accent needs more
+   luminance to read on dark surfaces). `:root` is listed so the very
+   first paint, before the boot script sets data-theme, is already teal. */
 :root,
+html[data-theme="teal"] {
+  --primary: #0f766e;
+  --primary-foreground: #ffffff;
+  --primary-hover: #0d9488;
+  --primary-soft: rgb(15 118 110 / 0.12);
+  --primary-soft-2: rgb(15 118 110 / 0.2);
+  --ring: #0f766e;
+  --chart-1: #0f766e;
+  --chart-2: #2dd4bf;
+  --sidebar-primary: #0f766e;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-ring: #0f766e;
+}
+
+html[data-theme="teal"][data-mode="dark"] {
+  --primary: #2dd4bf;
+  --primary-foreground: #06201c;
+  --primary-hover: #5eead4;
+  --primary-soft: rgb(45 212 191 / 0.12);
+  --primary-soft-2: rgb(45 212 191 / 0.22);
+  --ring: #2dd4bf;
+  --chart-1: #2dd4bf;
+  --chart-2: #0f766e;
+  --sidebar-primary: #2dd4bf;
+  --sidebar-primary-foreground: #06201c;
+  --sidebar-ring: #2dd4bf;
+}
+
 html[data-theme="violet"] {
   --primary: oklch(0.526 0.247 293);
   --primary-foreground: oklch(0.985 0 0);

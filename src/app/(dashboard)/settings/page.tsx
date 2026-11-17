@@ -11,7 +11,6 @@ import { SettingsOverview } from '@/components/settings/settings-overview';
 import { ProfileForm } from '@/components/settings/profile-form';
 import { SecurityPanel } from '@/components/settings/security-panel';
 import { AppearancePanel } from '@/components/settings/appearance-panel';
-import { WhatsAppConfig } from '@/components/settings/whatsapp-config';
 import { WhatsAppEmbeddedSignup } from '@/components/settings/whatsapp-embedded-signup';
 import { TemplateManager } from '@/components/settings/template-manager';
 import { QuickRepliesManager } from '@/components/settings/quick-replies-manager';
@@ -78,10 +77,7 @@ function SettingsPageInner() {
     security: <SecurityPanel />,
     appearance: <AppearancePanel />,
     whatsapp: (
-      <div className="flex flex-col gap-6">
-        <WhatsAppEmbeddedSignup onConnected={() => window.location.reload()} />
-        <WhatsAppConfig />
-      </div>
+      <WhatsAppEmbeddedSignup onConnected={() => window.location.reload()} />
     ),
     templates: <TemplateManager />,
     'quick-replies': <QuickRepliesManager />,

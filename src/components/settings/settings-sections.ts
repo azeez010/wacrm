@@ -1,5 +1,6 @@
 import {
   Coins,
+  CreditCard,
   FileText,
   Inbox,
   Bot,
@@ -26,6 +27,7 @@ import {
 export const SETTINGS_SECTIONS = [
   'overview',
   'profile',
+  'billing',
   'security',
   'appearance',
   'whatsapp',
@@ -54,6 +56,7 @@ export interface SectionMeta {
 export const SECTION_META: Record<SettingsSection, SectionMeta> = {
   overview: { id: 'overview', label: 'Overview', icon: LayoutGrid, group: 'top' },
   profile: { id: 'profile', label: 'Your profile', icon: User, group: 'account' },
+  billing: { id: 'billing', label: 'Billing & plan', icon: CreditCard, group: 'account' },
   security: { id: 'security', label: 'Login & security', icon: Shield, group: 'account' },
   appearance: { id: 'appearance', label: 'Appearance', icon: Palette, group: 'account' },
   whatsapp: { id: 'whatsapp', label: 'WhatsApp', icon: PlugZap, group: 'workspace' },

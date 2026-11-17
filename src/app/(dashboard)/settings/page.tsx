@@ -74,12 +74,8 @@ function SettingsPageInner() {
 
   const panel: Record<SettingsSection, ReactNode> = {
     overview: <SettingsOverview onSelect={go} />,
-    profile: (
-      <>
-        <ProfileForm />
-        <BillingPanel />
-      </>
-    ),
+    profile: <ProfileForm />,
+    billing: <BillingPanel />,
     security: <SecurityPanel />,
     appearance: <AppearancePanel />,
     whatsapp: (

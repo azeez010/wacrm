@@ -88,7 +88,7 @@ export function BillingPanel() {
     new Intl.DateTimeFormat(locale, { dateStyle: 'medium' }).format(new Date(iso));
 
   return (
-    <div className="mt-10 flex flex-col gap-6">
+    <div className="flex flex-col gap-6">
       <SettingsPanelHead title={t('title')} description={t('description')} />
 
       {error && <p className="text-muted-foreground text-sm">{t('loadError')}</p>}

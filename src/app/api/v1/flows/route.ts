@@ -74,7 +74,8 @@ export async function POST(request: Request) {
     if (error || !flow) return fail('internal', 'Failed to create flow', 500);
 
     if (nodes.length > 0) {
-      const { error: graphErr } = await ctx.supabase.rpc('replace_flow_graph', {
+      const { error: graphErr } = await ctx.supabase.rpc('replace_flow_graph_for_account', {
+        p_account_id: ctx.accountId,
         p_flow_id: flow.id,
         p_nodes: nodes.map((n) => ({
           node_key: n.node_key,

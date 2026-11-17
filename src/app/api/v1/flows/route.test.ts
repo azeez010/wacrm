@@ -50,7 +50,7 @@ beforeEach(() => {
 })
 
 describe('POST /api/v1/flows', () => {
-  it('creates a draft flow, writes the graph via replace_flow_graph and returns issues', async () => {
+  it('creates a draft flow, writes the graph via replace_flow_graph_for_account and returns issues', async () => {
     const res = await post({
       name: 'Menu',
       trigger_type: 'keyword',
@@ -59,7 +59,7 @@ describe('POST /api/v1/flows', () => {
       nodes,
     })
     expect(res.status).toBe(201)
-    expect(st.rpc).toHaveBeenCalledWith('replace_flow_graph', expect.objectContaining({ p_flow_id: 'f-1' }))
+    expect(st.rpc).toHaveBeenCalledWith('replace_flow_graph_for_account', expect.objectContaining({ p_flow_id: 'f-1', p_account_id: 'acct-1' }))
     const body = await res.json()
     expect(Array.isArray(body.data.issues)).toBe(true)
     expect(body.data.issues.some((i: { severity: string }) => i.severity === 'error')).toBe(false)

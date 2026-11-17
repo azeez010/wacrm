@@ -44,6 +44,12 @@ const PROVIDER_LABEL: Record<Exclude<AiProvider, 'openai_compatible'>, string> =
   anthropic: 'Anthropic (Claude)',
 };
 
+// DeepSeek speaks the OpenAI chat-completions protocol, so it is stored
+// as an `openai_compatible` config with these presets prefilled.
+const DEEPSEEK_BASE_URL = 'https://api.deepseek.com';
+const DEEPSEEK_DEFAULT_MODEL = 'deepseek-chat';
+const DEEPSEEK_VALUE = 'deepseek';
+
 const KEY_PLACEHOLDER: Record<AiProvider, string> = {
   openai: 'sk-...',
   anthropic: 'sk-ant-...',
@@ -130,7 +136,18 @@ export function AiConfig() {
 
   // Swap the model default when the provider changes, unless the user
   // typed a custom model.
-  const handleProviderChange = (next: AiProvider) => {
+  const handleProviderChange = (value: string) => {
+    if (value === DEEPSEEK_VALUE) {
+      const wasDefault =
+        model.trim() === '' ||
+        Object.values(AI_PROVIDER_DEFAULT_MODEL).includes(model);
+      setProvider('openai_compatible');
+      setBaseUrl(DEEPSEEK_BASE_URL);
+      if (wasDefault) setModel(DEEPSEEK_DEFAULT_MODEL);
+      return;
+    }
+    const next = value as AiProvider;
+    if (isDeepSeek && next === 'openai_compatible') setBaseUrl('');
     setProvider(next);
     const isDefaultModel =
       model === AI_PROVIDER_DEFAULT_MODEL.openai ||
@@ -139,6 +156,10 @@ export function AiConfig() {
       model.trim() === '';
     if (isDefaultModel) setModel(next === 'openai_compatible' ? '' : AI_PROVIDER_DEFAULT_MODEL[next]);
   };
+
+  const isDeepSeek =
+    provider === 'openai_compatible' &&
+    baseUrl.trim().replace(/\/+$/, '') === DEEPSEEK_BASE_URL;
 
   const keyPayload = () => (keyEdited ? apiKey.trim() : undefined);
 
@@ -286,8 +307,8 @@ export function AiConfig() {
               <div className="space-y-2">
                 <Label>{t('provider')}</Label>
                 <Select
-                  value={provider}
-                  onValueChange={(v) => handleProviderChange(v as AiProvider)}
+                  value={isDeepSeek ? DEEPSEEK_VALUE : provider}
+                  onValueChange={(v) => v && handleProviderChange(v)}
                   disabled={disabled}
                 >
                   <SelectTrigger>
@@ -298,6 +319,7 @@ export function AiConfig() {
                     <SelectItem value="anthropic">
                       {PROVIDER_LABEL.anthropic}
                     </SelectItem>
+                    <SelectItem value={DEEPSEEK_VALUE}>DeepSeek</SelectItem>
                     <SelectItem value="openai_compatible">
                       {t('providerOpenAiCompatible')}
                     </SelectItem>
@@ -350,7 +372,7 @@ export function AiConfig() {
                         setKeyEdited(true);
                       }
                     }}
-                    placeholder={KEY_PLACEHOLDER[provider]}
+                    placeholder={isDeepSeek ? 'sk-...' : KEY_PLACEHOLDER[provider]}
                     disabled={disabled}
                     autoComplete="off"
                   />

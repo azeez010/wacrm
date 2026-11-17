@@ -89,7 +89,8 @@ export async function PUT(request: Request, { params }: Ctx) {
     if (b.fallback_policy !== undefined) patch.fallback_policy = b.fallback_policy;
 
     if (b.nodes !== undefined) {
-      const { error } = await ctx.supabase.rpc('replace_flow_graph', {
+      const { error } = await ctx.supabase.rpc('replace_flow_graph_for_account', {
+        p_account_id: ctx.accountId,
         p_flow_id: id,
         p_nodes: nodes.map((n) => ({
           node_key: n.node_key,

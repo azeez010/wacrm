@@ -1,10 +1,18 @@
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"main": ".open-next/worker.js",
-	"name": "wacrm",
+	"name": "ogadesk",
 	"compatibility_date": "2026-11-14",
-	"compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
-	"routes": [{ "pattern": "wacrm.dataslid.com.ng", "custom_domain": true }],
+	"compatibility_flags": [
+		"nodejs_compat",
+		"global_fetch_strictly_public"
+	],
+	"routes": [
+		{
+			"pattern": "ogadesk.dataslid.com.ng",
+			"custom_domain": true
+		}
+	],
 	"assets": {
 		"directory": ".open-next/assets",
 		"binding": "ASSETS"
@@ -14,7 +22,7 @@
 			// Self-reference service binding, the service name must match the worker name
 			// see https://opennext.js.org/cloudflare/caching
 			"binding": "WORKER_SELF_REFERENCE",
-			"service": "wacrm"
+			"service": "ogadesk"
 		}
 	],
 	"r2_buckets": [
@@ -23,8 +31,8 @@
 		{
 			"binding": "NEXT_INC_CACHE_R2_BUCKET",
 			// Create the bucket before deploying:
-			//   npx wrangler r2 bucket create wacrm-opennext-cache
-			"bucket_name": "wacrm-opennext-cache"
+			//   npx wrangler r2 bucket create ogadesk-opennext-cache
+			"bucket_name": "ogadesk-opennext-cache"
 		}
 	],
 	"images": {

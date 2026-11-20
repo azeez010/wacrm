@@ -23,8 +23,8 @@ verification carries over, but the new app still needs its own App Review.
 | App icon (1024×1024) | `OgaDesk_Green_Brand_Kit/02_Favicons_App/ogadesk-app-icon-1024.png` |
 | Privacy Policy URL | `https://ogadesk.dataslid.com.ng/privacy` |
 | Terms of Service URL | `https://ogadesk.dataslid.com.ng/terms` |
-| User data deletion | **Data deletion callback URL:** `https://ogadesk.dataslid.com.ng/api/meta/data-deletion` (alternatively an instructions URL: `https://wacrm.dataslid.com.ng/data-deletion`) |
-| App domains | `wacrm.dataslid.com.ng` |
+| User data deletion | **Data deletion callback URL:** `https://ogadesk.dataslid.com.ng/api/meta/data-deletion` (alternatively an instructions URL: `https://ogadesk.dataslid.com.ng/data-deletion`) |
+| App domains | `ogadesk.dataslid.com.ng` |
 | Category | Business and pages |
 | Contact email | the support address shown on the policy pages |
 

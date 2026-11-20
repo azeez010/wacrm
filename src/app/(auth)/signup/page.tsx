@@ -7,6 +7,7 @@ import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import {
   Card,
@@ -144,7 +145,7 @@ function SignupPageInner() {
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <Card className="w-full max-w-md border-border bg-card">
         <CardHeader className="items-center text-center">
-          <BrandMark className="mb-2" />
+          <BrandMark className="mx-auto mb-2" />
           <CardTitle className="text-xl text-foreground">
             {inviteToken ? t("titleJoin") : t("title")}
           </CardTitle>
@@ -194,9 +195,8 @@ function SignupPageInner() {
               <Label htmlFor="password" className="text-muted-foreground">
                 {t("passwordLabel")}
               </Label>
-              <Input
+              <PasswordInput
                 id="password"
-                type="password"
                 placeholder={t("passwordPlaceholder")}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -209,9 +209,8 @@ function SignupPageInner() {
               <Label htmlFor="confirmPassword" className="text-muted-foreground">
                 {t("confirmPasswordLabel")}
               </Label>
-              <Input
+              <PasswordInput
                 id="confirmPassword"
-                type="password"
                 placeholder={t("confirmPasswordPlaceholder")}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
@@ -227,6 +226,20 @@ function SignupPageInner() {
             >
               {loading ? t("creating") : t("submit")}
             </Button>
+            <p className="text-center text-xs text-muted-foreground">
+              {t.rich("legal", {
+                terms: (chunks) => (
+                  <Link href="/terms" target="_blank" className="underline hover:text-foreground">
+                    {chunks}
+                  </Link>
+                ),
+                privacy: (chunks) => (
+                  <Link href="/privacy" target="_blank" className="underline hover:text-foreground">
+                    {chunks}
+                  </Link>
+                ),
+              })}
+            </p>
           </form>
 
           <p className="mt-6 text-center text-sm text-muted-foreground">

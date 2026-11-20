@@ -209,6 +209,18 @@ export default async function LandingPage({
         <Link href="/login" className="underline">
           {t('footer.login')}
         </Link>
+        {' · '}
+        <Link href="/privacy" className="underline">
+          {t('footer.privacy')}
+        </Link>
+        {' · '}
+        <Link href="/terms" className="underline">
+          {t('footer.terms')}
+        </Link>
+        {' · '}
+        <Link href="/data-deletion" className="underline">
+          {t('footer.dataDeletion')}
+        </Link>
       </footer>
     </div>
   )

@@ -20,7 +20,7 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import {
   Card,
@@ -97,7 +97,7 @@ export default function ResetPasswordPage() {
       <div className="flex min-h-screen items-center justify-center bg-background px-4">
         <Card className="w-full max-w-md border-border bg-card">
           <CardHeader className="items-center text-center">
-            <BrandMark className="mb-2" />
+            <BrandMark className="mx-auto mb-2" />
             <CardTitle className="text-xl text-foreground">
               {t("expiredTitle")}
             </CardTitle>
@@ -130,7 +130,7 @@ export default function ResetPasswordPage() {
       <div className="flex min-h-screen items-center justify-center bg-background px-4">
         <Card className="w-full max-w-md border-border bg-card">
           <CardHeader className="items-center text-center">
-            <BrandMark className="mb-2" />
+            <BrandMark className="mx-auto mb-2" />
             <CardTitle className="text-xl text-foreground">
               {t("successTitle")}
             </CardTitle>
@@ -162,7 +162,7 @@ export default function ResetPasswordPage() {
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <Card className="w-full max-w-md border-border bg-card">
         <CardHeader className="items-center text-center">
-          <BrandMark className="mb-2" />
+          <BrandMark className="mx-auto mb-2" />
           <CardTitle className="text-xl text-foreground">{t("title")}</CardTitle>
           <CardDescription className="text-muted-foreground">
             {t("desc")}
@@ -180,9 +180,8 @@ export default function ResetPasswordPage() {
               <Label htmlFor="password" className="text-muted-foreground">
                 {t("passwordLabel")}
               </Label>
-              <Input
+              <PasswordInput
                 id="password"
-                type="password"
                 autoComplete="new-password"
                 placeholder={t("passwordPlaceholder")}
                 value={password}
@@ -196,9 +195,8 @@ export default function ResetPasswordPage() {
               <Label htmlFor="confirmPassword" className="text-muted-foreground">
                 {t("confirmPasswordLabel")}
               </Label>
-              <Input
+              <PasswordInput
                 id="confirmPassword"
-                type="password"
                 autoComplete="new-password"
                 placeholder={t("confirmPasswordPlaceholder")}
                 value={confirmPassword}

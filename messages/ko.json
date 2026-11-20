@@ -2337,7 +2337,8 @@
     "creating": "계정 만드는 중...",
     "submit": "계정 만들기",
     "haveAccount": "이미 계정이 있으신가요?",
-    "signIn": "로그인"
+    "signIn": "로그인",
+    "legal": "계정을 만들면 <terms>서비스 약관</terms> 및 <privacy>개인정보 처리방침</privacy>에 동의하는 것으로 간주됩니다."
   },
   "ForgotPasswordPage": {
     "checkEmailTitle": "이메일을 확인하세요",
@@ -2483,7 +2484,9 @@
     "loading": "불러오는 중..."
   },
   "UiPrimitives": {
-    "close": "닫기"
+    "close": "닫기",
+    "showPassword": "비밀번호 표시",
+    "hidePassword": "비밀번호 숨기기"
   },
   "GatedButton": {
     "readOnly": "읽기 전용, 현재 역할로는 {action} 수 없습니다",
@@ -3060,7 +3063,10 @@
       "getPlan": "{plan} 시작"
     },
     "footer": {
-      "login": "로그인"
+      "login": "로그인",
+      "privacy": "개인정보",
+      "terms": "약관",
+      "dataDeletion": "데이터 삭제"
     }
   }
 }

@@ -7,6 +7,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { canEditSettings } from '@/lib/auth/roles';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { PasswordInput } from '@/components/ui/password-input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
@@ -411,9 +412,8 @@ export function AiConfig() {
                   {t('optionalSemanticSearch')}
                 </span>
               </Label>
-              <Input
+              <PasswordInput
                 id="ai-embeddings-key"
-                type="password"
                 value={embeddingsKey}
                 onChange={(e) => {
                   setEmbeddingsKey(e.target.value);

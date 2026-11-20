@@ -2337,7 +2337,8 @@
     "creating": "Création du compte…",
     "submit": "Créer un compte",
     "haveAccount": "Vous avez déjà un compte ?",
-    "signIn": "Se connecter"
+    "signIn": "Se connecter",
+    "legal": "En créant un compte, vous acceptez les <terms>Conditions d’utilisation</terms> et la <privacy>Politique de confidentialité</privacy>."
   },
   "ForgotPasswordPage": {
     "checkEmailTitle": "Consultez votre boîte mail",
@@ -2483,7 +2484,9 @@
     "loading": "Chargement…"
   },
   "UiPrimitives": {
-    "close": "Fermer"
+    "close": "Fermer",
+    "showPassword": "Afficher le mot de passe",
+    "hidePassword": "Masquer le mot de passe"
   },
   "GatedButton": {
     "readOnly": "Lecture seule : votre rôle ne permet pas de {action}",
@@ -3060,7 +3063,10 @@
       "getPlan": "Choisir {plan}"
     },
     "footer": {
-      "login": "Se connecter"
+      "login": "Se connecter",
+      "privacy": "Confidentialité",
+      "terms": "Conditions",
+      "dataDeletion": "Suppression des données"
     }
   }
 }

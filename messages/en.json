@@ -2337,7 +2337,8 @@
     "creating": "Creating account...",
     "submit": "Create account",
     "haveAccount": "Already have an account?",
-    "signIn": "Sign in"
+    "signIn": "Sign in",
+    "legal": "By creating an account you agree to the <terms>Terms of Service</terms> and <privacy>Privacy Policy</privacy>."
   },
   "ForgotPasswordPage": {
     "checkEmailTitle": "Check your email",
@@ -2483,7 +2484,9 @@
     "loading": "Loading..."
   },
   "UiPrimitives": {
-    "close": "Close"
+    "close": "Close",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password"
   },
   "GatedButton": {
     "readOnly": "Read-only, your role can't {action}",
@@ -3060,7 +3063,10 @@
       "getPlan": "Get {plan}"
     },
     "footer": {
-      "login": "Log in"
+      "login": "Log in",
+      "privacy": "Privacy",
+      "terms": "Terms",
+      "dataDeletion": "Data deletion"
     }
   }
 }

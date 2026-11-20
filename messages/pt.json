@@ -2337,7 +2337,8 @@
     "creating": "Criando conta...",
     "submit": "Criar conta",
     "haveAccount": "Já tem uma conta?",
-    "signIn": "Entrar"
+    "signIn": "Entrar",
+    "legal": "Ao criar uma conta, você concorda com os <terms>Termos de Serviço</terms> e a <privacy>Política de Privacidade</privacy>."
   },
   "ForgotPasswordPage": {
     "checkEmailTitle": "Verifique seu e-mail",
@@ -2483,7 +2484,9 @@
     "loading": "Carregando..."
   },
   "UiPrimitives": {
-    "close": "Fechar"
+    "close": "Fechar",
+    "showPassword": "Mostrar senha",
+    "hidePassword": "Ocultar senha"
   },
   "GatedButton": {
     "readOnly": "Somente leitura, sua função não pode {action}",
@@ -3060,7 +3063,10 @@
       "getPlan": "Escolher {plan}"
     },
     "footer": {
-      "login": "Entrar"
+      "login": "Entrar",
+      "privacy": "Privacidade",
+      "terms": "Termos",
+      "dataDeletion": "Exclusão de dados"
     }
   }
 }

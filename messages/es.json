@@ -2337,7 +2337,8 @@
     "creating": "Creando cuenta...",
     "submit": "Crear cuenta",
     "haveAccount": "¿Ya tienes una cuenta?",
-    "signIn": "Iniciar sesión"
+    "signIn": "Iniciar sesión",
+    "legal": "Al crear una cuenta, aceptas los <terms>Términos del servicio</terms> y la <privacy>Política de privacidad</privacy>."
   },
   "ForgotPasswordPage": {
     "checkEmailTitle": "Revisa tu correo",
@@ -2483,7 +2484,9 @@
     "loading": "Cargando..."
   },
   "UiPrimitives": {
-    "close": "Cerrar"
+    "close": "Cerrar",
+    "showPassword": "Mostrar contraseña",
+    "hidePassword": "Ocultar contraseña"
   },
   "GatedButton": {
     "readOnly": "Solo lectura: tu rol no puede {action}",
@@ -3060,7 +3063,10 @@
       "getPlan": "Elegir {plan}"
     },
     "footer": {
-      "login": "Iniciar sesión"
+      "login": "Iniciar sesión",
+      "privacy": "Privacidad",
+      "terms": "Términos",
+      "dataDeletion": "Eliminación de datos"
     }
   }
 }

@@ -1,7 +1,23 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import createIntlMiddleware from 'next-intl/middleware'
+import { LOCALES } from '@/i18n/locales'
+import { routing } from '@/i18n/routing'
+
+// Path-based language for the public landing page only (`/`, `/fr`, ...).
+// The signed-in app, auth and legal pages are cookie-driven and untouched.
+const intlMiddleware = createIntlMiddleware(routing)
+const LOCALE_PREFIX = new RegExp(`^/(${LOCALES.join('|')})(?=/|$)`)
+
+function isLocalizedLandingPath(pathname: string): boolean {
+  return (pathname.replace(LOCALE_PREFIX, '') || '/') === '/'
+}
 
 export async function middleware(request: NextRequest) {
+  if (isLocalizedLandingPath(request.nextUrl.pathname)) {
+    return intlMiddleware(request)
+  }
+
   let supabaseResponse = NextResponse.next({ request })
 
   const supabase = createServerClient(
@@ -92,6 +108,6 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|webmanifest)$).*)',
+    '/((?!_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|webmanifest)$).*)',
   ],
 }

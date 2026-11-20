@@ -19,5 +19,8 @@ export default defineConfig({
       META_APP_SECRET: "test-meta-app-secret",
     },
     clearMocks: true,
+    // next-intl's ESM middleware imports "next/server" without an extension,
+    // which Node's strict ESM resolver rejects; let Vite resolve it.
+    server: { deps: { inline: [/next-intl/] } },
   },
 });

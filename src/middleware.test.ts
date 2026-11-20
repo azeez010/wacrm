@@ -138,3 +138,28 @@ describe("middleware, every dashboard route requires a session", () => {
     expect(new URL(res.headers.get("location")!).pathname).toBe("/login");
   });
 });
+
+describe("middleware, path-based language on the landing page", () => {
+  it("serves / and /<locale> through next-intl (no login redirect, language set)", async () => {
+    for (const path of ["/", "/fr", "/ko"]) {
+      const res = await middleware(new NextRequest(`https://app.test${path}`));
+      expect(res.status).toBe(200);
+      expect(res.headers.get("location")).toBeNull();
+    }
+    const fr = await middleware(new NextRequest("https://app.test/fr"));
+    expect(fr.headers.get("x-middleware-request-x-next-intl-locale")).toBe("fr");
+  });
+
+  it("redirects the explicit default-language prefix to the bare URL", async () => {
+    const res = await middleware(new NextRequest("https://app.test/en"));
+    expect(res.status).toBe(307);
+    expect(res.headers.get("location")).toBe("https://app.test/");
+  });
+
+  it("leaves non-landing paths (even under a language prefix) to the normal flow", async () => {
+    mockUser = null;
+    const res = await middleware(new NextRequest("https://app.test/fr/dashboard"));
+    // Not a protected path as written, so it passes through untouched.
+    expect(res.headers.get("x-middleware-request-x-next-intl-locale")).toBeNull();
+  });
+});

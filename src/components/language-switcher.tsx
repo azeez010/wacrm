@@ -2,9 +2,11 @@
 
 import { useLocale, useTranslations } from 'next-intl'
 import { Check, ChevronDown } from 'lucide-react'
-import { LOCALES, LOCALE_NAMES, isLocale } from '@/i18n/locales'
+import { LOCALES, LOCALE_NAMES, isLocale, type Locale } from '@/i18n/locales'
 import { LocaleFlag } from '@/components/locale-flag'
 import { useSetLocale } from '@/hooks/use-set-locale'
+import { usePathname, useRouter } from '@/i18n/navigation'
+import { LOCALE_COOKIE } from '@/i18n/locales'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,12 +15,37 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { cn } from '@/lib/utils'
 
-/** Compact language picker (flag + name) for the landing page and auth screens. */
-export function LanguageSwitcher({ className }: { className?: string }) {
+/**
+ * Compact language picker (flag + name).
+ *
+ * `mode="path"` is for the localized public pages: it navigates to the same
+ * page under the other language's URL (so each language has its own
+ * indexable address) and also remembers the choice for the app.
+ * `mode="cookie"` (default) just stores the choice and refreshes in place.
+ */
+export function LanguageSwitcher({
+  className,
+  mode = 'cookie',
+}: {
+  className?: string
+  mode?: 'cookie' | 'path'
+}) {
   const raw = useLocale()
   const locale = isLocale(raw) ? raw : 'en'
-  const setLocale = useSetLocale()
+  const setCookieLocale = useSetLocale()
+  const router = useRouter()
+  const pathname = usePathname()
   const t = useTranslations('Language')
+
+  function setLocale(next: Locale) {
+    if (mode === 'path') {
+      if (next === locale) return
+      document.cookie = `${LOCALE_COOKIE}=${next}; path=/; max-age=31536000; samesite=lax`
+      router.replace(pathname, { locale: next })
+    } else {
+      setCookieLocale(next)
+    }
+  }
 
   return (
     <DropdownMenu>

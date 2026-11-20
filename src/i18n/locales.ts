@@ -28,3 +28,12 @@ export function defaultLocale(): Locale {
   const env = process.env.NEXT_PUBLIC_APP_LOCALE
   return isLocale(env) ? env : 'en'
 }
+
+/** hreflang codes for search engines (regional where our catalogue is regional). */
+export const HREFLANG: Record<Locale, string> = {
+  en: 'en',
+  fr: 'fr',
+  es: 'es',
+  pt: 'pt-BR',
+  ko: 'ko',
+}

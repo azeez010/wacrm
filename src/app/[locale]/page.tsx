@@ -2,18 +2,42 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { Check, X } from 'lucide-react'
+import { notFound } from 'next/navigation'
 import { getLocale, getTranslations } from 'next-intl/server'
 import { buttonVariants } from '@/components/ui/button'
 import { BrandLogo } from '@/components/brand-logo'
 import { LanguageSwitcher } from '@/components/language-switcher'
+import { HREFLANG, isLocale } from '@/i18n/locales'
+import { localizedAlternates, localizedUrl } from '@/lib/seo'
 import { cn } from '@/lib/utils'
 import { BRAND_NAME } from '@/lib/brand'
 import { getPublicPlans } from '@/lib/billing/public-plans'
 import { FEATURE_DEFS, type FeatureKey, type LimitKey, type PlanRow } from '@/lib/billing/plans'
 
-export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations('Landing')
-  return { title: t('metaTitle'), description: t('metaDescription') }
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>
+}): Promise<Metadata> {
+  const { locale } = await params
+  if (!isLocale(locale)) return {}
+  const t = await getTranslations({ locale, namespace: 'Landing' })
+  return {
+    title: { absolute: `${BRAND_NAME} — ${t('metaTitle')}` },
+    description: t('metaDescription'),
+    robots: { index: true, follow: true },
+    alternates: localizedAlternates(locale),
+    openGraph: {
+      type: 'website',
+      siteName: BRAND_NAME,
+      title: `${BRAND_NAME} — ${t('metaTitle')}`,
+      description: t('metaDescription'),
+      url: localizedUrl(locale),
+      locale: HREFLANG[locale].replace('-', '_'),
+      images: [{ url: '/android-chrome-512x512.png', width: 512, height: 512, alt: BRAND_NAME }],
+    },
+    twitter: { card: 'summary', title: `${BRAND_NAME} — ${t('metaTitle')}`, description: t('metaDescription') },
+  }
 }
 
 // Pricing comes from the DB; never cache an empty fallback.
@@ -124,10 +148,16 @@ function PlanCard({
 }
 
 export default async function LandingPage({
+  params,
   searchParams,
 }: {
+  params: Promise<{ locale: string }>
   searchParams: Promise<Record<string, string | string[] | undefined>>
 }) {
+  // `[locale]` also matches any unknown single-segment URL (/foo): only the
+  // languages we ship are valid.
+  if (!isLocale((await params).locale)) notFound()
+
   // Safety net: if Supabase falls back to the Site URL (redirect not on
   // its allow-list) the email link lands here with ?code=… - hand it to
   // the auth callback instead of showing the landing page.
@@ -150,7 +180,7 @@ export default async function LandingPage({
           <a href="#pricing" className={cn(buttonVariants({ variant: 'ghost' }), 'hidden sm:inline-flex')}>
             {t('nav.pricing')}
           </a>
-          <LanguageSwitcher />
+          <LanguageSwitcher mode="path" />
           <Link href="/login" className={buttonVariants({ variant: 'ghost' })}>
             {t('nav.login')}
           </Link>

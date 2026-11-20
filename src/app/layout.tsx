@@ -6,6 +6,7 @@ import Script from "next/script";
 import "./globals.css";
 import { ThemeProvider } from "@/hooks/use-theme";
 import { BRAND_NAME } from "@/lib/brand";
+import { SITE_URL } from "@/lib/seo";
 import { ThemedToaster } from "@/components/themed-toaster";
 import {
   DEFAULT_MODE,
@@ -30,6 +31,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: {
     default: BRAND_NAME,
     template: `%s - ${BRAND_NAME}`,

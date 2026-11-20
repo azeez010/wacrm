@@ -1,0 +1,12 @@
+# Upstream (ArnasDon/wacrm) commits already reviewed: cherry-picked or deliberately skipped.
+# One 7-char hash per line; text after a space or # is a note.
+0e335da # cherry-picked: manage tags in inbox contact sidebar
+59d9520 # cherry-picked: inbox contact panel breakpoint fix
+f118bbc # cherry-picked: keep Meta's reason for unsupported inbound messages (migration renumbered to 065)
+fd90e2b # skipped: dependency bump (run npm update instead)
+a14d67d # skipped: dependency bump
+39b9a97 # skipped: dependency bump
+98c0d6f # skipped: dependency bump
+2bd33e3 # already in this fork (Spanish catalogue)
+7917f02 # already in this fork (Portuguese catalogue)
+add8039 # already in this fork (Docker support)

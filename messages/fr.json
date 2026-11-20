@@ -518,7 +518,12 @@
       "deals": "Affaires",
       "noTags": "Aucune étiquette",
       "noDeals": "Aucune affaire",
-      "addNotePlaceholder": "Ajouter une note…"
+      "addNotePlaceholder": "Ajouter une note…",
+      "addTags": "Ajouter des étiquettes",
+      "availableTags": "Étiquettes disponibles",
+      "noAvailableTags": "Aucune étiquette n’a encore été créée.",
+      "removeTag": "Retirer {tag}",
+      "tagUpdateFailed": "Impossible de mettre à jour les étiquettes du contact."
     },
     "aiBanner": {
       "pausedTitle": "L'assistant IA est en pause ici",

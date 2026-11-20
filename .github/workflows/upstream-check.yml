@@ -1,0 +1,47 @@
+name: Upstream check
+
+# Weekly: look at the original open-source project and open (or refresh) one
+# issue listing commits this fork hasn't reviewed yet, so useful features and
+# fixes don't get missed. See scripts/upstream-check.sh.
+on:
+  schedule:
+    - cron: '0 7 * * 1' # Mondays 07:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  upstream:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: List unreviewed upstream commits
+        run: |
+          git remote add upstream https://github.com/ArnasDon/wacrm.git
+          UPSTREAM_REMOTE=upstream scripts/upstream-check.sh > upstream.md
+          echo "count=$(grep -c '^- \[ \]' upstream.md || true)" >> "$GITHUB_OUTPUT"
+        id: list
+
+      - name: Open or update the tracking issue
+        if: steps.list.outputs.count != '0'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          {
+            echo "Commits in [ArnasDon/wacrm](https://github.com/ArnasDon/wacrm) not yet reviewed here."
+            echo "Cherry-pick what you want (\`git cherry-pick -x <sha>\`), then add the hash to \`.github/upstream-reviewed.txt\`."
+            echo
+            cat upstream.md
+          } > body.md
+          gh label create upstream-sync --color 0e8a16 --description "Upstream commits to review" --force
+          num=$(gh issue list --label upstream-sync --state open --json number --jq '.[0].number // empty')
+          if [ -n "$num" ]; then
+            gh issue edit "$num" --body-file body.md
+          else
+            gh issue create --title "Upstream commits to review" --label upstream-sync --body-file body.md
+          fi

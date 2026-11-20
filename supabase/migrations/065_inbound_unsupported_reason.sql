@@ -1,5 +1,5 @@
 -- ============================================================
--- 060_inbound_unsupported_reason
+-- 065_inbound_unsupported_reason (upstream 060, renumbered)
 --
 -- Follow-up to 042. Meta hands over an inbound message as
 -- `type: 'unsupported'` when WhatsApp itself cannot represent what the

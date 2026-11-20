@@ -174,9 +174,9 @@ export default async function LandingPage({
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <header className="mx-auto flex max-w-6xl items-center justify-between px-4 py-5 sm:px-6">
+      <header className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-x-3 gap-y-3 px-4 py-5 sm:px-6">
         <BrandLogo className="text-lg" markClassName="h-9 w-9" />
-        <nav className="flex items-center gap-2">
+        <nav className="flex w-full flex-wrap items-center justify-between gap-2 sm:w-auto sm:justify-end">
           <a href="#pricing" className={cn(buttonVariants({ variant: 'ghost' }), 'hidden sm:inline-flex')}>
             {t('nav.pricing')}
           </a>

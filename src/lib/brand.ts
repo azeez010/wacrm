@@ -5,8 +5,8 @@ export const BRAND_NAME = 'OgaDesk'
 
 // Who operates the service, for the Privacy Policy and Terms. Override per
 // deployment with NEXT_PUBLIC_COMPANY_NAME / NEXT_PUBLIC_SUPPORT_EMAIL.
-export const COMPANY_NAME = process.env.NEXT_PUBLIC_COMPANY_NAME || 'Kena Solutions'
-export const SUPPORT_EMAIL = process.env.NEXT_PUBLIC_SUPPORT_EMAIL || 'kenaproduct@gmail.com'
+export const COMPANY_NAME = process.env.NEXT_PUBLIC_COMPANY_NAME || 'Dataslid Softwares'
+export const SUPPORT_EMAIL = process.env.NEXT_PUBLIC_SUPPORT_EMAIL || 'dataslid@gmail.com'
 
 // Bump when the Privacy Policy or Terms change materially.
 export const LEGAL_LAST_UPDATED = '20 November 2026'

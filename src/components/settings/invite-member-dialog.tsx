@@ -216,13 +216,10 @@ export function InviteMemberDialog({
                 </Button>
               </div>
 
-              {/* Higher-contrast amber than the original 10% / amber-200.
-                  Reviewed against slate-900 to meet WCAG AAA for body
-                  text (target ratio 7:1). Border bumped to /50, bg to
-                  /15, foreground promoted to amber-100 for the strong
-                  intro, amber-200 for the body. */}
-              <div className="rounded-md border border-amber-500/50 bg-amber-500/15 px-3 py-2 text-xs text-amber-200">
-                <strong className="font-semibold text-amber-100">
+              {/* Readable in both modes: dark amber text on the light tint,
+                  light amber text on the dark tint. */}
+              <div className="rounded-md border border-amber-500/50 bg-amber-500/15 px-3 py-2 text-xs text-amber-900 dark:text-amber-200">
+                <strong className="font-semibold text-amber-950 dark:text-amber-100">
                   {t('saveLinkNow')}
                 </strong>{' '}
                 {t('saveLinkHint')}

@@ -1971,7 +1971,8 @@
       "inbox": "Bandeja de entrada",
       "members": "Miembros del equipo",
       "api": "Claves de API",
-      "mcp": "Claude (MCP)"
+      "mcp": "Claude (MCP)",
+      "language": "Idioma"
     },
     "groups": {
       "account": "Cuenta",
@@ -2040,8 +2041,7 @@
       "active": "Activo",
       "accentColor": "Color de acento",
       "useTheme": "Usar el tema {name}",
-      "themeId": "ID del tema: {id}",
-      "language": "Idioma"
+      "themeId": "ID del tema: {id}"
     },
     "security": {
       "title": "Acceso y seguridad",
@@ -2073,7 +2073,7 @@
     },
     "apiKeys": {
       "title": "Claves de API",
-      "description": "Las claves autentican la API REST pública (<apiCode>/api/v1</apiCode>) para que construyas tus propias automatizaciones. Envíalas como <headerCode>Authorization: Bearer &lt;key&gt;</headerCode>.",
+      "description": "Las claves autentican la API REST pública (<apiCode>/api/v1</apiCode>) para que construyas tus propias automatizaciones. Envíalas como <headerCode>Authorization: Bearer TU_CLAVE_API</headerCode>.",
       "newApiKey": "Nueva clave de API",
       "noApiKeys": "Aún no hay claves de API.",
       "createOneHint": "Haz clic en <bold>Nueva clave de API</bold> para crear una.",
@@ -2309,6 +2309,11 @@
         "custom_connection": "Trae tu propia app de Meta",
         "priority_support": "Soporte prioritario"
       }
+    },
+    "language": {
+      "title": "Idioma",
+      "description": "Elige el idioma en que se muestra la aplicación. Se guarda en este dispositivo y se aplica al instante.",
+      "active": "Activo"
     }
   },
   "SignupPage": {

@@ -248,7 +248,7 @@ export function ApiKeysSettings() {
                           size="sm"
                           onClick={() => handleRevoke(k)}
                           disabled={revoking === k.id}
-                          className="self-start border-red-500/40 bg-red-500/10 text-red-300 hover:border-red-500/60 hover:bg-red-500/20 hover:text-red-200 sm:self-auto"
+                          className="self-start border-red-500/40 bg-red-500/10 text-red-700 dark:text-red-300 hover:border-red-500/60 hover:bg-red-500/20 hover:text-red-700 dark:hover:text-red-200 sm:self-auto"
                         >
                           {revoking === k.id ? (
                             <Loader2 className="size-4 animate-spin" />
@@ -355,7 +355,7 @@ function CreateKeyDialog({
         onOpenChange(next);
       }}
     >
-      <DialogContent className="border-border bg-popover sm:max-w-md">
+      <DialogContent className="border-border bg-popover max-h-[calc(100dvh-2rem)] grid-rows-[auto_minmax(0,1fr)_auto] sm:max-w-md">
         {createdKey ? (
           <>
             <DialogHeader>
@@ -405,7 +405,9 @@ function CreateKeyDialog({
               </DialogDescription>
             </DialogHeader>
 
-            <div className="space-y-4">
+            {/* Only this middle section scrolls, so the title and the
+                Cancel / Create buttons stay visible on short screens. */}
+            <div className="-m-1 space-y-4 overflow-y-auto p-1">
               <div className="space-y-1.5">
                 <Label htmlFor="api-key-name" className="text-muted-foreground">
                   {t('nameLabel')}

@@ -1,8 +1,7 @@
 "use client";
 
-import { Check, Globe, Moon, Palette, SunMoon, Sun } from "lucide-react";
+import { Check, Moon, Palette, SunMoon, Sun } from "lucide-react";
 
-import { LanguageSwitcher } from "@/components/language-switcher";
 import { useTheme } from "@/hooks/use-theme";
 import { MODES, THEMES, type Mode, type ThemeId } from "@/lib/themes";
 import { cn } from "@/lib/utils";
@@ -33,14 +32,6 @@ export function AppearancePanel() {
       />
 
       <div className="space-y-4">
-        <h3 className="flex items-center gap-2 text-sm font-semibold text-foreground">
-          <Globe className="size-4 text-muted-foreground" />
-          {t("language")}
-        </h3>
-        <LanguageSwitcher />
-      </div>
-
-      <div className="mt-8 space-y-4">
         <h3 className="flex items-center gap-2 text-sm font-semibold text-foreground">
           <SunMoon className="size-4 text-muted-foreground" />
           {t("mode")}

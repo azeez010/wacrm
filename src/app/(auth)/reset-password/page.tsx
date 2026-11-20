@@ -29,7 +29,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { CheckCircle, KeyRound, Loader2, MailX } from "lucide-react";
+import { Loader2 } from "lucide-react";
+import { BrandMark } from "@/components/brand-logo";
 
 type Status = "checking" | "ready" | "expired" | "done";
 
@@ -96,9 +97,7 @@ export default function ResetPasswordPage() {
       <div className="flex min-h-screen items-center justify-center bg-background px-4">
         <Card className="w-full max-w-md border-border bg-card">
           <CardHeader className="items-center text-center">
-            <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-xl bg-amber-500/10">
-              <MailX className="h-6 w-6 text-amber-400" />
-            </div>
+            <BrandMark className="mb-2" />
             <CardTitle className="text-xl text-foreground">
               {t("expiredTitle")}
             </CardTitle>
@@ -131,9 +130,7 @@ export default function ResetPasswordPage() {
       <div className="flex min-h-screen items-center justify-center bg-background px-4">
         <Card className="w-full max-w-md border-border bg-card">
           <CardHeader className="items-center text-center">
-            <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
-              <CheckCircle className="h-6 w-6 text-primary" />
-            </div>
+            <BrandMark className="mb-2" />
             <CardTitle className="text-xl text-foreground">
               {t("successTitle")}
             </CardTitle>
@@ -165,9 +162,7 @@ export default function ResetPasswordPage() {
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <Card className="w-full max-w-md border-border bg-card">
         <CardHeader className="items-center text-center">
-          <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
-            <KeyRound className="h-6 w-6 text-primary" />
-          </div>
+          <BrandMark className="mb-2" />
           <CardTitle className="text-xl text-foreground">{t("title")}</CardTitle>
           <CardDescription className="text-muted-foreground">
             {t("desc")}

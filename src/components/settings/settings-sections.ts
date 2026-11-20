@@ -1,6 +1,7 @@
 import {
   Coins,
   CreditCard,
+  Globe,
   FileText,
   Inbox,
   Bot,
@@ -30,6 +31,7 @@ export const SETTINGS_SECTIONS = [
   'billing',
   'security',
   'appearance',
+  'language',
   'whatsapp',
   'templates',
   'quick-replies',
@@ -59,6 +61,7 @@ export const SECTION_META: Record<SettingsSection, SectionMeta> = {
   billing: { id: 'billing', label: 'Billing & plan', icon: CreditCard, group: 'account' },
   security: { id: 'security', label: 'Login & security', icon: Shield, group: 'account' },
   appearance: { id: 'appearance', label: 'Appearance', icon: Palette, group: 'account' },
+  language: { id: 'language', label: 'Language', icon: Globe, group: 'account' },
   whatsapp: { id: 'whatsapp', label: 'WhatsApp', icon: PlugZap, group: 'workspace' },
   templates: { id: 'templates', label: 'Templates', icon: FileText, group: 'workspace' },
   'quick-replies': { id: 'quick-replies', label: 'Quick replies', icon: Zap, group: 'workspace' },

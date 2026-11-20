@@ -554,10 +554,10 @@ export function WhatsAppConfig() {
             <div className="flex items-start gap-3">
               <AlertTriangle className="size-5 text-amber-400 mt-0.5 shrink-0" />
               <div className="flex-1">
-                <AlertTitle className="text-amber-200 mb-1">
+                <AlertTitle className="text-amber-700 dark:text-amber-200 mb-1">
                   {t('tokenCorrupted')}
                 </AlertTitle>
-                <AlertDescription className="text-amber-100/80 text-sm">
+                <AlertDescription className="text-amber-700 dark:text-amber-100/80 text-sm">
                   {statusMessage}
                 </AlertDescription>
                 <Button
@@ -589,8 +589,8 @@ export function WhatsAppConfig() {
             <div className="flex items-start gap-3">
               <XCircle className="size-5 text-red-400 mt-0.5 shrink-0" />
               <div className="flex-1 min-w-0">
-                <AlertTitle className="text-red-200 mb-1">{t('lastSaveFailed')}</AlertTitle>
-                <AlertDescription className="text-red-100/80 text-sm">
+                <AlertTitle className="text-red-700 dark:text-red-200 mb-1">{t('lastSaveFailed')}</AlertTitle>
+                <AlertDescription className="text-red-700 dark:text-red-100/80 text-sm">
                   {saveFailure.message}
                 </AlertDescription>
                 {saveFailure.meta && renderMetaDetails(saveFailure.meta)}
@@ -622,7 +622,7 @@ export function WhatsAppConfig() {
               className={
                 'mt-1 text-xs ' +
                 (wabaSubscription.subscribed === false
-                  ? 'text-amber-300'
+                  ? 'text-amber-700 dark:text-amber-300'
                   : 'text-muted-foreground')
               }
             >
@@ -658,7 +658,7 @@ export function WhatsAppConfig() {
                 )}
                 <AlertTitle
                   className={
-                    'mb-0 ' + (isRegistered ? 'text-emerald-200' : 'text-amber-200')
+                    'mb-0 ' + (isRegistered ? 'text-emerald-700 dark:text-emerald-200' : 'text-amber-700 dark:text-amber-200')
                   }
                 >
                   {isRegistered
@@ -695,7 +695,7 @@ export function WhatsAppConfig() {
               ) : lastRegistrationError ? (
                 <>
                   {t('lastAttemptFailed')}
-                  <span className="text-red-300">
+                  <span className="text-red-700 dark:text-red-300">
                     &quot;{lastRegistrationError}&quot;
                   </span>
                   . {t('retryHint')}
@@ -728,7 +728,7 @@ export function WhatsAppConfig() {
                   ))}
                 </ul>
                 {(registrationProbe.errors ?? []).length > 0 && (
-                  <ul className="pt-1 space-y-0.5 text-red-300">
+                  <ul className="pt-1 space-y-0.5 text-red-700 dark:text-red-300">
                     {registrationProbe.errors?.map((e, i) => (
                       <li key={i}>• {e}</li>
                     ))}
@@ -955,7 +955,7 @@ export function WhatsAppConfig() {
               variant="outline"
               onClick={handleReset}
               disabled={resetting}
-              className="border-red-900 text-red-400 hover:text-red-300 hover:bg-red-950/40"
+              className="border-red-900 text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-950/40"
             >
               {resetting ? (
                 <>

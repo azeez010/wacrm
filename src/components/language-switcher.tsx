@@ -1,42 +1,55 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
 import { useLocale, useTranslations } from 'next-intl'
-import { Globe } from 'lucide-react'
-import { LOCALES, LOCALE_COOKIE, LOCALE_NAMES, isLocale } from '@/i18n/locales'
+import { Check, ChevronDown } from 'lucide-react'
+import { LOCALES, LOCALE_NAMES, isLocale } from '@/i18n/locales'
+import { LocaleFlag } from '@/components/locale-flag'
+import { useSetLocale } from '@/hooks/use-set-locale'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { cn } from '@/lib/utils'
 
-/**
- * Picks the UI language. The choice is stored in a cookie so the server
- * can render the right catalogue on the next request, then the page is
- * refreshed in place (no navigation, no lost scroll position).
- */
+/** Compact language picker (flag + name) for the landing page and auth screens. */
 export function LanguageSwitcher({ className }: { className?: string }) {
-  const locale = useLocale()
-  const router = useRouter()
+  const raw = useLocale()
+  const locale = isLocale(raw) ? raw : 'en'
+  const setLocale = useSetLocale()
   const t = useTranslations('Language')
 
-  function onChange(next: string) {
-    if (!isLocale(next) || next === locale) return
-    document.cookie = `${LOCALE_COOKIE}=${next}; path=/; max-age=31536000; samesite=lax`
-    router.refresh()
-  }
-
   return (
-    <label className={cn('relative inline-flex items-center', className)}>
-      <span className="sr-only">{t('label')}</span>
-      <Globe aria-hidden className="pointer-events-none absolute left-2.5 size-4 text-muted-foreground" />
-      <select
-        value={locale}
-        onChange={(e) => onChange(e.target.value)}
-        className="h-9 cursor-pointer appearance-none rounded-lg border bg-background pl-8 pr-3 text-sm text-foreground outline-none transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring"
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        aria-label={t('label')}
+        className={cn(
+          'inline-flex h-9 items-center gap-2 rounded-lg border bg-background px-3 text-sm text-foreground outline-none transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring data-popup-open:bg-muted',
+          className,
+        )}
+      >
+        <LocaleFlag locale={locale} />
+        <span>{LOCALE_NAMES[locale]}</span>
+        <ChevronDown aria-hidden className="size-3.5 text-muted-foreground" />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent
+        align="end"
+        sideOffset={6}
+        className="min-w-44 bg-popover text-popover-foreground ring-border"
       >
         {LOCALES.map((code) => (
-          <option key={code} value={code}>
-            {LOCALE_NAMES[code]}
-          </option>
+          <DropdownMenuItem
+            key={code}
+            onClick={() => setLocale(code)}
+            className="gap-2.5"
+          >
+            <LocaleFlag locale={code} />
+            <span className="flex-1">{LOCALE_NAMES[code]}</span>
+            {code === locale && <Check aria-hidden className="size-4" />}
+          </DropdownMenuItem>
         ))}
-      </select>
-    </label>
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 }

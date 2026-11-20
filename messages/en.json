@@ -1971,7 +1971,8 @@
       "inbox": "Inbox",
       "members": "Team members",
       "api": "API keys",
-      "mcp": "Claude (MCP)"
+      "mcp": "Claude (MCP)",
+      "language": "Language"
     },
     "groups": {
       "account": "Account",
@@ -2040,8 +2041,7 @@
       "active": "Active",
       "accentColor": "Accent color",
       "useTheme": "Use {name} theme",
-      "themeId": "Theme id: {id}",
-      "language": "Language"
+      "themeId": "Theme id: {id}"
     },
     "security": {
       "title": "Login & security",
@@ -2073,7 +2073,7 @@
     },
     "apiKeys": {
       "title": "API keys",
-      "description": "Keys authenticate the public REST API (<apiCode>/api/v1</apiCode>) so you can build your own automations. Send them as <headerCode>Authorization: Bearer &lt;key&gt;</headerCode>.",
+      "description": "Keys authenticate the public REST API (<apiCode>/api/v1</apiCode>) so you can build your own automations. Send them as <headerCode>Authorization: Bearer YOUR_API_KEY</headerCode>.",
       "newApiKey": "New API key",
       "noApiKeys": "No API keys yet.",
       "createOneHint": "Click <bold>New API key</bold> to create one.",
@@ -2309,6 +2309,11 @@
         "custom_connection": "Bring your own Meta app",
         "priority_support": "Priority support"
       }
+    },
+    "language": {
+      "title": "Language",
+      "description": "Choose the language the app is shown in. Saved on this device and applied right away.",
+      "active": "Active"
     }
   },
   "SignupPage": {

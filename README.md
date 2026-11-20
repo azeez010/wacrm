@@ -90,8 +90,8 @@ npm run dev
 Open <http://localhost:3000>. You'll be redirected to `/login` (or
 `/dashboard` if already signed in).
 
-The UI ships in English, Korean, Brazilian Portuguese and Spanish — set
-`NEXT_PUBLIC_APP_LOCALE` to `en`, `ko`, `pt` or `es` in `.env.local`
+The UI ships in English, French, Korean, Brazilian Portuguese and Spanish — set
+`NEXT_PUBLIC_APP_LOCALE` to `en`, `fr`, `ko`, `pt` or `es` in `.env.local`
 (catalogues live in `messages/`).
 
 Prefer containers? See [docs/docker.md](./docs/docker.md) for the

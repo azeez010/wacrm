@@ -1,0 +1,20 @@
+{
+  "name": "OgaDesk",
+  "short_name": "OgaDesk",
+  "description": "One desk. Every conversation.",
+  "icons": [
+    {
+      "src": "/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "theme_color": "#104D3C",
+  "background_color": "#FFFFFF",
+  "display": "standalone"
+}

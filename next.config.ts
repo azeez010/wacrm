@@ -69,7 +69,7 @@ const SECURITY_HEADERS = [
   },
 ] as const;
 
-const APP_LOCALE = ["en", "pt", "es", "ko"].includes(process.env.NEXT_PUBLIC_APP_LOCALE ?? "")
+const APP_LOCALE = ["en", "pt", "es", "ko", "fr"].includes(process.env.NEXT_PUBLIC_APP_LOCALE ?? "")
   ? (process.env.NEXT_PUBLIC_APP_LOCALE as string)
   : "en";
 

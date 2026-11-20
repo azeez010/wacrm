@@ -2,15 +2,18 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { Check, X } from 'lucide-react'
+import { getLocale, getTranslations } from 'next-intl/server'
 import { buttonVariants } from '@/components/ui/button'
+import { BrandLogo } from '@/components/brand-logo'
+import { LanguageSwitcher } from '@/components/language-switcher'
 import { cn } from '@/lib/utils'
+import { BRAND_NAME } from '@/lib/brand'
 import { getPublicPlans } from '@/lib/billing/public-plans'
-import { FEATURE_DEFS, LIMIT_DEFS, type LimitKey, type PlanRow } from '@/lib/billing/plans'
+import { FEATURE_DEFS, type FeatureKey, type LimitKey, type PlanRow } from '@/lib/billing/plans'
 
-export const metadata: Metadata = {
-  title: 'WhatsApp CRM for growing teams',
-  description:
-    'Shared inbox, broadcasts, automations and chatbot flows on the official WhatsApp Business API. Connect a new number or keep your existing app.',
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('Landing')
+  return { title: t('metaTitle'), description: t('metaDescription') }
 }
 
 // Pricing comes from the DB; never cache an empty fallback.
@@ -26,22 +29,35 @@ const HEADLINE_LIMITS: LimitKey[] = [
   'ai_replies_per_month',
 ]
 
-function money(amount: number, currency: string) {
-  if (amount === 0) return 'Free'
-  return new Intl.NumberFormat('en-NG', {
+type Translate = (key: string, values?: Record<string, string | number>) => string
+
+function money(amount: number, currency: string, locale: string, free: string) {
+  if (amount === 0) return free
+  return new Intl.NumberFormat(locale, {
     style: 'currency',
     currency,
     maximumFractionDigits: 0,
   }).format(amount)
 }
 
-function limitText(v: number | null | undefined) {
-  if (v === null) return 'Unlimited'
+function limitText(v: number | null | undefined, locale: string, unlimited: string) {
+  if (v === null) return unlimited
   if (v === undefined) return '-'
-  return v.toLocaleString('en-US')
+  return v.toLocaleString(locale)
 }
 
-function PlanCard({ plan }: { plan: PlanRow }) {
+function PlanCard({
+  plan,
+  locale,
+  t,
+  tb,
+}: {
+  plan: PlanRow
+  locale: string
+  t: Translate
+  tb: Translate
+}) {
+  const price = (amount: number) => money(amount, plan.currency, locale, t('pricing.free'))
   return (
     <div
       className={cn(
@@ -53,18 +69,20 @@ function PlanCard({ plan }: { plan: PlanRow }) {
         <h3 className="text-lg font-semibold">{plan.name}</h3>
         {plan.is_featured && (
           <span className="rounded-full bg-primary px-2.5 py-0.5 text-xs font-medium text-primary-foreground">
-            Most popular
+            {t('pricing.mostPopular')}
           </span>
         )}
       </div>
       <p className="mt-1 min-h-10 text-sm text-muted-foreground">{plan.description}</p>
       <p className="mt-4">
-        <span className="text-3xl font-bold">{money(plan.price_monthly, plan.currency)}</span>
-        {plan.price_monthly > 0 && <span className="text-sm text-muted-foreground"> / month</span>}
+        <span className="text-3xl font-bold">{price(plan.price_monthly)}</span>
+        {plan.price_monthly > 0 && (
+          <span className="text-sm text-muted-foreground"> {t('pricing.perMonth')}</span>
+        )}
       </p>
       {plan.price_annual > 0 && (
         <p className="text-xs text-muted-foreground">
-          or {money(plan.price_annual, plan.currency)} billed yearly
+          {t('pricing.yearly', { price: price(plan.price_annual) })}
         </p>
       )}
       <Link
@@ -74,18 +92,20 @@ function PlanCard({ plan }: { plan: PlanRow }) {
           'mt-5 w-full',
         )}
       >
-        {plan.price_monthly === 0 ? 'Start free' : `Get ${plan.name}`}
+        {plan.price_monthly === 0 ? t('pricing.startFree') : t('pricing.getPlan', { plan: plan.name })}
       </Link>
       <ul className="mt-6 space-y-2 text-sm">
         {HEADLINE_LIMITS.map((k) => (
           <li key={k} className="flex justify-between gap-2">
-            <span className="text-muted-foreground">{LIMIT_DEFS[k]}</span>
-            <span className="font-medium">{limitText(plan.limits[k])}</span>
+            <span className="text-muted-foreground">{tb(`limits.${k}`)}</span>
+            <span className="font-medium">
+              {limitText(plan.limits[k], locale, t('pricing.unlimited'))}
+            </span>
           </li>
         ))}
       </ul>
       <ul className="mt-5 space-y-2 border-t pt-5 text-sm">
-        {(Object.keys(FEATURE_DEFS) as (keyof typeof FEATURE_DEFS)[]).map((f) => {
+        {(Object.keys(FEATURE_DEFS) as FeatureKey[]).map((f) => {
           const on = plan.features[f] === true
           return (
             <li key={f} className={cn('flex items-start gap-2', !on && 'text-muted-foreground/60')}>
@@ -94,7 +114,7 @@ function PlanCard({ plan }: { plan: PlanRow }) {
               ) : (
                 <X className="mt-0.5 size-4 shrink-0" />
               )}
-              {FEATURE_DEFS[f]}
+              {tb(`features.${f}`)}
             </li>
           )
         })}
@@ -115,21 +135,27 @@ export default async function LandingPage({
   const code = typeof sp.code === 'string' ? sp.code : null
   if (code) redirect(`/auth/callback?code=${encodeURIComponent(code)}`)
 
-  const plans = await getPublicPlans()
+  const [plans, locale, t, tb] = await Promise.all([
+    getPublicPlans(),
+    getLocale(),
+    getTranslations('Landing'),
+    getTranslations('Settings.billing'),
+  ])
 
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="mx-auto flex max-w-6xl items-center justify-between px-4 py-5 sm:px-6">
-        <span className="text-lg font-semibold">WACRM</span>
+        <BrandLogo className="text-lg" markClassName="h-9 w-9" />
         <nav className="flex items-center gap-2">
-          <a href="#pricing" className={buttonVariants({ variant: 'ghost' })}>
-            Pricing
+          <a href="#pricing" className={cn(buttonVariants({ variant: 'ghost' }), 'hidden sm:inline-flex')}>
+            {t('nav.pricing')}
           </a>
+          <LanguageSwitcher />
           <Link href="/login" className={buttonVariants({ variant: 'ghost' })}>
-            Log in
+            {t('nav.login')}
           </Link>
           <Link href="/signup" className={buttonVariants()}>
-            Get started
+            {t('nav.getStarted')}
           </Link>
         </nav>
       </header>
@@ -137,49 +163,41 @@ export default async function LandingPage({
       <main>
         <section className="mx-auto max-w-4xl px-4 py-16 text-center sm:px-6 sm:py-24">
           <h1 className="text-4xl font-bold tracking-tight sm:text-6xl">
-            Run your whole business on WhatsApp
+            {t('hero.title')}
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground">
-            A shared team inbox, broadcasts, automations and chatbot flows on the official WhatsApp
-            Business API. Sign up with Meta in a few clicks, get a new number, or keep using the
-            one on your WhatsApp Business app.
+            {t('hero.subtitle')}
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             <Link href="/signup" className={cn(buttonVariants({ size: 'lg' }))}>
-              Start free
+              {t('hero.startFree')}
             </Link>
             <a href="#pricing" className={cn(buttonVariants({ size: 'lg', variant: 'outline' }))}>
-              See pricing
+              {t('hero.seePricing')}
             </a>
           </div>
         </section>
 
         <section className="mx-auto grid max-w-6xl gap-4 px-4 pb-16 sm:grid-cols-3 sm:px-6">
-          {[
-            ['Connect in minutes', 'Embedded Signup with Meta, no developer account needed. Or bring your own Meta app.'],
-            ['Keep your existing number', 'Link your WhatsApp Business app and import your chat history.'],
-            ['Built for teams', 'Multiple numbers, roles, a shared inbox and a public API.'],
-          ].map(([title, body]) => (
-            <div key={title} className="rounded-2xl border bg-card p-6">
-              <h3 className="font-semibold">{title}</h3>
-              <p className="mt-2 text-sm text-muted-foreground">{body}</p>
+          {(['f1', 'f2', 'f3'] as const).map((f) => (
+            <div key={f} className="rounded-2xl border bg-card p-6">
+              <h3 className="font-semibold">{t(`features.${f}Title`)}</h3>
+              <p className="mt-2 text-sm text-muted-foreground">{t(`features.${f}Body`)}</p>
             </div>
           ))}
         </section>
 
         <section id="pricing" className="mx-auto max-w-6xl px-4 pb-24 sm:px-6">
-          <h2 className="text-center text-3xl font-bold">Simple pricing</h2>
-          <p className="mt-2 text-center text-muted-foreground">
-            Start free. Upgrade when you outgrow it.
-          </p>
+          <h2 className="text-center text-3xl font-bold">{t('pricing.title')}</h2>
+          <p className="mt-2 text-center text-muted-foreground">{t('pricing.subtitle')}</p>
           {plans.length === 0 ? (
             <p className="mt-10 text-center text-muted-foreground">
-              Pricing is unavailable right now, please check back shortly.
+              {t('pricing.unavailable')}
             </p>
           ) : (
             <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {plans.map((p) => (
-                <PlanCard key={p.id} plan={p} />
+                <PlanCard key={p.id} plan={p} locale={locale} t={t} tb={tb} />
               ))}
             </div>
           )}
@@ -187,9 +205,9 @@ export default async function LandingPage({
       </main>
 
       <footer className="border-t py-8 text-center text-sm text-muted-foreground">
-        © {new Date().getFullYear()} WACRM ·{' '}
+        © {new Date().getFullYear()} {BRAND_NAME} ·{' '}
         <Link href="/login" className="underline">
-          Log in
+          {t('footer.login')}
         </Link>
       </footer>
     </div>

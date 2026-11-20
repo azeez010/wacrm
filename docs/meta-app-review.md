@@ -2,7 +2,7 @@
 
 What to prepare and paste into the Meta developer dashboard so OgaDesk can be approved
 to onboard other businesses through **Embedded Signup** (new number) and **coexistence**
-(existing WhatsApp Business app number). Replace `https://wacrm.dataslid.com.ng` with
+(existing WhatsApp Business app number). Replace `https://ogadesk.dataslid.com.ng` with
 your production domain if it changes — every URL below hangs off it.
 
 > Meta's dashboard and review rules change. Treat this as a checklist of what reviewers
@@ -21,17 +21,17 @@ verification carries over, but the new app still needs its own App Review.
 | --- | --- |
 | Display name | OgaDesk |
 | App icon (1024×1024) | `OgaDesk_Green_Brand_Kit/02_Favicons_App/ogadesk-app-icon-1024.png` |
-| Privacy Policy URL | `https://wacrm.dataslid.com.ng/privacy` |
-| Terms of Service URL | `https://wacrm.dataslid.com.ng/terms` |
-| User data deletion | **Data deletion callback URL:** `https://wacrm.dataslid.com.ng/api/meta/data-deletion` (alternatively an instructions URL: `https://wacrm.dataslid.com.ng/data-deletion`) |
+| Privacy Policy URL | `https://ogadesk.dataslid.com.ng/privacy` |
+| Terms of Service URL | `https://ogadesk.dataslid.com.ng/terms` |
+| User data deletion | **Data deletion callback URL:** `https://ogadesk.dataslid.com.ng/api/meta/data-deletion` (alternatively an instructions URL: `https://wacrm.dataslid.com.ng/data-deletion`) |
 | App domains | `wacrm.dataslid.com.ng` |
 | Category | Business and pages |
 | Contact email | the support address shown on the policy pages |
 
 Facebook Login for Business / Login settings:
 
-- **Deauthorize callback URL:** `https://wacrm.dataslid.com.ng/api/meta/deauthorize`
-- **Allowed domains for the JavaScript SDK:** `https://wacrm.dataslid.com.ng`
+- **Deauthorize callback URL:** `https://ogadesk.dataslid.com.ng/api/meta/deauthorize`
+- **Allowed domains for the JavaScript SDK:** `https://ogadesk.dataslid.com.ng`
 - Valid OAuth redirect URIs: not needed for the JS-SDK popup flow, add the domain if the dashboard asks.
 
 Both callbacks verify Meta's `signed_request` with `META_APP_SECRET` (set it to the **new**
@@ -41,7 +41,7 @@ The `data_deletion_requests` table comes from migration `064`.
 
 ## 2. WhatsApp product setup
 
-- **Webhook callback URL:** `https://wacrm.dataslid.com.ng/api/whatsapp/webhook`
+- **Webhook callback URL:** `https://ogadesk.dataslid.com.ng/api/whatsapp/webhook`
 - **Verify token:** the value of `META_WHATSAPP_WEBHOOK_VERIFY_TOKEN`
 - **Subscribe to fields:** `messages`, `message_template_status_update`, `smb_message_echoes`,
   `smb_app_state_sync`, `history`

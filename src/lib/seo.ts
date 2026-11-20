@@ -3,7 +3,7 @@ import { HREFLANG, LOCALES, type Locale } from '@/i18n/locales'
 import { routing } from '@/i18n/routing'
 
 /** Public origin used for canonical URLs, hreflang and the sitemap. */
-export const SITE_URL = (process.env.NEXT_PUBLIC_APP_URL || 'https://wacrm.dataslid.com.ng').replace(/\/+$/, '')
+export const SITE_URL = (process.env.NEXT_PUBLIC_APP_URL || 'https://ogadesk.dataslid.com.ng').replace(/\/+$/, '')
 
 /** Path of a localized public page: the default language is unprefixed. */
 export function localizedPath(locale: Locale, path = '/'): string {

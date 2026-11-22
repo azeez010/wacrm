@@ -58,7 +58,7 @@ import { ImportModal } from '@/components/contacts/import-modal';
 import { CustomFieldsManager } from '@/components/contacts/custom-fields-manager';
 import { useCan } from '@/hooks/use-can';
 import { GatedButton } from '@/components/ui/gated-button';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import {
   contactSearchFilter,
   contactSearchPattern,
@@ -152,6 +152,7 @@ export default function ContactsPage() {
 function ContactsPageInner() {
   const searchParams = useSearchParams();
   const t = useTranslations('Contacts.page');
+  const locale = useLocale();
   const tGate = useTranslations('GatedButton');
   const supabase = createClient();
   const canEdit = useCan('send-messages');
@@ -1422,7 +1423,7 @@ function ContactsPageInner() {
                   })}
                   {isShown('created') && (
                   <TableCell className={`text-muted-foreground text-xs hidden ${customCount > 0 ? 'xl:table-cell' : 'lg:table-cell'}`}>
-                    {new Date(contact.created_at).toLocaleDateString('en-US', {
+                    {new Date(contact.created_at).toLocaleDateString(locale, {
                       month: 'short',
                       day: 'numeric',
                       year: 'numeric',

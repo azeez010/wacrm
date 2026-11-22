@@ -4,7 +4,10 @@ const auth = vi.hoisted(() => ({ mode: 'ok' as 'ok' | 'bad' | 'locked' }))
 
 vi.mock('@/lib/auth/api-context', async () => {
   const { ApiError } = await import('@/lib/api/v1/respond')
+  const actual = await vi.importActual<typeof import('@/lib/auth/api-context')>('@/lib/auth/api-context')
   return {
+    // The real header parsing (Bearer or X-API-Key); only the key lookup is faked.
+    extractKey: actual.extractKey,
     requireApiKey: vi.fn(async () => {
       if (auth.mode === 'bad') throw new ApiError('unauthorized', 'Invalid API key', 401)
       return { supabase: {}, accountId: 'a1', keyId: 'k1', scopes: ['contacts:read'], createdBy: null, authType: 'api_key' }

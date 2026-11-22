@@ -45,6 +45,7 @@ import { planTypedValueWrites } from '@/lib/custom-fields/value-writes';
 import type { FieldDef } from '@/lib/custom-fields/types';
 import { CustomFieldInput } from '@/components/custom-fields/custom-field-input';
 import { BulkDealDialog } from '@/components/contacts/bulk-deal-dialog';
+import { ContactSourceCard } from '@/components/contacts/contact-source-card';
 import { BulkBlockDialog } from '@/components/contacts/bulk-block-dialog';
 import { ContactTagEditor } from '@/components/contacts/contact-tag-editor';
 import { contactHandle } from '@/lib/whatsapp/wa-identity';
@@ -585,6 +586,7 @@ export function ContactDetailView({
                     )}
                     {t('saveChangesBtn')}
                   </Button>
+                  <ContactSourceCard contact={contact} />
                 </div>
               </TabsContent>
 

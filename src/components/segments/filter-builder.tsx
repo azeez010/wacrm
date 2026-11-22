@@ -35,7 +35,19 @@ import {
   type FilterRule,
 } from '@/lib/segments/types';
 
-const BUILTIN_FIELDS = ['name', 'phone', 'email', 'company', 'tags', 'created_at', 'blocked'] as const;
+const BUILTIN_FIELDS = [
+  'name',
+  'phone',
+  'email',
+  'company',
+  'tags',
+  'created_at',
+  'blocked',
+  'lead_source',
+  'utm_source',
+  'utm_medium',
+  'utm_campaign',
+] as const;
 
 interface FilterBuilderProps {
   value: FilterGroup;

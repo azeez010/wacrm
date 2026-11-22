@@ -30,7 +30,7 @@ const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
  * exception: the API reference at /docs loads the Scalar bundle from jsDelivr,
  * so only that route (never the app) is allowed to.
  */
-function cspHeader(docs = false) {
+function cspHeader(docs = false, embeddable = false) {
   return {
     key: "Content-Security-Policy-Report-Only",
     value: [
@@ -52,20 +52,21 @@ function cspHeader(docs = false) {
       // Supabase REST + realtime (WSS). All Meta API calls happen
       // server-side, so graph.facebook.com does not belong here.
       "connect-src 'self' https://*.supabase.co wss://*.supabase.co",
-      "frame-ancestors 'none'",
+      // Public lead forms (/f, /embed) are meant to be iframed on customer sites.
+      embeddable ? "frame-ancestors *" : "frame-ancestors 'none'",
       "base-uri 'self'",
       "form-action 'self'",
     ].join("; "),
   };
 }
 
-const SECURITY_HEADERS = [
+/** Everything except framing rules, shared by the app and the embeddable pages. */
+const SECURITY_HEADERS_BASE = [
   {
     key: "Strict-Transport-Security",
     value: "max-age=63072000; includeSubDomains; preload",
   },
   { key: "X-Content-Type-Options", value: "nosniff" },
-  { key: "X-Frame-Options", value: "DENY" },
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
   {
     // Microphone is allowed for same-origin (`self`) so the inbox
@@ -76,6 +77,8 @@ const SECURITY_HEADERS = [
     value: "camera=(), microphone=(self), geolocation=(), payment=(), usb=()",
   },
 ] as const;
+
+const SECURITY_HEADERS = [...SECURITY_HEADERS_BASE, { key: "X-Frame-Options", value: "DENY" }] as const;
 
 const APP_LOCALE = ["en", "pt", "es", "ko", "fr"].includes(process.env.NEXT_PUBLIC_APP_LOCALE ?? "")
   ? (process.env.NEXT_PUBLIC_APP_LOCALE as string)
@@ -157,7 +160,7 @@ const nextConfig: NextConfig = {
         headers: [{ key: "Cache-Control", value: "no-store" }],
       },
       {
-        source: "/:path((?!_next/static|_next/image|api).*)",
+        source: "/:path((?!_next/static|_next/image|api|f/|embed/|embed\\.js).*)",
         headers: [
           {
             key: "Cache-Control",
@@ -167,8 +170,25 @@ const nextConfig: NextConfig = {
       },
       {
         // CSP for everything except the API reference page...
-        source: "/:path((?!docs).*)",
+        source: "/:path((?!docs|f/|embed/).*)",
         headers: [cspHeader(false)],
+      },
+      {
+        // Public form pages: embeddable anywhere.
+        source: "/f/:path*",
+        headers: [cspHeader(false, true), { key: "Cache-Control", value: "public, max-age=0, s-maxage=30, stale-while-revalidate=60" }],
+      },
+      {
+        source: "/embed/:path*",
+        headers: [cspHeader(false, true), { key: "Cache-Control", value: "public, max-age=0, s-maxage=30, stale-while-revalidate=60" }],
+      },
+      {
+        // The embed script itself: cached, loadable from any site.
+        source: "/embed.js",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=300, s-maxage=300" },
+          { key: "Access-Control-Allow-Origin", value: "*" },
+        ],
       },
       {
         // ...which may load the Scalar bundle from jsDelivr.
@@ -179,8 +199,17 @@ const nextConfig: NextConfig = {
         // Security headers on every response, including /_next/static
         // assets (nosniff matters there) and /api/* (HSTS + referrer-
         // policy don't hurt).
-        source: "/:path*",
+        source: "/:path((?!f/|embed/).*)",
         headers: [...SECURITY_HEADERS],
+      },
+      {
+        // Embeddable pages get the same headers minus X-Frame-Options.
+        source: "/f/:path*",
+        headers: [...SECURITY_HEADERS_BASE],
+      },
+      {
+        source: "/embed/:path*",
+        headers: [...SECURITY_HEADERS_BASE],
       },
     ];
   },

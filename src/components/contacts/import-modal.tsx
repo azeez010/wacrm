@@ -365,6 +365,11 @@ export function ImportModal({ open, onOpenChange, onImported }: ImportModalProps
           name: row.name || null,
           email: row.email || null,
           company: row.company || null,
+          lead_source: row.lead_source || 'Import',
+          utm_source: row.utm_source || null,
+          utm_medium: row.utm_medium || null,
+          utm_campaign: row.utm_campaign || null,
+          first_seen_at: new Date().toISOString(),
           ...(row.blocked ? { blocked_at: new Date().toISOString(), blocked_reason: 'import', blocked_by: user.id } : {}),
         }));
 

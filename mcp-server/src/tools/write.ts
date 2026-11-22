@@ -93,4 +93,63 @@ export function registerWriteTools(server: McpServer, client: WacrmClient): void
     },
     handle(async ({ id, ...body }) => jsonResult(await client.updateContact(id, body))),
   );
+
+  server.registerTool(
+    'create_form',
+    {
+      title: 'Create form',
+      description:
+        'Create a lead form or support button from a template (blank, contact, newsletter, webinar, quote, event, support) as a DRAFT. It is not public until update_form sets status "active".',
+      inputSchema: {
+        template: z.enum(['blank', 'contact', 'newsletter', 'webinar', 'quote', 'event', 'support']).default('blank'),
+        name: z.string().optional(),
+      },
+      annotations: { readOnlyHint: false, openWorldHint: true, title: 'Create form' },
+    },
+    handle(async (args) => jsonResult(await client.createForm(args))),
+  );
+
+  server.registerTool(
+    'update_form',
+    {
+      title: 'Update form',
+      description:
+        'Edit a form: name, status (draft|active|paused), fields, settings. fields and settings are replaced as a whole: call get_form and send the full object back with your edits. Setting status "active" makes the form public, so confirm with the user first.',
+      inputSchema: {
+        form_id: z.string(),
+        name: z.string().optional(),
+        status: z.enum(['draft', 'active', 'paused']).optional(),
+        fields: z.array(z.record(z.string(), z.unknown())).optional(),
+        settings: z.record(z.string(), z.unknown()).optional(),
+      },
+      annotations: { readOnlyHint: false, openWorldHint: true, title: 'Update form' },
+    },
+    handle(async ({ form_id, ...body }) => jsonResult(await client.updateForm(form_id, body))),
+  );
+
+  server.registerTool(
+    'archive_form',
+    {
+      title: 'Archive form',
+      description: 'Archive a form: it stops accepting leads. Existing leads and contacts are kept.',
+      inputSchema: { form_id: z.string() },
+      annotations: { readOnlyHint: false, destructiveHint: true, openWorldHint: false, title: 'Archive form' },
+    },
+    handle(async ({ form_id }) => jsonResult(await client.archiveForm(form_id))),
+  );
+
+  server.registerTool(
+    'submit_form_lead',
+    {
+      title: 'Submit a lead to a form',
+      description: 'Submit a lead to a form as if it was filled in: runs the full pipeline (contact, tags, automations, webhook). answers is keyed by the form field ids (see get_form); phone is required.',
+      inputSchema: {
+        form_id: z.string(),
+        answers: z.record(z.string(), z.unknown()),
+        utm: z.record(z.string(), z.string()).optional(),
+      },
+      annotations: { readOnlyHint: false, openWorldHint: true, title: 'Submit a lead to a form' },
+    },
+    handle(async ({ form_id, answers, utm }) => jsonResult(await client.submitFormLead(form_id, { answers, utm }))),
+  );
 }

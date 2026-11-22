@@ -41,7 +41,8 @@
     "defaultAvatar": "Avatar",
     "menuProfile": "Profil",
     "menuSettings": "Paramètres",
-    "menuSignOut": "Se déconnecter"
+    "menuSignOut": "Se déconnecter",
+    "forms": "Formulaires"
   },
   "Header": {
     "dashboard": "Tableau de bord",
@@ -62,7 +63,8 @@
     "bell": {
       "label": "Notifications",
       "viewAll": "Tout voir"
-    }
+    },
+    "forms": "Formulaires"
   },
   "ModeToggle": {
     "switchMode": "Passer en mode {mode}"
@@ -569,7 +571,8 @@
         "company": "Entreprise",
         "tags": "Étiquettes",
         "createdAt": "Créé le",
-        "blocked": "Bloqué"
+        "blocked": "Bloqué",
+        "source": "Source"
       },
       "loading": "Chargement des contacts…",
       "noContactsMatch": "Aucun contact ne correspond à vos filtres.",
@@ -797,7 +800,14 @@
       "toastReferenceMissing": "Cette valeur pointe vers une ligne qui n'existe plus. Choisissez-la à nouveau.",
       "blockedBadge": "Bloqué",
       "blockBtn": "Bloquer",
-      "unblockBtn": "Débloquer"
+      "unblockBtn": "Débloquer",
+      "source": {
+        "title": "Source",
+        "leadSource": "Source du lead",
+        "optIn": "Consentement",
+        "submissions": "Formulaires remplis",
+        "notQualified": "non qualifié"
+      }
     },
     "importModal": {
       "title": "Importer des contacts",
@@ -953,7 +963,8 @@
       },
       "dragHandle": "Faites glisser pour réordonner : {name}",
       "dragHint": "Faites glisser pour réordonner",
-      "toastReorderFailed": "Impossible d'enregistrer le nouvel ordre."
+      "toastReorderFailed": "Impossible d'enregistrer le nouvel ordre.",
+      "toastUsedByForms": "« {name} » n'est plus demandé dans ces formulaires : {forms}."
     },
     "tagEditor": {
       "add": "Ajouter une étiquette",
@@ -1464,6 +1475,10 @@
         "time_based": {
           "label": "Basé sur l'heure",
           "hint": "Selon un calendrier récurrent"
+        },
+        "form_submitted": {
+          "label": "Formulaire envoyé",
+          "hint": "Quand un lead envoie un formulaire"
         }
       },
       "trigger": "Déclencheur",
@@ -1587,7 +1602,9 @@
         "segmentPlaceholder": "Choisissez un segment…",
         "blockContactHint": "Arrête tous les messages vers ce contact (diffusions, automatisations, flux, réponses IA et envois manuels). Placez tout message d'au revoir avant cette étape.",
         "unblockContactHint": "Permet à ce contact de recevoir de nouveau des messages.",
-        "placeholderReplyId": "ex. unsub_yes"
+        "placeholderReplyId": "ex. unsub_yes",
+        "formLabel": "Formulaire",
+        "formAny": "N'importe quel formulaire"
       },
       "preview": {
         "noText": "pas encore de texte",
@@ -2860,7 +2877,8 @@
       "createFlows": "créer des flux",
       "createPipelines": "créer des pipelines",
       "createDeals": "créer des affaires",
-      "sendMessages": "envoyer des messages"
+      "sendMessages": "envoyer des messages",
+      "manageForms": "gérer les formulaires"
     }
   },
   "Metadata": {
@@ -2914,6 +2932,11 @@
       "name": "Relance",
       "description": "Envoie une relance si un contact n'a pas répondu sous 24 heures.",
       "text": "Je me permets de revenir vers vous : avez-vous d'autres questions ? Nous serons ravis de vous aider !"
+    },
+    "new_form_lead": {
+      "name": "Bienvenue à un lead de formulaire",
+      "description": "Accueille quelqu'un juste après l'envoi d'un de vos formulaires.",
+      "text": "Bonjour {name} ! Merci pour vos informations, nous vous écrirons ici sous peu."
     }
   },
   "StarterFlows": {
@@ -3491,7 +3514,11 @@
       "company": "Société",
       "tags": "Étiquettes",
       "created_at": "Créé le",
-      "blocked": "Bloqué"
+      "blocked": "Bloqué",
+      "lead_source": "Source du lead",
+      "utm_source": "UTM source",
+      "utm_medium": "UTM medium",
+      "utm_campaign": "UTM campaign"
     },
     "operators": {
       "contains": "contient",
@@ -3553,6 +3580,328 @@
       "no": "Non, rester inscrit",
       "confirmed": "Vous êtes désinscrit. Vous ne recevrez plus de messages de notre part.",
       "kept": "D'accord, vous continuerez à recevoir nos messages."
+    }
+  },
+  "Forms": {
+    "list": {
+      "subtitle": "Collectez des leads depuis vos publicités, votre site ou un lien partagé.",
+      "new": "Nouveau formulaire",
+      "usage": "{forms} formulaires sur {formsLimit}, {leads} leads sur {leadsLimit} ce mois-ci.",
+      "unlimited": "illimité",
+      "held": "{count} en attente d'une mise à niveau.",
+      "emptyTitle": "Aucun formulaire pour l'instant",
+      "emptyHint": "Créez un formulaire de leads ou un bouton d'assistance. Chaque lead arrive dans Contacts.",
+      "kindLead": "Formulaire de leads",
+      "kindSupport": "Bouton d'assistance",
+      "leadsMonth": "{count, plural, one {# lead ce mois-ci} other {# leads ce mois-ci}}",
+      "attention": "{count, plural, one {# à vérifier} other {# à vérifier}}",
+      "status": {
+        "draft": "Brouillon",
+        "active": "Actif",
+        "paused": "En pause"
+      },
+      "copyLink": "Copier le lien",
+      "copied": "Lien copié",
+      "more": "Plus",
+      "duplicate": "Dupliquer",
+      "archive": "Archiver",
+      "duplicateFailed": "Impossible de dupliquer le formulaire",
+      "archiveFailed": "Impossible d'archiver le formulaire",
+      "archived": "Formulaire archivé"
+    },
+    "new": {
+      "title": "Nouveau formulaire",
+      "question": "Que voulez-vous créer ?",
+      "leadTitle": "Formulaire de leads",
+      "leadHint": "Une page, un QR code ou une intégration qui collecte des leads.",
+      "supportTitle": "Bouton d'assistance",
+      "supportHint": "Un bouton de chat flottant pour votre site qui ouvre WhatsApp.",
+      "pickTemplate": "Choisissez un point de départ",
+      "nameHint": "Vous pouvez le nommer maintenant ou plus tard.",
+      "namePlaceholder": "Nom du formulaire",
+      "failed": "Impossible de créer le formulaire",
+      "back": "Retour"
+    },
+    "templates": {
+      "blank": {
+        "name": "Vierge",
+        "description": "Téléphone et nom, rien d'autre."
+      },
+      "contact": {
+        "name": "Contactez-nous",
+        "description": "Nom, e-mail et un message."
+      },
+      "newsletter": {
+        "name": "Newsletter",
+        "description": "Inscription par e-mail avec consentement."
+      },
+      "webinar": {
+        "name": "Inscription à un webinaire",
+        "description": "Nom, e-mail et entreprise."
+      },
+      "quote": {
+        "name": "Demande de devis",
+        "description": "Entreprise et besoin."
+      },
+      "event": {
+        "name": "Confirmation de présence",
+        "description": "Nom et consentement, rapide à remplir."
+      },
+      "support": {
+        "name": "Bouton d'assistance",
+        "description": "Téléphone, nom et message, puis ouvre WhatsApp."
+      }
+    },
+    "editor": {
+      "back": "Retour aux formulaires",
+      "name": "Nom du formulaire",
+      "publish": "Publier",
+      "published": "Publié",
+      "share": "Partager",
+      "settings": "Réglages",
+      "save": "Enregistrer",
+      "saved": "Enregistré",
+      "saveFailed": "Échec de l'enregistrement",
+      "tabEdit": "Modifier",
+      "tabResults": "Résultats",
+      "desktop": "Ordinateur",
+      "mobile": "Mobile",
+      "previewHint": "Aperçu en direct. Rien n'est envoyé d'ici."
+    },
+    "edit": {
+      "addField": "Ajouter un champ",
+      "groupBasic": "Basiques",
+      "groupYourFields": "Vos champs",
+      "groupTables": "Vos tables",
+      "groupExtras": "Extras",
+      "kind": {
+        "phone": "Numéro WhatsApp",
+        "name": "Nom",
+        "email": "E-mail",
+        "company": "Entreprise",
+        "message": "Message",
+        "custom_field": "Champ personnalisé",
+        "table_column": "Colonne de table",
+        "tag_picker": "Sélecteur d'étiquettes",
+        "consent": "Consentement",
+        "hidden": "Champ masqué",
+        "heading": "Titre"
+      },
+      "label": "Libellé",
+      "help": "Texte d'aide",
+      "required": "Obligatoire",
+      "remove": "Retirer",
+      "drag": "Glisser pour réordonner",
+      "phoneLocked": "Toujours demandé et obligatoire",
+      "fieldMissing": "le champ n'existe plus",
+      "choices": "Choix affichés",
+      "points": "Points",
+      "disqualify": "Disqualifie",
+      "tagChoices": "Étiquettes que le visiteur peut choisir",
+      "hiddenParam": "Paramètre d'URL",
+      "hiddenHint": "Rempli depuis ?param=valeur dans le lien, p. ex. ?ad_id=42",
+      "hiddenFixed": "Ou une valeur fixe",
+      "privacyUrl": "Lien vers la politique de confidentialité",
+      "defaultConsent": "J'accepte d'être contacté sur WhatsApp.",
+      "defaultHeading": "Une courte note avant les champs suivants",
+      "moreOptions": "Plus d'options"
+    },
+    "settings": {
+      "title": "Réglages",
+      "subtitle": "Ce qui se passe après un envoi.",
+      "afterSubmit": "Après l'envoi",
+      "actionMessage": "Afficher un message de remerciement",
+      "actionWhatsapp": "Continuer sur WhatsApp",
+      "actionRedirect": "Aller vers une page web",
+      "thankYou": "Message de remerciement",
+      "redirectUrl": "Adresse de la page",
+      "redirectHint": "Les visiteurs y sont envoyés après l'envoi.",
+      "whatsappText": "Message qu'ils vous envoient",
+      "whatsappHint": "Utilisez {name}, {message} ou la clé d'un champ. S'ouvre dans WhatsApp, prêt à envoyer.",
+      "followUp": "Ajouter « ou nous vous écrirons sous peu »",
+      "tag": "Étiqueter les leads avec",
+      "tagHint": "Créée automatiquement. Laissez vide pour aucune étiquette.",
+      "tagPlaceholder": "p. ex. gym-join",
+      "assign": "Assigner à",
+      "assignNone": "Personne",
+      "assignAgent": "Un collègue",
+      "assignRoundRobin": "À tour de rôle",
+      "qualify": "Qualifier les leads avec des points",
+      "qualifyHint": "Donnez des points aux choix dans les champs. Les leads sous le seuil ne sont pas qualifiés.",
+      "threshold": "Qualifier à partir de (points)",
+      "whenNot": "Si non qualifié",
+      "whenNotSave": "Enregistrer le lead et l'étiqueter",
+      "whenNotBlock": "Ne pas accepter l'entrée",
+      "blockMessage": "Message affiché à la place",
+      "tagsQualified": "Étiquettes des leads qualifiés",
+      "tagsNotQualified": "Étiquettes des autres",
+      "more": "Plus d'options",
+      "formTitle": "Titre du formulaire",
+      "description": "Courte description",
+      "buttonText": "Texte du bouton",
+      "accent": "Couleur",
+      "language": "Langue",
+      "logoUrl": "Adresse du logo",
+      "defaultCountry": "Pays par défaut",
+      "defaultCountryHint": "Pour qu'on puisse saisir 0803... sans l'indicatif.",
+      "onePerPhone": "Une entrée par numéro",
+      "repeatWindow": "Fenêtre de répétition (heures)",
+      "repeatHint": "Une répétition du même numéro dans ce délai ne notifie rien et ne relance rien.",
+      "maxSubmissions": "S'arrêter après ce nombre de leads",
+      "opensAt": "Ouvre",
+      "closesAt": "Ferme",
+      "closedMessage": "Message à la fermeture",
+      "messageAsNote": "Enregistrer leur message comme note du contact",
+      "turnstile": "Vérification anti-bot (Cloudflare Turnstile)",
+      "pipeline": "Ajouter au pipeline",
+      "pipelineHint": "Crée une affaire pour les leads qualifiés.",
+      "pipelineNone": "Aucune affaire",
+      "ogTitle": "Titre de l'aperçu du lien",
+      "ogDescription": "Texte de l'aperçu du lien",
+      "ogImage": "Image de l'aperçu du lien",
+      "noindex": "Masquer aux moteurs de recherche",
+      "welcome": "Message de bienvenue",
+      "welcomeHint": "Envoie ce modèle approuvé aux nouveaux leads ayant coché le consentement.",
+      "welcomeNone": "Aucun message de bienvenue",
+      "welcomeParams": "Valeurs du modèle, séparées par | (utilisez {name})"
+    },
+    "support": {
+      "askName": "Demander leur nom",
+      "askMessage": "Demander un message",
+      "label": "Texte du bouton",
+      "color": "Couleur",
+      "corner": "Coin",
+      "bottomLeft": "En bas à gauche",
+      "bottomRight": "En bas à droite",
+      "icon": "Icône",
+      "iconChat": "Chat",
+      "iconHeadset": "Casque",
+      "greeting": "Ligne d'accueil",
+      "offsetX": "Distance du bord (px)",
+      "offsetY": "Distance du bas (px)",
+      "devices": "Afficher sur",
+      "devicesAll": "Tous les appareils",
+      "devicesMobile": "Téléphones uniquement",
+      "devicesDesktop": "Ordinateurs uniquement",
+      "showOn": "Pages",
+      "showAll": "Toutes les pages",
+      "showContains": "Seulement les pages dont l'adresse contient...",
+      "hours": "Horaires d'ouverture",
+      "offlineText": "Message hors horaires",
+      "day0": "Dim",
+      "day1": "Lun",
+      "day2": "Mar",
+      "day3": "Mer",
+      "day4": "Jeu",
+      "day5": "Ven",
+      "day6": "Sam"
+    },
+    "share": {
+      "title": "Partager",
+      "leadHint": "Envoyez le lien ou imprimez le QR code.",
+      "supportHint": "Collez ceci une fois sur votre site.",
+      "pasteBeforeBody": "À coller avant la balise de fermeture body de votre site :",
+      "copy": "Copier",
+      "copied": "Copié",
+      "qrAlt": "QR code du formulaire",
+      "tracking": "Ajouter un suivi",
+      "trackingHint": "Repérez où chaque lien est utilisé. Le lien et le QR se mettent à jour pendant la saisie.",
+      "embed": "Intégrer sur un site web",
+      "embedScript": "Le plus simple : un div et un script.",
+      "embedIframe": "Ou un simple iframe :",
+      "embedHtml": "Ou votre propre formulaire HTML qui envoie au formulaire :"
+    },
+    "results": {
+      "lastDays": "{days} derniers jours",
+      "export": "Exporter en CSV",
+      "visited": "Visites",
+      "started": "Commencés",
+      "submitted": "Envoyés",
+      "qualified": "Qualifiés",
+      "whereFrom": "D'où viennent les leads",
+      "bySource": "Par source",
+      "byCampaign": "Par campagne",
+      "byCountry": "Par pays",
+      "noData": "Rien pour l'instant.",
+      "colDate": "Date",
+      "colName": "Nom",
+      "colPhone": "Téléphone",
+      "colSource": "Source",
+      "colStatus": "Statut",
+      "empty": "Aucun lead pour l'instant.",
+      "outcome": {
+        "accepted": "Accepté",
+        "held": "En attente",
+        "blocked": "Non accepté",
+        "rejected": "Rejeté",
+        "spam": "Spam"
+      },
+      "notQualified": "non qualifié",
+      "needsAttention": "à vérifier",
+      "score": "Score",
+      "repeat": "répété",
+      "failedSteps": "Certaines étapes ont échoué",
+      "openContact": "Ouvrir le contact",
+      "release": "Libérer",
+      "retry": "Relancer les étapes échouées",
+      "spam": "Marquer comme spam",
+      "spamBlock": "Spam et bloquer le numéro",
+      "delete": "Supprimer",
+      "actionFailed": "Cela n'a pas fonctionné",
+      "done": {
+        "retry": "Nouvel essai",
+        "release": "Libération du lead",
+        "spam": "Marqué comme spam"
+      }
+    }
+  },
+  "StarterForms": {
+    "consent": "J'accepte d'être contacté sur WhatsApp.",
+    "thanks": "Merci ! Nous avons bien reçu vos informations.",
+    "support": {
+      "name": "Bouton d'assistance",
+      "description": "Téléphone, nom et message, puis ouvre WhatsApp.",
+      "title": "Comment pouvons-nous vous aider ?",
+      "button": "Démarrer le chat",
+      "thanks": "Merci ! Touchez ci-dessous pour continuer sur WhatsApp.",
+      "whatsappText": "Bonjour, je suis {name}. {message}",
+      "label": "Discutez avec nous",
+      "greeting": "Discutez avec nous sur WhatsApp"
+    },
+    "contact": {
+      "name": "Contactez-nous",
+      "description": "Nom, e-mail et un message.",
+      "title": "Contactez-nous",
+      "intro": "Laissez vos coordonnées, nous répondrons sur WhatsApp."
+    },
+    "newsletter": {
+      "name": "Newsletter",
+      "description": "Inscription par e-mail avec consentement.",
+      "title": "Restez informé",
+      "intro": "Recevez nos actualités sur votre téléphone et votre boîte mail."
+    },
+    "webinar": {
+      "name": "Inscription à un webinaire",
+      "description": "Nom, e-mail et entreprise.",
+      "title": "Réservez votre place",
+      "intro": "Inscrivez-vous à la prochaine session."
+    },
+    "quote": {
+      "name": "Demande de devis",
+      "description": "Entreprise et besoin.",
+      "title": "Demander un devis",
+      "intro": "Dites-nous ce qu'il vous faut, nous reviendrons vers vous."
+    },
+    "event": {
+      "name": "Confirmation de présence",
+      "description": "Nom et consentement, rapide à remplir.",
+      "title": "Confirmez votre présence",
+      "intro": "Dites-nous que vous venez."
+    },
+    "blank": {
+      "name": "Vierge",
+      "description": "Téléphone et nom, rien d'autre.",
+      "title": "Inscription"
     }
   }
 }

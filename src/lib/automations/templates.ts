@@ -11,6 +11,7 @@ export type TemplateSlug =
   | 'out_of_office'
   | 'lead_qualifier'
   | 'follow_up_reminder'
+  | 'new_form_lead'
 
 export interface TemplateStepSeed {
   step_type: AutomationStepType
@@ -111,6 +112,25 @@ export const AUTOMATION_TEMPLATES: Record<TemplateSlug, AutomationTemplateDefini
       {
         step_type: 'assign_conversation',
         step_config: { mode: 'round_robin' },
+      },
+    ],
+  },
+  new_form_lead: {
+    slug: 'new_form_lead',
+    name: t('new_form_lead.name'),
+    description: t('new_form_lead.description'),
+    // Fires for every submitted form; pick one form in the trigger to narrow it.
+    trigger_type: 'form_submitted',
+    trigger_config: {},
+    steps: [
+      {
+        step_type: 'send_message',
+        // {{vars.name}} is the name the lead typed in the form.
+        step_config: { text: t('new_form_lead.text', { name: '{{vars.name}}' }) },
+      },
+      {
+        step_type: 'add_tag',
+        step_config: { tag_id: '' },
       },
     ],
   },

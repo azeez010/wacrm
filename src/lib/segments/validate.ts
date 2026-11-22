@@ -1,7 +1,20 @@
 import { OPERATORS_BY_KIND, valueShape, type FilterFieldKind } from './operators'
 import { FILTER_VERSION, isGroup, type FilterGroup, type FilterOperator, type FilterRule } from './types'
 
-const BUILTIN_TEXT = new Set(['name', 'phone', 'email', 'company'])
+const BUILTIN_TEXT = new Set([
+  'name',
+  'phone',
+  'email',
+  'company',
+  // First-touch lead source (migration 077)
+  'lead_source',
+  'utm_source',
+  'utm_medium',
+  'utm_campaign',
+  'utm_term',
+  'utm_content',
+  'source_referrer',
+])
 const MAX_DEPTH = 4
 const MAX_RULES = 50
 

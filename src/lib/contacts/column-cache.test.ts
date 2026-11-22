@@ -92,9 +92,9 @@ describe('loadTableMeta', () => {
 
 describe('column prefs', () => {
   it('parses old and new shapes and survives garbage', () => {
-    expect(parseColumnPrefs(null)).toEqual({ hidden: [], custom: null, refCols: [], showBlocked: false })
-    expect(parseColumnPrefs('not json')).toEqual({ hidden: [], custom: null, refCols: [], showBlocked: false })
-    expect(parseColumnPrefs('{"hidden":["email"],"custom":["f1"]}')).toEqual({ hidden: ['email'], custom: ['f1'], refCols: [], showBlocked: false })
+    expect(parseColumnPrefs(null)).toEqual({ hidden: [], custom: null, refCols: [], showBlocked: false, showSource: false })
+    expect(parseColumnPrefs('not json')).toEqual({ hidden: [], custom: null, refCols: [], showBlocked: false, showSource: false })
+    expect(parseColumnPrefs('{"hidden":["email"],"custom":["f1"]}')).toEqual({ hidden: ['email'], custom: ['f1'], refCols: [], showBlocked: false, showSource: false })
     expect(parseColumnPrefs('{"hidden":[],"custom":null,"refCols":["f1:phone"]}').refCols).toEqual(['f1:phone'])
   })
   it('builds and splits sub-column ids', () => {

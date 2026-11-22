@@ -56,6 +56,9 @@ import {
 } from '@/app/api/v1/segments/[id]/route'
 import { GET as segmentContactsGet } from '@/app/api/v1/segments/[id]/contacts/route'
 import { POST as contactsFilterPost } from '@/app/api/v1/contacts/filter/route'
+import { GET as formsGet, POST as formsPost } from '@/app/api/v1/forms/route'
+import { GET as formGet, PATCH as formPatch, DELETE as formDelete } from '@/app/api/v1/forms/[id]/route'
+import { GET as formSubmissionsGet, POST as formSubmissionsPost } from '@/app/api/v1/forms/[id]/submissions/route'
 
 type Handler = (req: Request, ctx: { params: Promise<{ id: string; recordId?: string }> }) => Promise<Response>
 
@@ -135,6 +138,16 @@ export function createApiClient(authorization: string) {
     createTemplate: (body: unknown) =>
       call(authorization, templatesPost as Handler, 'POST', '/templates', { body }),
     listTags: () => call(authorization, tagsGet as Handler, 'GET', '/tags'),
+    listForms: () => call(authorization, formsGet as Handler, 'GET', '/forms'),
+    getForm: (id: string) => call(authorization, formGet as Handler, 'GET', `/forms/${enc(id)}`, { id }),
+    createForm: (body: unknown) => call(authorization, formsPost as Handler, 'POST', '/forms', { body }),
+    updateForm: (id: string, body: unknown) =>
+      call(authorization, formPatch as Handler, 'PATCH', `/forms/${enc(id)}`, { id, body }),
+    archiveForm: (id: string) => call(authorization, formDelete as Handler, 'DELETE', `/forms/${enc(id)}`, { id }),
+    submitFormLead: (id: string, body: unknown) =>
+      call(authorization, formSubmissionsPost as Handler, 'POST', `/forms/${enc(id)}/submissions`, { id, body }),
+    listFormSubmissions: (id: string, q: Record<string, string | number | undefined>) =>
+      call(authorization, formSubmissionsGet as Handler, 'GET', `/forms/${enc(id)}/submissions`, { id, query: q }),
     createTag: (body: unknown) => call(authorization, tagsPost as Handler, 'POST', '/tags', { body }),
     listTeam: () => call(authorization, teamGet as Handler, 'GET', '/team'),
     listPipelines: () => call(authorization, pipelinesGet as Handler, 'GET', '/pipelines'),

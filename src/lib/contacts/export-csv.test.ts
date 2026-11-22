@@ -21,7 +21,7 @@ describe('buildContactsCsv', () => {
 
   it('writes a header the importer understands and quotes tricky cells', () => {
     const lines = csv.trim().split('\n');
-    expect(lines[0]).toBe('phone,name,email,company,tags,blocked,Plan,Started date,Sports');
+    expect(lines[0]).toBe('phone,name,email,company,tags,blocked,lead_source,utm_source,utm_medium,utm_campaign,Plan,Started date,Sports');
     expect(lines[1]).toContain('"Ada, ""AJ"""');
     expect(lines[1]).toContain('Gold,2026-11-02,Yoga; Boxing');
   });
@@ -47,9 +47,9 @@ describe('blocked column', () => {
       valuesByContact: {},
     });
     const lines = out.trim().split('\n');
-    expect(lines[0]).toBe('phone,name,email,company,tags,blocked');
-    expect(lines[1].endsWith(',yes')).toBe(true);
-    expect(lines[2].endsWith(',')).toBe(true);
+    expect(lines[0]).toBe('phone,name,email,company,tags,blocked,lead_source,utm_source,utm_medium,utm_campaign');
+    expect(lines[1]).toContain(',yes,');
+    expect(lines[2].endsWith(',,,,,')).toBe(true);
   });
 });
 

@@ -201,6 +201,8 @@ export function validateTriggerForActivation(
     if (!nonEmpty(cfg.schedule)) {
       issues.push({ path: 'trigger.schedule', message: t('scheduleRequired') })
     }
+  } else if (triggerType === 'form_submitted') {
+    // form_id is optional: empty means any form.
   } else if (triggerType === 'tag_added') {
     if (!nonEmpty(cfg.tag_id)) {
       issues.push({ path: 'trigger.tag_id', message: t('tagRequired') })

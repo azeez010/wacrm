@@ -1,6 +1,6 @@
 'use client';
 
-import { Bell, UserPlus } from 'lucide-react';
+import { Bell, ClipboardList, UserPlus } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { useLocale, useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
@@ -12,6 +12,7 @@ import type { Notification } from '@/types';
 // (conversation_assigned) but this keeps future types a one-line add.
 const TYPE_ICON: Record<Notification['type'], typeof Bell> = {
   conversation_assigned: UserPlus,
+  form_submission: ClipboardList,
 };
 
 interface Props {

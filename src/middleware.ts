@@ -13,7 +13,13 @@ function isLocalizedLandingPath(pathname: string): boolean {
   return (pathname.replace(LOCALE_PREFIX, '') || '/') === '/'
 }
 
+/** Public lead-form surface: anonymous by design, so skip the auth round trip. */
+const PUBLIC_FORM_PATH = /^\/(f|embed)\/|^\/embed\.js$|^\/api\/public\//
+
 export async function middleware(request: NextRequest) {
+  if (PUBLIC_FORM_PATH.test(request.nextUrl.pathname)) {
+    return NextResponse.next({ request })
+  }
   if (isLocalizedLandingPath(request.nextUrl.pathname)) {
     return intlMiddleware(request)
   }
@@ -88,7 +94,7 @@ export async function middleware(request: NextRequest) {
   // Protected pages - redirect to login if not authenticated
   // Every top-level route under src/app/(dashboard)/ belongs here -
   // middleware.test.ts reads that directory and fails on a missing one.
-  const protectedPaths = ['/dashboard', '/inbox', '/contacts', '/pipelines', '/broadcasts', '/automations', '/flows', '/agents', '/notifications', '/settings']
+  const protectedPaths = ['/dashboard', '/inbox', '/contacts', '/pipelines', '/broadcasts', '/automations', '/flows', '/agents', '/notifications', '/forms', '/settings']
   if (!user && protectedPaths.some(path => request.nextUrl.pathname.startsWith(path))) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'

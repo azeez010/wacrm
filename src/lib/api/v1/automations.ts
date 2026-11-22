@@ -38,7 +38,7 @@ export function structuralError(
   steps: unknown,
 ): string | null {
   if (typeof triggerType !== 'string' || !isKnownTrigger(triggerType)) {
-    return `'trigger_type' must be one of: new_message_received, first_inbound_message, keyword_match, new_contact_created, conversation_assigned, tag_added, time_based, interactive_reply`
+    return `'trigger_type' must be one of: new_message_received, first_inbound_message, keyword_match, new_contact_created, conversation_assigned, tag_added, form_submitted, time_based, interactive_reply`
   }
   if (triggerConfig !== undefined && (typeof triggerConfig !== 'object' || triggerConfig === null || Array.isArray(triggerConfig))) {
     return "'trigger_config' must be an object"

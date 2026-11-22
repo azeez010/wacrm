@@ -25,6 +25,7 @@ export const AUTOMATION_REFERENCE = {
     new_contact_created: { config: {}, when: 'A new contact is created.' },
     conversation_assigned: { config: {}, when: 'A conversation is assigned to an agent.' },
     tag_added: { config: { tag_id: 'uuid' }, when: 'That tag is added to a contact. Great for drip sequences: tag → welcome → wait → follow-up.' },
+    form_submitted: { config: { form_id: 'optional uuid; empty = any form' }, when: 'A lead submits a form. Answers are available as {{vars.<field>}} (name, email, company, message, phone, custom field keys, hidden params) plus {{vars.score}} and {{vars.qualified}}.' },
     time_based: { config: { schedule: 'cron expression or "HH:mm"', timezone: 'IANA tz, optional' }, when: 'On a schedule.' },
     interactive_reply: {
       config: { reply_ids: ['btn_yes'] },

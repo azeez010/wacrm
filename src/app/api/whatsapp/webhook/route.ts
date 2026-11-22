@@ -1,3 +1,4 @@
+import { inboundSourcePatch, type InboundReferral } from '@/lib/contacts/inbound-source'
 import { isBlocked } from '@/lib/contacts/block-guard'
 import { NextResponse, after } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
@@ -104,6 +105,8 @@ interface WhatsAppMessage {
   button?: { text?: string; payload?: string }
   /** Present when the customer swipe-replies to one of our messages. */
   context?: { id: string }
+  /** Set on the first message after tapping a Click-to-WhatsApp ad or post. */
+  referral?: InboundReferral
   /**
    * Why Meta could not hand this message over. Set on a `type:
    * 'unsupported'` delivery — a view-once photo, a poll, a disappearing
@@ -678,6 +681,17 @@ async function processMessage(
   )
   if (!contactOutcome) return
   const contactRecord = contactOutcome.contact
+
+  // Where did this lead come from? Click-to-WhatsApp ads send a referral object;
+  // otherwise a brand-new contact is "WhatsApp". First touch only: empty columns.
+  const sourcePatch = inboundSourcePatch(contactRecord, message.referral, contactOutcome.wasCreated)
+  if (Object.keys(sourcePatch).length > 0) {
+    const { error: srcErr } = await supabaseAdmin()
+      .from('contacts')
+      .update(sourcePatch)
+      .eq('id', contactRecord.id)
+    if (!srcErr) Object.assign(contactRecord, sourcePatch)
+  }
 
   // Find or create conversation
   const convResult = await findOrCreateConversation(

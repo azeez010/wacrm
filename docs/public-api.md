@@ -222,6 +222,12 @@ sent to them: API, broadcast, automation, flow, AI reply; sends return
 `contact_blocked`), `false` unblocks; pass `tags` (an array of tag names) to replace the contact's tags. A
 contact in another account returns `404`.
 
+### Forms: `/api/v1/forms`
+
+`GET /api/v1/forms` (scope `forms:read`) lists lead forms and support buttons.
+`GET /api/v1/forms/{id}/submissions` (scope `forms:read`) lists leads, newest first (cursor pagination).
+`POST /api/v1/forms/{id}/submissions` (scope `forms:write`) submits a lead from your own server with `{ "answers": { "<field id>": "..." }, "utm": { "source": "..." } }`; it runs the same pipeline as the public form. Contacts also expose `lead_source` and `utm_source` / `utm_medium` / `utm_campaign` / `utm_term` / `utm_content` (first touch). See [forms.md](forms.md).
+
 ### `GET /api/v1/conversations`
 
 List conversations, newest first. Scope: `conversations:read`.
@@ -365,7 +371,7 @@ a file already stored under your account; a link to anything else is rejected.
 ```
 
 `field` is `name`, `phone`, `email`, `company`, `created_at`, `tags`,
-`blocked` (`is_true` / `is_false`), or
+`blocked` (`is_true` / `is_false`), `lead_source`, `utm_source`, `utm_medium`, `utm_campaign`, `utm_term`, `utm_content`, or
 `cf:<custom field id>`. Operators by type:
 
 - text, url, email, phone and built-ins: `contains`, `not_contains`, `equals`, `not_equals`, `is_empty`, `is_set`

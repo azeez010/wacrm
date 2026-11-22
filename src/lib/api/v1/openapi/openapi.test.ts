@@ -54,6 +54,7 @@ const NOT_DOCUMENTED_YET = [
   /^\/custom-fields/,
   /^\/tables/,
   /^\/segments/,
+  /^\/forms/, // documented in docs/forms.md
 ]
 
 describe('OpenAPI spec', () => {

@@ -184,6 +184,8 @@ export function ContactForm({
             phone: phone.trim(),
             email: email.trim() || null,
             company: company.trim() || null,
+            lead_source: 'Manual',
+            first_seen_at: new Date().toISOString(),
           })
           .select('id')
           .single();

@@ -25,6 +25,13 @@ export interface ApiContact {
   email: string | null;
   company: string | null;
   avatar_url: string | null;
+  /** First-touch lead source and UTM (set once, never overwritten). */
+  lead_source: string | null;
+  utm_source: string | null;
+  utm_medium: string | null;
+  utm_campaign: string | null;
+  utm_term: string | null;
+  utm_content: string | null;
   /** True when the contact is blocked: no message of any kind is sent to them. */
   blocked: boolean;
   blocked_reason: 'manual' | 'opt_out' | 'import' | 'api' | null;
@@ -58,6 +65,12 @@ export function serializeContact(row: Record<string, unknown>): ApiContact {
     email: (row.email as string | null) ?? null,
     company: (row.company as string | null) ?? null,
     avatar_url: (row.avatar_url as string | null) ?? null,
+    lead_source: (row.lead_source as string | null) ?? null,
+    utm_source: (row.utm_source as string | null) ?? null,
+    utm_medium: (row.utm_medium as string | null) ?? null,
+    utm_campaign: (row.utm_campaign as string | null) ?? null,
+    utm_term: (row.utm_term as string | null) ?? null,
+    utm_content: (row.utm_content as string | null) ?? null,
     blocked: Boolean(row.blocked_at),
     blocked_reason: (row.blocked_reason as ApiContact['blocked_reason']) ?? null,
     blocked_at: (row.blocked_at as string | null) ?? null,
@@ -109,6 +122,8 @@ export interface ContactInput {
   name?: string | null;
   email?: string | null;
   company?: string | null;
+  /** First-touch lead source for a NEW contact (default 'API'). */
+  leadSource?: string | null;
 }
 
 /**
@@ -147,6 +162,8 @@ export async function findOrCreateContact(
       name: input.name ?? sanitized,
       email: input.email ?? null,
       company: input.company ?? null,
+      lead_source: input.leadSource ?? 'API',
+      first_seen_at: new Date().toISOString(),
     })
     .select('id')
     .single();

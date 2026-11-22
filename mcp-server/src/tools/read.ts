@@ -16,6 +16,43 @@ const READ_ONLY = { readOnlyHint: true, openWorldHint: true } as const;
 
 export function registerReadTools(server: McpServer, client: WacrmClient): void {
   server.registerTool(
+    'list_forms',
+    {
+      title: 'List forms',
+      description: 'List the lead forms and support buttons with their link, embed code and status.',
+      inputSchema: {},
+      annotations: { ...READ_ONLY, title: 'List forms' },
+    },
+    handle(async () => jsonResult(await client.listForms())),
+  );
+
+  server.registerTool(
+    'get_form',
+    {
+      title: 'Get form',
+      description: 'The full editable definition of one form (fields and settings).',
+      inputSchema: { form_id: z.string() },
+      annotations: { ...READ_ONLY, title: 'Get form' },
+    },
+    handle(async ({ form_id }) => jsonResult(await client.getForm(form_id))),
+  );
+
+  server.registerTool(
+    'list_form_submissions',
+    {
+      title: 'List form submissions',
+      description: 'Leads submitted to a form, newest first. Paginated.',
+      inputSchema: {
+        form_id: z.string(),
+        limit: z.number().int().min(1).max(100).optional(),
+        cursor: z.string().optional(),
+      },
+      annotations: { ...READ_ONLY, title: 'List form submissions' },
+    },
+    handle(async ({ form_id, limit, cursor }) => jsonResult(await client.listFormSubmissions(form_id, { limit, cursor }))),
+  );
+
+  server.registerTool(
     'whoami',
     {
       title: 'Who am I',

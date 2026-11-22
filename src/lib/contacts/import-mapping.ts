@@ -13,7 +13,7 @@ import { parseTagCell } from './parse-contact-csv'
 //    or nothing. A column can also carry a default for blank cells.
 // ============================================================
 
-export type CoreFieldId = 'phone' | 'name' | 'email' | 'company' | 'tags' | 'blocked'
+export type CoreFieldId = 'phone' | 'name' | 'email' | 'company' | 'tags' | 'blocked' | 'lead_source' | 'utm_source' | 'utm_medium' | 'utm_campaign'
 export type SystemFieldId = CoreFieldId | `cf:${string}` | `ref:${string}:${string}`
 
 export type SystemFieldKind = FieldType | 'core_text' | 'tags'
@@ -52,6 +52,11 @@ export const CORE_FIELDS: SystemField[] = [
   { id: 'tags', label: 'Tags', header: 'tags', kind: 'tags', group: 'core' },
   // yes / true / 1 blocks the contact (a suppression list import); blank or anything else leaves them as they are.
   { id: 'blocked', label: 'Blocked', header: 'blocked', kind: 'core_text', group: 'core' },
+  // First-touch source: only fills contacts that have none yet.
+  { id: 'lead_source', label: 'Lead source', header: 'lead_source', kind: 'core_text', group: 'core' },
+  { id: 'utm_source', label: 'UTM source', header: 'utm_source', kind: 'core_text', group: 'core' },
+  { id: 'utm_medium', label: 'UTM medium', header: 'utm_medium', kind: 'core_text', group: 'core' },
+  { id: 'utm_campaign', label: 'UTM campaign', header: 'utm_campaign', kind: 'core_text', group: 'core' },
 ]
 
 export interface ContactFieldInput {
@@ -185,6 +190,10 @@ export interface PreparedRow {
   company?: string
   /** True when the file marks this contact as blocked (yes / true / 1). */
   blocked?: boolean
+  lead_source?: string
+  utm_source?: string
+  utm_medium?: string
+  utm_campaign?: string
   tagNames: string[]
   /** Raw text per custom field id (validated later). */
   custom: Record<string, string>
@@ -225,6 +234,7 @@ export function applyMapping(grid: CsvGrid, mapping: Mapping, fields: SystemFiel
       else if (id === 'email') out.email = value
       else if (id === 'company') out.company = value
       else if (id === 'blocked') out.blocked = isTruthyCell(value)
+      else if (id === 'lead_source' || id === 'utm_source' || id === 'utm_medium' || id === 'utm_campaign') out[id] = value
       else if (f.group === 'custom' && f.def) out.custom[f.def.id] = value
       else if (f.group === 'table' && f.refFieldId && f.columnKey) {
         ;(out.tables[f.refFieldId] ??= {})[f.columnKey] = value

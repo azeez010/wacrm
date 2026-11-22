@@ -138,7 +138,7 @@ export function parseCsvLine(line: string): string[] {
   return values;
 }
 
-const STANDARD_HEADERS = new Set(['phone', 'name', 'email', 'company', 'tags', 'blocked']);
+const STANDARD_HEADERS = new Set(['phone', 'name', 'email', 'company', 'tags', 'blocked', 'lead_source', 'utm_source', 'utm_medium', 'utm_campaign']);
 
 export interface CsvExtraColumn {
   /** Header exactly as written in the file (trimmed, quotes removed). */

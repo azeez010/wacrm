@@ -583,6 +583,32 @@ describe("triggerMatches, interactive_reply", () => {
   });
 });
 
+describe("triggerMatches, form_submitted", () => {
+  const automation = (formId?: string): Automation => ({
+    id: "a1",
+    account_id: ACCOUNT,
+    user_id: "u1",
+    name: "form follow-up",
+    trigger_type: "form_submitted",
+    trigger_config: formId ? { form_id: formId } : {},
+    is_active: true,
+    execution_count: 0,
+    created_at: "",
+    updated_at: "",
+  });
+
+  it("with no form chosen it matches any form", () => {
+    expect(triggerMatches(automation(), { form_id: "f1" })).toBe(true);
+    expect(triggerMatches(automation(), {})).toBe(true);
+  });
+
+  it("with a form chosen it matches only that form", () => {
+    expect(triggerMatches(automation("f1"), { form_id: "f1" })).toBe(true);
+    expect(triggerMatches(automation("f1"), { form_id: "f2" })).toBe(false);
+    expect(triggerMatches(automation("f1"), undefined)).toBe(false);
+  });
+});
+
 describe("triggerMatches, tag_added", () => {
   function automation(tagId?: string): Automation {
     return {

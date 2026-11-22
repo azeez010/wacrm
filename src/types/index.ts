@@ -121,6 +121,19 @@ export interface Contact {
   avatar_url?: string;
   /** Set when the contact is blocked: no outbound message of any kind is
    *  sent to them (migration 076). */
+  /** First-touch lead source (migration 077): filled once, never overwritten. */
+  lead_source?: string | null;
+  utm_source?: string | null;
+  utm_medium?: string | null;
+  utm_campaign?: string | null;
+  utm_term?: string | null;
+  utm_content?: string | null;
+  source_referrer?: string | null;
+  source_form_id?: string | null;
+  first_seen_at?: string | null;
+  opt_in_at?: string | null;
+  opt_in_source?: string | null;
+  opt_in_text?: string | null;
   blocked_at?: string | null;
   blocked_reason?: 'manual' | 'opt_out' | 'import' | 'api' | null;
   blocked_by?: string | null;
@@ -221,7 +234,7 @@ export interface Conversation {
 // Notifications (migration 027)
 // ============================================================
 
-export type NotificationType = 'conversation_assigned';
+export type NotificationType = 'conversation_assigned' | 'form_submission';
 
 export interface Notification {
   id: string;
@@ -519,6 +532,8 @@ export type AutomationTriggerType =
   | 'new_contact_created'
   | 'conversation_assigned'
   | 'tag_added'
+  /** A lead submitted a form (optionally one specific form). */
+  | 'form_submitted'
   | 'time_based'
   /** Customer tapped a reply button / list row whose id matches; lets
    *  multi-step menus be chained across automations. */
@@ -562,6 +577,11 @@ export interface TagTriggerConfig {
   tag_id: string;
 }
 
+export interface FormSubmittedTriggerConfig {
+  /** Only this form; empty = any form. */
+  form_id?: string;
+}
+
 export interface TimeBasedTriggerConfig {
   /** Cron expression or simple HH:mm string; engine can accept either. */
   schedule: string;
@@ -577,6 +597,7 @@ export type AutomationTriggerConfig =
   | Record<string, never>
   | KeywordMatchTriggerConfig
   | TagTriggerConfig
+  | FormSubmittedTriggerConfig
   | TimeBasedTriggerConfig
   | InteractiveReplyTriggerConfig
   | Record<string, unknown>;

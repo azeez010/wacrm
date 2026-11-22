@@ -122,6 +122,7 @@ interface ColumnPrefs {
   /** "<fieldId>:<columnKey>" sub-columns of custom-table reference fields. */
   refCols?: string[];
   showBlocked?: boolean;
+  showSource?: boolean;
 }
 
 interface ContactWithTags extends Contact {
@@ -521,7 +522,7 @@ function ContactsPageInner() {
   const isShown = (c: BuiltinColumn) => !colPrefs.hidden.includes(c);
   const customCount = customColumns.length;
   // checkbox + name + phone + actions, plus the optional columns
-  const colCount = 4 + BUILTIN_COLUMNS.filter(isShown).length + customCount + (colPrefs.showBlocked ? 1 : 0);
+  const colCount = 4 + BUILTIN_COLUMNS.filter(isShown).length + customCount + (colPrefs.showBlocked ? 1 : 0) + (colPrefs.showSource ? 1 : 0);
 
   // Dashboard "New contact" links here with ?new=1: open the add form once,
   // then drop the param so a refresh doesn't reopen it.
@@ -533,6 +534,16 @@ function ContactsPageInner() {
     router.replace('/contacts');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wantsNew, canEdit]);
+
+  // Notifications link here with ?open=<contact id>: show that contact once.
+  const openId = searchParams.get('open');
+  useEffect(() => {
+    if (!openId) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    openDetail(openId);
+    router.replace('/contacts');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [openId]);
 
   function openAddForm() {
     setEditContact(null);
@@ -1199,6 +1210,13 @@ function ContactsPageInner() {
                   />
                   {t('tableColumns.blocked')}
                 </label>
+                <label className="flex cursor-pointer items-center gap-2 px-3 py-1.5 text-sm hover:bg-muted">
+                  <Checkbox
+                    checked={Boolean(colPrefs.showSource)}
+                    onCheckedChange={(on) => updatePrefs({ ...colPrefs, showSource: Boolean(on) })}
+                  />
+                  {t('tableColumns.source')}
+                </label>
                 {fieldDefs.length > 0 && (
                   <div className="mt-1 border-t border-border px-3 pb-1 pt-2 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
                     {t('columns.customFields')}
@@ -1404,6 +1422,7 @@ function ContactsPageInner() {
                   </TableHead>
                 )
               )}
+              {colPrefs.showSource && <TableHead className="text-muted-foreground">{t('tableColumns.source')}</TableHead>}
               {colPrefs.showBlocked && <TableHead className="text-muted-foreground">{t('tableColumns.blocked')}</TableHead>}
               {isShown('created') && <TableHead className={`text-muted-foreground hidden ${customCount > 0 ? 'xl:table-cell' : 'lg:table-cell'}`}>{t('tableColumns.createdAt')}</TableHead>}
               <TableHead className="text-muted-foreground w-12" />
@@ -1562,6 +1581,15 @@ function ContactsPageInner() {
                       </TableCell>
                     );
                   })}
+                  {colPrefs.showSource && (
+                    <TableCell className="text-muted-foreground text-sm">
+                      {contact.lead_source ? (
+                        <ExpandableText text={contact.lead_source} className="max-w-[140px]" />
+                      ) : (
+                        <span>-</span>
+                      )}
+                    </TableCell>
+                  )}
                   {colPrefs.showBlocked && (
                     <TableCell className="text-sm">
                       {contact.blocked_at ? (

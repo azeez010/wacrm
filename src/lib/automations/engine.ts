@@ -46,6 +46,8 @@ export interface AutomationContext {
   vars?: Record<string, unknown>
   /** The tag id that was added, for tag_added trigger. */
   tag_id?: string
+  /** The form that was submitted, for form_submitted trigger. */
+  form_id?: string
   /** Agent the conversation was assigned to, for conversation_assigned. */
   agent_id?: string
   /** Button / list-row id the customer tapped, for interactive_reply. */
@@ -1156,6 +1158,12 @@ export function triggerMatches(automation: Automation, ctx: AutomationContext | 
       return false
     }
     return cfg.reply_ids.includes(replyId)
+  }
+
+  if (automation.trigger_type === 'form_submitted') {
+    const want = (automation.trigger_config as { form_id?: string } | null)?.form_id
+    // No form chosen = any form.
+    return !want || want === ctx?.form_id
   }
 
   if (automation.trigger_type === 'tag_added') {

@@ -3,6 +3,8 @@
 import { useAuth } from "@/hooks/use-auth";
 import {
   canDeleteAccount,
+  canDeleteForms,
+  canManageForms,
   canEditSettings,
   canManageMembers,
   canSendMessages,
@@ -17,6 +19,8 @@ import {
  * lets the compiler catch typos at every call site.
  */
 export type CanAction =
+  | "manage-forms"
+  | "delete-forms"
   | "manage-members"
   | "edit-settings"
   | "send-messages"
@@ -42,6 +46,10 @@ export function useCan(action: CanAction): boolean {
   if (profileLoading || !accountRole) return false;
 
   switch (action) {
+    case "manage-forms":
+      return canManageForms(accountRole);
+    case "delete-forms":
+      return canDeleteForms(accountRole);
     case "manage-members":
       return canManageMembers(accountRole);
     case "edit-settings":

@@ -1,0 +1,96 @@
+import { arrayMove } from '@dnd-kit/sortable'
+
+import { parseFormSettings, type FormField, type FormSettings } from '@/lib/forms/types'
+
+// Editor state for a form being edited. Pure reducer so it is easy to test.
+
+export interface EditorState {
+  name: string
+  status: 'draft' | 'active' | 'paused'
+  fields: FormField[]
+  settings: FormSettings
+  /** Last saved snapshot, to know when there is something to save. */
+  saved: string
+}
+
+export type EditorAction =
+  | { type: 'load'; name: string; status: EditorState['status']; fields: FormField[]; settings: FormSettings }
+  | { type: 'name'; name: string }
+  | { type: 'status'; status: EditorState['status'] }
+  | { type: 'add'; field: FormField; at?: number }
+  | { type: 'update'; id: string; patch: Partial<FormField> }
+  | { type: 'remove'; id: string }
+  | { type: 'move'; from: number; to: number }
+  | { type: 'settings'; patch: Record<string, unknown> }
+  | { type: 'markSaved' }
+
+const snapshot = (s: Pick<EditorState, 'name' | 'status' | 'fields' | 'settings'>) =>
+  JSON.stringify([s.name, s.status, s.fields, s.settings])
+
+/** Shallow-merge a patch into settings, merging one level of nested objects. */
+export function mergeSettings(current: FormSettings, patch: Record<string, unknown>): FormSettings {
+  const next: Record<string, unknown> = { ...current }
+  for (const [k, v] of Object.entries(patch)) {
+    const cur = (current as Record<string, unknown>)[k]
+    if (v && typeof v === 'object' && !Array.isArray(v) && cur && typeof cur === 'object' && !Array.isArray(cur)) {
+      next[k] = { ...(cur as object), ...(v as object) }
+    } else if (v === undefined) {
+      delete next[k]
+    } else {
+      next[k] = v
+    }
+  }
+  return parseFormSettings(next)
+}
+
+/** A short, unique field id. */
+export function newFieldId(existing: FormField[], prefix: string): string {
+  const used = new Set(existing.map((f) => f.id))
+  if (!used.has(prefix)) return prefix
+  for (let i = 2; i < 1000; i++) if (!used.has(`${prefix}_${i}`)) return `${prefix}_${i}`
+  return `${prefix}_${Date.now().toString(36)}`
+}
+
+export function initialState(): EditorState {
+  return { name: '', status: 'draft', fields: [], settings: parseFormSettings({}), saved: '' }
+}
+
+export function editorReducer(state: EditorState, action: EditorAction): EditorState {
+  switch (action.type) {
+    case 'load': {
+      const s = { name: action.name, status: action.status, fields: action.fields, settings: action.settings }
+      return { ...s, saved: snapshot(s) }
+    }
+    case 'name':
+      return { ...state, name: action.name }
+    case 'status':
+      return { ...state, status: action.status }
+    case 'add': {
+      const field = { ...action.field, id: newFieldId(state.fields, action.field.id) }
+      const fields = [...state.fields]
+      fields.splice(action.at ?? fields.length, 0, field)
+      return { ...state, fields }
+    }
+    case 'update':
+      return {
+        ...state,
+        // The phone field is locked: always required, never removed or retyped.
+        fields: state.fields.map((f) =>
+          f.id === action.id ? { ...f, ...action.patch, ...(f.kind === 'phone' ? { kind: 'phone' as const, required: true } : {}) } : f,
+        ),
+      }
+    case 'remove':
+      return { ...state, fields: state.fields.filter((f) => f.id !== action.id || f.kind === 'phone') }
+    case 'move': {
+      if (action.from === action.to || action.from < 0 || action.to < 0) return state
+      if (action.from >= state.fields.length || action.to >= state.fields.length) return state
+      return { ...state, fields: arrayMove(state.fields, action.from, action.to) }
+    }
+    case 'settings':
+      return { ...state, settings: mergeSettings(state.settings, action.patch) }
+    case 'markSaved':
+      return { ...state, saved: snapshot(state) }
+  }
+}
+
+export const isDirty = (s: EditorState) => s.saved !== snapshot(s)

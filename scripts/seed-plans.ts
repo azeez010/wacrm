@@ -39,12 +39,14 @@ const PLANS = [
       custom_fields_max: 5,
       custom_tables_max: 1,
       custom_records_max: 200,
+      forms_max: 2,
+      form_submissions_per_month: 100,
     },
     features: {
       broadcasts: false, automations: true, flows: true, ai_assistant: false,
       public_api: true, mcp: false, outbound_webhooks: true, csv_import: true,
       coexistence: false, custom_connection: false, priority_support: false,
-      custom_fields: true,
+      custom_fields: true, forms: true, forms_advanced: false,
     },
   },
   {
@@ -75,12 +77,14 @@ const PLANS = [
       custom_fields_max: 25,
       custom_tables_max: 5,
       custom_records_max: 5000,
+      forms_max: 10,
+      form_submissions_per_month: 2000,
     },
     features: {
       broadcasts: true, automations: true, flows: true, ai_assistant: true,
       public_api: true, mcp: true, outbound_webhooks: true, csv_import: true,
       coexistence: true, custom_connection: false, priority_support: false,
-      custom_fields: true,
+      custom_fields: true, forms: true, forms_advanced: true,
     },
   },
   {
@@ -111,12 +115,14 @@ const PLANS = [
       custom_fields_max: null,
       custom_tables_max: null,
       custom_records_max: null,
+      forms_max: null,
+      form_submissions_per_month: 25000,
     },
     features: {
       broadcasts: true, automations: true, flows: true, ai_assistant: true,
       public_api: true, mcp: true, outbound_webhooks: true, csv_import: true,
       coexistence: true, custom_connection: true, priority_support: true,
-      custom_fields: true,
+      custom_fields: true, forms: true, forms_advanced: true,
     },
   },
 ]

@@ -33,6 +33,7 @@ const READ_SCOPES: ApiScope[] = [
   'fields:read',
   'tables:read',
   'segments:read',
+  'forms:read',
 ];
 
 const BUILDER_SCOPES: ApiScope[] = [
@@ -44,6 +45,7 @@ const BUILDER_SCOPES: ApiScope[] = [
   'fields:write',
   'tables:write',
   'segments:write',
+  'forms:manage',
 ];
 
 const PRESETS: {
@@ -61,14 +63,14 @@ const PRESETS: {
   {
     id: 'builder',
     label: 'Campaign builder',
-    hint: 'Everything in Read-only, plus build pipelines, automations, chatbot flows, message templates, custom fields, tables and segments. New automations and flows are saved as drafts. It cannot message customers directly.',
+    hint: 'Everything in Read-only, plus build pipelines, automations, chatbot flows, message templates, custom fields, tables, segments and forms. New automations and flows are saved as drafts. It cannot message customers directly.',
     scopes: BUILDER_SCOPES,
   },
   {
     id: 'full',
     label: 'Full access',
     hint: 'Campaign builder, plus edit contacts and deals, send WhatsApp messages and launch broadcasts (mass sends).',
-    scopes: [...BUILDER_SCOPES, 'contacts:write', 'messages:send', 'broadcasts:send'],
+    scopes: [...BUILDER_SCOPES, 'contacts:write', 'messages:send', 'broadcasts:send', 'forms:write'],
   },
 ];
 

@@ -323,7 +323,7 @@ export async function deleteField(
   ctx: Ctx,
   fieldId: string,
   opts: { purge?: boolean } = {},
-): Promise<Result<{ archived: boolean }>> {
+): Promise<Result<{ archived: boolean; forms: string[] }>> {
   if (!hasMinRole(ctx.role, 'admin')) return fail(403, 'Only admins can delete fields')
   const { data: current } = await ctx.db
     .from('custom_fields')
@@ -335,19 +335,24 @@ export async function deleteField(
   const field = current as CustomFieldRow
   if (field.locked) return fail(403, 'This field is managed by an app')
 
+  // Forms that ask this field (directly, or through a table column behind it).
+  // Such a field is archived, never hard-deleted, so a form never points at a
+  // vanished id; the form just stops showing it and the owner is told which forms.
+  const usedBy = await formsUsingField(ctx, fieldId)
+
   if (!opts.purge) {
     const { count } = await ctx.db
       .from('contact_custom_values')
       .select('id', { count: 'exact', head: true })
       .eq('custom_field_id', fieldId)
-    if ((count ?? 0) > 0) {
+    if ((count ?? 0) > 0 || usedBy.length > 0) {
       const { error } = await ctx.db
         .from('custom_fields')
         .update({ archived_at: new Date().toISOString() })
         .eq('id', fieldId)
         .eq('account_id', ctx.accountId)
       if (error) return fail(500, error.message)
-      return ok({ archived: true })
+      return ok({ archived: true, forms: usedBy })
     }
   }
   const { error } = await ctx.db
@@ -356,7 +361,17 @@ export async function deleteField(
     .eq('id', fieldId)
     .eq('account_id', ctx.accountId)
   if (error) return fail(500, error.message)
-  return ok({ archived: false })
+  return ok({ archived: false, forms: usedBy })
+}
+
+/** Names of the (non-archived) forms that ask the given contact field. */
+export async function formsUsingField(ctx: Ctx, fieldId: string): Promise<string[]> {
+  const [direct, viaTable] = await Promise.all([
+    ctx.db.from('forms').select('name').eq('account_id', ctx.accountId).is('archived_at', null).filter('fields', 'cs', JSON.stringify([{ customFieldId: fieldId }])),
+    ctx.db.from('forms').select('name').eq('account_id', ctx.accountId).is('archived_at', null).filter('fields', 'cs', JSON.stringify([{ tableRef: { fieldId } }])),
+  ])
+  const names = [...(direct.data ?? []), ...(viaTable.data ?? [])].map((r) => (r as { name: string }).name)
+  return [...new Set(names)]
 }
 
 // ------------------------------------------------------------

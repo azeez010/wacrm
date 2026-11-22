@@ -43,6 +43,7 @@ const triggerType = z.enum([
   'new_contact_created',
   'conversation_assigned',
   'tag_added',
+  'form_submitted',
   'time_based',
   'interactive_reply',
 ])

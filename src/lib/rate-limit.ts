@@ -132,6 +132,12 @@ export function rateLimitResponse(result: RateLimitResult): NextResponse {
 
 /** Preconfigured budgets, tweak here not at call sites. */
 export const RATE_LIMITS = {
+  /** Public lead forms, per IP + form. 12/min lets a family share one connection
+   *  and retry typos, while bounding a script. (Per isolate on Workers, so the
+   *  submit pipeline also caps by DB.) */
+  formSubmit: { limit: 12, windowMs: 60_000 },
+  /** Form view/start beacons, per IP + form. */
+  formEvent: { limit: 60, windowMs: 60_000 },
   /** Individual message send. 60/min per user = one per second
    *  sustained, comfortable for a live human typing. */
   send: { limit: 60, windowMs: 60_000 },

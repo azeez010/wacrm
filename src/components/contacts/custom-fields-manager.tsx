@@ -235,6 +235,9 @@ export function CustomFieldsPanel() {
         ? t('toastArchived', { name: field.field_name })
         : t('toastDeleted', { name: field.field_name })
     );
+    if (Array.isArray(data.forms) && data.forms.length > 0) {
+      toast.warning(t('toastUsedByForms', { name: field.field_name, forms: data.forms.join(', ') }));
+    }
     await fetchFields();
   }
 

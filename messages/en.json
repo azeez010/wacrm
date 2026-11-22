@@ -41,7 +41,8 @@
     "defaultAvatar": "Avatar",
     "menuProfile": "Profile",
     "menuSettings": "Settings",
-    "menuSignOut": "Sign out"
+    "menuSignOut": "Sign out",
+    "forms": "Forms"
   },
   "Header": {
     "dashboard": "Dashboard",
@@ -62,7 +63,8 @@
     "bell": {
       "label": "Notifications",
       "viewAll": "View all"
-    }
+    },
+    "forms": "Forms"
   },
   "ModeToggle": {
     "switchMode": "Switch to {mode} mode"
@@ -569,7 +571,8 @@
         "company": "Company",
         "tags": "Tags",
         "createdAt": "Created",
-        "blocked": "Blocked"
+        "blocked": "Blocked",
+        "source": "Source"
       },
       "loading": "Loading contacts...",
       "noContactsMatch": "No contacts match your filters.",
@@ -797,7 +800,14 @@
       "toastReferenceMissing": "That value points at a row that no longer exists. Pick it again.",
       "blockedBadge": "Blocked",
       "blockBtn": "Block",
-      "unblockBtn": "Unblock"
+      "unblockBtn": "Unblock",
+      "source": {
+        "title": "Source",
+        "leadSource": "Lead source",
+        "optIn": "Opted in",
+        "submissions": "Forms filled in",
+        "notQualified": "not qualified"
+      }
     },
     "importModal": {
       "title": "Import Contacts",
@@ -953,7 +963,8 @@
       },
       "dragHandle": "Drag to reorder: {name}",
       "dragHint": "Drag to reorder",
-      "toastReorderFailed": "Could not save the new order."
+      "toastReorderFailed": "Could not save the new order.",
+      "toastUsedByForms": "\"{name}\" is no longer asked in these forms: {forms}."
     },
     "tagEditor": {
       "add": "Add tag",
@@ -1464,6 +1475,10 @@
         "time_based": {
           "label": "Time-Based",
           "hint": "On a recurring schedule"
+        },
+        "form_submitted": {
+          "label": "Form Submitted",
+          "hint": "When a lead submits a form"
         }
       },
       "trigger": "Trigger",
@@ -1587,7 +1602,9 @@
         "segmentPlaceholder": "Pick a segment…",
         "blockContactHint": "Stops all messages to this contact (broadcasts, automations, flows, AI replies and manual sends). Put any goodbye message before this step.",
         "unblockContactHint": "Lets this contact receive messages again.",
-        "placeholderReplyId": "e.g. unsub_yes"
+        "placeholderReplyId": "e.g. unsub_yes",
+        "formLabel": "Form",
+        "formAny": "Any form"
       },
       "preview": {
         "noText": "no text yet",
@@ -2860,7 +2877,8 @@
       "createFlows": "create flows",
       "createPipelines": "create pipelines",
       "createDeals": "create deals",
-      "sendMessages": "send messages"
+      "sendMessages": "send messages",
+      "manageForms": "manage forms"
     }
   },
   "Presence": {
@@ -2928,6 +2946,11 @@
       "name": "Follow-up Reminder",
       "description": "Send a nudge if a contact has not replied within 24 hours.",
       "text": "Just circling back, did you have any other questions for us? Happy to help!"
+    },
+    "new_form_lead": {
+      "name": "Welcome new form lead",
+      "description": "Greets someone right after they submit one of your forms.",
+      "text": "Hi {name}! Thanks for your details, we will message you here shortly."
     }
   },
   "StarterFlows": {
@@ -3505,7 +3528,11 @@
       "company": "Company",
       "tags": "Tags",
       "created_at": "Created",
-      "blocked": "Blocked"
+      "blocked": "Blocked",
+      "lead_source": "Lead source",
+      "utm_source": "UTM source",
+      "utm_medium": "UTM medium",
+      "utm_campaign": "UTM campaign"
     },
     "operators": {
       "contains": "contains",
@@ -3553,6 +3580,328 @@
       "no": "No, stay subscribed",
       "confirmed": "You have been unsubscribed. You will not receive any more messages from us.",
       "kept": "Okay, you will keep receiving our messages."
+    }
+  },
+  "Forms": {
+    "list": {
+      "subtitle": "Collect leads from ads, your website or a shared link.",
+      "new": "New form",
+      "usage": "{forms} of {formsLimit} forms, {leads} of {leadsLimit} leads this month.",
+      "unlimited": "unlimited",
+      "held": "{count} waiting for an upgrade.",
+      "emptyTitle": "No forms yet",
+      "emptyHint": "Create a lead form or a support button. Every lead lands in Contacts.",
+      "kindLead": "Lead form",
+      "kindSupport": "Support button",
+      "leadsMonth": "{count, plural, one {# lead this month} other {# leads this month}}",
+      "attention": "{count, plural, one {# needs attention} other {# need attention}}",
+      "status": {
+        "draft": "Draft",
+        "active": "Active",
+        "paused": "Paused"
+      },
+      "copyLink": "Copy link",
+      "copied": "Link copied",
+      "more": "More",
+      "duplicate": "Duplicate",
+      "archive": "Archive",
+      "duplicateFailed": "Could not duplicate the form",
+      "archiveFailed": "Could not archive the form",
+      "archived": "Form archived"
+    },
+    "new": {
+      "title": "New form",
+      "question": "What do you want to create?",
+      "leadTitle": "Lead form",
+      "leadHint": "A page, QR code or embed that collects leads.",
+      "supportTitle": "Support button",
+      "supportHint": "A floating chat button for your website that opens WhatsApp.",
+      "pickTemplate": "Pick a starting point",
+      "nameHint": "Optionally name it first; you can rename it later.",
+      "namePlaceholder": "Form name",
+      "failed": "Could not create the form",
+      "back": "Back"
+    },
+    "templates": {
+      "blank": {
+        "name": "Blank",
+        "description": "Phone and name, nothing else."
+      },
+      "contact": {
+        "name": "Contact us",
+        "description": "Name, email and a message."
+      },
+      "newsletter": {
+        "name": "Newsletter",
+        "description": "Email sign-up with consent."
+      },
+      "webinar": {
+        "name": "Webinar sign-up",
+        "description": "Name, email and company."
+      },
+      "quote": {
+        "name": "Request a quote",
+        "description": "Company and what they need."
+      },
+      "event": {
+        "name": "Event RSVP",
+        "description": "Name and consent, quick to fill."
+      },
+      "support": {
+        "name": "Support button",
+        "description": "Phone, name and message, then opens WhatsApp."
+      }
+    },
+    "editor": {
+      "back": "Back to forms",
+      "name": "Form name",
+      "publish": "Publish",
+      "published": "Published",
+      "share": "Share",
+      "settings": "Settings",
+      "save": "Save",
+      "saved": "Saved",
+      "saveFailed": "Could not save",
+      "tabEdit": "Edit",
+      "tabResults": "Results",
+      "desktop": "Desktop",
+      "mobile": "Mobile",
+      "previewHint": "Live preview. Nothing is sent from here."
+    },
+    "edit": {
+      "addField": "Add field",
+      "groupBasic": "Basic",
+      "groupYourFields": "Your fields",
+      "groupTables": "Your tables",
+      "groupExtras": "Extras",
+      "kind": {
+        "phone": "WhatsApp number",
+        "name": "Name",
+        "email": "Email",
+        "company": "Company",
+        "message": "Message",
+        "custom_field": "Custom field",
+        "table_column": "Table column",
+        "tag_picker": "Tag picker",
+        "consent": "Consent",
+        "hidden": "Hidden field",
+        "heading": "Heading"
+      },
+      "label": "Label",
+      "help": "Help text",
+      "required": "Required",
+      "remove": "Remove",
+      "drag": "Drag to reorder",
+      "phoneLocked": "Always asked, always required",
+      "fieldMissing": "field no longer exists",
+      "choices": "Choices shown",
+      "points": "Points",
+      "disqualify": "Disqualifies",
+      "tagChoices": "Tags the visitor can choose",
+      "hiddenParam": "URL parameter",
+      "hiddenHint": "Filled from ?param=value in the link, e.g. ?ad_id=42",
+      "hiddenFixed": "Or a fixed value",
+      "privacyUrl": "Privacy policy link",
+      "defaultConsent": "I agree to be contacted on WhatsApp.",
+      "defaultHeading": "A short note above the next fields",
+      "moreOptions": "More options"
+    },
+    "settings": {
+      "title": "Settings",
+      "subtitle": "What happens after someone submits.",
+      "afterSubmit": "After submit",
+      "actionMessage": "Show a thank-you message",
+      "actionWhatsapp": "Continue in WhatsApp",
+      "actionRedirect": "Go to a web page",
+      "thankYou": "Thank-you message",
+      "redirectUrl": "Page address",
+      "redirectHint": "Visitors are sent here after submitting.",
+      "whatsappText": "Message they send you",
+      "whatsappHint": "Use {name}, {message} or any field key. It opens in WhatsApp, ready to send.",
+      "followUp": "Add 'or we'll message you shortly'",
+      "tag": "Tag leads with",
+      "tagHint": "Created automatically. Leave empty for no tag.",
+      "tagPlaceholder": "e.g. gym-join",
+      "assign": "Assign to",
+      "assignNone": "Nobody",
+      "assignAgent": "One teammate",
+      "assignRoundRobin": "Take turns",
+      "qualify": "Qualify leads with points",
+      "qualifyHint": "Give choices points in the form fields. Leads under the threshold are not qualified.",
+      "threshold": "Qualify from (points)",
+      "whenNot": "If not qualified",
+      "whenNotSave": "Save the lead and tag it",
+      "whenNotBlock": "Do not accept the entry",
+      "blockMessage": "Message shown instead",
+      "tagsQualified": "Tags for qualified leads",
+      "tagsNotQualified": "Tags for others",
+      "more": "More options",
+      "formTitle": "Form title",
+      "description": "Short description",
+      "buttonText": "Button text",
+      "accent": "Colour",
+      "language": "Language",
+      "logoUrl": "Logo address",
+      "defaultCountry": "Default country",
+      "defaultCountryHint": "So people can type 0803... without the country code.",
+      "onePerPhone": "One entry per phone number",
+      "repeatWindow": "Repeat window (hours)",
+      "repeatHint": "A repeat from the same number inside this time does not notify or re-run anything.",
+      "maxSubmissions": "Stop after this many leads",
+      "opensAt": "Opens",
+      "closesAt": "Closes",
+      "closedMessage": "Message when closed",
+      "messageAsNote": "Save their message as a contact note",
+      "turnstile": "Bot check (Cloudflare Turnstile)",
+      "pipeline": "Add to pipeline",
+      "pipelineHint": "Creates a deal for qualified leads.",
+      "pipelineNone": "No deal",
+      "ogTitle": "Link preview title",
+      "ogDescription": "Link preview text",
+      "ogImage": "Link preview image",
+      "noindex": "Hide from search engines",
+      "welcome": "Welcome message",
+      "welcomeHint": "Sends this approved template to new leads who ticked the consent box.",
+      "welcomeNone": "No welcome message",
+      "welcomeParams": "Template values, separated by | (use {name})"
+    },
+    "support": {
+      "askName": "Ask for their name",
+      "askMessage": "Ask for a message",
+      "label": "Button label",
+      "color": "Colour",
+      "corner": "Corner",
+      "bottomLeft": "Bottom left",
+      "bottomRight": "Bottom right",
+      "icon": "Icon",
+      "iconChat": "Chat",
+      "iconHeadset": "Headset",
+      "greeting": "Greeting line",
+      "offsetX": "Distance from the side (px)",
+      "offsetY": "Distance from the bottom (px)",
+      "devices": "Show on",
+      "devicesAll": "All devices",
+      "devicesMobile": "Phones only",
+      "devicesDesktop": "Computers only",
+      "showOn": "Pages",
+      "showAll": "Every page",
+      "showContains": "Only pages whose address contains...",
+      "hours": "Business hours",
+      "offlineText": "Message outside hours",
+      "day0": "Sun",
+      "day1": "Mon",
+      "day2": "Tue",
+      "day3": "Wed",
+      "day4": "Thu",
+      "day5": "Fri",
+      "day6": "Sat"
+    },
+    "share": {
+      "title": "Share",
+      "leadHint": "Send people the link or print the QR code.",
+      "supportHint": "Paste this once on your website.",
+      "pasteBeforeBody": "Paste before the closing body tag of your site:",
+      "copy": "Copy",
+      "copied": "Copied",
+      "qrAlt": "QR code for the form",
+      "tracking": "Add tracking",
+      "trackingHint": "Tag where each link is used. The link and QR update as you type.",
+      "embed": "Embed on a website",
+      "embedScript": "Easiest: a div and one script.",
+      "embedIframe": "Or a plain iframe:",
+      "embedHtml": "Or your own HTML form posting to the form:"
+    },
+    "results": {
+      "lastDays": "Last {days} days",
+      "export": "Export CSV",
+      "visited": "Visited",
+      "started": "Started",
+      "submitted": "Submitted",
+      "qualified": "Qualified",
+      "whereFrom": "Where leads come from",
+      "bySource": "By source",
+      "byCampaign": "By campaign",
+      "byCountry": "By country",
+      "noData": "Nothing yet.",
+      "colDate": "Date",
+      "colName": "Name",
+      "colPhone": "Phone",
+      "colSource": "Source",
+      "colStatus": "Status",
+      "empty": "No leads yet.",
+      "outcome": {
+        "accepted": "Accepted",
+        "held": "Held",
+        "blocked": "Not accepted",
+        "rejected": "Rejected",
+        "spam": "Spam"
+      },
+      "notQualified": "not qualified",
+      "needsAttention": "needs attention",
+      "score": "Score",
+      "repeat": "repeat",
+      "failedSteps": "Some steps failed",
+      "openContact": "Open contact",
+      "release": "Release",
+      "retry": "Retry failed steps",
+      "spam": "Mark as spam",
+      "spamBlock": "Spam and block number",
+      "delete": "Delete",
+      "actionFailed": "That did not work",
+      "done": {
+        "retry": "Retrying",
+        "release": "Releasing the lead",
+        "spam": "Marked as spam"
+      }
+    }
+  },
+  "StarterForms": {
+    "consent": "I agree to be contacted on WhatsApp.",
+    "thanks": "Thank you! We received your details.",
+    "support": {
+      "name": "Support button",
+      "description": "Phone, name and message, then opens WhatsApp.",
+      "title": "How can we help?",
+      "button": "Start chat",
+      "thanks": "Thanks! Tap below to continue in WhatsApp.",
+      "whatsappText": "Hi, I'm {name}. {message}",
+      "label": "Chat with us",
+      "greeting": "Chat with us on WhatsApp"
+    },
+    "contact": {
+      "name": "Contact us",
+      "description": "Name, email and a message.",
+      "title": "Get in touch",
+      "intro": "Leave your details and we will reply on WhatsApp."
+    },
+    "newsletter": {
+      "name": "Newsletter",
+      "description": "Email sign-up with consent.",
+      "title": "Stay in the loop",
+      "intro": "Get our updates straight to your phone and inbox."
+    },
+    "webinar": {
+      "name": "Webinar sign-up",
+      "description": "Name, email and company.",
+      "title": "Reserve your seat",
+      "intro": "Register for the next session."
+    },
+    "quote": {
+      "name": "Request a quote",
+      "description": "Company and what they need.",
+      "title": "Request a quote",
+      "intro": "Tell us what you need and we will get back to you."
+    },
+    "event": {
+      "name": "Event RSVP",
+      "description": "Name and consent, quick to fill.",
+      "title": "RSVP",
+      "intro": "Let us know you are coming."
+    },
+    "blank": {
+      "name": "Blank",
+      "description": "Phone and name, nothing else.",
+      "title": "Sign up"
     }
   }
 }

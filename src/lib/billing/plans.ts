@@ -24,6 +24,8 @@ export const LIMIT_DEFS = {
   custom_fields_max: 'Custom contact fields',
   custom_tables_max: 'Custom tables',
   custom_records_max: 'Custom table rows',
+  forms_max: 'Forms and support buttons',
+  form_submissions_per_month: 'Form leads / month',
 } as const
 
 export const FEATURE_DEFS = {
@@ -39,6 +41,8 @@ export const FEATURE_DEFS = {
   custom_connection: 'Bring your own Meta app',
   priority_support: 'Priority support',
   custom_fields: 'Custom fields, segments and tables',
+  forms: 'Lead forms and support button',
+  forms_advanced: 'Form scoring, round-robin and welcome message',
 } as const
 
 /**
@@ -47,7 +51,7 @@ export const FEATURE_DEFS = {
  * "locked" - for these it means "included" so existing accounts keep
  * working until the plan is explicitly set to false.
  */
-export const DEFAULT_ON_FEATURES: readonly FeatureKey[] = ['custom_fields']
+export const DEFAULT_ON_FEATURES: readonly FeatureKey[] = ['custom_fields', 'forms']
 
 export type LimitKey = keyof typeof LIMIT_DEFS
 export type FeatureKey = keyof typeof FEATURE_DEFS

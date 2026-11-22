@@ -1,0 +1,182 @@
+import type { SupabaseClient } from '@supabase/supabase-js'
+
+import { assertFeature } from '@/lib/billing/entitlements'
+import { loadFormDefinitions } from './definitions'
+import { parseFormFields, parseFormSettings, type FormKind, type FormRow } from './types'
+
+// ============================================================
+// What a public visitor's browser is allowed to know about a form. Built on the
+// server from the stored definition; internal ids (agents, pipeline, template,
+// custom field ids) never leave it.
+// ============================================================
+
+export interface PublicField {
+  id: string
+  kind: string
+  label: string
+  help?: string
+  placeholder?: string
+  required?: boolean
+  /** custom field / table column input type (text, number, enum, ...) */
+  type?: string
+  options?: string[]
+  display?: 'select' | 'radio' | 'chips'
+  tags?: { id: string; name: string }[]
+  param?: string
+  fixedValue?: string
+  consentText?: string
+  privacyUrl?: string
+  text?: string
+}
+
+export interface PublicFormConfig {
+  publicId: string
+  kind: FormKind
+  name: string
+  title: string
+  description?: string
+  buttonText?: string
+  accent: string
+  logoUrl?: string
+  language: string
+  defaultCountry: string
+  noindex: boolean
+  og: { title?: string; description?: string; image?: string }
+  success: {
+    action: 'message' | 'redirect' | 'whatsapp'
+    message?: string
+    redirectUrl?: string
+    followUpLine?: boolean
+  }
+  turnstile: boolean
+  /** Show the "Powered by" line (hidden on plans with forms_advanced). */
+  showBranding: boolean
+  /** Account time zone, for the support button's business hours. */
+  timezone?: string
+  widget?: {
+    corner: 'bottom-left' | 'bottom-right'
+    offsetX: number
+    offsetY: number
+    label?: string
+    color?: string
+    icon: 'whatsapp' | 'chat' | 'headset'
+    greeting?: string
+    showOn: 'all' | 'contains'
+    urlContains?: string
+    devices: 'all' | 'mobile' | 'desktop'
+    hours?: { enabled: boolean; days: number[]; from: string; to: string; offlineText?: string }
+  }
+  fields: PublicField[]
+}
+
+export const FORM_COLUMNS =
+  'id, account_id, public_id, kind, name, status, fields, settings, version, rr_cursor, archived_at'
+
+/** The row for a public id, or null (also null for archived forms). */
+export async function loadFormByPublicId(db: SupabaseClient, publicId: string): Promise<FormRow | null> {
+  if (!/^[a-z0-9]{6,32}$/i.test(publicId)) return null
+  const { data } = await db.from('forms').select(FORM_COLUMNS).eq('public_id', publicId).maybeSingle()
+  const row = data as FormRow | null
+  if (!row || row.archived_at) return null
+  return row
+}
+
+export async function buildPublicConfig(db: SupabaseClient, form: FormRow): Promise<PublicFormConfig> {
+  const settings = parseFormSettings(form.settings)
+  const fields = parseFormFields(form.fields)
+  const defs = await loadFormDefinitions(db, form.account_id, fields)
+
+  const tagIds = [...new Set(fields.flatMap((f) => (f.kind === 'tag_picker' ? f.tagIds ?? [] : [])))]
+  const tagNames = new Map<string, string>()
+  if (tagIds.length > 0) {
+    const { data } = await db.from('tags').select('id, name').eq('account_id', form.account_id).in('id', tagIds)
+    for (const t of (data ?? []) as { id: string; name: string }[]) tagNames.set(t.id, t.name)
+  }
+
+  const pub: PublicField[] = []
+  for (const f of fields) {
+    const base: PublicField = {
+      id: f.id,
+      kind: f.kind,
+      label: f.label ?? '',
+      help: f.help,
+      placeholder: f.placeholder,
+      required: f.kind === 'phone' ? true : f.required,
+    }
+    if (f.kind === 'custom_field') {
+      const d = f.customFieldId ? defs.customFields.get(f.customFieldId) : undefined
+      if (!d) continue
+      base.type = d.field_type
+      base.label = f.label || d.field_name
+      base.options = f.options?.length ? f.options : d.field_options?.options
+      base.display = f.display
+    } else if (f.kind === 'table_column') {
+      const d = f.tableRef ? defs.tableColumns.get(`${f.tableRef.fieldId}:${f.tableRef.columnKey}`) : undefined
+      if (!d) continue
+      base.type = d.field_type
+      base.label = f.label || d.field_name
+      base.options = f.options?.length ? f.options : d.field_options?.options
+      base.display = f.display
+    } else if (f.kind === 'tag_picker') {
+      base.tags = (f.tagIds ?? []).flatMap((id) => (tagNames.has(id) ? [{ id, name: tagNames.get(id) as string }] : []))
+    } else if (f.kind === 'hidden') {
+      base.param = f.param
+      base.fixedValue = f.fixedValue
+    } else if (f.kind === 'consent') {
+      base.consentText = f.consentText
+      base.privacyUrl = f.privacyUrl
+    } else if (f.kind === 'heading') {
+      base.text = f.text
+    }
+    pub.push(base)
+  }
+
+  const { data: acct } = await db.from('accounts').select('timezone').eq('id', form.account_id).maybeSingle()
+  const branded = await assertFeature(db, form.account_id, 'forms_advanced').then(
+    () => false,
+    () => true,
+  )
+  const w = settings.widget
+  return {
+    publicId: form.public_id,
+    kind: form.kind,
+    name: form.name,
+    title: settings.title ?? form.name,
+    description: settings.description,
+    buttonText: settings.buttonText,
+    accent: settings.accent ?? '#10b981',
+    logoUrl: settings.logoUrl,
+    language: settings.language ?? 'en',
+    defaultCountry: (settings.defaultCountry ?? 'NG').toUpperCase(),
+    noindex: settings.noindex !== false,
+    og: { title: settings.ogTitle, description: settings.ogDescription, image: settings.ogImage },
+    success: {
+      action: settings.success.action,
+      message: settings.success.message,
+      redirectUrl: settings.success.action === 'redirect' ? settings.success.redirectUrl : undefined,
+      followUpLine: settings.success.followUpLine,
+    },
+    showBranding: branded,
+    timezone: (acct as { timezone?: string } | null)?.timezone ?? 'UTC',
+    turnstile: !!settings.rules.turnstile && !!process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY,
+    widget:
+      form.kind === 'support' && w
+        ? {
+            corner: w.corner,
+            offsetX: w.offsetX,
+            offsetY: w.offsetY,
+            label: w.label,
+            color: w.color ?? settings.accent,
+            icon: w.icon,
+            greeting: w.greeting,
+            showOn: w.showOn,
+            urlContains: w.urlContains,
+            devices: w.devices,
+            hours: w.hours,
+          }
+        : form.kind === 'support'
+          ? { corner: 'bottom-left', offsetX: 20, offsetY: 20, icon: 'whatsapp', showOn: 'all', devices: 'all', color: settings.accent }
+          : undefined,
+    fields: pub,
+  }
+}

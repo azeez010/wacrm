@@ -34,7 +34,7 @@ const sys = buildSystemFields(fields, tables)
 describe('buildSystemFields', () => {
   it('lists core fields, custom fields and table columns, skipping media', () => {
     expect(sys.map((s) => s.id)).toEqual([
-      'phone', 'name', 'email', 'company', 'tags', 'blocked',
+      'phone', 'name', 'email', 'company', 'tags', 'blocked', 'lead_source', 'utm_source', 'utm_medium', 'utm_campaign',
       'cf:f-bal', 'cf:f-out',
       'ref:f-prof:name', 'ref:f-prof:age',
     ])

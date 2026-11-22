@@ -9,6 +9,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useTotalUnread } from "@/hooks/use-total-unread";
 import {
   Bot,
+  ClipboardList,
   Crown,
   GitBranch,
   LayoutDashboard,
@@ -92,6 +93,7 @@ const navItems: NavItem[] = [
   { href: "/dashboard", labelKey: "dashboard", icon: LayoutDashboard },
   { href: "/inbox", labelKey: "inbox", icon: MessageSquare },
   { href: "/contacts", labelKey: "contacts", icon: Users },
+  { href: "/forms", labelKey: "forms", icon: ClipboardList },
   { href: "/pipelines", labelKey: "pipelines", icon: GitBranch },
   { href: "/broadcasts", labelKey: "broadcasts", icon: Radio },
   { href: "/automations", labelKey: "automations", icon: Zap },

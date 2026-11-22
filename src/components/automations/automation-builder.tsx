@@ -166,6 +166,7 @@ const TRIGGER_OPTIONS: { value: AutomationTriggerType }[] = [
   { value: "new_contact_created" },
   { value: "conversation_assigned" },
   { value: "tag_added" },
+  { value: "form_submitted" },
   { value: "time_based" },
 ]
 
@@ -347,6 +348,42 @@ const SELECT_CLASS =
 
 /** Tag dropdown by name + color, storing the tag's id. Falls back to a
  *  raw id input when no tags exist yet. */
+function FormSelect({
+  value,
+  onChange,
+  t,
+}: {
+  value: string
+  onChange: (v: string) => void
+  t: ReturnType<typeof useTranslations>
+}) {
+  const [forms, setForms] = useState<{ id: string; name: string }[]>([])
+  useEffect(() => {
+    let cancelled = false
+    void (async () => {
+      const { data } = await createClient().from("forms").select("id, name").is("archived_at", null).order("name")
+      if (!cancelled) setForms((data as { id: string; name: string }[] | null) ?? [])
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [])
+  return (
+    <select
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      className="w-full rounded-md border border-border bg-muted px-2 py-1.5 text-sm text-foreground"
+    >
+      <option value="">{t("config.formAny")}</option>
+      {forms.map((f) => (
+        <option key={f.id} value={f.id}>
+          {f.name}
+        </option>
+      ))}
+    </select>
+  )
+}
+
 function TagSelect({
   value,
   onChange,
@@ -886,6 +923,18 @@ function TriggerCard({
             )}
             {type === "interactive_reply" && (
               <InteractiveReplyConfig config={config} onChange={onConfigChange} t={t} />
+            )}
+            {type === "form_submitted" && (
+              <div>
+                <label className="mb-1 block text-xs font-medium text-muted-foreground">
+                  {t("config.formLabel")}
+                </label>
+                <FormSelect
+                  value={(config.form_id as string) ?? ""}
+                  onChange={(v) => onConfigChange({ ...config, form_id: v || undefined })}
+                  t={t}
+                />
+              </div>
             )}
             {type === "tag_added" && (
               <div>

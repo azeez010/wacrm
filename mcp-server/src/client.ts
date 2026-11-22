@@ -145,6 +145,36 @@ export class WacrmClient {
     return this.request('PATCH', `/contacts/${encodeURIComponent(id)}`, { body });
   }
 
+  // --- Forms --------------------------------------------------------
+
+  listForms(): Promise<{ data: unknown }> {
+    return this.request('GET', '/forms');
+  }
+
+  getForm(id: string): Promise<{ data: unknown }> {
+    return this.request('GET', `/forms/${encodeURIComponent(id)}`);
+  }
+
+  listFormSubmissions(id: string, query: { limit?: number; cursor?: string }): Promise<Paginated<unknown>> {
+    return this.list(`/forms/${encodeURIComponent(id)}/submissions`, query);
+  }
+
+  createForm(body: unknown): Promise<{ data: unknown }> {
+    return this.request('POST', '/forms', { body });
+  }
+
+  updateForm(id: string, body: unknown): Promise<{ data: unknown }> {
+    return this.request('PATCH', `/forms/${encodeURIComponent(id)}`, { body });
+  }
+
+  archiveForm(id: string): Promise<{ data: unknown }> {
+    return this.request('DELETE', `/forms/${encodeURIComponent(id)}`);
+  }
+
+  submitFormLead(id: string, body: unknown): Promise<{ data: unknown }> {
+    return this.request('POST', `/forms/${encodeURIComponent(id)}/submissions`, { body });
+  }
+
   // --- Conversations ------------------------------------------------
 
   listConversations(query: {

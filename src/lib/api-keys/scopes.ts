@@ -35,6 +35,9 @@ export const API_SCOPES = [
   'tables:write',
   'segments:read',
   'segments:write',
+  'forms:read',
+  'forms:write',
+  'forms:manage',
   'otp:send',
   'otp:verify',
 ] as const;
@@ -64,6 +67,9 @@ export const SCOPE_DESCRIPTIONS: Record<ApiScope, string> = {
   'tables:write': 'Create and edit custom tables and add, edit or delete their rows',
   'segments:read': 'Read segments and the contacts that match them',
   'segments:write': 'Create, edit and delete segments',
+  'forms:read': 'List forms and read their submissions',
+  'forms:write': 'Submit leads to a form from your own server',
+  'forms:manage': 'Create, edit, publish and archive forms and support buttons',
   'otp:send': 'Send verification codes over WhatsApp',
   'otp:verify': 'Check verification codes and read verification status',
 };

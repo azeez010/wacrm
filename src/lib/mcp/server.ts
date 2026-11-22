@@ -9,6 +9,7 @@ import { createApiClient, type ApiClient } from './dispatch'
 import { READ, WRITE, cursor, errorResult, has, limit, run } from './helpers'
 import { registerBuilderTools } from './builder-tools'
 import { registerCustomTools } from './custom-tools'
+import { registerFormsTools } from './forms-tools'
 
 export function createWacrmMcpServer(
   authorization: string,
@@ -293,6 +294,7 @@ export function createWacrmMcpServer(
 
   registerBuilderTools(server, api, scopes)
   registerCustomTools(server, api, scopes)
+  registerFormsTools(server, api, scopes)
 
   return server
 }

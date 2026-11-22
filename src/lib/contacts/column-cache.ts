@@ -238,11 +238,13 @@ export interface ColumnPrefsShape {
   refCols?: string[]
   /** The optional Blocked column; off by default (opt-in) to keep the table quiet. */
   showBlocked?: boolean
+  /** The optional Source column (lead source); off by default. */
+  showSource?: boolean
 }
 
 /** Parse saved preferences defensively (older shapes lack refCols). */
 export function parseColumnPrefs(raw: string | null): ColumnPrefsShape {
-  const empty: ColumnPrefsShape = { hidden: [], custom: null, refCols: [], showBlocked: false }
+  const empty: ColumnPrefsShape = { hidden: [], custom: null, refCols: [], showBlocked: false, showSource: false }
   if (!raw) return empty
   try {
     const p = JSON.parse(raw) as Partial<ColumnPrefsShape>
@@ -251,6 +253,7 @@ export function parseColumnPrefs(raw: string | null): ColumnPrefsShape {
       custom: Array.isArray(p.custom) ? p.custom.filter((x): x is string => typeof x === 'string') : null,
       refCols: Array.isArray(p.refCols) ? p.refCols.filter((x): x is string => typeof x === 'string') : [],
       showBlocked: p.showBlocked === true,
+      showSource: p.showSource === true,
     }
   } catch {
     return empty

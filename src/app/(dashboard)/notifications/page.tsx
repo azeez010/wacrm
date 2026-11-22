@@ -20,6 +20,8 @@ export default function NotificationsPage() {
       if (!n.read_at) markRead(n.id);
       if (n.conversation_id) {
         router.push(`/inbox?c=${n.conversation_id}`);
+      } else if (n.contact_id) {
+        router.push(`/contacts?open=${n.contact_id}`);
       }
     },
     [markRead, router],

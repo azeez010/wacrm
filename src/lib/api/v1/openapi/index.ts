@@ -55,7 +55,7 @@ export function buildOpenApiSpec(baseUrl: string): OpenApiObject {
       responses: {
         BadRequest: errorResponse('Invalid input (`bad_request`).'),
         Unauthorized: errorResponse('Missing, malformed, unknown, revoked or expired key (`unauthorized`).'),
-        PlanLimit: errorResponse('Your plan does not include this, or its limit is reached (`plan_limit`).'),
+        PlanLimit: errorResponse('Your plan does not include this, or a limit is reached (`plan_limit`), or the monthly message allowance is used up (`quota_exceeded`).'),
         Forbidden: errorResponse('The key lacks the required scope (`forbidden`).'),
         NotFound: errorResponse('Not found in your workspace (`not_found`).'),
         Conflict: errorResponse('Already exists (`conflict`).'),

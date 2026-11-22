@@ -7,6 +7,8 @@ import { getCurrentAccount, toErrorResponse } from '@/lib/auth/account';
 import { hasMinRole } from '@/lib/auth/roles';
 import { getEntitlements } from '@/lib/billing/entitlements';
 import type { LimitKey, PlanRow } from '@/lib/billing/plans';
+import { countBillableMessages } from '@/lib/billing/usage';
+import { supabaseAdmin } from '@/lib/flows/admin-client';
 
 type Db = Awaited<ReturnType<typeof getCurrentAccount>>['supabase'];
 
@@ -81,6 +83,10 @@ export async function GET() {
       ]),
     ]);
 
+    // The monthly message count uses the service-role client (the SQL function is
+    // service-role only); `getCurrentAccount` already proved membership.
+    const messagesThisMonth = await countBillableMessages(supabaseAdmin(), accountId);
+
     const [contacts, connections, automations, flows, pipelines, templates, quickReplies, apiKeys, webhooks, members, pending] =
       counts;
     const used: Partial<Record<LimitKey, number>> = {
@@ -94,6 +100,7 @@ export async function GET() {
       api_keys: apiKeys,
       webhook_endpoints: webhooks,
       seats: members + pending,
+      messages_per_month: messagesThisMonth,
     };
 
     const usage = (Object.keys(used) as LimitKey[]).map((key) => {

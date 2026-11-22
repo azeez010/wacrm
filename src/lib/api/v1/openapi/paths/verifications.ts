@@ -69,6 +69,7 @@ export const verificationPaths: PathItems = {
         },
         '400': { description: 'Invalid input, no WhatsApp number connected (`whatsapp_not_configured`), several numbers and no `whatsapp_config_id` (`ambiguous_connection`), or the template is not an authentication template.', content: json(ref('Error')) },
         '401': res('Unauthorized'),
+        '402': res('PlanLimit'),
         '403': res('Forbidden'),
         '404': { description: 'No authentication template with that name and language (`template_not_found`).', content: json(ref('Error')) },
         '409': { description: 'The template is not approved yet (`template_not_approved`).', content: json(ref('Error')) },

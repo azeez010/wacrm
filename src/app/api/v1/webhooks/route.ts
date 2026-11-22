@@ -10,6 +10,7 @@
 import { requireApiKey } from '@/lib/auth/api-context';
 import { ok, okList, fail, toApiErrorResponse } from '@/lib/api/v1/respond';
 import { encrypt } from '@/lib/whatsapp/encryption';
+import { assertFeature, assertWithinLimit } from '@/lib/billing/entitlements';
 import { normalizeEvents } from '@/lib/webhooks/events';
 import {
   WEBHOOK_PUBLIC_COLUMNS,
@@ -72,6 +73,14 @@ export async function POST(request: Request) {
         400
       );
     }
+
+    // Plan: outbound webhooks are a feature with an endpoint-count limit.
+    await assertFeature(ctx.supabase, ctx.accountId, 'outbound_webhooks');
+    const { count: endpointCount } = await ctx.supabase
+      .from('webhook_endpoints')
+      .select('id', { count: 'exact', head: true })
+      .eq('account_id', ctx.accountId);
+    await assertWithinLimit(ctx.supabase, ctx.accountId, 'webhook_endpoints', endpointCount ?? 0);
 
     const secret = generateWebhookSecret();
 

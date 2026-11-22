@@ -10,6 +10,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { ApiError } from '@/lib/api/v1/respond'
 import { isUuid } from '@/lib/api/v1/pagination'
+import { assertMessageQuota } from '@/lib/billing/usage'
 import { parseInternationalPhone } from '@/lib/whatsapp/phone-utils'
 import { resolveConversationByPhone } from '@/lib/whatsapp/resolve-conversation'
 import {
@@ -228,6 +229,9 @@ export async function createVerification(
       409,
     )
   }
+
+  // ---- plan quota (a code is one billable authentication message) --
+  await assertMessageQuota(db, accountId, 1)
 
   // ---- throttle (per phone, per account) -------------------------
   const since = new Date(Date.now() - OTP_LIMITS.throttleWindowSeconds * 1000).toISOString()

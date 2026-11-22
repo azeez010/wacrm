@@ -45,6 +45,7 @@ import {
 import type { InteractiveMessagePayload } from '@/lib/whatsapp/interactive';
 import { dispatchWebhookEvent } from '@/lib/webhooks/deliver';
 import { isUuid } from '@/lib/api/v1/pagination';
+import { assertMessageQuota } from '@/lib/billing/usage';
 
 // The send core speaks in internal field names; the public API's are different.
 function publicSendMessage(message: string): string {
@@ -115,6 +116,12 @@ export async function POST(request: Request) {
       templateName: typeof template?.name === 'string' ? template.name : null,
       interactivePayload,
     });
+
+    // Template messages are what WhatsApp bills, so they use the plan's
+    // monthly allowance (free-form replies inside the 24h window do not).
+    if (type === 'template') {
+      await assertMessageQuota(ctx.supabase, ctx.accountId, 1);
+    }
 
     // Find-or-create the conversation for this phone, then send. Both
     // steps share `SendMessageError`, so one catch maps the whole

@@ -71,6 +71,19 @@ export const paths: PathItems = {
       },
     },
   },
+  '/usage': {
+    get: {
+      tags: ['Account'],
+      operationId: 'getUsage',
+      summary: 'See your plan and usage',
+      description:
+        'Your plan, the current allowance period and how much of each limit you have used. Needs a valid key but no scope.',
+      responses: {
+        '200': { description: 'Usage.', content: json(wrap('Usage')) },
+        ...errors('Unauthorized', 'PlanLimit', 'RateLimited'),
+      },
+    },
+  },
   '/messages': {
     post: {
       tags: ['Messages'],
@@ -107,6 +120,7 @@ export const paths: PathItems = {
       responses: {
         '201': { description: 'Accepted by WhatsApp.', content: json(ref('SendMessageResponse')) },
         '400': { description: 'Invalid input, or no WhatsApp number is connected (`whatsapp_not_configured`).', content: json(ref('Error')) },
+        '402': res('PlanLimit'),
         ...errors('Unauthorized', 'Forbidden', 'RateLimited', 'MetaError'),
       },
     },

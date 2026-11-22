@@ -25,6 +25,12 @@ import {
   toErrorResponse,
 } from '@/lib/auth/account';
 import { generateApiKey } from '@/lib/api-keys/keys';
+import {
+  assertFeature,
+  assertWithinLimit,
+  FeatureLockedError,
+  PlanLimitError,
+} from '@/lib/billing/entitlements';
 import { normalizeScopes } from '@/lib/api-keys/scopes';
 import {
   checkRateLimit,
@@ -124,6 +130,15 @@ export async function POST(request: Request) {
       ).toISOString();
     }
 
+    // Plan: the public API is a feature and the number of active keys is capped.
+    await assertFeature(ctx.supabase, ctx.accountId, 'public_api');
+    const { count: activeKeys } = await ctx.supabase
+      .from('api_keys')
+      .select('id', { count: 'exact', head: true })
+      .eq('account_id', ctx.accountId)
+      .is('revoked_at', null);
+    await assertWithinLimit(ctx.supabase, ctx.accountId, 'api_keys', activeKeys ?? 0);
+
     const { plaintext, hash, prefix } = generateApiKey();
 
     const { data, error } = await ctx.supabase
@@ -157,6 +172,9 @@ export async function POST(request: Request) {
       { status: 201 }
     );
   } catch (err) {
+    if (err instanceof PlanLimitError || err instanceof FeatureLockedError) {
+      return NextResponse.json({ error: err.message }, { status: 402 });
+    }
     return toErrorResponse(err);
   }
 }

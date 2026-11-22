@@ -16,6 +16,8 @@
 
 import { NextResponse } from 'next/server';
 import type { RateLimitResult } from '@/lib/rate-limit';
+import { FeatureLockedError, PlanLimitError } from '@/lib/billing/entitlements';
+import { QuotaExceededError } from '@/lib/billing/usage';
 
 export type ApiErrorCode =
   | 'unauthorized' // missing / malformed / unknown / revoked / expired key
@@ -25,6 +27,8 @@ export type ApiErrorCode =
   | 'not_found'
   | 'internal'
   | 'unavailable'
+  | 'plan_limit' // the plan lacks a feature or a count limit is reached (402)
+  | 'quota_exceeded' // the monthly message allowance is used up (402)
   | 'otp_rate_limited' // too many codes requested for one phone number
   | 'template_not_found'
   | 'template_not_approved'
@@ -129,6 +133,14 @@ export function toApiErrorResponse(err: unknown): NextResponse {
       { error: { code: err.code, message: err.message } },
       { status: err.status, headers: err.headers }
     );
+  }
+  // Plan gating, from any route: a locked feature / count limit, or the
+  // monthly message allowance.
+  if (err instanceof PlanLimitError || err instanceof FeatureLockedError) {
+    return NextResponse.json({ error: { code: 'plan_limit', message: err.message } }, { status: 402 });
+  }
+  if (err instanceof QuotaExceededError) {
+    return NextResponse.json({ error: { code: 'quota_exceeded', message: err.message } }, { status: 402 });
   }
   console.error('[api/v1] uncategorized error:', err);
   return NextResponse.json(

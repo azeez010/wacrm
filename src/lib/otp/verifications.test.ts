@@ -72,6 +72,8 @@ class Builder {
   }
 }
 
+const assertMessageQuota = vi.fn()
+vi.mock('@/lib/billing/usage', () => ({ assertMessageQuota: (...a: unknown[]) => assertMessageQuota(...a) }))
 const send = vi.fn()
 vi.mock('@/lib/whatsapp/send-message', async (importActual) => ({
   ...(await importActual<typeof import('@/lib/whatsapp/send-message')>()),
@@ -108,6 +110,8 @@ beforeEach(() => {
   db = new FakeDb()
   template()
   send.mockReset()
+  assertMessageQuota.mockReset()
+  assertMessageQuota.mockResolvedValue(undefined)
   send.mockResolvedValue({ messageId: 'msg-1', whatsappMessageId: 'wamid-1' })
 })
 
@@ -146,6 +150,14 @@ describe('createVerification', () => {
     db.tables.message_templates = []
     template({ category: 'Marketing' })
     await expect(create()).rejects.toMatchObject({ code: 'bad_request' })
+  })
+
+  it('stops before storing or sending when the monthly quota is used up', async () => {
+    assertMessageQuota.mockRejectedValueOnce(new Error('quota'))
+    await expect(create()).rejects.toThrow('quota')
+    expect(send).not.toHaveBeenCalled()
+    expect(db.tables.otp_verifications).toHaveLength(0)
+    expect(assertMessageQuota).toHaveBeenCalledWith(expect.anything(), ACCOUNT, 1)
   })
 
   it('throttles per phone number with Retry-After', async () => {

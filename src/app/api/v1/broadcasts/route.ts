@@ -31,6 +31,7 @@
 import { after } from 'next/server';
 
 import { requireApiKey } from '@/lib/auth/api-context';
+import { assertMessageQuota } from '@/lib/billing/usage';
 
 // The `after()` fan-out below sends to every recipient sequentially and
 // runs within this route's max duration (the same constraint the
@@ -98,6 +99,10 @@ export async function POST(request: Request) {
     }
 
     const auditUserId = await resolveAuditUserId(ctx.supabase, ctx.accountId);
+
+    // Every recipient is one billable template message: refuse up front if the
+    // plan's monthly allowance can't cover the whole broadcast.
+    await assertMessageQuota(ctx.supabase, ctx.accountId, recipients.length);
 
     const plan = await createBroadcast(ctx.supabase, ctx.accountId, auditUserId, {
       name: typeof body.name === 'string' ? body.name : null,

@@ -366,6 +366,29 @@ export const schemas: Record<string, OpenApiObject> = {
       attempts_remaining: { type: 'integer' },
     },
   },
+  Usage: {
+    type: 'object',
+    properties: {
+      plan: { type: 'string', examples: ['Free'] },
+      period: {
+        type: 'object',
+        description: 'The current allowance period (calendar month, UTC).',
+        properties: { start: ts, end: ts },
+      },
+      messages: { $ref: '#/components/schemas/Meter', description: 'Template messages sent this period.' },
+      api_keys: { $ref: '#/components/schemas/Meter' },
+      webhook_endpoints: { $ref: '#/components/schemas/Meter' },
+      whatsapp_numbers: { $ref: '#/components/schemas/Meter' },
+    },
+  },
+  Meter: {
+    type: 'object',
+    properties: {
+      limit: { type: ['integer', 'null'], description: '`null` means unlimited.' },
+      used: { type: 'integer' },
+      remaining: { type: ['integer', 'null'] },
+    },
+  },
   WebhookEndpoint: {
     type: 'object',
     properties: {

@@ -19,6 +19,13 @@ vi.mock("@/lib/api-keys/store", () => ({
   touchLastUsed: (id: string) => touchLastUsed(id),
 }));
 
+// The plan gate: tests control whether `public_api` is on.
+const assertFeature = vi.fn<(db: unknown, accountId: string, feature: string) => Promise<void>>();
+vi.mock("@/lib/billing/entitlements", async (importActual) => ({
+  ...(await importActual<typeof import("@/lib/billing/entitlements")>()),
+  assertFeature: (db: unknown, accountId: string, feature: string) => assertFeature(db, accountId, feature),
+}));
+
 // Import AFTER the mocks are registered.
 const { requireApiKey } = await import("./api-context");
 
@@ -47,6 +54,8 @@ beforeEach(() => {
   __resetRateLimitForTests();
   findActiveKeyByHash.mockReset();
   touchLastUsed.mockReset();
+  assertFeature.mockReset();
+  assertFeature.mockResolvedValue(undefined);
 });
 
 afterEach(() => {
@@ -148,5 +157,16 @@ describe("requireApiKey", () => {
       "rate_limited",
       429,
     );
+  });
+});
+
+describe("requireApiKey, plan gate", () => {
+  it("402s (FeatureLockedError) when the plan lacks the public API, and does not touch the key", async () => {
+    const { FeatureLockedError } = await import("@/lib/billing/entitlements");
+    findActiveKeyByHash.mockResolvedValue(row());
+    assertFeature.mockRejectedValueOnce(new FeatureLockedError("public_api", "Free"));
+    await expect(requireApiKey(reqWith(`Bearer ${KEY}`))).rejects.toBeInstanceOf(FeatureLockedError);
+    expect(assertFeature).toHaveBeenCalledWith(expect.anything(), "acct-1", "public_api");
+    expect(touchLastUsed).not.toHaveBeenCalled();
   });
 });

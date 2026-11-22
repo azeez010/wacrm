@@ -35,6 +35,7 @@ import { hashApiKey, looksLikeApiKey } from '@/lib/api-keys/keys';
 import { hasScope, type ApiScope } from '@/lib/api-keys/scopes';
 import { forbidden, rateLimited, unauthorized } from '@/lib/api/v1/respond';
 import { checkRateLimit, RATE_LIMITS } from '@/lib/rate-limit';
+import { assertFeature } from '@/lib/billing/entitlements';
 
 export interface ApiKeyContext {
   /** Discriminant - lets shared logic tell key auth from cookie auth. */
@@ -102,6 +103,10 @@ export async function requireApiKey(
   if (scope && !hasScope(row.scopes, scope)) {
     throw forbidden(`This API key is missing the '${scope}' scope`);
   }
+
+  // Plan gate: the public API is a plan feature. Throws FeatureLockedError,
+  // which `toApiErrorResponse` turns into a 402 `plan_limit`.
+  await assertFeature(supabaseAdmin(), row.account_id, 'public_api');
 
   touchLastUsed(row.id);
 

@@ -97,7 +97,8 @@ Branch on \`code\`, not on \`message\` (messages may be reworded).
 | 400 | \`bad_request\` | Invalid input |
 | 400 | \`whatsapp_not_configured\` | The workspace has no connected WhatsApp number |
 | 401 | \`unauthorized\` | Missing, malformed, unknown, revoked or expired key |
-| 402 | \`plan_limit\` | Your plan does not include this or its limit is reached |
+| 402 | \`plan_limit\` | Your plan does not include this feature, or a count limit (API keys, webhooks, numbers) is reached |
+| 402 | \`quota_exceeded\` | The plan's monthly message allowance is used up |
 | 403 | \`forbidden\` | The key lacks the required scope |
 | 404 | \`not_found\` | The resource does not exist in your workspace |
 | 409 | \`conflict\` | The resource already exists |
@@ -109,6 +110,17 @@ Branch on \`code\`, not on \`message\` (messages may be reworded).
 | 502 | \`meta_error\` | WhatsApp (Meta) rejected the request; the message contains Meta's reason |
 | 500 | \`internal\` | Something went wrong on our side |
 | 503 | \`unavailable\` | Temporarily unavailable; retry |
+
+## Plans, usage and limits
+
+Each plan includes a monthly allowance of **template messages** (one-time codes, template sends and broadcast recipients). Free-form replies inside WhatsApp's 24-hour window are free and never use the allowance. The allowance resets on the first of each month (UTC). Plans also cap the number of API keys, webhook endpoints and WhatsApp numbers, and the **public API** itself is part of the plan.
+
+When something is over a limit the API answers \`402\` with \`plan_limit\` or \`quota_exceeded\` and a message naming your plan. \`GET /usage\` shows where you stand, so you can warn yourself before you hit a limit:
+
+\`\`\`bash
+curl {{BASE_URL}}/api/v1/usage -H "Authorization: Bearer $OGADESK_API_KEY"
+# -> { "data": { "plan": "Free", "messages": { "limit": 1000, "used": 212, "remaining": 788 }, ... } }
+\`\`\`
 
 ## Rate limits
 

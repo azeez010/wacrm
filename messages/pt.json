@@ -2459,7 +2459,8 @@
       "pwLabel": "Senha",
       "pwCta": "Continuar",
       "urlNote": "Cole onde o app pedir a URL do servidor. Só isso, sem login.",
-      "moreClients": "Claude Code, Desktop ou API REST"
+      "moreClients": "Claude Code, Desktop ou API REST",
+      "mcpLockedNote": "Seu plano não inclui conectar assistentes de IA. Esta chave continua funcionando com a API REST."
     },
     "deals": {
       "title": "Negócios e moeda",
@@ -2614,7 +2615,7 @@
       "mostPopular": "Mais popular",
       "yourPlan": "Seu plano",
       "upgrade": "Fazer upgrade",
-      "upgradeSoon": "O pagamento online chegará em breve. Para mudar de plano agora, fale com o suporte.",
+      "upgradeSoon": "Os pagamentos ainda não estão conectados, então as mudanças de plano valem imediatamente.",
       "historyTitle": "Histórico de pagamentos",
       "historyDesc": "Faturas e cobranças desta conta.",
       "historyEmpty": "Ainda não há pagamentos.",
@@ -2649,7 +2650,9 @@
         "storage_mb": "Armazenamento de mídia (MB)",
         "custom_fields_max": "Campos personalizados de contato",
         "custom_tables_max": "Tabelas personalizadas",
-        "custom_records_max": "Linhas de tabelas personalizadas"
+        "custom_records_max": "Linhas de tabelas personalizadas",
+        "forms_max": "Formulários e botões de suporte",
+        "form_submissions_per_month": "Leads de formulários / mês"
       },
       "features": {
         "broadcasts": "Campanhas de transmissão",
@@ -2663,8 +2666,18 @@
         "coexistence": "Use o número do seu app WhatsApp Business atual",
         "custom_connection": "Traga seu próprio app da Meta",
         "priority_support": "Suporte prioritário",
-        "custom_fields": "Campos personalizados, segmentos e tabelas"
-      }
+        "custom_fields": "Campos personalizados, segmentos e tabelas",
+        "forms": "Formulários de leads e botão de suporte",
+        "forms_advanced": "Pontuação de formulários, rodízio e mensagem de boas-vindas"
+      },
+      "upgradeTo": "Faça upgrade para {plan} para usar {feature}",
+      "pickTitle": "Escolha um plano",
+      "pickDesc": "Os pagamentos ainda não estão conectados, então seu plano muda na hora.",
+      "switchTo": "Mudar para {plan}",
+      "switchToGeneric": "Mudar de plano",
+      "switched": "Agora você está no {plan}",
+      "switchFailed": "Não foi possível mudar o plano",
+      "cancel": "Cancelar"
     },
     "language": {
       "title": "Idioma",
@@ -2737,6 +2750,14 @@
       "saving": "Salvando…",
       "saveSuccess": "Fuso horário salvo.",
       "saveFailed": "Não foi possível salvar o fuso horário."
+    },
+    "useCases": {
+      "title": "Como você usa a OgaDesk",
+      "hint": "Escolha tudo o que se aplica. Isso nos ajuda a adaptar a sua configuração.",
+      "ownerOnly": "Somente o proprietário do espaço de trabalho pode alterar isto.",
+      "save": "Salvar",
+      "saved": "Salvo",
+      "error": "Não foi possível salvar"
     }
   },
   "SignupPage": {
@@ -3496,13 +3517,15 @@
     "nav": {
       "pricing": "Preços",
       "login": "Entrar",
-      "getStarted": "Começar"
+      "getStarted": "Começar",
+      "dashboard": "Painel"
     },
     "hero": {
       "title": "Vendas, suporte e marketing, tudo no WhatsApp",
       "subtitle": "Uma caixa de entrada de equipe compartilhada, transmissões, automações e fluxos de chatbot na API oficial do WhatsApp Business. Cadastre-se com a Meta em poucos cliques, obtenha um número novo ou continue usando o do seu aplicativo WhatsApp Business.",
       "startFree": "Começar grátis",
-      "seePricing": "Ver preços"
+      "seePricing": "Ver preços",
+      "openDashboard": "Abrir o painel"
     },
     "features": {
       "f1Title": "Conecte em minutos",

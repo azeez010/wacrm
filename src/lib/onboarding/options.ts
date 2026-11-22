@@ -68,3 +68,16 @@ export function parseOnboardingInput(body: unknown): ParseResult {
     value: { useCases, heardFrom, heardFromDetail, marketingOptIn: b.marketing_opt_in === true },
   }
 }
+
+/** Editing the answer later (Your profile): only the use cases, at least one. */
+export function parseUseCasesOnly(body: unknown): { ok: true; useCases: UseCase[] } | { ok: false; error: string } {
+  if (!body || typeof body !== 'object' || Array.isArray(body)) return { ok: false, error: 'Body must be a JSON object' }
+  const raw = (body as Record<string, unknown>).use_cases
+  if (!Array.isArray(raw) || raw.length === 0) return { ok: false, error: "'use_cases' must be a non-empty array" }
+  const useCases: UseCase[] = []
+  for (const v of raw) {
+    if (!(USE_CASES as readonly unknown[]).includes(v)) return { ok: false, error: `Unknown use case '${String(v)}'` }
+    if (!useCases.includes(v as UseCase)) useCases.push(v as UseCase)
+  }
+  return { ok: true, useCases }
+}

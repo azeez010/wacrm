@@ -2459,7 +2459,8 @@
       "pwLabel": "Password",
       "pwCta": "Continue",
       "urlNote": "Paste this where the app asks for the server URL. That's it, no sign-in needed.",
-      "moreClients": "Claude Code, Desktop or REST API"
+      "moreClients": "Claude Code, Desktop or REST API",
+      "mcpLockedNote": "Your plan doesn't include connecting AI assistants. This key still works with the REST API."
     },
     "deals": {
       "title": "Deals & currency",
@@ -2614,7 +2615,7 @@
       "mostPopular": "Most popular",
       "yourPlan": "Your plan",
       "upgrade": "Upgrade",
-      "upgradeSoon": "Online checkout is coming soon. To change your plan now, contact support.",
+      "upgradeSoon": "Payments aren't connected yet, so plan changes apply immediately.",
       "historyTitle": "Payment history",
       "historyDesc": "Invoices and charges for this account.",
       "historyEmpty": "No payments yet.",
@@ -2649,7 +2650,9 @@
         "storage_mb": "Media storage (MB)",
         "custom_fields_max": "Custom contact fields",
         "custom_tables_max": "Custom tables",
-        "custom_records_max": "Custom table rows"
+        "custom_records_max": "Custom table rows",
+        "forms_max": "Forms and support buttons",
+        "form_submissions_per_month": "Form leads / month"
       },
       "features": {
         "broadcasts": "Broadcast campaigns",
@@ -2663,8 +2666,18 @@
         "coexistence": "Use your existing WhatsApp Business app number",
         "custom_connection": "Bring your own Meta app",
         "priority_support": "Priority support",
-        "custom_fields": "Custom fields, segments and tables"
-      }
+        "custom_fields": "Custom fields, segments and tables",
+        "forms": "Lead forms and support button",
+        "forms_advanced": "Form scoring, round-robin and welcome message"
+      },
+      "upgradeTo": "Upgrade to {plan} to use {feature}",
+      "pickTitle": "Choose a plan",
+      "pickDesc": "Payments aren't connected yet, so your plan changes right away.",
+      "switchTo": "Switch to {plan}",
+      "switchToGeneric": "Switch plan",
+      "switched": "You are now on {plan}",
+      "switchFailed": "Could not change the plan",
+      "cancel": "Cancel"
     },
     "language": {
       "title": "Language",
@@ -2737,6 +2750,14 @@
       "saving": "Saving…",
       "saveSuccess": "Time zone saved.",
       "saveFailed": "Could not save the time zone."
+    },
+    "useCases": {
+      "title": "How you use OgaDesk",
+      "hint": "Pick everything that applies. It helps us tailor your setup.",
+      "ownerOnly": "Only the workspace owner can change this.",
+      "save": "Save",
+      "saved": "Saved",
+      "error": "Could not save"
     }
   },
   "SignupPage": {
@@ -3496,13 +3517,15 @@
     "nav": {
       "pricing": "Pricing",
       "login": "Log in",
-      "getStarted": "Get started"
+      "getStarted": "Get started",
+      "dashboard": "Dashboard"
     },
     "hero": {
       "title": "Sales, support and marketing, all on WhatsApp",
       "subtitle": "A shared team inbox, broadcasts, automations and chatbot flows on the official WhatsApp Business API. Sign up with Meta in a few clicks, get a new number, or keep using the one on your WhatsApp Business app.",
       "startFree": "Start free",
-      "seePricing": "See pricing"
+      "seePricing": "See pricing",
+      "openDashboard": "Open dashboard"
     },
     "features": {
       "f1Title": "Connect in minutes",

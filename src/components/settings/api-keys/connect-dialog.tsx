@@ -7,6 +7,7 @@ import { Copy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import { UpgradeButton } from '@/components/billing/upgrade-dialog';
 import { ConnectInstructions } from './connect-instructions';
 
 /**
@@ -19,6 +20,8 @@ export function ConnectDialog({
   name,
   keyValue,
   justCreated,
+  mcpIncluded = true,
+  onUpgraded,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -26,6 +29,9 @@ export function ConnectDialog({
   /** null = a key created before keys could be re-shown (placeholder shown). */
   keyValue: string | null;
   justCreated: boolean;
+  /** The plan includes MCP. If not, offer an upgrade instead of a URL that would be refused. */
+  mcpIncluded?: boolean;
+  onUpgraded?: () => void;
 }) {
   const t = useTranslations('Settings.apiKeys');
   async function copyKey() {
@@ -57,7 +63,14 @@ export function ConnectDialog({
               </div>
             </div>
           ) : null}
-          <ConnectInstructions keyValue={keyValue} />
+          {mcpIncluded ? (
+            <ConnectInstructions keyValue={keyValue} />
+          ) : (
+            <div className="border-border space-y-2 rounded-lg border p-4">
+              <UpgradeButton feature="mcp" onChanged={onUpgraded} />
+              <p className="text-muted-foreground text-xs">{t('mcpLockedNote')}</p>
+            </div>
+          )}
         </div>
         <DialogFooter>
           <Button onClick={() => onOpenChange(false)}>{t('done')}</Button>

@@ -19,6 +19,8 @@ import { cn } from '@/lib/utils';
 import type { FeatureKey, LimitKey, PlanRow } from '@/lib/billing/plans';
 import { FEATURE_DEFS } from '@/lib/billing/plans';
 import { SettingsPanelHead } from './settings-panel-head';
+import { UpgradeDialog } from '@/components/billing/upgrade-dialog';
+import { formatPlanPrice } from '@/lib/billing/format';
 
 interface Billing {
   can_view_history: boolean;
@@ -63,6 +65,8 @@ export function BillingPanel() {
   const locale = useLocale();
   const [data, setData] = useState<Billing | null>(null);
   const [error, setError] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
+  const [switchTo, setSwitchTo] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -73,17 +77,10 @@ export function BillingPanel() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [reloadKey]);
 
-  const money = (amount: number | string, currency: string) => {
-    const n = Number(amount);
-    if (n === 0) return t('free');
-    try {
-      return new Intl.NumberFormat(locale, { style: 'currency', currency, maximumFractionDigits: 0 }).format(n);
-    } catch {
-      return `${currency} ${n}`;
-    }
-  };
+  // Always the amount ("NGN 0"), never the word "Free": the plan name already says it.
+  const money = (amount: number | string, currency: string) => formatPlanPrice(amount, currency, locale);
   const date = (iso: string) =>
     new Intl.DateTimeFormat(locale, { dateStyle: 'medium' }).format(new Date(iso));
 
@@ -102,8 +99,14 @@ export function BillingPanel() {
         <>
           <CurrentPlan data={data} t={t} money={money} date={date} />
           <Usage data={data} t={t} />
-          <Plans data={data} t={t} money={money} />
+          <Plans data={data} t={t} money={money} onPick={setSwitchTo} />
           <History data={data} t={t} money={money} date={date} />
+          <UpgradeDialog
+            open={switchTo !== null}
+            onOpenChange={(o) => !o && setSwitchTo(null)}
+            initialPlanId={switchTo ?? undefined}
+            onChanged={() => setReloadKey((k) => k + 1)}
+          />
         </>
       )}
     </div>
@@ -209,7 +212,7 @@ function Usage({ data, t }: { data: Billing; t: T }) {
   );
 }
 
-function Plans({ data, t, money }: { data: Billing; t: T; money: Money }) {
+function Plans({ data, t, money, onPick }: { data: Billing; t: T; money: Money; onPick: (id: string) => void }) {
   const current = data.subscription.plan_id;
   return (
     <Card>
@@ -247,8 +250,8 @@ function Plans({ data, t, money }: { data: Billing; t: T; money: Money }) {
                   {isCurrent ? (
                     <span className="text-primary text-xs font-medium">{t('yourPlan')}</span>
                   ) : (
-                    <Button variant="outline" size="sm" disabled className="w-full">
-                      {t('upgrade')}
+                    <Button variant="outline" size="sm" className="w-full" onClick={() => onPick(p.id)}>
+                      {t('switchTo', { plan: p.name })}
                     </Button>
                   )}
                 </div>

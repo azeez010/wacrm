@@ -82,7 +82,13 @@ export async function GET() {
       for (const r of (rows ?? []) as { key_id: string }[]) withSecret.add(r.key_id);
     }
 
-    return NextResponse.json({ keys: (data ?? []).map((k) => ({ ...k, has_secret: withSecret.has(k.id as string) })) });
+    // Whether the plan includes MCP, so the UI can offer an upgrade instead of a URL that would 402.
+    const mcpIncluded = await assertFeature(ctx.supabase, ctx.accountId, 'mcp').then(
+      () => true,
+      () => false
+    );
+
+    return NextResponse.json({ mcp: { included: mcpIncluded }, keys: (data ?? []).map((k) => ({ ...k, has_secret: withSecret.has(k.id as string) })) });
   } catch (err) {
     return toErrorResponse(err);
   }

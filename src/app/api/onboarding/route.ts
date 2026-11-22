@@ -15,7 +15,7 @@ import { supabaseAdmin } from '@/lib/flows/admin-client'
 import { crmSyncUser, crmTrack } from '@/lib/crm'
 import { isLocale, LOCALE_COOKIE } from '@/i18n/locales'
 import { isValidReferralCode, REFERRAL_COOKIE } from '@/lib/referral'
-import { parseOnboardingInput } from '@/lib/onboarding/options'
+import { parseOnboardingInput, parseUseCasesOnly } from '@/lib/onboarding/options'
 import { queueWelcomeEmail } from '@/lib/email/queue'
 
 export async function GET() {
@@ -104,6 +104,27 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json({ ok: true })
+  } catch (err) {
+    return toErrorResponse(err)
+  }
+}
+
+/** PATCH { use_cases } - change how the workspace says it uses OgaDesk (Your profile). Owner only. */
+export async function PATCH(request: Request) {
+  try {
+    const ctx = await getCurrentAccount()
+    if (ctx.role !== 'owner') return NextResponse.json({ error: 'Only the workspace owner can do this' }, { status: 403 })
+
+    const parsed = parseUseCasesOnly(await request.json().catch(() => null))
+    if (!parsed.ok) return NextResponse.json({ error: parsed.error }, { status: 400 })
+
+    const { error } = await supabaseAdmin().from('accounts').update({ use_cases: parsed.useCases }).eq('id', ctx.accountId)
+    if (error) {
+      console.error('[onboarding] use_cases update failed:', error.message)
+      return NextResponse.json({ error: 'Could not save your answers' }, { status: 500 })
+    }
+    await crmSyncUser(ctx.userId)
+    return NextResponse.json({ ok: true, use_cases: parsed.useCases })
   } catch (err) {
     return toErrorResponse(err)
   }

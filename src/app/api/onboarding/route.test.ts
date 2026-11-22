@@ -24,7 +24,7 @@ vi.mock('next/headers', () => ({
   headers: async () => ({ get: (n: string) => headerJar[n.toLowerCase()] ?? null }),
 }))
 
-const { GET, POST } = await import('./route')
+const { GET, POST, PATCH } = await import('./route')
 
 const post = (body: unknown) =>
   POST(new Request('https://x.test/api/onboarding', { method: 'POST', body: JSON.stringify(body) }))
@@ -95,5 +95,25 @@ describe('POST /api/onboarding', () => {
     role = 'owner'
     expect((await post({ use_cases: [] })).status).toBe(400)
     expect(admin.rows('accounts')[0].onboarded_at).toBeNull()
+  })
+})
+
+describe('PATCH /api/onboarding (edit how you use OgaDesk)', () => {
+  const patch = (body: unknown) => PATCH(new Request('https://x.test/api/onboarding', { method: 'PATCH', body: JSON.stringify(body) }))
+
+  it('the owner can change the use cases; onboarding state is untouched and the CRM is re-synced', async () => {
+    admin.rows('accounts')[0].onboarded_at = '2026-11-01T00:00:00Z'
+    const res = await patch({ use_cases: ['support', 'support', 'marketing'] })
+    expect(res.status).toBe(200)
+    expect(admin.rows('accounts')[0].use_cases).toEqual(['support', 'marketing'])
+    expect(admin.rows('accounts')[0].onboarded_at).toBe('2026-11-01T00:00:00Z')
+    expect(crmSyncUser).toHaveBeenCalledWith('u1')
+  })
+  it('rejects empty or unknown choices and non-owners', async () => {
+    expect((await patch({ use_cases: [] })).status).toBe(400)
+    expect((await patch({ use_cases: ['nope'] })).status).toBe(400)
+    role = 'admin'
+    expect((await patch({ use_cases: ['sales'] })).status).toBe(403)
+    expect(admin.rows('accounts')[0].use_cases).toEqual([])
   })
 })

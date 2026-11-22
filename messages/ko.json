@@ -2459,7 +2459,8 @@
       "pwLabel": "비밀번호",
       "pwCta": "계속",
       "urlNote": "앱이 서버 URL을 요청하는 곳에 붙여넣으세요. 로그인 없이 끝입니다.",
-      "moreClients": "Claude Code, Desktop 또는 REST API"
+      "moreClients": "Claude Code, Desktop 또는 REST API",
+      "mcpLockedNote": "현재 요금제에는 AI 어시스턴트 연결이 포함되어 있지 않습니다. 이 키는 REST API에서는 계속 사용할 수 있습니다."
     },
     "deals": {
       "title": "딜 & 통화",
@@ -2614,7 +2615,7 @@
       "mostPopular": "인기",
       "yourPlan": "현재 요금제",
       "upgrade": "업그레이드",
-      "upgradeSoon": "온라인 결제는 곧 제공됩니다. 지금 요금제를 변경하려면 지원팀에 문의하세요.",
+      "upgradeSoon": "결제가 아직 연결되지 않아 요금제 변경이 즉시 적용됩니다.",
       "historyTitle": "결제 내역",
       "historyDesc": "이 계정의 청구서 및 결제 내역입니다.",
       "historyEmpty": "아직 결제 내역이 없습니다.",
@@ -2649,7 +2650,9 @@
         "storage_mb": "미디어 저장소 (MB)",
         "custom_fields_max": "사용자 지정 연락처 필드",
         "custom_tables_max": "사용자 지정 테이블",
-        "custom_records_max": "사용자 지정 테이블 행"
+        "custom_records_max": "사용자 지정 테이블 행",
+        "forms_max": "양식 및 지원 버튼",
+        "form_submissions_per_month": "양식 리드 / 월"
       },
       "features": {
         "broadcasts": "브로드캐스트 캠페인",
@@ -2663,8 +2666,18 @@
         "coexistence": "기존 WhatsApp Business 앱 번호 사용",
         "custom_connection": "내 Meta 앱 사용",
         "priority_support": "우선 지원",
-        "custom_fields": "사용자 지정 필드, 세그먼트 및 테이블"
-      }
+        "custom_fields": "사용자 지정 필드, 세그먼트 및 테이블",
+        "forms": "리드 양식 및 지원 버튼",
+        "forms_advanced": "양식 점수, 라운드 로빈, 환영 메시지"
+      },
+      "upgradeTo": "{feature}을(를) 사용하려면 {plan}(으)로 업그레이드",
+      "pickTitle": "요금제 선택",
+      "pickDesc": "결제가 아직 연결되지 않아 요금제가 바로 변경됩니다.",
+      "switchTo": "{plan}(으)로 변경",
+      "switchToGeneric": "요금제 변경",
+      "switched": "이제 {plan} 요금제입니다",
+      "switchFailed": "요금제를 변경하지 못했습니다",
+      "cancel": "취소"
     },
     "language": {
       "title": "언어",
@@ -2737,6 +2750,14 @@
       "saving": "저장 중…",
       "saveSuccess": "시간대를 저장했습니다.",
       "saveFailed": "시간대를 저장할 수 없습니다."
+    },
+    "useCases": {
+      "title": "OgaDesk 사용 방식",
+      "hint": "해당하는 항목을 모두 선택하세요. 설정을 맞추는 데 도움이 됩니다.",
+      "ownerOnly": "워크스페이스 소유자만 변경할 수 있습니다.",
+      "save": "저장",
+      "saved": "저장했습니다",
+      "error": "저장하지 못했습니다"
     }
   },
   "SignupPage": {
@@ -3496,13 +3517,15 @@
     "nav": {
       "pricing": "요금제",
       "login": "로그인",
-      "getStarted": "시작하기"
+      "getStarted": "시작하기",
+      "dashboard": "대시보드"
     },
     "hero": {
       "title": "영업, 지원, 마케팅을 모두 WhatsApp에서",
       "subtitle": "공식 WhatsApp Business API 기반의 공유 팀 받은편지함, 브로드캐스트, 자동화, 챗봇 플로우. 몇 번의 클릭으로 Meta에 가입하고 새 번호를 받거나, WhatsApp Business 앱의 번호를 계속 사용하세요.",
       "startFree": "무료로 시작",
-      "seePricing": "요금제 보기"
+      "seePricing": "요금제 보기",
+      "openDashboard": "대시보드 열기"
     },
     "features": {
       "f1Title": "몇 분 만에 연결",

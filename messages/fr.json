@@ -2459,7 +2459,8 @@
       "pwLabel": "Mot de passe",
       "pwCta": "Continuer",
       "urlNote": "Collez-la là où l'application demande l'URL du serveur. C'est tout, sans connexion.",
-      "moreClients": "Claude Code, Desktop ou API REST"
+      "moreClients": "Claude Code, Desktop ou API REST",
+      "mcpLockedNote": "Votre formule n'inclut pas la connexion d'assistants IA. Cette clé fonctionne toujours avec l'API REST."
     },
     "deals": {
       "title": "Affaires et devise",
@@ -2614,7 +2615,7 @@
       "mostPopular": "Le plus populaire",
       "yourPlan": "Votre forfait",
       "upgrade": "Passer à ce forfait",
-      "upgradeSoon": "Le paiement en ligne arrive bientôt. Pour changer de forfait dès maintenant, contactez le support.",
+      "upgradeSoon": "Les paiements ne sont pas encore connectés : les changements de formule s'appliquent immédiatement.",
       "historyTitle": "Historique des paiements",
       "historyDesc": "Factures et paiements de ce compte.",
       "historyEmpty": "Aucun paiement pour le moment.",
@@ -2649,7 +2650,9 @@
         "storage_mb": "Stockage de médias (Mo)",
         "custom_fields_max": "Champs de contact personnalisés",
         "custom_tables_max": "Tables personnalisées",
-        "custom_records_max": "Lignes de tables personnalisées"
+        "custom_records_max": "Lignes de tables personnalisées",
+        "forms_max": "Formulaires et boutons de support",
+        "form_submissions_per_month": "Leads de formulaires / mois"
       },
       "features": {
         "broadcasts": "Campagnes de diffusion",
@@ -2663,8 +2666,18 @@
         "coexistence": "Utilisez le numéro de votre application WhatsApp Business existante",
         "custom_connection": "Utilisez votre propre application Meta",
         "priority_support": "Support prioritaire",
-        "custom_fields": "Champs personnalisés, segments et tables"
-      }
+        "custom_fields": "Champs personnalisés, segments et tables",
+        "forms": "Formulaires de leads et bouton de support",
+        "forms_advanced": "Score des formulaires, répartition et message de bienvenue"
+      },
+      "upgradeTo": "Passez à {plan} pour utiliser {feature}",
+      "pickTitle": "Choisissez une formule",
+      "pickDesc": "Les paiements ne sont pas encore connectés : votre formule change immédiatement.",
+      "switchTo": "Passer à {plan}",
+      "switchToGeneric": "Changer de formule",
+      "switched": "Vous êtes maintenant sur {plan}",
+      "switchFailed": "Impossible de changer de formule",
+      "cancel": "Annuler"
     },
     "language": {
       "title": "Langue",
@@ -2737,6 +2750,14 @@
       "saving": "Enregistrement…",
       "saveSuccess": "Fuseau horaire enregistré.",
       "saveFailed": "Impossible d'enregistrer le fuseau horaire."
+    },
+    "useCases": {
+      "title": "Comment vous utilisez OgaDesk",
+      "hint": "Choisissez tout ce qui s'applique. Cela nous aide à adapter votre configuration.",
+      "ownerOnly": "Seul le propriétaire de l'espace de travail peut modifier ceci.",
+      "save": "Enregistrer",
+      "saved": "Enregistré",
+      "error": "Impossible d'enregistrer"
     }
   },
   "SignupPage": {
@@ -3482,13 +3503,15 @@
     "nav": {
       "pricing": "Tarifs",
       "login": "Se connecter",
-      "getStarted": "Commencer"
+      "getStarted": "Commencer",
+      "dashboard": "Tableau de bord"
     },
     "hero": {
       "title": "Ventes, support et marketing, tout sur WhatsApp",
       "subtitle": "Une boîte de réception d’équipe partagée, des diffusions, des automatisations et des flux de chatbot sur l’API officielle WhatsApp Business. Inscrivez-vous avec Meta en quelques clics, obtenez un nouveau numéro, ou continuez à utiliser celui de votre application WhatsApp Business.",
       "startFree": "Commencer gratuitement",
-      "seePricing": "Voir les tarifs"
+      "seePricing": "Voir les tarifs",
+      "openDashboard": "Ouvrir le tableau de bord"
     },
     "features": {
       "f1Title": "Connexion en quelques minutes",

@@ -40,6 +40,7 @@ export function ApiKeysPanel() {
 
   const [keys, setKeys] = useState<ApiKey[]>([]);
   const [loading, setLoading] = useState(true);
+  const [mcpIncluded, setMcpIncluded] = useState(true);
   const [dialog, setDialog] = useState<{ editing: ApiKey | null; n: number } | null>(null);
   const [pwKey, setPwKey] = useState<ApiKey | null>(null);
   const [connect, setConnect] = useState<{ name: string; value: string | null; justCreated: boolean } | null>(null);
@@ -54,7 +55,9 @@ export function ApiKeysPanel() {
         toast.error(payload.error || t('loadFailed'));
         return;
       }
-      setKeys(((await res.json()) as { keys: ApiKey[] }).keys);
+      const payload = (await res.json()) as { keys: ApiKey[]; mcp?: { included: boolean } };
+      setKeys(payload.keys);
+      setMcpIncluded(payload.mcp?.included !== false);
     } catch {
       toast.error(t('networkError'));
     } finally {
@@ -226,7 +229,7 @@ export function ApiKeysPanel() {
         }}
       />
 
-      {connect ? <ConnectDialog open onOpenChange={(o) => !o && setConnect(null)} name={connect.name} keyValue={connect.value} justCreated={connect.justCreated} /> : null}
+      {connect ? <ConnectDialog open onOpenChange={(o) => !o && setConnect(null)} name={connect.name} keyValue={connect.value} justCreated={connect.justCreated} mcpIncluded={mcpIncluded} onUpgraded={() => void load()} /> : null}
 
       <Dialog open={!!confirm} onOpenChange={(o) => !o && !working && setConfirm(null)}>
         <DialogContent className="sm:max-w-sm">

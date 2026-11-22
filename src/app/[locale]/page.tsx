@@ -12,6 +12,7 @@ import { localizedAlternates, localizedUrl } from '@/lib/seo'
 import { cn } from '@/lib/utils'
 import { BRAND_NAME } from '@/lib/brand'
 import { getPublicPlans } from '@/lib/billing/public-plans'
+import { createClient } from '@/lib/supabase/server'
 import { FEATURE_DEFS, type FeatureKey, type LimitKey, type PlanRow } from '@/lib/billing/plans'
 
 export async function generateMetadata({
@@ -75,11 +76,13 @@ function PlanCard({
   locale,
   t,
   tb,
+  signedIn,
 }: {
   plan: PlanRow
   locale: string
   t: Translate
   tb: Translate
+  signedIn: boolean
 }) {
   const price = (amount: number) => money(amount, plan.currency, locale, t('pricing.free'))
   return (
@@ -110,7 +113,7 @@ function PlanCard({
         </p>
       )}
       <Link
-        href={`/signup?plan=${encodeURIComponent(plan.id)}`}
+        href={signedIn ? '/settings?tab=billing' : `/signup?plan=${encodeURIComponent(plan.id)}`}
         className={cn(
           buttonVariants({ variant: plan.is_featured ? 'default' : 'outline' }),
           'mt-5 w-full',
@@ -165,6 +168,12 @@ export default async function LandingPage({
   const code = typeof sp.code === 'string' ? sp.code : null
   if (code) redirect(`/auth/callback?code=${encodeURIComponent(code)}`)
 
+  // Already signed in: send people to their dashboard instead of offering login / sign-up.
+  const signedIn = await createClient()
+    .then((c) => c.auth.getUser())
+    .then(({ data }) => !!data.user)
+    .catch(() => false)
+
   const [plans, locale, t, tb] = await Promise.all([
     getPublicPlans(),
     getLocale(),
@@ -181,12 +190,20 @@ export default async function LandingPage({
             {t('nav.pricing')}
           </a>
           <LanguageSwitcher mode="path" iconOnly />
-          <Link href="/login" className={buttonVariants({ variant: 'ghost' })}>
-            {t('nav.login')}
-          </Link>
-          <Link href="/signup" className={buttonVariants()}>
-            {t('nav.getStarted')}
-          </Link>
+          {signedIn ? (
+            <Link href="/dashboard" className={buttonVariants()}>
+              {t('nav.dashboard')}
+            </Link>
+          ) : (
+            <>
+              <Link href="/login" className={buttonVariants({ variant: 'ghost' })}>
+                {t('nav.login')}
+              </Link>
+              <Link href="/signup" className={buttonVariants()}>
+                {t('nav.getStarted')}
+              </Link>
+            </>
+          )}
         </nav>
       </header>
 
@@ -199,8 +216,8 @@ export default async function LandingPage({
             {t('hero.subtitle')}
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <Link href="/signup" className={cn(buttonVariants({ size: 'lg' }))}>
-              {t('hero.startFree')}
+            <Link href={signedIn ? '/dashboard' : '/signup'} className={cn(buttonVariants({ size: 'lg' }))}>
+              {signedIn ? t('hero.openDashboard') : t('hero.startFree')}
             </Link>
             <a href="#pricing" className={cn(buttonVariants({ size: 'lg', variant: 'outline' }))}>
               {t('hero.seePricing')}
@@ -227,7 +244,7 @@ export default async function LandingPage({
           ) : (
             <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {plans.map((p) => (
-                <PlanCard key={p.id} plan={p} locale={locale} t={t} tb={tb} />
+                <PlanCard key={p.id} plan={p} locale={locale} t={t} tb={tb} signedIn={signedIn} />
               ))}
             </div>
           )}
@@ -236,8 +253,8 @@ export default async function LandingPage({
 
       <footer className="border-t py-8 text-center text-sm text-muted-foreground">
         © {new Date().getFullYear()} {BRAND_NAME} ·{' '}
-        <Link href="/login" className="underline">
-          {t('footer.login')}
+        <Link href={signedIn ? '/dashboard' : '/login'} className="underline">
+          {signedIn ? t('nav.dashboard') : t('footer.login')}
         </Link>
         {' · '}
         <Link href="/docs" className="underline">

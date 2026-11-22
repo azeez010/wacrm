@@ -1,12 +1,12 @@
 // ============================================================
-// Timing for "hover to expand a cut-off value": open after a short rest on
-// the value, stay open while the pointer is on it, and for a grace period
+// Timing for "hover to expand a cut-off value": open as soon as the pointer
+// is on the value, stay open while the pointer is on it, and for a grace period
 // (about 5 s) after the pointer leaves, longer while text in it is selected,
 // so the value can be copied. Framework free so it is easy to test.
 // ============================================================
 
 export interface ExpandControllerOptions {
-  /** Rest time on the value before it opens. */
+  /** Rest time on the value before it opens (0 = immediately). */
   delay?: number
   /** How long it stays open after the pointer leaves. */
   grace?: number
@@ -18,7 +18,7 @@ export interface ExpandControllerOptions {
 }
 
 export function createExpandController(opts: ExpandControllerOptions) {
-  const delay = opts.delay ?? 250
+  const delay = opts.delay ?? 0
   const grace = opts.grace ?? 5000
   const maxExtend = opts.maxExtend ?? 30_000
 
@@ -61,6 +61,11 @@ export function createExpandController(opts: ExpandControllerOptions) {
       extended = 0
       if (open || !truncated) return
       openTimer = clear(openTimer)
+      if (delay <= 0) {
+        open = true
+        opts.onChange(true)
+        return
+      }
       openTimer = setTimeout(() => {
         open = true
         opts.onChange(true)

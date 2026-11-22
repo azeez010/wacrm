@@ -11,25 +11,27 @@ describe('createExpandController', () => {
     return { c, changes }
   }
 
-  it('opens after a short rest, but only for cut-off text', () => {
+  it('opens immediately, but only for cut-off text', () => {
     const { c, changes } = make()
     c.enter(false)
     vi.advanceTimersByTime(1000)
     expect(changes).toEqual([])
     c.enter(true)
-    vi.advanceTimersByTime(200)
-    expect(changes).toEqual([])
-    vi.advanceTimersByTime(100)
     expect(changes).toEqual([true])
   })
 
-  it('does not open when the pointer passes through quickly', () => {
-    const { c, changes } = make()
+  it('still honours an explicit rest delay when one is given', () => {
+    const changes: boolean[] = []
+    const c = createExpandController({ delay: 250, onChange: (o) => changes.push(o) })
     c.enter(true)
-    vi.advanceTimersByTime(100)
+    vi.advanceTimersByTime(200)
+    expect(changes).toEqual([])
     c.leave()
     vi.advanceTimersByTime(1000)
     expect(changes).toEqual([])
+    c.enter(true)
+    vi.advanceTimersByTime(300)
+    expect(changes).toEqual([true])
   })
 
   it('stays open about 5 seconds after the pointer leaves, then closes', () => {

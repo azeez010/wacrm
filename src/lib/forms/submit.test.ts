@@ -327,9 +327,23 @@ describe('side effects (finish)', () => {
     const convUpdate = calls.find((c) => c.table === 'conversations' && c.op === 'update')!
     expect(convUpdate.payload).toEqual({ assigned_agent_id: AGENT_B }) // 3 % 2 = 1
     expect(calls.find((c) => c.table === 'forms' && c.op === 'update')!.payload).toEqual({ rr_cursor: 4 })
-    // The assignee gets the notification instead of the admins.
+    // Everyone who handles leads is notified, and the assignee once (not twice).
     const note = calls.find((c) => c.table === 'notifications')!.payload as { user_id: string }[]
-    expect(note.map((n) => n.user_id)).toEqual([AGENT_B])
+    expect(note.map((n) => n.user_id).sort()).toEqual(['admin-1', AGENT_B].sort())
+  })
+
+  it('notify "selected" narrows recipients but always includes the assignee', async () => {
+    const handlers = { ...handlersOk, 'profiles.select': () => ({ data: [{ user_id: 'admin-1' }, { user_id: AGENT_A }, { user_id: AGENT_B }] }) }
+    const f = form({}, { notify: { mode: 'selected', agentIds: [AGENT_A] }, assignment: { mode: 'agent', agentIds: [AGENT_B] } })
+    const { calls } = await run(handlers, f)
+    const note = calls.find((c) => c.table === 'notifications')!.payload as { user_id: string }[]
+    expect(note.map((n) => n.user_id).sort()).toEqual([AGENT_A, AGENT_B].sort())
+  })
+
+  it('the notification body quotes the visitor message first, then the form name', async () => {
+    const { calls } = await run()
+    const note = calls.find((c) => c.table === 'notifications')!.payload as { body: string }[]
+    expect(note[0].body).toBe('\u201CNeed a trial\u201D\nGym join')
   })
 
   it('a repeat within the window is recorded but does not notify or assign again', async () => {
@@ -440,5 +454,14 @@ describe('side effects (finish)', () => {
     expect(calls.some((c) => c.table === 'contact_notes')).toBe(false)
     expect(processing(calls).processing.steps.contact).toMatchObject({ ok: false })
     expect(runSideEffects).toBeTypeOf('function')
+  })
+})
+
+describe('notificationBody', () => {
+  it('handles no message, long message and not-qualified', async () => {
+    const { notificationBody } = await import('./submit')
+    expect(notificationBody('F', undefined, false)).toBe('F')
+    expect(notificationBody('F', '  hi \n there ', true)).toBe('\u201Chi there\u201D\nF (not qualified)')
+    expect(notificationBody('F', 'x'.repeat(300), false).split('\n')[0].length).toBeLessThanOrEqual(142)
   })
 })

@@ -600,15 +600,15 @@ export async function runSideEffects(db: Db, c: FinishCtx): Promise<void> {
     })
 
     await step('notify', async () => {
-      let recipients: string[] = assignedTo ? [assignedTo] : []
-      if (recipients.length === 0) {
-        const { data } = await db
-          .from('profiles')
-          .select('user_id, account_role')
-          .eq('account_id', accountId)
-          .in('account_role', ['owner', 'admin'])
-        recipients = ((data ?? []) as { user_id: string }[]).map((r) => r.user_id)
-      }
+      // Default: everyone who handles leads (a new agent is never missed); optionally only chosen people. The assignee is always included.
+      const { data } = await db
+        .from('profiles')
+        .select('user_id, account_role')
+        .eq('account_id', accountId)
+        .in('account_role', ['owner', 'admin', 'agent'])
+      const members = ((data ?? []) as { user_id: string }[]).map((r) => r.user_id)
+      const chosen = settings.notify.mode === 'selected' ? new Set(settings.notify.agentIds ?? []) : null
+      const recipients = [...new Set([...(chosen ? members.filter((id) => chosen.has(id)) : members), ...(assignedTo ? [assignedTo] : [])])]
       if (recipients.length === 0) return 'no recipients'
       const label = v.name || (v.phone as string)
       const { error } = await db.from('notifications').insert(
@@ -618,7 +618,7 @@ export async function runSideEffects(db: Db, c: FinishCtx): Promise<void> {
           type: 'form_submission',
           contact_id: cid,
           title: `${form.kind === 'support' ? 'New support' : 'New lead'}: ${label}`,
-          body: `${form.name}${c.qualified === false ? ' (not qualified)' : ''}`,
+          body: notificationBody(form.name, v.message, c.qualified === false),
         })),
       )
       if (error) throw new Error(error.message)
@@ -812,4 +812,12 @@ export async function purgeExpired(db: Db, form: Pick<FormRow, 'id' | 'settings'
   }
   const eventCutoff = new Date(now.getTime() - 90 * 86_400_000).toISOString()
   await db.from('form_events').delete().eq('form_id', form.id).lt('created_at', eventCutoff)
+}
+
+/** Notification body: the visitor's words in quotes first (so it is easy to spot), then the form name. */
+export function notificationBody(formName: string, message: string | undefined, notQualified: boolean): string {
+  const tail = `${formName}${notQualified ? ' (not qualified)' : ''}`
+  const m = (message ?? '').replace(/\s+/g, ' ').trim()
+  if (!m) return tail
+  return `\u201C${m.length > 140 ? `${m.slice(0, 139)}\u2026` : m}\u201D\n${tail}`
 }

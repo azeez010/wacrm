@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import type { PublicFormConfig } from '@/lib/forms/public-config';
+import { parsePreviewEdit, type PreviewEdit } from '@/lib/forms/preview-edit';
 
 /**
  * The editor's REAL preview. A lead form is shown in an iframe of the actual embed page;
@@ -16,6 +17,7 @@ export function PreviewFrame({
   config,
   device,
   playTick,
+  onEdit,
 }: {
   kind: 'lead' | 'support';
   publicId: string;
@@ -23,9 +25,15 @@ export function PreviewFrame({
   device: 'desktop' | 'mobile';
   /** Increment to play the button sound in the preview. */
   playTick: number;
+  /** The visitor-facing text was edited inside the preview. */
+  onEdit?: (edit: PreviewEdit) => void;
 }) {
   const ref = useRef<HTMLIFrameElement>(null);
   const latest = useRef(config);
+  const onEditRef = useRef(onEdit);
+  useEffect(() => {
+    onEditRef.current = onEdit;
+  }, [onEdit]);
   const [origin, setOrigin] = useState('');
 
   useEffect(() => {
@@ -49,7 +57,12 @@ export function PreviewFrame({
   useEffect(() => {
     const onMessage = (e: MessageEvent) => {
       if (e.origin !== window.location.origin || e.source !== ref.current?.contentWindow) return;
-      const d = e.data as { source?: string } | null;
+      const d = e.data as { source?: string; edit?: unknown } | null;
+      if (d?.source === 'ogadesk-preview-edit') {
+        const edit = parsePreviewEdit(d.edit);
+        if (edit) onEditRef.current?.(edit);
+        return;
+      }
       if (d?.source === 'ogadesk-preview-ready' || d?.source === 'ogadesk-preview-host-ready') {
         post({ source: 'ogadesk-preview', config: latest.current });
       }

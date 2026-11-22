@@ -129,6 +129,34 @@ export function SettingsSheet({ open, onOpenChange, kind, settings, data, canEdi
             )}
           </Row>
 
+          {/* Notify */}
+          <Row label={t('notify')} hint={t('notifyHint')}>
+            <select className={selectCls} disabled={!canEdit} value={s.notify.mode} onChange={(e) => patch({ notify: { mode: e.target.value } })}>
+              <option value="all">{t('notifyAll')}</option>
+              <option value="selected">{t('notifySelected')}</option>
+            </select>
+            {s.notify.mode === 'selected' && (
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {data.agents.map((g) => {
+                  const cur = s.notify.agentIds ?? [];
+                  const on = cur.includes(g.id);
+                  return (
+                    <button
+                      key={g.id}
+                      type="button"
+                      disabled={!canEdit}
+                      aria-pressed={on}
+                      onClick={() => patch({ notify: { agentIds: on ? cur.filter((x) => x !== g.id) : [...cur, g.id] } })}
+                      className={cn('rounded-full border px-2.5 py-1 text-xs', on ? 'border-primary bg-primary/10 text-primary' : 'border-border text-muted-foreground')}
+                    >
+                      {g.name}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </Row>
+
           {/* 4. Qualify */}
           {kind === 'lead' && (
             <div className="space-y-2">

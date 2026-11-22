@@ -17,6 +17,8 @@ import { buildPreviewConfig } from "@/components/forms/preview-config";
 import { Results } from "@/components/forms/results";
 import { SettingsSheet } from "@/components/forms/settings-sheet";
 import { ShareDialog } from "@/components/forms/share-dialog";
+import { previewEditAction } from "@/lib/forms/preview-edit";
+import { ThemeSelect } from "@/components/forms/theme-select";
 import { SupportEditor } from "@/components/forms/support-editor";
 import { useFormEditorData } from "@/components/forms/use-form-data";
 import { useAuth } from "@/hooks/use-auth";
@@ -170,6 +172,11 @@ export default function FormEditorPage({ params }: { params: Promise<{ id: strin
             {isSupport ? (
               <SupportEditor fields={state.fields} settings={state.settings} canEdit={canEdit} dispatch={dispatch} onPlaySound={() => setPlayTick((n) => n + 1)} />
             ) : (
+              <div className="mb-4 max-w-[12rem]">
+                <ThemeSelect value={state.settings.theme} canEdit={canEdit} onChange={(theme) => dispatch({ type: "settings", patch: { theme } })} />
+              </div>
+            )}
+            {!isSupport && (
               <FieldList fields={state.fields} data={data} qualifyOn={state.settings.qualification.enabled} canEdit={canEdit} dispatch={dispatch} />
             )}
           </div>
@@ -183,7 +190,7 @@ export default function FormEditorPage({ params }: { params: Promise<{ id: strin
                 ))}
               </div>
             )}
-            <PreviewFrame kind={meta.kind} publicId={meta.public_id} config={config} device={device} playTick={playTick} />
+            <PreviewFrame kind={meta.kind} publicId={meta.public_id} config={config} device={device} playTick={playTick} onEdit={canEdit ? (edit) => dispatch(previewEditAction(edit)) : undefined} />
             <p className="mt-2 text-center text-xs text-muted-foreground">{isSupport ? t("previewHintSupport") : t("previewHint")}</p>
           </div>
         </div>

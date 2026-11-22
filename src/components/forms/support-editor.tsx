@@ -12,6 +12,7 @@ import { Volume2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import type { EditorAction } from './editor-state';
+import { ThemeSelect } from './theme-select';
 
 const selectCls = 'h-9 w-full rounded-lg border border-border bg-muted px-2 text-sm text-foreground disabled:opacity-60';
 const DAYS = [1, 2, 3, 4, 5, 6, 0];
@@ -33,13 +34,12 @@ export function SupportEditor({
 }) {
   const t = useTranslations('Forms.support');
   const td = useTranslations('Forms.edit');
-  const ts = useTranslations('Forms.settings');
   const [more, setMore] = useState(false);
   // Defaults come from the schema so the editor and the saved form agree.
   const w = settings.widget ?? formSettingsSchema.shape.widget.unwrap().parse({});
   const patchW = (p: Record<string, unknown>) => dispatch({ type: 'settings', patch: { widget: p } });
   const has = (kind: FormField['kind']) => fields.some((f) => f.kind === kind);
-  const toggle = (kind: 'name' | 'message', on: boolean) => {
+  const toggle = (kind: 'name' | 'email' | 'message', on: boolean) => {
     if (on && !has(kind)) dispatch({ type: 'add', field: { id: kind, kind, required: kind === 'message' } });
     if (!on) {
       const f = fields.find((x) => x.kind === kind);
@@ -53,6 +53,10 @@ export function SupportEditor({
       <label className="flex items-center justify-between gap-2 text-sm">
         {t('askName')}
         <Switch disabled={!canEdit} checked={has('name')} onCheckedChange={(on) => toggle('name', on)} />
+      </label>
+      <label className="flex items-center justify-between gap-2 text-sm">
+        {t('askEmail')}
+        <Switch disabled={!canEdit} checked={has('email')} onCheckedChange={(on) => toggle('email', on)} />
       </label>
       <label className="flex items-center justify-between gap-2 text-sm">
         {t('askMessage')}
@@ -84,14 +88,7 @@ export function SupportEditor({
             <option value="headset">{t('iconHeadset')}</option>
           </select>
         </div>
-        <div className="space-y-1.5">
-          <Label className="text-xs text-muted-foreground">{ts('theme')}</Label>
-          <select className={selectCls} disabled={!canEdit} value={settings.theme ?? 'auto'} onChange={(e) => dispatch({ type: 'settings', patch: { theme: e.target.value } })}>
-            <option value="auto">{ts('themeAuto')}</option>
-            <option value="light">{ts('themeLight')}</option>
-            <option value="dark">{ts('themeDark')}</option>
-          </select>
-        </div>
+        <ThemeSelect value={settings.theme} canEdit={canEdit} onChange={(theme) => dispatch({ type: 'settings', patch: { theme } })} />
       </div>
       <div className="space-y-1.5">
         <Label className="text-xs text-muted-foreground">{t('greeting')}</Label>

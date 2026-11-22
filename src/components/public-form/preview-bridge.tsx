@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 
 import type { PublicFormConfig } from '@/lib/forms/public-config';
 import { pageCss } from '@/lib/forms/theme';
+import type { PreviewEdit } from '@/lib/forms/preview-edit';
 import { PublicForm } from './public-form';
 
 /**
@@ -24,11 +25,12 @@ export function PreviewBridge() {
     window.parent.postMessage({ source: 'ogadesk-preview-ready' }, window.location.origin);
     return () => window.removeEventListener('message', onMessage);
   }, []);
+  const onEdit = (edit: PreviewEdit) => window.parent.postMessage({ source: 'ogadesk-preview-edit', edit }, window.location.origin);
   if (!config) return null;
   return (
     <>
       <style>{pageCss(config.theme)}</style>
-      <PublicForm key={config.publicId} config={config} embedded={config.kind === 'support'} preview fullPage={false} />
+      <PublicForm key={config.publicId} config={config} embedded={config.kind === 'support'} preview onEdit={onEdit} fullPage={false} />
     </>
   );
 }

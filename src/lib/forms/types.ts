@@ -111,6 +111,15 @@ export const formSettingsSchema = z
       .strict()
       .default({ mode: 'none' }),
 
+    /** Who gets the in-app notification: everyone who handles leads (default) or only the chosen people. The assignee is always included. */
+    notify: z
+      .object({
+        mode: z.enum(['all', 'selected']).default('all'),
+        agentIds: z.array(z.string().uuid()).max(50).optional(),
+      })
+      .strict()
+      .default({ mode: 'all' }),
+
     qualification: z
       .object({
         enabled: z.boolean().default(false),

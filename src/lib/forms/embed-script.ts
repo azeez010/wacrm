@@ -130,6 +130,20 @@ export const EMBED_SCRIPT = `(function () {
     var x = document.createElement('button'); x.type = 'button'; x.setAttribute('aria-label', 'Close'); x.textContent = '×';
     x.style.cssText = 'border:0;background:transparent;color:#fff;font-size:22px;line-height:1;cursor:pointer';
     head.appendChild(title); head.appendChild(x); panel.appendChild(head);
+    if (PREVIEW) {
+      // Click the header text to rename it right here (the editor listens for the relayed message).
+      title.contentEditable = 'plaintext-only'; title.style.cursor = 'text'; title.style.outline = 'none';
+      var before = '';
+      title.addEventListener('focus', function () { before = title.textContent; });
+      title.addEventListener('keydown', function (ev) {
+        if (ev.key === 'Enter') { ev.preventDefault(); title.blur(); }
+        else if (ev.key === 'Escape') { title.textContent = before; title.blur(); }
+      });
+      title.addEventListener('blur', function () {
+        var v = (title.textContent || '').replace(/\\s+/g, ' ').trim();
+        if (v !== before) { try { window.parent.postMessage({ source: 'ogadesk-preview-edit', edit: { kind: 'greeting', value: v } }, BASE); } catch (x) {} }
+      });
+    }
     var offline = document.createElement('div');
     var teaser = document.createElement('div');
     var tx = document.createElement('button'); tx.type = 'button'; tx.setAttribute('aria-label', 'Dismiss'); tx.textContent = '×';
@@ -216,6 +230,7 @@ export const EMBED_SCRIPT = `(function () {
         if (d.source === 'ogadesk-preview' && d.config) mount(d.config);
         else if (d.source === 'ogadesk-preview-play') { if (cfg && cfg.widget) beep(cfg.widget.sound === 'none' ? 'chime' : cfg.widget.sound); }
         else if (d.source === 'ogadesk-preview-ready' && e.source === (frame && frame.contentWindow)) postConfig();
+        else if (d.source === 'ogadesk-preview-edit' && e.source === (frame && frame.contentWindow)) { try { window.parent.postMessage(d, BASE); } catch (x) {} }
       });
       try { window.parent.postMessage({ source: 'ogadesk-preview-host-ready' }, BASE); } catch (e) {}
     } else {

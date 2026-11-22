@@ -3808,7 +3808,11 @@
       "hideBranding": "OgaDesk 배지 숨기기",
       "hideBrandingHint": "\"OgaDesk 제공\" 문구가 표시되지 않습니다.",
       "hideBrandingLocked": "Starter 이상 요금제에서 사용할 수 있습니다.",
-      "countryAuto": "자동 (방문자 위치)"
+      "countryAuto": "자동 (방문자 위치)",
+      "notify": "알림",
+      "notifyAll": "팀 전체",
+      "notifySelected": "선택한 사람만",
+      "notifyHint": "소유자, 관리자, 상담원에게 알립니다. 리드가 배정된 사람은 항상 알림을 받습니다."
     },
     "support": {
       "askName": "이름 묻기",
@@ -3859,7 +3863,8 @@
       "preMessage": "메시지 말풍선",
       "preMessagePlaceholder": "예: 안녕하세요, 도움이 필요하세요?",
       "preMessageDelay": "표시 시점 (초)",
-      "soundNote": "말풍선은 방문당 한 번 표시됩니다. 방문자가 페이지와 상호작용하기 전에는 브라우저가 소리를 막을 수 있습니다."
+      "soundNote": "말풍선은 방문당 한 번 표시됩니다. 방문자가 페이지와 상호작용하기 전에는 브라우저가 소리를 막을 수 있습니다.",
+      "askEmail": "이메일 요청"
     },
     "share": {
       "title": "공유",

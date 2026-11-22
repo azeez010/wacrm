@@ -3808,7 +3808,11 @@
       "hideBranding": "Hide the OgaDesk badge",
       "hideBrandingHint": "The \"Powered by OgaDesk\" line will not be shown.",
       "hideBrandingLocked": "Available on Starter and higher plans.",
-      "countryAuto": "Automatic (visitor's location)"
+      "countryAuto": "Automatic (visitor's location)",
+      "notify": "Notify",
+      "notifyAll": "Everyone on the team",
+      "notifySelected": "Only selected people",
+      "notifyHint": "Admins, owners and agents. Whoever the lead is assigned to is always notified."
     },
     "support": {
       "askName": "Ask for their name",
@@ -3859,7 +3863,8 @@
       "preMessage": "Message bubble",
       "preMessagePlaceholder": "e.g. Hi, need help?",
       "preMessageDelay": "Show after (seconds)",
-      "soundNote": "The bubble shows once per visit. Browsers may block sound until the visitor has interacted with the page."
+      "soundNote": "The bubble shows once per visit. Browsers may block sound until the visitor has interacted with the page.",
+      "askEmail": "Ask for their email"
     },
     "share": {
       "title": "Share",

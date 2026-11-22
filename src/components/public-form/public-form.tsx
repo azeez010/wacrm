@@ -6,6 +6,8 @@ import { renderSVG } from 'uqr';
 import { COUNTRIES, composeFormPhone, resolveDefaultCountry } from '@/lib/forms/countries';
 import { themeVars } from '@/lib/forms/theme';
 import { PoweredBy } from './powered-by';
+import { Editable, EditContext } from './editable';
+import type { PreviewEdit } from '@/lib/forms/preview-edit';
 import type { PublicField, PublicFormConfig } from '@/lib/forms/public-config';
 import { stringsFor } from '@/lib/forms/public-strings';
 
@@ -55,6 +57,7 @@ export function PublicForm({
   config,
   embedded = false,
   preview = false,
+  onEdit,
   detectedCountry,
   fullPage = false,
 }: {
@@ -66,6 +69,8 @@ export function PublicForm({
   fullPage?: boolean;
   /** Editor preview: no beacons, no submit. */
   preview?: boolean;
+  /** Editor preview only: makes the form's text click-to-edit. */
+  onEdit?: (edit: PreviewEdit) => void;
 }) {
   const t = stringsFor(config.language);
   const accent = config.accent;
@@ -252,18 +257,22 @@ export function PublicForm({
     }
   }
 
+  const editFn = preview && onEdit ? onEdit : null;
   const rootStyle = { ...themeVars(config.theme), color: 'var(--og-fg)' };
   const wrapper = embedded
     ? 'w-full bg-[var(--og-card)] p-3'
     : 'mx-auto w-full max-w-md rounded-2xl border border-[color:var(--og-border)] bg-[var(--og-card)] p-6 shadow-sm sm:p-8';
-  const page = (node: React.ReactNode) =>
-    fullPage ? (
-      <div style={{ ...themeVars(config.theme), color: 'var(--og-fg)' }} className="min-h-screen bg-[var(--og-page)] px-4 py-8 sm:py-14">
-        {node}
-      </div>
-    ) : (
-      node
-    );
+  const page = (node: React.ReactNode) => (
+    <EditContext.Provider value={editFn}>
+      {fullPage ? (
+        <div style={{ ...themeVars(config.theme), color: 'var(--og-fg)' }} className="min-h-screen bg-[var(--og-page)] px-4 py-8 sm:py-14">
+          {node}
+        </div>
+      ) : (
+        node
+      )}
+    </EditContext.Provider>
+  );
 
   if (done) {
     return page(
@@ -283,11 +292,11 @@ export function PublicForm({
         ) : null}
         {!embedded || config.kind === 'lead' ? (
           <div>
-            <h1 className="text-xl font-semibold leading-tight">{config.title}</h1>
-            {config.description ? <p className="mt-1 text-sm text-[color:var(--og-muted)]">{config.description}</p> : null}
+            <h1 className="text-xl font-semibold leading-tight"><Editable target={{ kind: 'setting', key: 'title' }} value={config.title} /></h1>
+            {config.description || editFn ? <p className="mt-1 text-sm text-[color:var(--og-muted)]"><Editable target={{ kind: 'setting', key: 'description' }} value={config.description ?? ''} multiline /></p> : null}
           </div>
-        ) : config.description ? (
-          <p className="text-sm text-[color:var(--og-muted)]">{config.description}</p>
+        ) : config.description || editFn ? (
+          <p className="text-sm text-[color:var(--og-muted)]"><Editable target={{ kind: 'setting', key: 'description' }} value={config.description ?? ''} multiline /></p>
         ) : null}
 
         {/* Honeypot: invisible to people, tempting to bots. */}
@@ -327,14 +336,20 @@ export function PublicForm({
           </p>
         ) : null}
 
-        <button
-          type="submit"
-          disabled={busy}
-          className="w-full rounded-lg px-4 py-3 text-sm font-semibold text-white transition-opacity disabled:opacity-60"
-          style={{ backgroundColor: accent }}
-        >
-          {busy ? t.sending : config.buttonText || t.submit}
-        </button>
+        {editFn ? (
+          <div className="w-full rounded-lg px-4 py-3 text-center text-sm font-semibold text-white" style={{ backgroundColor: accent }}>
+            <Editable target={{ kind: 'setting', key: 'buttonText' }} value={config.buttonText || t.submit} />
+          </div>
+        ) : (
+          <button
+            type="submit"
+            disabled={busy}
+            className="w-full rounded-lg px-4 py-3 text-sm font-semibold text-white transition-opacity disabled:opacity-60"
+            style={{ backgroundColor: accent }}
+          >
+            {busy ? t.sending : config.buttonText || t.submit}
+          </button>
+        )}
         {config.showBranding ? <PoweredBy lang={config.language} /> : null}
       </form>
     </div>,
@@ -383,7 +398,7 @@ function FieldInput({
   ) : null;
   const aria = { 'aria-invalid': !!error, 'aria-describedby': error ? `${id}-err` : undefined } as const;
 
-  if (f.kind === 'heading') return <p className="text-sm text-[color:var(--og-label)]">{f.text}</p>;
+  if (f.kind === 'heading') return <p className="text-sm text-[color:var(--og-label)]"><Editable target={{ kind: 'field', fieldId: f.id, key: 'text' }} value={f.text ?? ''} multiline /></p>;
   if (f.kind === 'hidden') return null;
 
   if (f.kind === 'consent') {
@@ -399,7 +414,7 @@ function FieldInput({
             {...aria}
           />
           <span>
-            {f.consentText || f.label}
+            <Editable target={{ kind: 'field', fieldId: f.id, key: 'consentText' }} value={f.consentText || f.label} multiline />
             {f.privacyUrl ? (
               <>
                 {' '}
@@ -422,7 +437,7 @@ function FieldInput({
     return (
       <div>
         <Label htmlFor={id} required>
-          {label}
+          <Editable target={{ kind: 'field', fieldId: f.id, key: 'label' }} value={label} />
         </Label>
         <div className="flex gap-2">
           <select
@@ -449,7 +464,7 @@ function FieldInput({
             {...aria}
           />
         </div>
-        {f.help ? <p className="mt-1 text-xs text-[color:var(--og-muted)]">{f.help}</p> : null}
+        {f.help ? <p className="mt-1 text-xs text-[color:var(--og-muted)]"><Editable target={{ kind: 'field', fieldId: f.id, key: 'help' }} value={f.help} /></p> : null}
         {err}
       </div>
     );
@@ -459,7 +474,7 @@ function FieldInput({
     const picked = Array.isArray(value) ? (value as string[]) : [];
     return (
       <div>
-        <Label required={f.required}>{label}</Label>
+        <Label required={f.required}><Editable target={{ kind: 'field', fieldId: f.id, key: 'label' }} value={label} /></Label>
         <div className="flex flex-wrap gap-2">
           {(f.tags ?? []).map((tg) => {
             const on = picked.includes(tg.id);
@@ -490,7 +505,7 @@ function FieldInput({
     return (
       <div>
         <Label htmlFor={id} required={f.required}>
-          {label}
+          <Editable target={{ kind: 'field', fieldId: f.id, key: 'label' }} value={label} />
         </Label>
         {display === 'select' && !multi ? (
           <select id={id} value={String(value ?? '')} onChange={(e) => onChange(e.target.value)} className={inputFull} {...aria}>
@@ -520,7 +535,7 @@ function FieldInput({
             })}
           </div>
         )}
-        {f.help ? <p className="mt-1 text-xs text-[color:var(--og-muted)]">{f.help}</p> : null}
+        {f.help ? <p className="mt-1 text-xs text-[color:var(--og-muted)]"><Editable target={{ kind: 'field', fieldId: f.id, key: 'help' }} value={f.help} /></p> : null}
         {err}
       </div>
     );
@@ -531,7 +546,7 @@ function FieldInput({
       <div>
         <label className="flex items-center gap-2 text-sm text-[color:var(--og-label)]">
           <input type="checkbox" checked={value === true} onChange={(e) => onChange(e.target.checked)} className="size-4" style={{ accentColor: accent }} />
-          {label}
+          <Editable target={{ kind: 'field', fieldId: f.id, key: 'label' }} value={label} />
           {f.required ? <span className="text-red-500"> *</span> : null}
         </label>
         {err}
@@ -557,7 +572,7 @@ function FieldInput({
   return (
     <div>
       <Label htmlFor={id} required={f.required}>
-        {label}
+        <Editable target={{ kind: 'field', fieldId: f.id, key: 'label' }} value={label} />
       </Label>
       {f.kind === 'message' ? (
         <textarea
@@ -581,7 +596,7 @@ function FieldInput({
           {...aria}
         />
       )}
-      {f.help ? <p className="mt-1 text-xs text-[color:var(--og-muted)]">{f.help}</p> : null}
+      {f.help ? <p className="mt-1 text-xs text-[color:var(--og-muted)]"><Editable target={{ kind: 'field', fieldId: f.id, key: 'help' }} value={f.help} /></p> : null}
       {err}
     </div>
   );

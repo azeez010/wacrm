@@ -65,7 +65,19 @@ export function NotificationItem({ notification: n, actorName, contactName, comp
           </span>
           {isUnread && <span aria-label={t('unread')} className="h-2 w-2 flex-shrink-0 rounded-full bg-primary" />}
         </div>
-        {copy.body && <p className="mt-0.5 truncate text-xs text-muted-foreground">{copy.body}</p>}
+        {copy.body && n.type === 'form_submission' ? (
+          <div className="mt-0.5 text-xs text-muted-foreground">
+            {copy.body.split('\n').map((line, i) =>
+              i === 0 && line.startsWith('\u201C') ? (
+                <p key={i} className="line-clamp-2 italic text-foreground/80">{line}</p>
+              ) : (
+                <p key={i} className="truncate">{line}</p>
+              )
+            )}
+          </div>
+        ) : copy.body ? (
+          <p className="mt-0.5 truncate text-xs text-muted-foreground">{copy.body}</p>
+        ) : null}
         <p className="mt-1 text-[11px] text-muted-foreground/70">
           {formatDistanceToNow(new Date(n.created_at), { locale: dateLocale, addSuffix: true })}
         </p>

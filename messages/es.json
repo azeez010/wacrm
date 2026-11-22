@@ -3808,7 +3808,11 @@
       "hideBranding": "Ocultar la insignia de OgaDesk",
       "hideBrandingHint": "No se mostrará la línea «Con tecnología de OgaDesk».",
       "hideBrandingLocked": "Disponible en planes Starter y superiores.",
-      "countryAuto": "Automático (ubicación del visitante)"
+      "countryAuto": "Automático (ubicación del visitante)",
+      "notify": "Notificar",
+      "notifyAll": "Todo el equipo",
+      "notifySelected": "Solo personas seleccionadas",
+      "notifyHint": "Propietarios, administradores y agentes. Quien reciba el lead siempre es notificado."
     },
     "support": {
       "askName": "Pedir su nombre",
@@ -3859,7 +3863,8 @@
       "preMessage": "Burbuja de mensaje",
       "preMessagePlaceholder": "p. ej. Hola, ¿necesitas ayuda?",
       "preMessageDelay": "Mostrar después de (segundos)",
-      "soundNote": "La burbuja se muestra una vez por visita. Los navegadores pueden bloquear el sonido hasta que el visitante interactúe con la página."
+      "soundNote": "La burbuja se muestra una vez por visita. Los navegadores pueden bloquear el sonido hasta que el visitante interactúe con la página.",
+      "askEmail": "Pedir su correo"
     },
     "share": {
       "title": "Compartir",

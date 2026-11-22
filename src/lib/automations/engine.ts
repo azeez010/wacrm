@@ -1,3 +1,5 @@
+import { coerceValue } from '@/lib/custom-fields/coerce'
+import type { FieldDef } from '@/lib/custom-fields/types'
 import type {
   Automation,
   AutomationLogStepResult,
@@ -899,12 +901,34 @@ async function runStep(step: AutomationStep, args: ExecuteArgs): Promise<string>
         // the field definition belongs to this account before writing.
         const { data: field } = await db
           .from('custom_fields')
-          .select('id')
+          .select('id, key, field_name, field_type, field_options, required, default_value')
           .eq('id', customFieldId)
           .eq('account_id', args.automation.account_id)
+          .is('archived_at', null)
           .maybeSingle()
         if (!field) {
           return `field ${cfg.field} not writable from automations`
+        }
+        // Validate + normalise through the shared typed-field helper so an
+        // automation can't store "abc" in a number field or a bad date.
+        const coerced = coerceValue(field as FieldDef, value, { accountId: args.automation.account_id })
+        if (!coerced.ok) return `custom field not updated: ${coerced.error}`
+        if (coerced.clear) {
+          await db
+            .from('contact_custom_values')
+            .delete()
+            .eq('contact_id', args.contactId)
+            .eq('custom_field_id', customFieldId)
+          return `custom field cleared`
+        }
+        if (field.field_type === 'reference') {
+          const { data: target } = await db
+            .from('custom_records')
+            .select('id')
+            .eq('id', coerced.value.value)
+            .eq('account_id', args.automation.account_id)
+            .maybeSingle()
+          if (!target) return `custom field not updated: referenced row not found`
         }
         // Upsert on the table's UNIQUE(contact_id, custom_field_id) so repeated
         // runs overwrite rather than duplicate. Tenancy is enforced above and,
@@ -912,7 +936,12 @@ async function runStep(step: AutomationStep, args: ExecuteArgs): Promise<string>
         await db
           .from('contact_custom_values')
           .upsert(
-            { contact_id: args.contactId, custom_field_id: customFieldId, value },
+            {
+              contact_id: args.contactId,
+              custom_field_id: customFieldId,
+              account_id: args.automation.account_id,
+              ...coerced.value,
+            },
             { onConflict: 'contact_id,custom_field_id' },
           )
         return `custom field updated`
@@ -1159,6 +1188,25 @@ async function evaluateCondition(cfg: ConditionStepConfig, args: ExecuteArgs): P
     }
     case 'time_of_day':
       return isWithinTimeWindow(cfg.operand, new Date(), cfg.timezone)
+    case 'in_segment': {
+      if (!args.contactId || !cfg.operand) return false
+      // Dynamic: the segment's CURRENT filter is evaluated now. Both the
+      // segment lookup and the contact check are scoped to the account.
+      const accountId = args.automation.account_id
+      const { data: segment } = await db
+        .from('segments')
+        .select('filter')
+        .eq('id', cfg.operand)
+        .eq('account_id', accountId)
+        .maybeSingle()
+      if (!segment) return false
+      const { data: matches } = await db.rpc('contact_in_filter', {
+        p_contact_id: args.contactId,
+        p_account_id: accountId,
+        p_filter: segment.filter,
+      })
+      return matches === true
+    }
     default:
       return false
   }

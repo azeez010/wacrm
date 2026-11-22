@@ -280,6 +280,96 @@ Broadcast status + counts. Scope: `broadcasts:send`. `status` moves
 `sending` → `sent`; `delivered_count` / `read_count` keep climbing as
 Meta delivery webhooks arrive. `404` for another account's broadcast.
 
+## Custom fields, tables and segments
+
+Typed custom fields, custom tables and dynamic segments. All three need the
+`custom_fields` plan feature (on by default). Scopes: `fields:read|write`,
+`tables:read|write`, `segments:read|write`; ad hoc filtering uses
+`contacts:read`.
+
+### Contact custom values
+
+`GET /api/v1/contacts` and `GET /api/v1/contacts/{id}` return
+`custom_fields`, an object of field **key** to typed value:
+
+```json
+{ "custom_fields": { "plan": "Gold", "amount": 15000, "auto_renew": true,
+                     "started_date": "2026-11-02T00:00:00.000Z",
+                     "classes": ["Yoga", "Boxing"] } }
+```
+
+`POST /api/v1/contacts` and `PATCH /api/v1/contacts/{id}` accept the same
+object (`null` or `""` clears a value). Values are validated against the
+field type; an invalid value fails the whole request with `bad_request`
+and nothing is written.
+
+### Field types
+
+| Type | Value | Options |
+| --- | --- | --- |
+| `text` | string (max 2000) | |
+| `number` | number or `"15,000"` | `format` (`plain`/`currency`/`percent`), `currency`, `min`, `max` |
+| `bool` | `true` / `false` / `"yes"` | |
+| `date` | `"YYYY-MM-DD"` or ISO datetime | `include_time` |
+| `enum` | one of `options` | `options` |
+| `multi_enum` | array of `options` | `options` |
+| `reference` | id of a row in a custom table | `table_key` |
+| `media` | one uploaded file: `{ url, path, name, mime, size }`, read back as `{ url, name, mime, size }` | `accept` (`any`/`image`/`document`/`video`/`audio`) |
+
+Media files are uploaded from the app (they go to the account's own storage
+folder). Through the API you can clear a media value or set one that points at
+a file already stored under your account; a link to anything else is rejected.
+
+### Endpoints
+
+| Method and path | Scope | Purpose |
+| --- | --- | --- |
+| `GET /custom-fields` | `fields:read` | List fields (`?include_archived=true`) |
+| `POST /custom-fields` | `fields:write` | Create `{ name, type, options?, show_in_table? }` |
+| `PATCH /custom-fields/{id}` | `fields:write` | Rename, options, `sort_order`, `show_in_table`, `archived` |
+| `DELETE /custom-fields/{id}` | `fields:write` | Archives when values exist; `?purge=true` erases |
+| `GET /tables`, `GET /tables/{id\|key}` | `tables:read` | Tables, with columns |
+| `POST /tables` | `tables:write` | `{ name, columns: [{ name, type, options? }], label_field_key? }` |
+| `PATCH`/`DELETE /tables/{id\|key}` | `tables:write` | Edit; delete is refused while a reference field points at it |
+| `GET /tables/{id\|key}/records` | `tables:read` | Rows (`search`, `limit`, `offset`) |
+| `POST /tables/{id\|key}/records` | `tables:write` | `{ values: { column_key: value } }` |
+| `PATCH`/`DELETE /tables/{id\|key}/records/{rowId}` | `tables:write` | Edit or delete a row |
+| `GET /segments`, `GET /segments/{id}` | `segments:read` | Saved segments |
+| `POST /segments` | `segments:write` | `{ name, filter }` |
+| `PATCH`/`DELETE /segments/{id}` | `segments:write` | Edit or delete |
+| `GET /segments/{id}/contacts` | `segments:read` | Contacts matching **now**, with `total` (`limit` max 100, `offset`) |
+| `POST /contacts/filter` | `contacts:read` | `{ filter, search?, limit?, offset?, count_only? }` |
+
+### Filter format
+
+```json
+{ "version": 1, "op": "and",
+  "rules": [
+    { "field": "cf:<plan field id>", "operator": "is", "value": "Gold" },
+    { "field": "cf:<started field id>", "operator": "gte", "value": "-30d" },
+    { "field": "tags", "operator": "has_any", "value": ["<tag id>"] }
+  ] }
+```
+
+`field` is `name`, `phone`, `email`, `company`, `created_at`, `tags`, or
+`cf:<custom field id>`. Operators by type:
+
+- text and built-ins: `contains`, `not_contains`, `equals`, `not_equals`, `is_empty`, `is_set`
+- number, date, `created_at`: `eq`, `neq`, `gt`, `gte`, `lt`, `lte`, `between` (`[low, high]`), `is_empty`, `is_set`
+- bool: `is_true`, `is_false`, `is_empty`, `is_set`
+- enum and reference: `is`, `is_not`, `is_any_of` (enum only), `is_empty`, `is_set`
+- media: `is_empty`, `is_set`
+- multi_enum and tags: `has_any`, `has_all`, `has_none`
+
+Dates accept `YYYY-MM-DD` or relative tokens (`today`, `-7d`, `+30d`, `-1m`,
+`+1y`, resolved in the account time zone set under Settings, Account, Time zone; UTC by default). Rules that point at a deleted field are ignored.
+Segments are **dynamic**: they are evaluated each time they are used.
+
+### Broadcasting to a segment
+
+`POST /api/v1/broadcasts` accepts `segment_id` (or `filter`) instead of
+`recipients`, plus optional shared `params`. It must match 1 to 1000 contacts.
+
 ## Pagination
 
 Every list endpoint pages the same way. Request a page size with

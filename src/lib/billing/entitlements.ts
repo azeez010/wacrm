@@ -1,5 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
-import { LIMIT_DEFS, type FeatureKey, type LimitKey, type PlanRow } from './plans'
+import { DEFAULT_ON_FEATURES, LIMIT_DEFS, type FeatureKey, type LimitKey, type PlanRow } from './plans'
 
 export class PlanLimitError extends Error {
   readonly status = 402 as const
@@ -81,9 +81,9 @@ export async function assertFeature(
   feature: FeatureKey,
 ) {
   const e = await getEntitlements(supabase, accountId)
-  if (e.features[feature] === false || e.features[feature] === undefined) {
-    throw new FeatureLockedError(feature, e.planName)
-  }
+  const v = e.features[feature]
+  const allowed = v === undefined ? DEFAULT_ON_FEATURES.includes(feature) : v
+  if (!allowed) throw new FeatureLockedError(feature, e.planName)
 }
 
 export async function assertCanAddWhatsAppConnection(supabase: SupabaseClient, accountId: string) {

@@ -43,6 +43,8 @@ interface AccountSummary {
   /** Default deal currency (ISO-4217). NOT NULL DEFAULT 'USD' in the
    *  DB (migration 021); narrowed to DEFAULT_CURRENCY when absent. */
   default_currency: string;
+  /** IANA time zone the account's relative dates resolve in (migration 071). */
+  timezone: string;
 }
 
 /**
@@ -116,6 +118,8 @@ interface AuthContextValue {
    *  while loading or when no account is resolved, so callers can use
    *  it unconditionally. */
   defaultCurrency: string;
+  /** Account time zone (IANA). 'UTC' while loading. */
+  accountTimezone: string;
   /** True if `accountRole === 'owner'`. */
   isOwner: boolean;
   /** True if `accountRole === 'admin'` (does NOT include owner - use canManageMembers for "admin or above"). */
@@ -239,7 +243,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             .from("accounts")
             // default_currency added in migration 021; narrowed to the
             // USD fallback below for older schemas where it reads null.
-            .select("id, name, default_currency")
+            .select("id, name, default_currency, timezone")
             .eq("id", data.account_id)
             .maybeSingle();
           if (accountErr) {
@@ -254,6 +258,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               id: account.id,
               name: account.name,
               default_currency: account.default_currency ?? DEFAULT_CURRENCY,
+              timezone: account.timezone ?? "UTC",
             };
           }
         }
@@ -436,6 +441,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         refreshProfile,
         account,
         defaultCurrency: account?.default_currency ?? DEFAULT_CURRENCY,
+        accountTimezone: account?.timezone ?? "UTC",
         accountStatus,
         accountStatusDetail: statusDetail,
         ...derived,
@@ -468,6 +474,7 @@ export function useAuth(): AuthContextValue {
       refreshProfile: async () => {},
       account: null,
       defaultCurrency: DEFAULT_CURRENCY,
+      accountTimezone: "UTC",
       // Outside the provider there is nothing to resolve yet - 'loading'
       // keeps the access alert from firing on, say, the login page.
       accountStatus: "loading",

@@ -582,7 +582,36 @@
       "toastBulkDeleted": "{count} contacts deleted",
       "filterByTag": "Filter by {name}",
       "removeTagFilter": "Remove {name} filter",
-      "selectContact": "Select {name}"
+      "selectContact": "Select {name}",
+      "columns": {
+        "title": "Columns",
+        "customFields": "Custom fields",
+        "export": "Export CSV (current view)",
+        "exported": "Exported {count} contacts.",
+        "exportFailed": "Could not export contacts."
+      },
+      "yes": "Yes",
+      "no": "No",
+      "filter": {
+        "button": "Filter",
+        "clear": "Clear",
+        "matches": "{count, plural, one {# contact matches} other {# contacts match}}"
+      },
+      "segments": {
+        "label": "Segment",
+        "all": "All contacts",
+        "viewing": "Segment: {name}",
+        "namePlaceholder": "Segment name",
+        "save": "Save as segment",
+        "update": "Update segment",
+        "delete": "Delete",
+        "deleteConfirm": "Delete segment \"{name}\"? Contacts are not affected.",
+        "saved": "Segment \"{name}\" saved.",
+        "updated": "Segment \"{name}\" updated.",
+        "deleted": "Segment \"{name}\" deleted.",
+        "duplicate": "A segment named \"{name}\" already exists.",
+        "saveFailed": "Could not save the segment."
+      }
     },
     "form": {
       "addTitle": "Add Contact",
@@ -682,7 +711,8 @@
       "toastCustomFieldsFailed": "Failed to save custom fields",
       "toastTemplateSent": "Template \"{name}\" sent",
       "toastTemplateFailed": "Failed to send template: {reason}",
-      "networkError": "network error"
+      "networkError": "network error",
+      "toastReferenceMissing": "That value points at a row that no longer exists. Pick it again."
     },
     "importModal": {
       "title": "Import Contacts",
@@ -735,7 +765,26 @@
       "toastError": "Import failed",
       "notAuthenticated": "Not authenticated",
       "notLinkedToAccount": "Your profile is not linked to an account.",
-      "toastTagsSkippedMore": " (+{count} more)"
+      "toastTagsSkippedMore": " (+{count} more)",
+      "toastFieldNotCreated": "Could not create the field \"{name}\". {reason}",
+      "toastCustomValuesWarning": "Contacts were imported, but some custom field values could not be saved.",
+      "toastUpdated": "{count, plural, one {# existing contact updated} other {# existing contacts updated}}",
+      "resultUpdated": "{count, plural, one {# contact updated} other {# contacts updated}}",
+      "customErrorsHeading": "{count, plural, one {# custom value was not imported} other {# custom values were not imported}}",
+      "updateExisting": "Update existing contacts",
+      "updateExistingHint": "Contacts whose phone is already saved get the values from this file. Blank cells never erase data.",
+      "mapping": {
+        "title": "Custom fields",
+        "skip": "Don't import",
+        "createLabel": "New field ({type})",
+        "hint": "Columns that match a custom field are filled in automatically. Unmatched ones can become new fields.",
+        "types": {
+          "text": "Text",
+          "number": "Number",
+          "bool": "Yes / No",
+          "date": "Date"
+        }
+      }
     },
     "customFields": {
       "title": "Custom fields",
@@ -746,14 +795,49 @@
       "empty": "No custom fields yet.",
       "renameAria": "Rename {name}",
       "deleteTitle": "Delete field",
-      "deleteConfirm": "Delete \"{name}\"? This also removes its stored value on every contact. This cannot be undone.",
+      "deleteConfirm": "Remove \"{name}\"? If contacts have a value for it, the field is archived and those values are kept; otherwise it is deleted.",
       "toastNoAccount": "Your profile is not linked to an account.",
       "toastDuplicate": "A field named \"{name}\" already exists.",
       "toastCreateFailed": "Could not create field. You may not have permission.",
       "toastCreated": "Created \"{name}\".",
       "toastRenameFailed": "Could not rename field.",
       "toastDeleteFailed": "Could not delete field.",
-      "toastDeleted": "Deleted \"{name}\"."
+      "toastDeleted": "Deleted \"{name}\".",
+      "typeLabel": "Type",
+      "types": {
+        "text": "Text",
+        "number": "Number",
+        "bool": "Yes / No",
+        "date": "Date",
+        "enum": "Choice",
+        "multi_enum": "Multiple choice",
+        "reference": "Reference",
+        "media": "Media (file)"
+      },
+      "optionsLabel": "Options",
+      "optionsPlaceholder": "Options, separated by commas (Gold, Silver, Platinum)",
+      "tableLabel": "Table",
+      "tablePlaceholder": "Pick a table",
+      "noTables": "No tables yet. Create one in Settings → Custom tables.",
+      "numberFormat": "Number format",
+      "formats": {
+        "plain": "Plain number",
+        "currency": "Currency",
+        "percent": "Percent"
+      },
+      "showAsColumn": "Show as a column in Contacts",
+      "columnToggle": "Show as a column in Contacts",
+      "moveUp": "Move up",
+      "moveDown": "Move down",
+      "toastArchived": "\"{name}\" was archived. Its values are kept.",
+      "acceptLabel": "Allowed files",
+      "accept": {
+        "any": "Any file",
+        "image": "Images only",
+        "document": "Documents only",
+        "video": "Video only",
+        "audio": "Audio only"
+      }
     }
   },
   "Pipelines": {
@@ -997,7 +1081,8 @@
           "all": "All Contacts",
           "tags": "Filter by Tags",
           "customField": "Custom Field",
-          "csv": "Upload CSV"
+          "csv": "Upload CSV",
+          "segment": "Segment"
         },
         "allDesc": "Send to all {count} contacts in your database.",
         "allDescLoading": "Send to all contacts in your database.",
@@ -1028,7 +1113,11 @@
         "audienceSummary": "Audience Summary",
         "calculating": "Calculating…",
         "estimatedRecipients": "estimated recipients",
-        "selectTypeForEstimate": "Select an audience type to see the estimate."
+        "selectTypeForEstimate": "Select an audience type to see the estimate.",
+        "segmentDesc": "Send to a saved segment of contacts.",
+        "pickSegment": "Pick a segment",
+        "noSegments": "No segments yet. Save one from the Contacts filter.",
+        "segmentLive": "The segment is re-evaluated when you send, so it always uses the latest contacts."
       },
       "personalize": {
         "title": "Personalize Variables",
@@ -1089,7 +1178,8 @@
         "estimatedReach": "Estimated Reach",
         "language": "Language",
         "confirmTitle": "Confirm Broadcast",
-        "confirmDesc": "You are about to send this broadcast to <b>{count, number}</b> {count, plural, =1 {contact} other {contacts}} using the <b>{template}</b> template. This action cannot be undone."
+        "confirmDesc": "You are about to send this broadcast to <b>{count, number}</b> {count, plural, =1 {contact} other {contacts}} using the <b>{template}</b> template. This action cannot be undone.",
+        "audienceSegment": "Saved segment"
       }
     },
     "sending": {
@@ -1315,7 +1405,8 @@
           "tag_presence": "Tag presence",
           "contact_field": "Contact field",
           "message_content": "Message content",
-          "time_of_day": "Time of day"
+          "time_of_day": "Time of day",
+          "in_segment": "In segment"
         },
         "operandLabel": "Operand",
         "placeholderTime": "HH:mm-HH:mm",
@@ -1334,7 +1425,9 @@
         "matchExact": "Exact",
         "waitForReply": "Wait for reply before continuing",
         "waitForReplyHint": "Pauses here until the customer taps a button or replies (up to 24h). The steps after this one, including If/Else on message content, then use their reply.",
-        "closeConversationHint": "Sets the conversation status to \"closed\". No configuration needed."
+        "closeConversationHint": "Sets the conversation status to \"closed\". No configuration needed.",
+        "segmentLabel": "Segment",
+        "segmentPlaceholder": "Pick a segment…"
       },
       "preview": {
         "noText": "no text yet",
@@ -1977,7 +2070,9 @@
       "members": "Team members",
       "api": "API keys",
       "mcp": "Claude (MCP)",
-      "language": "Language"
+      "language": "Language",
+      "tables": "Custom tables",
+      "timezone": "Time zone"
     },
     "groups": {
       "account": "Account",
@@ -2319,6 +2414,73 @@
       "title": "Language",
       "description": "Choose the language the app is shown in. Saved on this device and applied right away.",
       "active": "Active"
+    },
+    "tables": {
+      "title": "Custom tables",
+      "description": "Build your own tables (trainers, plans, products…) and point a custom field at one with the Reference type.",
+      "newTable": "New table",
+      "empty": "No tables yet. Create one to get started.",
+      "columnsCount": "{count, plural, one {# column} other {# columns}}",
+      "rowsCount": "{count, plural, one {# row} other {# rows}}",
+      "open": "Open",
+      "editShape": "Edit shape",
+      "back": "All tables",
+      "failed": "Something went wrong. Please try again.",
+      "toastTableCreated": "Created table \"{name}\".",
+      "toastTableDeleted": "Deleted table \"{name}\".",
+      "shape": {
+        "createTitle": "New table",
+        "editTitle": "Edit table",
+        "name": "Table name",
+        "namePlaceholder": "e.g. Trainers",
+        "columns": "Columns",
+        "columnName": "Column name",
+        "addColumn": "Add column",
+        "labelColumn": "Label",
+        "labelHint": "The label column is what shows up when a row is picked from a field.",
+        "create": "Create table",
+        "cancel": "Cancel",
+        "done": "Close",
+        "save": "Save",
+        "deleteTable": "Delete table",
+        "deleteTableConfirm": "Delete table \"{name}\" and all of its rows? This cannot be undone.",
+        "deleteColumnConfirm": "Delete column \"{name}\" and its values in every row? This cannot be undone."
+      },
+      "rows": {
+        "addRow": "Add row",
+        "search": "Search rows…",
+        "noRows": "No rows yet.",
+        "yes": "Yes",
+        "no": "No",
+        "edit": "Edit row",
+        "delete": "Delete row",
+        "deleteConfirm": "Delete this row?",
+        "deleteUsedConfirm": "{count, plural, one {# contact uses} other {# contacts use}} this row. Their value will be cleared. Delete anyway?",
+        "toastDeleted": "Row deleted.",
+        "toastSaved": "Row saved.",
+        "editRow": "Edit row",
+        "newRow": "New row",
+        "cancel": "Cancel",
+        "save": "Save",
+        "pageOf": "Page {page} of {pages}",
+        "prev": "Previous",
+        "next": "Next",
+        "readOnly": "You can view this table but not change it."
+      }
+    },
+    "timezone": {
+      "title": "Time zone",
+      "description": "The time zone your business runs in. Dates like “today” and “30 days ago” in contact filters and segments use it.",
+      "accountZone": "Account time zone",
+      "accountZoneDesc": "Applies to everyone in this account. It does not change how times are shown in chats.",
+      "zoneLabel": "Time zone",
+      "useDevice": "Use this device's time zone ({zone})",
+      "adminOnlyHint": "Only admins can change the account time zone.",
+      "preview": "Right now it is {time} in this time zone.",
+      "save": "Save",
+      "saving": "Saving…",
+      "saveSuccess": "Time zone saved.",
+      "saveFailed": "Could not save the time zone."
     }
   },
   "SignupPage": {
@@ -3073,5 +3235,93 @@
       "terms": "Terms",
       "dataDeletion": "Data deletion"
     }
+  },
+  "CustomFields": {
+    "picker": {
+      "placeholder": "Select…",
+      "search": "Search…",
+      "empty": "No matching rows.",
+      "unnamed": "(unnamed)"
+    },
+    "input": {
+      "yes": "Yes",
+      "no": "No",
+      "notSet": "Not set",
+      "choose": "Choose…",
+      "none": "None"
+    },
+    "media": {
+      "upload": "Upload file",
+      "uploading": "Uploading…",
+      "replace": "Replace file",
+      "remove": "Remove file",
+      "tooLarge": "That file is {size} MB; the limit for this type is {max} MB.",
+      "wrongType": "This field only accepts: {accept}.",
+      "uploadFailed": "Upload failed. Please try again.",
+      "accept": {
+        "any": "Any file",
+        "image": "Images only",
+        "document": "Documents only",
+        "video": "Video only",
+        "audio": "Audio only"
+      }
+    }
+  },
+  "Segments": {
+    "match": "Match",
+    "matchAll": "All",
+    "matchAny": "Any",
+    "noRules": "No filters yet.",
+    "addRule": "Add rule",
+    "removeRule": "Remove rule",
+    "nestedGroup": "Nested group ({count} rules)",
+    "unknownField": "Deleted field",
+    "on": "On",
+    "off": "Off",
+    "noOptions": "No options",
+    "valuePlaceholder": "Value…",
+    "fields": {
+      "name": "Name",
+      "phone": "Phone",
+      "email": "Email",
+      "company": "Company",
+      "tags": "Tags",
+      "created_at": "Created"
+    },
+    "operators": {
+      "contains": "contains",
+      "not_contains": "doesn't contain",
+      "equals": "equals",
+      "not_equals": "doesn't equal",
+      "eq": "=",
+      "neq": "≠",
+      "gt": ">",
+      "gte": "≥",
+      "lt": "<",
+      "lte": "≤",
+      "between": "between",
+      "is_true": "is on",
+      "is_false": "is off",
+      "is_not": "is not",
+      "is_any_of": "is any of",
+      "has_any": "has any of",
+      "has_all": "has all of",
+      "has_none": "has none of",
+      "is_empty": "is empty",
+      "is_set": "is set",
+      "is": "is"
+    },
+    "relative": {
+      "date": "Specific date",
+      "today": "Today",
+      "-7d": "7 days ago",
+      "-30d": "30 days ago",
+      "-90d": "90 days ago",
+      "+7d": "In 7 days",
+      "+30d": "In 30 days"
+    },
+    "and": "and",
+    "addGroup": "Add group",
+    "removeGroup": "Remove group"
   }
 }

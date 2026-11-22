@@ -29,6 +29,12 @@ export const API_SCOPES = [
   'automations:write',
   'flows:read',
   'flows:write',
+  'fields:read',
+  'fields:write',
+  'tables:read',
+  'tables:write',
+  'segments:read',
+  'segments:write',
 ] as const;
 
 export type ApiScope = (typeof API_SCOPES)[number];
@@ -50,6 +56,12 @@ export const SCOPE_DESCRIPTIONS: Record<ApiScope, string> = {
   'automations:write': 'Create, edit, activate and delete automations',
   'flows:read': 'Read chatbot flows and their nodes',
   'flows:write': 'Create, edit, activate and delete chatbot flows',
+  'fields:read': 'Read custom contact field definitions',
+  'fields:write': 'Create, edit, reorder and delete custom contact fields',
+  'tables:read': 'Read custom tables and their rows',
+  'tables:write': 'Create and edit custom tables and add, edit or delete their rows',
+  'segments:read': 'Read segments and the contacts that match them',
+  'segments:write': 'Create, edit and delete segments',
 };
 
 /** Type-narrow an unknown value into a valid `ApiScope`. */

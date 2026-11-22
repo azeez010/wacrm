@@ -1324,6 +1324,18 @@ function ConditionEditor({
     onChange({ ...step, step_config: editConditionConfig(cfg, patch, browserTimeZone()) })
   const subject = (cfg.subject as string) ?? "tag_presence"
   const timezone = (cfg.timezone as string | undefined) ?? LEGACY_CONDITION_TIMEZONE
+  const [segmentOptions, setSegmentOptions] = useState<{ id: string; name: string }[]>([])
+  useEffect(() => {
+    if (subject !== "in_segment") return
+    let cancelled = false
+    void (async () => {
+      const { data } = await createClient().from("segments").select("id, name").order("name")
+      if (!cancelled) setSegmentOptions((data as { id: string; name: string }[] | null) ?? [])
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [subject])
 
   return (
     <>
@@ -1337,9 +1349,26 @@ function ConditionEditor({
           <option value="contact_field">{t("config.subjects.contact_field")}</option>
           <option value="message_content">{t("config.subjects.message_content")}</option>
           <option value="time_of_day">{t("config.subjects.time_of_day")}</option>
+          <option value="in_segment">{t("config.subjects.in_segment")}</option>
         </select>
       </FieldBlock>
-      {subject !== "message_content" && (
+      {subject === "in_segment" && (
+        <FieldBlock label={t("config.segmentLabel")}>
+          <select
+            value={(cfg.operand as string) ?? ""}
+            onChange={(e) => set({ operand: e.target.value })}
+            className="w-full rounded-md border border-border bg-muted px-2 py-1.5 text-sm text-foreground"
+          >
+            <option value="">{t("config.segmentPlaceholder")}</option>
+            {segmentOptions.map((sg) => (
+              <option key={sg.id} value={sg.id}>
+                {sg.name}
+              </option>
+            ))}
+          </select>
+        </FieldBlock>
+      )}
+      {subject !== "message_content" && subject !== "in_segment" && (
         <FieldBlock label={t("config.operandLabel")}>
           <Input
             placeholder={

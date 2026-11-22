@@ -119,7 +119,7 @@ export function parseContactCsv(text: string): ParseContactCsvResult {
 }
 
 /** Simple CSV line parse (handles quoted fields). */
-function parseCsvLine(line: string): string[] {
+export function parseCsvLine(line: string): string[] {
   const values: string[] = [];
   let current = '';
   let inQuotes = false;
@@ -136,4 +136,51 @@ function parseCsvLine(line: string): string[] {
   }
   values.push(current.trim());
   return values;
+}
+
+const STANDARD_HEADERS = new Set(['phone', 'name', 'email', 'company', 'tags']);
+
+export interface CsvExtraColumn {
+  /** Header exactly as written in the file (trimmed, quotes removed). */
+  header: string;
+  /** Column index in the file. */
+  index: number;
+}
+
+export interface ParsedCustomColumns {
+  /** Non-standard columns, candidates for custom fields. */
+  columns: CsvExtraColumn[];
+  /**
+   * One entry per row `parseContactCsv` returns, in the same order
+   * (both skip blank lines identically): cell text keyed by column index.
+   */
+  values: Record<number, string>[];
+}
+
+/**
+ * The columns `parseContactCsv` ignores (everything except
+ * phone/name/email/company/tags), plus each row's raw cell text so the
+ * import can map them onto custom fields. Values keep their original
+ * case, quotes and apostrophes are not stripped.
+ */
+export function parseCustomColumns(text: string): ParsedCustomColumns {
+  const lines = text.trim().split(/\r?\n/);
+  if (lines.length < 2) return { columns: [], values: [] };
+
+  const rawHeaders = parseCsvLine(lines[0]).map((h) => h.replace(/["]/g, '').trim());
+  const columns: CsvExtraColumn[] = [];
+  rawHeaders.forEach((header, index) => {
+    if (header && !STANDARD_HEADERS.has(header.toLowerCase())) columns.push({ header, index });
+  });
+
+  const values: Record<number, string>[] = [];
+  for (let i = 1; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (!line) continue;
+    const cells = parseCsvLine(line);
+    const row: Record<number, string> = {};
+    for (const c of columns) row[c.index] = (cells[c.index] ?? '').trim();
+    values.push(row);
+  }
+  return { columns, values };
 }

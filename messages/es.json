@@ -582,7 +582,36 @@
       "toastBulkDeleted": "{count} contactos eliminados",
       "filterByTag": "Filtrar por {name}",
       "removeTagFilter": "Quitar el filtro {name}",
-      "selectContact": "Seleccionar {name}"
+      "selectContact": "Seleccionar {name}",
+      "columns": {
+        "title": "Columnas",
+        "customFields": "Campos personalizados",
+        "export": "Exportar CSV (vista actual)",
+        "exported": "Se exportaron {count} contactos.",
+        "exportFailed": "No se pudieron exportar los contactos."
+      },
+      "yes": "Sí",
+      "no": "No",
+      "filter": {
+        "button": "Filtrar",
+        "clear": "Borrar",
+        "matches": "{count, plural, one {# contacto coincide} other {# contactos coinciden}}"
+      },
+      "segments": {
+        "label": "Segmento",
+        "all": "Todos los contactos",
+        "viewing": "Segmento: {name}",
+        "namePlaceholder": "Nombre del segmento",
+        "save": "Guardar como segmento",
+        "update": "Actualizar segmento",
+        "delete": "Eliminar",
+        "deleteConfirm": "¿Eliminar el segmento \"{name}\"? Los contactos no se ven afectados.",
+        "saved": "Segmento \"{name}\" guardado.",
+        "updated": "Segmento \"{name}\" actualizado.",
+        "deleted": "Segmento \"{name}\" eliminado.",
+        "duplicate": "Ya existe un segmento llamado \"{name}\".",
+        "saveFailed": "No se pudo guardar el segmento."
+      }
     },
     "form": {
       "addTitle": "Agregar contacto",
@@ -682,7 +711,8 @@
       "toastCustomFieldsFailed": "Error al guardar los campos personalizados",
       "toastTemplateSent": "Plantilla \"{name}\" enviada",
       "toastTemplateFailed": "Error al enviar la plantilla: {reason}",
-      "networkError": "error de red"
+      "networkError": "error de red",
+      "toastReferenceMissing": "Ese valor apunta a una fila que ya no existe. Elígela de nuevo."
     },
     "importModal": {
       "title": "Importar contactos",
@@ -735,7 +765,26 @@
       "toastError": "Error en la importación",
       "notAuthenticated": "No autenticado",
       "notLinkedToAccount": "Tu perfil no está vinculado a una cuenta.",
-      "toastTagsSkippedMore": " (+{count} más)"
+      "toastTagsSkippedMore": " (+{count} más)",
+      "toastFieldNotCreated": "No se pudo crear el campo \"{name}\". {reason}",
+      "toastCustomValuesWarning": "Los contactos se importaron, pero algunos valores de campos personalizados no se pudieron guardar.",
+      "toastUpdated": "{count, plural, one {# contacto existente actualizado} other {# contactos existentes actualizados}}",
+      "resultUpdated": "{count, plural, one {# contacto actualizado} other {# contactos actualizados}}",
+      "customErrorsHeading": "{count, plural, one {# valor personalizado no se importó} other {# valores personalizados no se importaron}}",
+      "updateExisting": "Actualizar contactos existentes",
+      "updateExistingHint": "Los contactos cuyo teléfono ya existe reciben los valores de este archivo. Las celdas vacías nunca borran datos.",
+      "mapping": {
+        "title": "Campos personalizados",
+        "skip": "No importar",
+        "createLabel": "Campo nuevo ({type})",
+        "hint": "Las columnas que coinciden con un campo personalizado se rellenan automáticamente. Las demás pueden convertirse en campos nuevos.",
+        "types": {
+          "text": "Texto",
+          "number": "Número",
+          "bool": "Sí / No",
+          "date": "Fecha"
+        }
+      }
     },
     "customFields": {
       "title": "Campos personalizados",
@@ -746,14 +795,49 @@
       "empty": "Aún no hay campos personalizados.",
       "renameAria": "Renombrar {name}",
       "deleteTitle": "Eliminar campo",
-      "deleteConfirm": "¿Eliminar \"{name}\"? Esto también elimina su valor guardado en todos los contactos. No se puede deshacer.",
+      "deleteConfirm": "¿Quitar \"{name}\"? Si hay contactos con un valor, el campo se archiva y esos valores se conservan; si no, se elimina.",
       "toastNoAccount": "Tu perfil no está vinculado a una cuenta.",
       "toastDuplicate": "Ya existe un campo llamado \"{name}\".",
       "toastCreateFailed": "No se pudo crear el campo. Quizá no tengas permiso.",
       "toastCreated": "\"{name}\" creado.",
       "toastRenameFailed": "No se pudo renombrar el campo.",
       "toastDeleteFailed": "No se pudo eliminar el campo.",
-      "toastDeleted": "\"{name}\" eliminado."
+      "toastDeleted": "\"{name}\" eliminado.",
+      "typeLabel": "Tipo",
+      "types": {
+        "text": "Texto",
+        "number": "Número",
+        "bool": "Sí / No",
+        "date": "Fecha",
+        "enum": "Opción",
+        "multi_enum": "Opción múltiple",
+        "reference": "Referencia",
+        "media": "Multimedia (archivo)"
+      },
+      "optionsLabel": "Opciones",
+      "optionsPlaceholder": "Opciones separadas por comas (Oro, Plata, Platino)",
+      "tableLabel": "Tabla",
+      "tablePlaceholder": "Elige una tabla",
+      "noTables": "Aún no hay tablas. Crea una en Ajustes → Tablas personalizadas.",
+      "numberFormat": "Formato numérico",
+      "formats": {
+        "plain": "Número simple",
+        "currency": "Moneda",
+        "percent": "Porcentaje"
+      },
+      "showAsColumn": "Mostrar como columna en Contactos",
+      "columnToggle": "Mostrar como columna en Contactos",
+      "moveUp": "Subir",
+      "moveDown": "Bajar",
+      "toastArchived": "\"{name}\" se archivó. Se conservan sus valores.",
+      "acceptLabel": "Archivos permitidos",
+      "accept": {
+        "any": "Cualquier archivo",
+        "image": "Solo imágenes",
+        "document": "Solo documentos",
+        "video": "Solo vídeo",
+        "audio": "Solo audio"
+      }
     }
   },
   "Pipelines": {
@@ -997,7 +1081,8 @@
           "all": "Todos los contactos",
           "tags": "Filtrar por etiquetas",
           "customField": "Campo personalizado",
-          "csv": "Subir CSV"
+          "csv": "Subir CSV",
+          "segment": "Segmento"
         },
         "allDesc": "Enviar a los {count} contactos de tu base de datos.",
         "allDescLoading": "Enviar a todos los contactos de tu base de datos.",
@@ -1028,7 +1113,11 @@
         "audienceSummary": "Resumen de la audiencia",
         "calculating": "Calculando…",
         "estimatedRecipients": "destinatarios estimados",
-        "selectTypeForEstimate": "Selecciona un tipo de audiencia para ver la estimación."
+        "selectTypeForEstimate": "Selecciona un tipo de audiencia para ver la estimación.",
+        "segmentDesc": "Envía a un segmento guardado de contactos.",
+        "pickSegment": "Elige un segmento",
+        "noSegments": "Aún no hay segmentos. Guarda uno desde el filtro de Contactos.",
+        "segmentLive": "El segmento se vuelve a evaluar al enviar, así que siempre usa los contactos más recientes."
       },
       "personalize": {
         "title": "Personalizar variables",
@@ -1089,7 +1178,8 @@
         "estimatedReach": "Alcance estimado",
         "language": "Idioma",
         "confirmTitle": "Confirmar difusión",
-        "confirmDesc": "Estás a punto de enviar esta difusión a <b>{count, number}</b> {count, plural, =1 {contacto} other {contactos}} con la plantilla <b>{template}</b>. Esta acción no se puede deshacer."
+        "confirmDesc": "Estás a punto de enviar esta difusión a <b>{count, number}</b> {count, plural, =1 {contacto} other {contactos}} con la plantilla <b>{template}</b>. Esta acción no se puede deshacer.",
+        "audienceSegment": "Segmento guardado"
       }
     },
     "sending": {
@@ -1315,7 +1405,8 @@
           "tag_presence": "Presencia de etiqueta",
           "contact_field": "Campo del contacto",
           "message_content": "Contenido del mensaje",
-          "time_of_day": "Hora del día"
+          "time_of_day": "Hora del día",
+          "in_segment": "En un segmento"
         },
         "operandLabel": "Operando",
         "placeholderTime": "HH:mm-HH:mm",
@@ -1334,7 +1425,9 @@
         "matchExact": "Exacta",
         "waitForReply": "Esperar respuesta antes de continuar",
         "waitForReplyHint": "Se detiene aquí hasta que el cliente toque un botón o responda (hasta 24 h). Los pasos siguientes, incluido Si/Si no sobre el contenido del mensaje, usan esa respuesta.",
-        "closeConversationHint": "Cambia el estado de la conversación a \"cerrada\". No requiere configuración."
+        "closeConversationHint": "Cambia el estado de la conversación a \"cerrada\". No requiere configuración.",
+        "segmentLabel": "Segmento",
+        "segmentPlaceholder": "Elige un segmento…"
       },
       "preview": {
         "noText": "sin texto aún",
@@ -1977,7 +2070,9 @@
       "members": "Miembros del equipo",
       "api": "Claves de API",
       "mcp": "Claude (MCP)",
-      "language": "Idioma"
+      "language": "Idioma",
+      "tables": "Tablas personalizadas",
+      "timezone": "Zona horaria"
     },
     "groups": {
       "account": "Cuenta",
@@ -2319,6 +2414,73 @@
       "title": "Idioma",
       "description": "Elige el idioma en que se muestra la aplicación. Se guarda en este dispositivo y se aplica al instante.",
       "active": "Activo"
+    },
+    "tables": {
+      "title": "Tablas personalizadas",
+      "description": "Crea tus propias tablas (entrenadores, planes, productos…) y apunta un campo personalizado a una con el tipo Referencia.",
+      "newTable": "Nueva tabla",
+      "empty": "Aún no hay tablas. Crea una para empezar.",
+      "columnsCount": "{count, plural, one {# columna} other {# columnas}}",
+      "rowsCount": "{count, plural, one {# fila} other {# filas}}",
+      "open": "Abrir",
+      "editShape": "Editar estructura",
+      "back": "Todas las tablas",
+      "failed": "Algo salió mal. Inténtalo de nuevo.",
+      "toastTableCreated": "Tabla \"{name}\" creada.",
+      "toastTableDeleted": "Tabla \"{name}\" eliminada.",
+      "shape": {
+        "createTitle": "Nueva tabla",
+        "editTitle": "Editar tabla",
+        "name": "Nombre de la tabla",
+        "namePlaceholder": "p. ej. Entrenadores",
+        "columns": "Columnas",
+        "columnName": "Nombre de la columna",
+        "addColumn": "Añadir columna",
+        "labelColumn": "Etiqueta",
+        "labelHint": "La columna de etiqueta es lo que se muestra al elegir una fila desde un campo.",
+        "create": "Crear tabla",
+        "cancel": "Cancelar",
+        "done": "Cerrar",
+        "save": "Guardar",
+        "deleteTable": "Eliminar tabla",
+        "deleteTableConfirm": "¿Eliminar la tabla \"{name}\" y todas sus filas? No se puede deshacer.",
+        "deleteColumnConfirm": "¿Eliminar la columna \"{name}\" y sus valores en todas las filas? No se puede deshacer."
+      },
+      "rows": {
+        "addRow": "Añadir fila",
+        "search": "Buscar filas…",
+        "noRows": "Aún no hay filas.",
+        "yes": "Sí",
+        "no": "No",
+        "edit": "Editar fila",
+        "delete": "Eliminar fila",
+        "deleteConfirm": "¿Eliminar esta fila?",
+        "deleteUsedConfirm": "{count, plural, one {# contacto usa} other {# contactos usan}} esta fila. Su valor se borrará. ¿Eliminar de todos modos?",
+        "toastDeleted": "Fila eliminada.",
+        "toastSaved": "Fila guardada.",
+        "editRow": "Editar fila",
+        "newRow": "Nueva fila",
+        "cancel": "Cancelar",
+        "save": "Guardar",
+        "pageOf": "Página {page} de {pages}",
+        "prev": "Anterior",
+        "next": "Siguiente",
+        "readOnly": "Puedes ver esta tabla pero no modificarla."
+      }
+    },
+    "timezone": {
+      "title": "Zona horaria",
+      "description": "La zona horaria en la que opera tu negocio. Fechas como «hoy» y «hace 30 días» en filtros y segmentos de contactos la usan.",
+      "accountZone": "Zona horaria de la cuenta",
+      "accountZoneDesc": "Se aplica a todos en esta cuenta. No cambia cómo se muestran las horas en los chats.",
+      "zoneLabel": "Zona horaria",
+      "useDevice": "Usar la zona horaria de este dispositivo ({zone})",
+      "adminOnlyHint": "Solo los administradores pueden cambiar la zona horaria de la cuenta.",
+      "preview": "Ahora mismo son las {time} en esta zona horaria.",
+      "save": "Guardar",
+      "saving": "Guardando…",
+      "saveSuccess": "Zona horaria guardada.",
+      "saveFailed": "No se pudo guardar la zona horaria."
     }
   },
   "SignupPage": {
@@ -3073,5 +3235,93 @@
       "terms": "Términos",
       "dataDeletion": "Eliminación de datos"
     }
+  },
+  "CustomFields": {
+    "picker": {
+      "placeholder": "Seleccionar…",
+      "search": "Buscar…",
+      "empty": "No hay filas que coincidan.",
+      "unnamed": "(sin nombre)"
+    },
+    "input": {
+      "yes": "Sí",
+      "no": "No",
+      "notSet": "Sin definir",
+      "choose": "Elegir…",
+      "none": "Ninguno"
+    },
+    "media": {
+      "upload": "Subir archivo",
+      "uploading": "Subiendo…",
+      "replace": "Reemplazar archivo",
+      "remove": "Quitar archivo",
+      "tooLarge": "Ese archivo pesa {size} MB; el límite para este tipo es {max} MB.",
+      "wrongType": "Este campo solo acepta: {accept}.",
+      "uploadFailed": "La subida falló. Inténtalo de nuevo.",
+      "accept": {
+        "any": "Cualquier archivo",
+        "image": "Solo imágenes",
+        "document": "Solo documentos",
+        "video": "Solo vídeo",
+        "audio": "Solo audio"
+      }
+    }
+  },
+  "Segments": {
+    "match": "Coincidir",
+    "matchAll": "Todas",
+    "matchAny": "Cualquiera",
+    "noRules": "Aún no hay filtros.",
+    "addRule": "Añadir regla",
+    "removeRule": "Quitar regla",
+    "nestedGroup": "Grupo anidado ({count} reglas)",
+    "unknownField": "Campo eliminado",
+    "on": "Sí",
+    "off": "No",
+    "noOptions": "Sin opciones",
+    "valuePlaceholder": "Valor…",
+    "fields": {
+      "name": "Nombre",
+      "phone": "Teléfono",
+      "email": "Correo",
+      "company": "Empresa",
+      "tags": "Etiquetas",
+      "created_at": "Creado"
+    },
+    "operators": {
+      "contains": "contiene",
+      "not_contains": "no contiene",
+      "equals": "es igual a",
+      "not_equals": "no es igual a",
+      "eq": "=",
+      "neq": "≠",
+      "gt": ">",
+      "gte": "≥",
+      "lt": "<",
+      "lte": "≤",
+      "between": "entre",
+      "is_true": "activado",
+      "is_false": "desactivado",
+      "is_not": "no es",
+      "is_any_of": "es cualquiera de",
+      "has_any": "tiene alguno de",
+      "has_all": "tiene todos de",
+      "has_none": "no tiene ninguno de",
+      "is_empty": "está vacío",
+      "is_set": "tiene valor",
+      "is": "es"
+    },
+    "relative": {
+      "date": "Fecha concreta",
+      "today": "Hoy",
+      "-7d": "Hace 7 días",
+      "-30d": "Hace 30 días",
+      "-90d": "Hace 90 días",
+      "+7d": "En 7 días",
+      "+30d": "En 30 días"
+    },
+    "and": "y",
+    "addGroup": "Añadir grupo",
+    "removeGroup": "Quitar grupo"
   }
 }

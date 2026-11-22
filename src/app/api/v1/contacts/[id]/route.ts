@@ -9,6 +9,7 @@
 // ============================================================
 
 import { requireApiKey } from '@/lib/auth/api-context';
+import { writeContactCustomFields } from '@/lib/custom-fields/contact-values';
 import { ok, fail, toApiErrorResponse } from '@/lib/api/v1/respond';
 import {
   getContactById,
@@ -90,6 +91,9 @@ export async function PATCH(
         body.tags.filter((t): t is string => typeof t === 'string')
       );
     }
+
+    const cf = await writeContactCustomFields(ctx.supabase, ctx.accountId, id, body.custom_fields);
+    if (!cf.ok) return fail('bad_request', cf.error, 400);
 
     const contact = await getContactById(ctx.supabase, ctx.accountId, id);
     return ok(contact);

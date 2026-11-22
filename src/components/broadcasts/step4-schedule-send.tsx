@@ -68,7 +68,9 @@ export function Step4ScheduleSend({
         ? t('scheduleSend.audienceTags')
         : audience.type === 'csv'
           ? t('scheduleSend.audienceCsv')
-          : t('scheduleSend.audienceField');
+          : audience.type === 'segment'
+            ? t('scheduleSend.audienceSegment')
+            : t('scheduleSend.audienceField');
 
   return (
     <div className="space-y-6">

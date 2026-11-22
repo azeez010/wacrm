@@ -32,8 +32,46 @@ describe('hosted MCP server', () => {
   it('exposes read tools for read scopes and hides every write tool', async () => {
     const t = await names(await connect(['contacts:read', 'conversations:read', 'messages:read']))
     expect(t).toEqual(
-      ['get_contact', 'get_conversation', 'list_contacts', 'list_conversations', 'list_messages', 'list_tags', 'whoami'].sort(),
+      ['filter_contacts', 'get_contact', 'get_conversation', 'list_contacts', 'list_conversations', 'list_messages', 'list_tags', 'whoami'].sort(),
     )
+  })
+
+  it('exposes custom field, table and segment tools only with their scopes', async () => {
+    const read = await names(await connect(['fields:read', 'tables:read', 'segments:read']))
+    expect(read).toEqual(
+      [
+        'get_custom_data_reference',
+        'get_segment',
+        'get_table',
+        'list_custom_fields',
+        'list_segment_contacts',
+        'list_segments',
+        'list_table_rows',
+        'list_tables',
+        'whoami',
+      ].sort(),
+    )
+    const write = await names(await connect(['fields:write', 'tables:write', 'segments:write']))
+    expect(write).toEqual(
+      [
+        'create_custom_field',
+        'create_segment',
+        'create_table',
+        'create_table_row',
+        'delete_custom_field',
+        'delete_segment',
+        'delete_table',
+        'delete_table_row',
+        'get_custom_data_reference',
+        'update_custom_field',
+        'update_segment',
+        'update_table',
+        'update_table_row',
+        'whoami',
+      ].sort(),
+    )
+    // A contacts-only key never sees the schema tools.
+    expect(await names(await connect(['contacts:read']))).not.toContain('create_custom_field')
   })
 
   it('adds write tools only with their scope', async () => {

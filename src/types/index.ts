@@ -146,8 +146,23 @@ export interface CustomField {
   /** Tenancy key - NOT NULL since migration 017. */
   account_id: string;
   field_name: string;
+  /** text | number | bool | date | enum | multi_enum | reference (see src/lib/custom-fields/types.ts). */
   field_type: string;
   field_options?: Record<string, unknown>;
+  /** Stable slug used by apps, imports and the API (migration 066). */
+  key?: string;
+  /** Non-null when this field is a column of a custom table. */
+  table_id?: string | null;
+  show_in_table?: boolean;
+  sort_order?: number;
+  description?: string | null;
+  required?: boolean;
+  default_value?: string | null;
+  source?: string | null;
+  locked?: boolean;
+  archived_at?: string | null;
+  min_role_edit?: string;
+  hidden_from_viewers?: boolean;
   created_at: string;
 }
 
@@ -608,7 +623,9 @@ export type ConditionSubject =
   | 'contact_field'
   | 'tag_presence'
   | 'message_content'
-  | 'time_of_day';
+  | 'time_of_day'
+  /** operand = a saved segment id; true when the contact currently matches it. */
+  | 'in_segment';
 
 export interface ConditionStepConfig {
   subject: ConditionSubject;

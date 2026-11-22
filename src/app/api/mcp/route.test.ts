@@ -58,7 +58,7 @@ describe('POST /api/mcp', () => {
 
     const list = await POST(rpc({ jsonrpc: '2.0', id: 2, method: 'tools/list' }))
     const tools = (await list.json()).result.tools.map((t: { name: string }) => t.name).sort()
-    expect(tools).toEqual(['get_contact', 'list_contacts', 'list_tags', 'whoami'])
+    expect(tools).toEqual(['filter_contacts', 'get_contact', 'list_contacts', 'list_tags', 'whoami'])
   })
 
   it('answers 401 with a WWW-Authenticate header for a bad key', async () => {

@@ -30,6 +30,9 @@ const READ_SCOPES: ApiScope[] = [
   'pipelines:read',
   'automations:read',
   'flows:read',
+  'fields:read',
+  'tables:read',
+  'segments:read',
 ];
 
 const BUILDER_SCOPES: ApiScope[] = [
@@ -38,6 +41,9 @@ const BUILDER_SCOPES: ApiScope[] = [
   'automations:write',
   'flows:write',
   'templates:write',
+  'fields:write',
+  'tables:write',
+  'segments:write',
 ];
 
 const PRESETS: {
@@ -55,7 +61,7 @@ const PRESETS: {
   {
     id: 'builder',
     label: 'Campaign builder',
-    hint: 'Everything in Read-only, plus build pipelines, automations, chatbot flows and message templates. New automations and flows are saved as drafts. It cannot message customers directly.',
+    hint: 'Everything in Read-only, plus build pipelines, automations, chatbot flows, message templates, custom fields, tables and segments. New automations and flows are saved as drafts. It cannot message customers directly.',
     scopes: BUILDER_SCOPES,
   },
   {

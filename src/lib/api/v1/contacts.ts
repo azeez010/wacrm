@@ -13,6 +13,7 @@ import { findExistingContact, isUniqueViolation } from '@/lib/contacts/dedupe';
 import { resolveImportTagIds } from '@/lib/contacts/resolve-import-tags';
 import { addContactTagAndDispatch } from '@/lib/contacts/tag-events';
 import { parseInternationalPhone } from '@/lib/whatsapp/phone-utils';
+import { loadContactCustomFields } from '@/lib/custom-fields/contact-values';
 
 /** Row select that embeds the contact's tags for serialization. */
 export const CONTACT_SELECT = '*, contact_tags(tags(*))';
@@ -25,6 +26,8 @@ export interface ApiContact {
   company: string | null;
   avatar_url: string | null;
   tags: { id: string; name: string; color: string }[];
+  /** Typed custom field values keyed by field key. Filled by `attachCustomFields`. */
+  custom_fields?: Record<string, unknown>;
   created_at: string;
   updated_at: string;
 }
@@ -264,7 +267,24 @@ export async function getContactById(
     .eq('account_id', accountId)
     .maybeSingle();
   if (error || !data) return null;
-  return serializeContact(data as Record<string, unknown>);
+  const [withFields] = await attachCustomFields(db, accountId, [
+    serializeContact(data as Record<string, unknown>),
+  ]);
+  return withFields;
+}
+
+/** Add `custom_fields` ({ key: typed value }) to serialized contacts. */
+export async function attachCustomFields(
+  db: SupabaseClient,
+  accountId: string,
+  contacts: ApiContact[]
+): Promise<ApiContact[]> {
+  const values = await loadContactCustomFields(
+    db,
+    accountId,
+    contacts.map((c) => c.id)
+  );
+  return contacts.map((c) => ({ ...c, custom_fields: values[c.id] ?? {} }));
 }
 
 export { contactSearchFilter } from '@/lib/contacts/search-filter';

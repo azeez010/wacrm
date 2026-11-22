@@ -582,7 +582,36 @@
       "toastBulkDeleted": "{count} contacts supprimés",
       "filterByTag": "Filtrer par {name}",
       "removeTagFilter": "Retirer le filtre {name}",
-      "selectContact": "Sélectionner {name}"
+      "selectContact": "Sélectionner {name}",
+      "columns": {
+        "title": "Colonnes",
+        "customFields": "Champs personnalisés",
+        "export": "Exporter en CSV (vue actuelle)",
+        "exported": "{count} contacts exportés.",
+        "exportFailed": "Impossible d'exporter les contacts."
+      },
+      "yes": "Oui",
+      "no": "Non",
+      "filter": {
+        "button": "Filtrer",
+        "clear": "Effacer",
+        "matches": "{count, plural, one {# contact correspond} other {# contacts correspondent}}"
+      },
+      "segments": {
+        "label": "Segment",
+        "all": "Tous les contacts",
+        "viewing": "Segment : {name}",
+        "namePlaceholder": "Nom du segment",
+        "save": "Enregistrer comme segment",
+        "update": "Mettre à jour le segment",
+        "delete": "Supprimer",
+        "deleteConfirm": "Supprimer le segment « {name} » ? Les contacts ne sont pas touchés.",
+        "saved": "Segment « {name} » enregistré.",
+        "updated": "Segment « {name} » mis à jour.",
+        "deleted": "Segment « {name} » supprimé.",
+        "duplicate": "Un segment nommé « {name} » existe déjà.",
+        "saveFailed": "Impossible d'enregistrer le segment."
+      }
     },
     "form": {
       "addTitle": "Ajouter un contact",
@@ -682,7 +711,8 @@
       "toastCustomFieldsFailed": "Échec de l'enregistrement des champs personnalisés",
       "toastTemplateSent": "Modèle « {name} » envoyé",
       "toastTemplateFailed": "Échec de l'envoi du modèle : {reason}",
-      "networkError": "erreur réseau"
+      "networkError": "erreur réseau",
+      "toastReferenceMissing": "Cette valeur pointe vers une ligne qui n'existe plus. Choisissez-la à nouveau."
     },
     "importModal": {
       "title": "Importer des contacts",
@@ -735,7 +765,26 @@
       "toastError": "Échec de l'importation",
       "notAuthenticated": "Non authentifié",
       "notLinkedToAccount": "Votre profil n'est lié à aucun compte.",
-      "toastTagsSkippedMore": " (+{count} de plus)"
+      "toastTagsSkippedMore": " (+{count} de plus)",
+      "toastFieldNotCreated": "Impossible de créer le champ « {name} ». {reason}",
+      "toastCustomValuesWarning": "Les contacts ont été importés, mais certaines valeurs de champs personnalisés n'ont pas pu être enregistrées.",
+      "toastUpdated": "{count, plural, one {# contact existant mis à jour} other {# contacts existants mis à jour}}",
+      "resultUpdated": "{count, plural, one {# contact mis à jour} other {# contacts mis à jour}}",
+      "customErrorsHeading": "{count, plural, one {# valeur personnalisée non importée} other {# valeurs personnalisées non importées}}",
+      "updateExisting": "Mettre à jour les contacts existants",
+      "updateExistingHint": "Les contacts dont le téléphone existe déjà reçoivent les valeurs de ce fichier. Les cellules vides n'effacent jamais de données.",
+      "mapping": {
+        "title": "Champs personnalisés",
+        "skip": "Ne pas importer",
+        "createLabel": "Nouveau champ ({type})",
+        "hint": "Les colonnes qui correspondent à un champ personnalisé sont remplies automatiquement. Les autres peuvent devenir de nouveaux champs.",
+        "types": {
+          "text": "Texte",
+          "number": "Nombre",
+          "bool": "Oui / Non",
+          "date": "Date"
+        }
+      }
     },
     "customFields": {
       "title": "Champs personnalisés",
@@ -746,14 +795,49 @@
       "empty": "Aucun champ personnalisé pour le moment.",
       "renameAria": "Renommer {name}",
       "deleteTitle": "Supprimer le champ",
-      "deleteConfirm": "Supprimer « {name} » ? Cela supprime aussi sa valeur enregistrée sur chaque contact. Cette action est irréversible.",
+      "deleteConfirm": "Retirer \"{name}\" ? Si des contacts ont une valeur, le champ est archivé et ces valeurs sont conservées ; sinon il est supprimé.",
       "toastNoAccount": "Votre profil n'est lié à aucun compte.",
       "toastDuplicate": "Un champ nommé « {name} » existe déjà.",
       "toastCreateFailed": "Impossible de créer le champ. Vous n'en avez peut-être pas l'autorisation.",
       "toastCreated": "« {name} » créé.",
       "toastRenameFailed": "Impossible de renommer le champ.",
       "toastDeleteFailed": "Impossible de supprimer le champ.",
-      "toastDeleted": "« {name} » supprimé."
+      "toastDeleted": "« {name} » supprimé.",
+      "typeLabel": "Type",
+      "types": {
+        "text": "Texte",
+        "number": "Nombre",
+        "bool": "Oui / Non",
+        "date": "Date",
+        "enum": "Choix",
+        "multi_enum": "Choix multiple",
+        "reference": "Référence",
+        "media": "Média (fichier)"
+      },
+      "optionsLabel": "Options",
+      "optionsPlaceholder": "Options séparées par des virgules (Or, Argent, Platine)",
+      "tableLabel": "Table",
+      "tablePlaceholder": "Choisissez une table",
+      "noTables": "Aucune table pour l'instant. Créez-en une dans Paramètres → Tables personnalisées.",
+      "numberFormat": "Format du nombre",
+      "formats": {
+        "plain": "Nombre simple",
+        "currency": "Devise",
+        "percent": "Pourcentage"
+      },
+      "showAsColumn": "Afficher comme colonne dans Contacts",
+      "columnToggle": "Afficher comme colonne dans Contacts",
+      "moveUp": "Monter",
+      "moveDown": "Descendre",
+      "toastArchived": "\"{name}\" a été archivé. Ses valeurs sont conservées.",
+      "acceptLabel": "Fichiers autorisés",
+      "accept": {
+        "any": "Tout fichier",
+        "image": "Images uniquement",
+        "document": "Documents uniquement",
+        "video": "Vidéo uniquement",
+        "audio": "Audio uniquement"
+      }
     }
   },
   "Pipelines": {
@@ -997,7 +1081,8 @@
           "all": "Tous les contacts",
           "tags": "Filtrer par étiquettes",
           "customField": "Champ personnalisé",
-          "csv": "Téléverser un CSV"
+          "csv": "Téléverser un CSV",
+          "segment": "Segment"
         },
         "allDesc": "Envoyer aux {count} contacts de votre base.",
         "allDescLoading": "Envoyer à tous les contacts de votre base.",
@@ -1028,7 +1113,11 @@
         "audienceSummary": "Résumé de l'audience",
         "calculating": "Calcul en cours…",
         "estimatedRecipients": "destinataires estimés",
-        "selectTypeForEstimate": "Sélectionnez un type d'audience pour voir l'estimation."
+        "selectTypeForEstimate": "Sélectionnez un type d'audience pour voir l'estimation.",
+        "segmentDesc": "Envoyer à un segment de contacts enregistré.",
+        "pickSegment": "Choisissez un segment",
+        "noSegments": "Aucun segment pour l'instant. Enregistrez-en un depuis le filtre des Contacts.",
+        "segmentLive": "Le segment est réévalué à l'envoi, il utilise donc toujours les contacts les plus récents."
       },
       "personalize": {
         "title": "Personnaliser les variables",
@@ -1089,7 +1178,8 @@
         "estimatedReach": "Portée estimée",
         "language": "Langue",
         "confirmTitle": "Confirmer la diffusion",
-        "confirmDesc": "Vous êtes sur le point d'envoyer cette diffusion à <b>{count, number}</b> {count, plural, one {contact} other {contacts}} avec le modèle <b>{template}</b>. Cette action est irréversible."
+        "confirmDesc": "Vous êtes sur le point d'envoyer cette diffusion à <b>{count, number}</b> {count, plural, one {contact} other {contacts}} avec le modèle <b>{template}</b>. Cette action est irréversible.",
+        "audienceSegment": "Segment enregistré"
       }
     },
     "sending": {
@@ -1315,7 +1405,8 @@
           "tag_presence": "Présence d'une étiquette",
           "contact_field": "Champ du contact",
           "message_content": "Contenu du message",
-          "time_of_day": "Heure de la journée"
+          "time_of_day": "Heure de la journée",
+          "in_segment": "Dans un segment"
         },
         "operandLabel": "Opérande",
         "placeholderTime": "HH:mm-HH:mm",
@@ -1334,7 +1425,9 @@
         "matchExact": "Exacte",
         "waitForReply": "Attendre une réponse avant de continuer",
         "waitForReplyHint": "Met en pause ici jusqu'à ce que le client touche un bouton ou réponde (jusqu'à 24 h). Les étapes suivantes, y compris un Si/Sinon sur le contenu du message, utilisent alors sa réponse.",
-        "closeConversationHint": "Passe le statut de la conversation à « clôturée ». Aucune configuration nécessaire."
+        "closeConversationHint": "Passe le statut de la conversation à « clôturée ». Aucune configuration nécessaire.",
+        "segmentLabel": "Segment",
+        "segmentPlaceholder": "Choisissez un segment…"
       },
       "preview": {
         "noText": "pas encore de texte",
@@ -1977,7 +2070,9 @@
       "members": "Membres de l'équipe",
       "api": "Clés API",
       "mcp": "Claude (MCP)",
-      "language": "Langue"
+      "language": "Langue",
+      "tables": "Tables personnalisées",
+      "timezone": "Fuseau horaire"
     },
     "groups": {
       "account": "Compte",
@@ -2319,6 +2414,73 @@
       "title": "Langue",
       "description": "Choisissez la langue d’affichage de l’application. Enregistré sur cet appareil et appliqué immédiatement.",
       "active": "Actif"
+    },
+    "tables": {
+      "title": "Tables personnalisées",
+      "description": "Créez vos propres tables (coachs, forfaits, produits…) et reliez-y un champ personnalisé avec le type Référence.",
+      "newTable": "Nouvelle table",
+      "empty": "Aucune table pour l'instant. Créez-en une pour commencer.",
+      "columnsCount": "{count, plural, one {# colonne} other {# colonnes}}",
+      "rowsCount": "{count, plural, one {# ligne} other {# lignes}}",
+      "open": "Ouvrir",
+      "editShape": "Modifier la structure",
+      "back": "Toutes les tables",
+      "failed": "Une erreur s'est produite. Réessayez.",
+      "toastTableCreated": "Table « {name} » créée.",
+      "toastTableDeleted": "Table « {name} » supprimée.",
+      "shape": {
+        "createTitle": "Nouvelle table",
+        "editTitle": "Modifier la table",
+        "name": "Nom de la table",
+        "namePlaceholder": "ex. Coachs",
+        "columns": "Colonnes",
+        "columnName": "Nom de la colonne",
+        "addColumn": "Ajouter une colonne",
+        "labelColumn": "Libellé",
+        "labelHint": "La colonne libellé est ce qui s'affiche quand une ligne est choisie depuis un champ.",
+        "create": "Créer la table",
+        "cancel": "Annuler",
+        "done": "Fermer",
+        "save": "Enregistrer",
+        "deleteTable": "Supprimer la table",
+        "deleteTableConfirm": "Supprimer la table « {name} » et toutes ses lignes ? Cette action est irréversible.",
+        "deleteColumnConfirm": "Supprimer la colonne « {name} » et ses valeurs dans toutes les lignes ? Cette action est irréversible."
+      },
+      "rows": {
+        "addRow": "Ajouter une ligne",
+        "search": "Rechercher des lignes…",
+        "noRows": "Aucune ligne pour l'instant.",
+        "yes": "Oui",
+        "no": "Non",
+        "edit": "Modifier la ligne",
+        "delete": "Supprimer la ligne",
+        "deleteConfirm": "Supprimer cette ligne ?",
+        "deleteUsedConfirm": "{count, plural, one {# contact utilise} other {# contacts utilisent}} cette ligne. Leur valeur sera effacée. Supprimer quand même ?",
+        "toastDeleted": "Ligne supprimée.",
+        "toastSaved": "Ligne enregistrée.",
+        "editRow": "Modifier la ligne",
+        "newRow": "Nouvelle ligne",
+        "cancel": "Annuler",
+        "save": "Enregistrer",
+        "pageOf": "Page {page} sur {pages}",
+        "prev": "Précédent",
+        "next": "Suivant",
+        "readOnly": "Vous pouvez consulter cette table mais pas la modifier."
+      }
+    },
+    "timezone": {
+      "title": "Fuseau horaire",
+      "description": "Le fuseau horaire dans lequel votre activité fonctionne. Les dates comme « aujourd'hui » et « il y a 30 jours » dans les filtres et segments de contacts l'utilisent.",
+      "accountZone": "Fuseau horaire du compte",
+      "accountZoneDesc": "S'applique à tous les membres du compte. Cela ne change pas l'affichage des heures dans les discussions.",
+      "zoneLabel": "Fuseau horaire",
+      "useDevice": "Utiliser le fuseau de cet appareil ({zone})",
+      "adminOnlyHint": "Seuls les administrateurs peuvent modifier le fuseau horaire du compte.",
+      "preview": "Il est actuellement {time} dans ce fuseau horaire.",
+      "save": "Enregistrer",
+      "saving": "Enregistrement…",
+      "saveSuccess": "Fuseau horaire enregistré.",
+      "saveFailed": "Impossible d'enregistrer le fuseau horaire."
     }
   },
   "SignupPage": {
@@ -3073,5 +3235,93 @@
       "terms": "Conditions",
       "dataDeletion": "Suppression des données"
     }
+  },
+  "CustomFields": {
+    "picker": {
+      "placeholder": "Sélectionner…",
+      "search": "Rechercher…",
+      "empty": "Aucune ligne correspondante.",
+      "unnamed": "(sans nom)"
+    },
+    "input": {
+      "yes": "Oui",
+      "no": "Non",
+      "notSet": "Non défini",
+      "choose": "Choisir…",
+      "none": "Aucun"
+    },
+    "media": {
+      "upload": "Téléverser un fichier",
+      "uploading": "Téléversement…",
+      "replace": "Remplacer le fichier",
+      "remove": "Retirer le fichier",
+      "tooLarge": "Ce fichier fait {size} Mo ; la limite pour ce type est de {max} Mo.",
+      "wrongType": "Ce champ accepte uniquement : {accept}.",
+      "uploadFailed": "Échec du téléversement. Réessayez.",
+      "accept": {
+        "any": "Tout fichier",
+        "image": "Images uniquement",
+        "document": "Documents uniquement",
+        "video": "Vidéo uniquement",
+        "audio": "Audio uniquement"
+      }
+    }
+  },
+  "Segments": {
+    "match": "Correspondre à",
+    "matchAll": "Toutes",
+    "matchAny": "Une au moins",
+    "noRules": "Aucun filtre pour l'instant.",
+    "addRule": "Ajouter une règle",
+    "removeRule": "Retirer la règle",
+    "nestedGroup": "Groupe imbriqué ({count} règles)",
+    "unknownField": "Champ supprimé",
+    "on": "Oui",
+    "off": "Non",
+    "noOptions": "Aucune option",
+    "valuePlaceholder": "Valeur…",
+    "fields": {
+      "name": "Nom",
+      "phone": "Téléphone",
+      "email": "E-mail",
+      "company": "Société",
+      "tags": "Étiquettes",
+      "created_at": "Créé le"
+    },
+    "operators": {
+      "contains": "contient",
+      "not_contains": "ne contient pas",
+      "equals": "est égal à",
+      "not_equals": "n'est pas égal à",
+      "eq": "=",
+      "neq": "≠",
+      "gt": ">",
+      "gte": "≥",
+      "lt": "<",
+      "lte": "≤",
+      "between": "entre",
+      "is_true": "activé",
+      "is_false": "désactivé",
+      "is_not": "n'est pas",
+      "is_any_of": "est l'un de",
+      "has_any": "a l'un de",
+      "has_all": "a tous",
+      "has_none": "n'a aucun de",
+      "is_empty": "est vide",
+      "is_set": "est renseigné",
+      "is": "est"
+    },
+    "relative": {
+      "date": "Date précise",
+      "today": "Aujourd'hui",
+      "-7d": "Il y a 7 jours",
+      "-30d": "Il y a 30 jours",
+      "-90d": "Il y a 90 jours",
+      "+7d": "Dans 7 jours",
+      "+30d": "Dans 30 jours"
+    },
+    "and": "et",
+    "addGroup": "Ajouter un groupe",
+    "removeGroup": "Retirer le groupe"
   }
 }

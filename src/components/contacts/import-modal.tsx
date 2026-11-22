@@ -10,8 +10,26 @@ import {
 } from '@/lib/contacts/dedupe';
 import {
   parseContactCsv,
+  parseCustomColumns,
+  type CsvExtraColumn,
   type ParsedContactRow,
 } from '@/lib/contacts/parse-contact-csv';
+import {
+  autoMapColumns,
+  planRowCustomValues,
+  type ColumnMapping,
+  type CustomValueRow,
+} from '@/lib/contacts/import-custom-fields';
+import type { FieldDef, FieldType } from '@/lib/custom-fields/types';
+import type { CustomField } from '@/types';
+import { Checkbox } from '@/components/ui/checkbox';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import {
   assignImportedContactTags,
   resolveImportTagIds,
@@ -39,7 +57,11 @@ import {
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
+/** A parsed row plus its raw cells for the non-standard (custom field) columns. */
+type ImportRow = ParsedContactRow & { custom?: Record<number, string> };
+
 const DEFAULT_TAG_COLOR = '#3b82f6';
+const CREATABLE_TYPES: FieldType[] = ['text', 'number', 'bool', 'date'];
 const PREVIEW_LIMIT = 5;
 
 function truncateFilename(name: string, max = 48): string {
@@ -132,7 +154,11 @@ export function ImportModal({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [file, setFile] = useState<File | null>(null);
-  const [parsedRows, setParsedRows] = useState<ParsedContactRow[]>([]);
+  const [parsedRows, setParsedRows] = useState<ImportRow[]>([]);
+  const [extraColumns, setExtraColumns] = useState<CsvExtraColumn[]>([]);
+  const [mapping, setMapping] = useState<ColumnMapping>({});
+  const [fieldDefs, setFieldDefs] = useState<CustomField[]>([]);
+  const [updateExisting, setUpdateExisting] = useState(false);
   const [hasTagsColumn, setHasTagsColumn] = useState(false);
   const [hasCompanyColumn, setHasCompanyColumn] = useState(false);
   const [tagColorByKey, setTagColorByKey] = useState<Map<string, string>>(
@@ -146,11 +172,16 @@ export function ImportModal({
     failed: number;
     failedDetails: { phone: string; name?: string; reason: string }[];
     tagsAssigned: number;
+    updated: number;
+    customErrors: { phone: string; field: string; reason: string }[];
   } | null>(null);
 
   function reset() {
     setFile(null);
     setParsedRows([]);
+    setExtraColumns([]);
+    setMapping({});
+    setUpdateExisting(false);
     setHasTagsColumn(false);
     setHasCompanyColumn(false);
     setTagColorByKey(new Map());
@@ -180,15 +211,38 @@ export function ImportModal({
     if (rows.length === 0) {
       toast.error(t('toastNoValidRows'));
       setParsedRows([]);
+      setExtraColumns([]);
+      setMapping({});
       setHasTagsColumn(false);
       setHasCompanyColumn(false);
       setTagColorByKey(new Map());
       return;
     }
 
-    setParsedRows(rows);
+    const extra = parseCustomColumns(text);
+    setParsedRows(rows.map((r, i) => ({ ...r, custom: extra.values[i] })));
+    setExtraColumns(extra.columns);
     setHasTagsColumn(csvHasTags);
     setHasCompanyColumn(csvHasCompany);
+
+    if (extra.columns.length > 0) {
+      const res = await fetch('/api/custom-fields', { cache: 'no-store' });
+      const data = await res.json().catch(() => ({}));
+      const defs = ((data.fields as CustomField[] | undefined) ?? []).filter(
+        (f) => f.field_type !== 'reference' && f.field_type !== 'media'
+      );
+      setFieldDefs(defs);
+      setMapping(
+        autoMapColumns(
+          extra.columns,
+          defs.map((f) => ({ id: f.id, key: f.key ?? f.id, field_name: f.field_name })),
+          (index) => extra.values.slice(0, 50).map((v) => v[index] ?? ''),
+          canEditSettings
+        )
+      );
+    } else {
+      setMapping({});
+    }
 
     if (csvHasTags && accountId) {
       const { data: tags } = await supabase
@@ -241,23 +295,67 @@ export function ImportModal({
       //    generated `phone_normalized` column (migration 022) → Set.
       const { data: existingRows } = await supabase
         .from('contacts')
-        .select('phone_normalized')
+        .select('id, phone_normalized')
         .eq('account_id', accountId);
-      const existing = new Set(
-        (existingRows ?? [])
-          .map(
-            (r) => (r as { phone_normalized: string | null }).phone_normalized
-          )
-          .filter((p): p is string => !!p)
-      );
+      const existingIdByPhone = new Map<string, string>();
+      for (const r of (existingRows ?? []) as { id: string; phone_normalized: string | null }[]) {
+        if (r.phone_normalized) existingIdByPhone.set(r.phone_normalized, r.id);
+      }
 
+      const toUpdate: { id: string; row: ImportRow }[] = [];
       const toInsert = unique.filter((row) => {
-        if (existing.has(normalizeKey(row.phone))) {
-          skipped++;
+        const existingId = existingIdByPhone.get(normalizeKey(row.phone));
+        if (existingId) {
+          if (updateExisting) toUpdate.push({ id: existingId, row });
+          else skipped++;
           return false;
         }
         return true;
       });
+
+      // 2b) Custom field columns: create the fields the user asked for,
+      //     then build typed value plans per row (bad cells are reported,
+      //     the contact still imports).
+      const effectiveMapping: ColumnMapping = { ...mapping };
+      const createdDefs: CustomField[] = [];
+      for (const col of extraColumns) {
+        const target = effectiveMapping[col.index];
+        if (target?.kind !== 'create') continue;
+        const res = await fetch('/api/custom-fields', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: col.header, type: target.type }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (res.ok && data.field) {
+          createdDefs.push(data.field as CustomField);
+          effectiveMapping[col.index] = { kind: 'field', fieldId: (data.field as CustomField).id };
+        } else {
+          effectiveMapping[col.index] = { kind: 'skip' };
+          toast.warning(t('toastFieldNotCreated', { name: col.header, reason: data.error ?? '' }));
+        }
+      }
+      const fieldsById = new Map<string, FieldDef>(
+        [...fieldDefs, ...createdDefs].map((f) => [
+          f.id,
+          {
+            id: f.id,
+            key: f.key ?? f.id,
+            field_name: f.field_name,
+            field_type: f.field_type as FieldType,
+            field_options: f.field_options as FieldDef['field_options'],
+            required: false,
+          },
+        ])
+      );
+      const customErrors: { phone: string; field: string; reason: string }[] = [];
+      const valueRows: (CustomValueRow & { contact_id: string })[] = [];
+      const planFor = (row: ImportRow, contactId: string) => {
+        const plan = planRowCustomValues(row.custom, effectiveMapping, fieldsById);
+        for (const e of plan.errors) customErrors.push({ phone: row.phone, ...e });
+        for (const u of plan.upserts) valueRows.push({ contact_id: contactId, ...u });
+      };
+      let updated = 0;
 
       // 3) Resolve tag names → ids (admin+ may auto-create missing tags).
       //    Skip the round-trip when the import carries no tag names.
@@ -310,6 +408,7 @@ export function ImportModal({
 
             if (!singleErr && singleData) {
               imported++;
+              planFor(source, singleData.id);
               if (source.tagNames.length > 0) {
                 tagAssignments.push({
                   contactId: singleData.id,
@@ -346,11 +445,49 @@ export function ImportModal({
           // parallel inserts, zip by phone or returned id instead.
           for (let j = 0; j < inserted.length; j++) {
             const source = chunk[j];
+            if (source) planFor(source, inserted[j].id);
             if (!source || source.tagNames.length === 0) continue;
             tagAssignments.push({
               contactId: inserted[j].id,
               tagNames: source.tagNames,
             });
+          }
+        }
+      }
+
+      // 4b) Update existing contacts (opt-in): only fields the CSV actually
+      //     provides are changed, blank cells never erase data.
+      for (const { id, row } of toUpdate) {
+        const patch: Record<string, string> = {};
+        if (row.name) patch.name = row.name;
+        if (row.email) patch.email = row.email;
+        if (row.company) patch.company = row.company;
+        if (Object.keys(patch).length > 0) {
+          const { error: upErr } = await supabase
+            .from('contacts')
+            .update({ ...patch, updated_at: new Date().toISOString() })
+            .eq('id', id)
+            .eq('account_id', accountId);
+          if (upErr) {
+            failed++;
+            failedDetails.push({ phone: row.phone, name: row.name, reason: upErr.message });
+            continue;
+          }
+        }
+        planFor(row, id);
+        if (row.tagNames.length > 0) tagAssignments.push({ contactId: id, tagNames: row.tagNames });
+        updated++;
+      }
+
+      // 4c) Write all typed custom values in batches.
+      if (valueRows.length > 0) {
+        for (let i = 0; i < valueRows.length; i += 200) {
+          const { error: valErr } = await supabase
+            .from('contact_custom_values')
+            .upsert(valueRows.slice(i, i + 200), { onConflict: 'contact_id,custom_field_id' });
+          if (valErr) {
+            toast.warning(t('toastCustomValuesWarning'));
+            break;
           }
         }
       }
@@ -375,9 +512,15 @@ export function ImportModal({
         failed,
         failedDetails,
         tagsAssigned,
+        updated,
+        customErrors,
       });
       if (imported > 0) {
         toast.success(t('toastImported', { count: imported }));
+        onImported();
+      }
+      if (updated > 0) {
+        toast.success(t('toastUpdated', { count: updated }));
         onImported();
       }
       if (tagsAssigned > 0) {
@@ -601,6 +744,92 @@ export function ImportModal({
             </div>
           )}
 
+          {extraColumns.length > 0 && !result && (
+            <div className="mt-5 space-y-3">
+              <p className="text-[11px] font-semibold tracking-[0.14em] text-muted-foreground uppercase">
+                {t('mapping.title')}
+              </p>
+              <div className="overflow-hidden rounded-xl border border-border">
+                <table className="w-full text-xs">
+                  <tbody className="divide-y divide-border/70">
+                    {extraColumns.map((col) => {
+                      const target = mapping[col.index] ?? { kind: 'skip' as const };
+                      const sample = parsedRows.find((r) => r.custom?.[col.index])?.custom?.[col.index] ?? '';
+                      const value =
+                        target.kind === 'field'
+                          ? `f:${target.fieldId}`
+                          : target.kind === 'create'
+                            ? `c:${target.type}`
+                            : 'skip';
+                      const label =
+                        target.kind === 'field'
+                          ? (fieldDefs.find((f) => f.id === target.fieldId)?.field_name ?? '')
+                          : target.kind === 'create'
+                            ? t('mapping.createLabel', { type: t(`mapping.types.${target.type}`) })
+                            : t('mapping.skip');
+                      return (
+                        <tr key={col.index}>
+                          <td className="w-1/3 px-3 py-2">
+                            <PreviewCell value={col.header} maxWidth="max-w-[9rem]" />
+                          </td>
+                          <td className="w-1/4 px-3 py-2 text-muted-foreground">
+                            <PreviewCell value={sample || '-'} maxWidth="max-w-[8rem]" />
+                          </td>
+                          <td className="px-3 py-2">
+                            <Select
+                              value={value}
+                              onValueChange={(v) => {
+                                if (!v) return;
+                                setMapping((prev) => ({
+                                  ...prev,
+                                  [col.index]:
+                                    v === 'skip'
+                                      ? { kind: 'skip' }
+                                      : v.startsWith('f:')
+                                        ? { kind: 'field', fieldId: v.slice(2) }
+                                        : { kind: 'create', type: v.slice(2) as FieldType },
+                                }));
+                              }}
+                            >
+                              <SelectTrigger className="h-8 w-full text-xs">
+                                <SelectValue>{label}</SelectValue>
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="skip">{t('mapping.skip')}</SelectItem>
+                                {fieldDefs.map((f) => (
+                                  <SelectItem key={f.id} value={`f:${f.id}`}>
+                                    {f.field_name}
+                                  </SelectItem>
+                                ))}
+                                {canEditSettings &&
+                                  CREATABLE_TYPES.map((ty) => (
+                                    <SelectItem key={ty} value={`c:${ty}`}>
+                                      {t('mapping.createLabel', { type: t(`mapping.types.${ty}`) })}
+                                    </SelectItem>
+                                  ))}
+                              </SelectContent>
+                            </Select>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+              <p className="text-[11px] text-muted-foreground">{t('mapping.hint')}</p>
+            </div>
+          )}
+
+          {parsedRows.length > 0 && !result && (
+            <label className="mt-4 flex cursor-pointer items-start gap-2 text-sm text-popover-foreground">
+              <Checkbox checked={updateExisting} onCheckedChange={(c) => setUpdateExisting(c === true)} className="mt-0.5" />
+              <span>
+                {t('updateExisting')}
+                <span className="block text-[11px] text-muted-foreground">{t('updateExistingHint')}</span>
+              </span>
+            </label>
+          )}
+
           {result && (
             <div className="rounded-xl border border-border bg-background/50 p-4">
               <p className="text-sm font-medium text-popover-foreground">{t('importComplete')}</p>
@@ -609,6 +838,12 @@ export function ImportModal({
                   <div className="text-primary flex items-center gap-1.5 text-sm">
                     <CheckCircle className="size-4 shrink-0" />
                     {t('resultImported', { count: result.imported })}
+                  </div>
+                )}
+                {result.updated > 0 && (
+                  <div className="text-primary flex items-center gap-1.5 text-sm">
+                    <CheckCircle className="size-4 shrink-0" />
+                    {t('resultUpdated', { count: result.updated })}
                   </div>
                 )}
                 {result.tagsAssigned > 0 && (
@@ -641,6 +876,22 @@ export function ImportModal({
                   </div>
                 )}
               </div>
+
+              {result.customErrors.length > 0 && (
+                <div className="mt-3 space-y-1 border-t border-border/80 pt-3">
+                  <p className="text-[11px] font-semibold tracking-[0.14em] text-muted-foreground uppercase">
+                    {t('customErrorsHeading', { count: result.customErrors.length })}
+                  </p>
+                  <ul className="max-h-32 space-y-1 overflow-y-auto text-xs">
+                    {result.customErrors.slice(0, 50).map((e, i) => (
+                      <li key={i} className="flex items-baseline gap-2 text-muted-foreground">
+                        <span className="shrink-0 font-mono text-popover-foreground">{e.phone}</span>
+                        <span className="truncate">{e.reason}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
 
               {result.failedDetails.length > 0 && (
                 <div className="mt-3 space-y-1 border-t border-border/80 pt-3">

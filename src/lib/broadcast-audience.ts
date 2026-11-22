@@ -2,6 +2,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 
 import { fetchAllInChunks, fetchAllPages } from '@/lib/supabase/paged-query';
 import type { Contact } from '@/types';
+import type { FilterGroup } from '@/lib/segments/types';
 
 export type CustomFieldOperator = 'is' | 'is_not' | 'contains';
 
@@ -11,7 +12,7 @@ export interface CustomFieldFilter {
   value: string;
 }
 
-export type AudienceType = 'all' | 'tags' | 'custom_field' | 'csv';
+export type AudienceType = 'all' | 'tags' | 'custom_field' | 'segment' | 'csv';
 
 export interface CsvAudienceRow {
   phone: string;
@@ -24,6 +25,41 @@ export interface AudienceConfig {
   customField?: CustomFieldFilter;
   csvContacts?: CsvAudienceRow[];
   excludeTagIds?: string[];
+  /** A saved segment, re-evaluated at send time (dynamic, never a snapshot). */
+  segmentId?: string;
+  /** Ad hoc filter (API / MCP); wins over `segmentId` when both are set. */
+  filter?: FilterGroup;
+}
+
+/**
+ * The one shape persisted into `broadcasts.audience_filter` by every
+ * writer (draft save and send), so both paths round-trip identically.
+ * CSV rows are intentionally not stored.
+ */
+export function serializeAudience(audience: AudienceConfig): Record<string, unknown> {
+  return {
+    type: audience.type,
+    tagIds: audience.tagIds,
+    customField: audience.customField,
+    excludeTagIds: audience.excludeTagIds,
+    segmentId: audience.segmentId,
+    filter: audience.filter,
+  };
+}
+
+/** Read a stored `audience_filter` back into an AudienceConfig (tolerates old rows). */
+export function parseStoredAudience(raw: unknown): AudienceConfig {
+  const r = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>;
+  const types: AudienceType[] = ['all', 'tags', 'custom_field', 'segment', 'csv'];
+  const type = types.includes(r.type as AudienceType) ? (r.type as AudienceType) : 'all';
+  return {
+    type,
+    tagIds: Array.isArray(r.tagIds) ? (r.tagIds as string[]) : undefined,
+    customField: (r.customField as CustomFieldFilter | undefined) ?? undefined,
+    excludeTagIds: Array.isArray(r.excludeTagIds) ? (r.excludeTagIds as string[]) : undefined,
+    segmentId: typeof r.segmentId === 'string' ? r.segmentId : undefined,
+    filter: (r.filter as FilterGroup | undefined) ?? undefined,
+  };
 }
 
 async function withContext<T>(label: string, run: () => Promise<T>): Promise<T> {
@@ -71,6 +107,60 @@ export function fetchCustomFieldContactIds(
       return query.order('id').range(from, to);
     });
     return new Set(rows.map((row) => row.contact_id));
+  });
+}
+
+/** Resolve a segment's saved filter (null when it no longer exists). */
+export async function loadSegmentFilter(
+  db: SupabaseClient,
+  segmentId: string,
+  accountId?: string,
+): Promise<FilterGroup | null> {
+  let q = db.from('segments').select('filter').eq('id', segmentId);
+  if (accountId) q = q.eq('account_id', accountId);
+  const { data } = await q.maybeSingle();
+  return (data?.filter as FilterGroup | undefined) ?? null;
+}
+
+/** The effective filter of a segment / ad hoc audience, or null when unresolved. */
+async function audienceFilter(
+  db: SupabaseClient,
+  audience: AudienceConfig,
+  accountId?: string,
+): Promise<FilterGroup | null> {
+  if (audience.filter) return audience.filter;
+  if (audience.segmentId) return loadSegmentFilter(db, audience.segmentId, accountId);
+  return null;
+}
+
+/**
+ * Every contact matching a filter, paged through `filter_contacts`.
+ * Service-role callers must pass `accountId` (the service role bypasses RLS).
+ */
+export function fetchContactsByFilter(
+  db: SupabaseClient,
+  filter: FilterGroup,
+  accountId?: string,
+): Promise<Contact[]> {
+  return withContext('segment contacts', async () => {
+    const PAGE = 1000;
+    const out: Contact[] = [];
+    for (let offset = 0; ; offset += PAGE) {
+      const { data, error } = await db.rpc('filter_contacts', {
+        p_filter: filter,
+        p_search: null,
+        p_limit: PAGE,
+        p_offset: offset,
+        p_sort_field: null,
+        p_sort_dir: 'asc',
+        p_account_id: accountId ?? null,
+      });
+      if (error) throw new Error(error.message);
+      const rows = (data ?? []) as { contact: Contact }[];
+      out.push(...rows.map((r) => r.contact));
+      if (rows.length < PAGE) break;
+    }
+    return out;
   });
 }
 
@@ -126,9 +216,16 @@ export async function resolveAudienceContacts(
   db: SupabaseClient,
   audience: AudienceConfig,
   resolveCsv: (rows: CsvAudienceRow[]) => Promise<Contact[]>,
+  opts: { accountId?: string } = {},
 ): Promise<Contact[]> {
   const excluded = await fetchExcludedIds(db, audience);
   const keep = (contact: Contact) => !excluded.has(contact.id);
+
+  if (audience.type === 'segment') {
+    const filter = await audienceFilter(db, audience, opts.accountId);
+    if (!filter) throw new Error('The selected segment no longer exists');
+    return (await fetchContactsByFilter(db, filter, opts.accountId)).filter(keep);
+  }
 
   if (audience.type === 'all') {
     return (await fetchAllContacts(db)).filter(keep);
@@ -148,7 +245,25 @@ export async function resolveAudienceContacts(
 export async function countAudience(
   db: SupabaseClient,
   audience: AudienceConfig,
+  opts: { accountId?: string } = {},
 ): Promise<number | null> {
+  if (audience.type === 'segment') {
+    const filter = await audienceFilter(db, audience, opts.accountId);
+    if (!filter) return null;
+    const { data, error } = await db.rpc('count_contacts', {
+      p_filter: filter,
+      p_search: null,
+      p_account_id: opts.accountId ?? null,
+    });
+    if (error) throw new Error(`Failed to count segment: ${error.message}`);
+    const total = Number(data ?? 0);
+    if (!audience.excludeTagIds || audience.excludeTagIds.length === 0) return total;
+    // Exclusions: subtract matches that carry an excluded tag.
+    const matched = await fetchContactsByFilter(db, filter, opts.accountId);
+    const excluded = await fetchExcludedIds(db, audience);
+    return matched.filter((c) => !excluded.has(c.id)).length;
+  }
+
   if (audience.type === 'csv') {
     return audience.csvContacts && audience.csvContacts.length > 0
       ? audience.csvContacts.length

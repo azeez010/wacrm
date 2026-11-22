@@ -9,6 +9,7 @@
 // ============================================================
 
 import { requireApiKey } from '@/lib/auth/api-context';
+import { writeContactCustomFields } from '@/lib/custom-fields/contact-values';
 import { ok, okList, fail, toApiErrorResponse } from '@/lib/api/v1/respond';
 import {
   parseListParams,
@@ -23,6 +24,7 @@ import {
   setContactTags,
   addContactTags,
   getContactById,
+  attachCustomFields,
   resolveAuditUserId,
   ContactError,
   contactSearchFilter,
@@ -83,8 +85,9 @@ export async function GET(request: Request) {
       (data ?? []) as unknown as Array<{ created_at: string; id: string }>,
       limit
     );
+    const serialized = items.map((r) => serializeContact(r as Record<string, unknown>));
     return okList(
-      items.map((r) => serializeContact(r as Record<string, unknown>)),
+      await attachCustomFields(ctx.supabase, ctx.accountId, serialized),
       nextCursor
     );
   } catch (err) {
@@ -133,6 +136,9 @@ export async function POST(request: Request) {
         body.tags.filter((t): t is string => typeof t === 'string')
       );
     }
+
+    const cf = await writeContactCustomFields(ctx.supabase, ctx.accountId, id, body.custom_fields);
+    if (!cf.ok) return fail('bad_request', cf.error, 400);
 
     const contact = await getContactById(ctx.supabase, ctx.accountId, id);
     return ok(contact, created ? 201 : 200);

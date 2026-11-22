@@ -35,8 +35,29 @@ import { GET as flowsGet, POST as flowsPost } from '@/app/api/v1/flows/route'
 import { GET as flowGet, PUT as flowPut, DELETE as flowDelete } from '@/app/api/v1/flows/[id]/route'
 import { POST as flowStatus } from '@/app/api/v1/flows/[id]/status/route'
 import { POST as flowValidate } from '@/app/api/v1/flows/validate/route'
+import { GET as fieldsGet, POST as fieldsPost } from '@/app/api/v1/custom-fields/route'
+import { PATCH as fieldPatch, DELETE as fieldDelete } from '@/app/api/v1/custom-fields/[id]/route'
+import { GET as tablesGet, POST as tablesPost } from '@/app/api/v1/tables/route'
+import {
+  GET as tableGet,
+  PATCH as tablePatch,
+  DELETE as tableDelete,
+} from '@/app/api/v1/tables/[id]/route'
+import { GET as recordsGet, POST as recordsPost } from '@/app/api/v1/tables/[id]/records/route'
+import {
+  PATCH as recordPatch,
+  DELETE as recordDelete,
+} from '@/app/api/v1/tables/[id]/records/[recordId]/route'
+import { GET as segmentsGet, POST as segmentsPost } from '@/app/api/v1/segments/route'
+import {
+  GET as segmentGet,
+  PATCH as segmentPatch,
+  DELETE as segmentDelete,
+} from '@/app/api/v1/segments/[id]/route'
+import { GET as segmentContactsGet } from '@/app/api/v1/segments/[id]/contacts/route'
+import { POST as contactsFilterPost } from '@/app/api/v1/contacts/filter/route'
 
-type Handler = (req: Request, ctx: { params: Promise<{ id: string }> }) => Promise<Response>
+type Handler = (req: Request, ctx: { params: Promise<{ id: string; recordId?: string }> }) => Promise<Response>
 
 export class ApiCallError extends Error {
   constructor(
@@ -56,7 +77,7 @@ async function call(
   handler: Handler,
   method: string,
   path: string,
-  opts: { query?: Record<string, string | number | undefined>; body?: unknown; id?: string } = {},
+  opts: { query?: Record<string, string | number | undefined>; body?: unknown; id?: string; recordId?: string } = {},
 ): Promise<ApiResult> {
   const url = new URL(`https://mcp.internal/api/v1${path}`)
   for (const [k, v] of Object.entries(opts.query ?? {})) {
@@ -71,7 +92,7 @@ async function call(
       headers,
       body: opts.body !== undefined ? JSON.stringify(opts.body) : undefined,
     }),
-    { params: Promise.resolve({ id: opts.id ?? '' }) },
+    { params: Promise.resolve({ id: opts.id ?? '', recordId: opts.recordId }) },
   )
 
   const text = await res.text()
@@ -150,6 +171,52 @@ export function createApiClient(authorization: string) {
     deleteFlow: (id: string) => call(authorization, flowDelete as Handler, 'DELETE', `/flows/${enc(id)}`, { id }),
     validateFlow: (body: unknown) =>
       call(authorization, flowValidate as Handler, 'POST', '/flows/validate', { body }),
+    listCustomFields: (q: Record<string, string | number | undefined>) =>
+      call(authorization, fieldsGet as Handler, 'GET', '/custom-fields', { query: q }),
+    createCustomField: (body: unknown) =>
+      call(authorization, fieldsPost as Handler, 'POST', '/custom-fields', { body }),
+    updateCustomField: (id: string, body: unknown) =>
+      call(authorization, fieldPatch as Handler, 'PATCH', `/custom-fields/${enc(id)}`, { id, body }),
+    deleteCustomField: (id: string, purge?: boolean) =>
+      call(authorization, fieldDelete as Handler, 'DELETE', `/custom-fields/${enc(id)}`, {
+        id,
+        query: { purge: purge ? 'true' : undefined },
+      }),
+    listTables: () => call(authorization, tablesGet as Handler, 'GET', '/tables'),
+    getTable: (id: string) => call(authorization, tableGet as Handler, 'GET', `/tables/${enc(id)}`, { id }),
+    createTable: (body: unknown) => call(authorization, tablesPost as Handler, 'POST', '/tables', { body }),
+    updateTable: (id: string, body: unknown) =>
+      call(authorization, tablePatch as Handler, 'PATCH', `/tables/${enc(id)}`, { id, body }),
+    deleteTable: (id: string) =>
+      call(authorization, tableDelete as Handler, 'DELETE', `/tables/${enc(id)}`, { id }),
+    listRecords: (id: string, q: Record<string, string | number | undefined>) =>
+      call(authorization, recordsGet as Handler, 'GET', `/tables/${enc(id)}/records`, { id, query: q }),
+    createRecord: (id: string, values: unknown) =>
+      call(authorization, recordsPost as Handler, 'POST', `/tables/${enc(id)}/records`, { id, body: { values } }),
+    updateRecord: (id: string, recordId: string, values: unknown) =>
+      call(authorization, recordPatch as Handler, 'PATCH', `/tables/${enc(id)}/records/${enc(recordId)}`, {
+        id,
+        recordId,
+        body: { values },
+      }),
+    deleteRecord: (id: string, recordId: string) =>
+      call(authorization, recordDelete as Handler, 'DELETE', `/tables/${enc(id)}/records/${enc(recordId)}`, {
+        id,
+        recordId,
+      }),
+    listSegments: () => call(authorization, segmentsGet as Handler, 'GET', '/segments'),
+    getSegment: (id: string) =>
+      call(authorization, segmentGet as Handler, 'GET', `/segments/${enc(id)}`, { id }),
+    createSegment: (body: unknown) =>
+      call(authorization, segmentsPost as Handler, 'POST', '/segments', { body }),
+    updateSegment: (id: string, body: unknown) =>
+      call(authorization, segmentPatch as Handler, 'PATCH', `/segments/${enc(id)}`, { id, body }),
+    deleteSegment: (id: string) =>
+      call(authorization, segmentDelete as Handler, 'DELETE', `/segments/${enc(id)}`, { id }),
+    listSegmentContacts: (id: string, q: Record<string, string | number | undefined>) =>
+      call(authorization, segmentContactsGet as Handler, 'GET', `/segments/${enc(id)}/contacts`, { id, query: q }),
+    filterContacts: (body: unknown) =>
+      call(authorization, contactsFilterPost as Handler, 'POST', '/contacts/filter', { body }),
     getBroadcast: (id: string) =>
       call(authorization, broadcastGet as Handler, 'GET', `/broadcasts/${enc(id)}`, { id }),
   }

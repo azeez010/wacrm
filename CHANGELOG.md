@@ -9,6 +9,31 @@ Versions follow [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Pre-1.0, `MINOR` bumps cover new modules; `PATCH` bumps cover bug fixes
 and polish.
 
+## [Unreleased]
+
+Typed custom fields, custom tables and segments.
+
+> **Migrations required:** apply `066_typed_custom_fields_and_tables.sql`,
+> `067_segments_and_filter_contacts.sql`, `068_redeem_invitation_segments_guard.sql`
+> `069_contact_in_filter.sql`, `070_media_field_type.sql` and `071_account_timezone.sql`, then run `npm run seed:plans` so plans get
+> the new `custom_fields` feature and limits.
+
+### Added
+
+- **Typed custom fields:** text, number, yes/no, date, choice, multiple choice and reference. Values are validated everywhere (contact detail, import, automations, API).
+- **Custom tables** (Settings, Custom tables): create a table's shape, add and edit rows, and attach it to a contact field with the Reference type.
+- **Segments:** saved, dynamic filters on the Contacts page (typed operators, all/any), usable as a broadcast audience and as an automation condition.
+- **Contacts table columns:** pick custom fields as columns, sort by them, "Show as column" when creating a field, export the current view to CSV.
+- **CSV import** maps extra columns onto custom fields (auto-match, create new fields) and can update existing contacts.
+- **Media fields:** a custom field or table column can hold one uploaded file (photo, PDF...), optionally limited to images, documents, video or audio.
+- **Account time zone** (Settings, Account, Time zone): "today", "30 days ago" and similar relative dates in filters and segments resolve in it instead of UTC.
+- **Nested filter groups:** the Filter editor can build groups like "Gold AND (renews soon OR unpaid)".
+- **API and MCP:** `custom_fields` on contacts, endpoints and tools for fields, tables, segments and ad hoc filtering, and broadcasts to a segment.
+
+### Changed
+
+- The tag filter on Contacts is now a rule inside the Filter popover.
+
 ## [0.8.1] — 2026-07-10
 
 Fixes inbound chats fragmenting into multiple threads for the same

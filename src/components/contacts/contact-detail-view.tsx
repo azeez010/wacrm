@@ -41,7 +41,9 @@ import {
   LayoutTemplate,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { planCustomValueWrites } from '@/lib/contacts/custom-value-writes';
+import { planTypedValueWrites } from '@/lib/custom-fields/value-writes';
+import type { FieldDef } from '@/lib/custom-fields/types';
+import { CustomFieldInput } from '@/components/custom-fields/custom-field-input';
 import { contactHandle } from '@/lib/whatsapp/wa-identity';
 import { parseInternationalPhone } from '@/lib/whatsapp/phone-utils';
 
@@ -153,7 +155,13 @@ export function ContactDetailView({
     setLoadingCustom(true);
 
     const [fieldsRes, valuesRes] = await Promise.all([
-      supabase.from('custom_fields').select('*').order('field_name'),
+      supabase
+        .from('custom_fields')
+        .select('*')
+        .is('table_id', null)
+        .is('archived_at', null)
+        .order('sort_order')
+        .order('field_name'),
       supabase
         .from('contact_custom_values')
         .select('*')
@@ -309,10 +317,41 @@ export function ContactDetailView({
     setSavingCustom(true);
 
     try {
-      const { upserts, clearedFieldIds } = planCustomValueWrites(
+      const defs = customFields.map((f) => ({
+        id: f.id,
+        key: f.key ?? f.id,
+        field_name: f.field_name,
+        field_type: f.field_type,
+        field_options: f.field_options,
+        required: f.required,
+        default_value: f.default_value,
+      })) as FieldDef[];
+      const { upserts, clearedFieldIds, errors } = planTypedValueWrites(
         contactId,
-        customValues
+        defs,
+        customValues,
+        { accountId: accountId ?? undefined }
       );
+
+      const firstError = Object.values(errors)[0];
+      if (firstError) {
+        toast.error(firstError);
+        setSavingCustom(false);
+        return;
+      }
+
+      // Reference values must point at a row that still exists.
+      const refFieldIds = new Set(defs.filter((d) => d.field_type === 'reference').map((d) => d.id));
+      const refIds = upserts.filter((u) => refFieldIds.has(u.custom_field_id)).map((u) => u.value);
+      if (refIds.length > 0) {
+        const { data: found } = await supabase.from('custom_records').select('id').in('id', refIds);
+        const have = new Set((found ?? []).map((r) => r.id as string));
+        if (refIds.some((id) => !have.has(id))) {
+          toast.error(t('toastReferenceMissing'));
+          setSavingCustom(false);
+          return;
+        }
+      }
 
       if (upserts.length > 0) {
         const { error } = await supabase
@@ -671,17 +710,21 @@ export function ContactDetailView({
                         <Label className="text-muted-foreground text-xs capitalize">
                           {field.field_name}
                         </Label>
-                        <Input
+                        <CustomFieldInput
+                          field={{
+                            field_name: field.field_name,
+                            field_type: field.field_type as FieldDef['field_type'],
+                            field_options: field.field_options as FieldDef['field_options'],
+                          }}
                           value={customValues[field.id] ?? ''}
-                          onChange={(e) =>
-                            setCustomValues((prev) => ({
-                              ...prev,
-                              [field.id]: e.target.value,
-                            }))
+                          onChange={(v) =>
+                            setCustomValues((prev) => ({ ...prev, [field.id]: v }))
                           }
                           placeholder={t('enterCustomField', { name: field.field_name })}
-                          className="bg-muted border-border text-foreground h-8 text-sm placeholder:text-muted-foreground"
                         />
+                        {field.description && (
+                          <p className="text-[11px] text-muted-foreground">{field.description}</p>
+                        )}
                       </div>
                     ))}
                     <Button

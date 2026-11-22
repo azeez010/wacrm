@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { toast } from 'sonner';
-import type { Contact, Tag, ContactTag } from '@/types';
+import type { Contact, Tag, ContactTag, CustomField } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -63,10 +63,54 @@ import {
 } from '@/lib/contacts/search-filter';
 import { pageAfterRangeError, pageAfterShrink } from '@/lib/contacts/page-bounds';
 
+import { formatFieldValue } from '@/lib/custom-fields/format';
+import { buildContactsCsv } from '@/lib/contacts/export-csv';
+import { MediaCell } from '@/components/custom-fields/media-cell';
+import type { FieldDef } from '@/lib/custom-fields/types';
+import { useAuth } from '@/hooks/use-auth';
+import { ArrowDown, ArrowUp, Columns3, Download } from 'lucide-react';
+import { FilterBuilder, customKindMap } from '@/components/segments/filter-builder';
+import { countRules, normalizeFilter } from '@/lib/segments/validate';
+import { EMPTY_FILTER, type FilterGroup, type Segment } from '@/lib/segments/types';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+
 const PAGE_SIZE = 25;
+/** Custom columns shown by default (fields flagged show_in_table), so the table stays scroll-free. */
+const DEFAULT_CUSTOM_COLUMNS = 3;
+type BuiltinColumn = 'email' | 'company' | 'tags' | 'created';
+const BUILTIN_COLUMNS: BuiltinColumn[] = ['email', 'company', 'tags', 'created'];
+interface ColumnPrefs {
+  hidden: BuiltinColumn[];
+  /** Custom field ids the user picked; null = use the defaults. */
+  custom: string[] | null;
+}
 
 interface ContactWithTags extends Contact {
   tags?: Tag[];
+}
+
+function SortButton({
+  active,
+  onClick,
+  children,
+}: {
+  active: 'asc' | 'desc' | null;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button type="button" onClick={onClick} className="inline-flex max-w-full items-center gap-1 hover:text-foreground">
+      <span className="truncate">{children}</span>
+      {active === 'asc' && <ArrowUp className="size-3 shrink-0" />}
+      {active === 'desc' && <ArrowDown className="size-3 shrink-0" />}
+    </button>
+  );
 }
 
 export default function ContactsPage() {
@@ -82,7 +126,14 @@ export default function ContactsPage() {
   const [page, setPage] = useState(0);
   const [totalCount, setTotalCount] = useState(0);
   // Tag filter - contacts shown must have ANY of these tags (OR).
-  const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
+  // Filter rules (tags are just another rule) and the optional saved segment.
+  const [filterDraft, setFilterDraft] = useState<FilterGroup>(EMPTY_FILTER);
+  const [filter, setFilter] = useState<FilterGroup>(EMPTY_FILTER);
+  const [segments, setSegments] = useState<Segment[]>([]);
+  const [activeSegmentId, setActiveSegmentId] = useState<string | null>(null);
+  const [segmentName, setSegmentName] = useState('');
+  const [savingSegment, setSavingSegment] = useState(false);
+  const [sort, setSort] = useState<{ field: string; dir: 'asc' | 'desc' } | null>(null);
 
   // Modals
   const [formOpen, setFormOpen] = useState(false);
@@ -103,6 +154,16 @@ export default function ContactsPage() {
   // All tags for display
   const [tagsMap, setTagsMap] = useState<Record<string, Tag>>({});
 
+  // Custom-field columns. Which ones show is a per-browser preference
+  // (localStorage); a field's "Show as column" flag provides the default.
+  const { accountId, defaultCurrency } = useAuth();
+  const [fieldDefs, setFieldDefs] = useState<CustomField[]>([]);
+  const [colPrefs, setColPrefs] = useState<ColumnPrefs>({ hidden: [], custom: null });
+  const [valuesByContact, setValuesByContact] = useState<Record<string, Record<string, string>>>({});
+  const [refLabels, setRefLabels] = useState<Record<string, string>>({});
+  const [exporting, setExporting] = useState(false);
+  const prefsKey = accountId ? `wacrm:contact-columns:${accountId}` : null;
+
   // Guards against out-of-order fetch responses: each fetchContacts run
   // claims a sequence number and only the latest is allowed to commit its
   // results. Without this, rapidly toggling tag filters could let a slower
@@ -115,14 +176,15 @@ export default function ContactsPage() {
       const map: Record<string, Tag> = {};
       data.forEach((t) => (map[t.id] = t));
       setTagsMap(map);
-      // Drop any filter selections whose tag no longer exists (e.g. a tag
-      // deleted elsewhere) so it can't linger invisibly in the query.
-      setSelectedTagIds((prev) => {
-        const pruned = prev.filter((id) => map[id]);
-        return pruned.length === prev.length ? prev : pruned;
-      });
     }
   }, [supabase]);
+
+  // Rules that are finished and point at live fields; unfinished rows in
+  // the editor never reach the query.
+  const effectiveFilter = useMemo(
+    () => normalizeFilter(filter, customKindMap(fieldDefs)),
+    [filter, fieldDefs]
+  );
 
   const fetchContacts = useCallback(async () => {
     const seq = ++fetchSeq.current;
@@ -140,16 +202,17 @@ export default function ContactsPage() {
     let count: number;
     let countIsExact = true;
 
-    if (selectedTagIds.length > 0) {
-      // Tag filter active - resolve it server-side (join + distinct +
-      // windowed total count + pagination) so a tag covering many
-      // contacts can't silently truncate the result or overflow an IN
-      // clause. See migration 025_filter_contacts_by_tags.
-      const { data, error } = await supabase.rpc('filter_contacts_by_tags', {
-        p_tag_ids: selectedTagIds,
+    if (countRules(effectiveFilter) > 0 || sort) {
+      // Rules or a custom sort are resolved server-side (typed filters,
+      // windowed total count, pagination) so big result sets can't be
+      // truncated or overflow an IN clause. See migration 067.
+      const { data, error } = await supabase.rpc('filter_contacts', {
+        p_filter: effectiveFilter,
         p_search: contactSearchPattern(term),
         p_limit: PAGE_SIZE,
         p_offset: from,
+        p_sort_field: sort?.field ?? null,
+        p_sort_dir: sort?.dir ?? 'desc',
       });
       if (seq !== fetchSeq.current) return; // superseded by a newer fetch
       if (error) {
@@ -226,7 +289,7 @@ export default function ContactsPage() {
 
     setContacts(enriched);
     setLoading(false);
-  }, [supabase, page, search, selectedTagIds, tagsMap, t]);
+  }, [supabase, page, search, effectiveFilter, sort, tagsMap, t]);
 
   // Load-once-on-mount-ish data fetches. Each setter inside runs
   // inside an async promise completion (Supabase await), not
@@ -241,6 +304,115 @@ export default function ContactsPage() {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchContacts();
   }, [fetchContacts]);
+
+  // Apply the filter editor's draft to the query after a short pause so
+  // typing a value doesn't fire a request per keystroke.
+  useEffect(() => {
+    if (JSON.stringify(filterDraft) === JSON.stringify(filter)) return;
+    const handle = setTimeout(() => setFilter(filterDraft), 350);
+    return () => clearTimeout(handle);
+  }, [filterDraft, filter]);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void loadSegments();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Field definitions for the Columns picker + custom cells.
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      const { data } = await supabase
+        .from('custom_fields')
+        .select('*')
+        .is('table_id', null)
+        .is('archived_at', null)
+        .order('sort_order')
+        .order('field_name');
+      if (!cancelled) setFieldDefs((data as CustomField[] | null) ?? []);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [supabase, customFieldsOpen]);
+
+  // Load the saved column preference for this account.
+  useEffect(() => {
+    if (!prefsKey) return;
+    try {
+      const raw = window.localStorage.getItem(prefsKey);
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      if (raw) setColPrefs(JSON.parse(raw) as ColumnPrefs);
+    } catch {
+      /* storage unavailable or corrupt: keep defaults */
+    }
+  }, [prefsKey]);
+
+  const updatePrefs = (next: ColumnPrefs) => {
+    setColPrefs(next);
+    try {
+      if (prefsKey) window.localStorage.setItem(prefsKey, JSON.stringify(next));
+    } catch {
+      /* ignore */
+    }
+  };
+
+  const visibleCustom = useMemo(() => {
+    const live = new Set(fieldDefs.map((f) => f.id));
+    if (colPrefs.custom) return fieldDefs.filter((f) => colPrefs.custom!.includes(f.id));
+    return fieldDefs.filter((f) => f.show_in_table && live.has(f.id)).slice(0, DEFAULT_CUSTOM_COLUMNS);
+  }, [fieldDefs, colPrefs.custom]);
+
+  const visibleCustomKey = visibleCustom.map((f) => f.id).join(',');
+
+  // Fetch the values for the visible custom columns of the current page.
+  useEffect(() => {
+    if (visibleCustom.length === 0 || contacts.length === 0) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setValuesByContact({});
+      return;
+    }
+    let cancelled = false;
+    void (async () => {
+      const { data } = await supabase
+        .from('contact_custom_values')
+        .select('contact_id, custom_field_id, value')
+        .in('contact_id', contacts.map((c) => c.id))
+        .in('custom_field_id', visibleCustom.map((f) => f.id));
+      if (cancelled) return;
+      const map: Record<string, Record<string, string>> = {};
+      for (const v of data ?? []) {
+        (map[v.contact_id] ??= {})[v.custom_field_id] = v.value ?? '';
+      }
+      setValuesByContact(map);
+
+      const refFieldIds = new Set(visibleCustom.filter((f) => f.field_type === 'reference').map((f) => f.id));
+      const refIds = [
+        ...new Set(
+          (data ?? []).filter((v) => refFieldIds.has(v.custom_field_id) && v.value).map((v) => v.value as string)
+        ),
+      ];
+      if (refIds.length > 0) {
+        const { data: recs } = await supabase.from('custom_records').select('id, label').in('id', refIds);
+        if (!cancelled) {
+          setRefLabels((prev) => ({
+            ...prev,
+            ...Object.fromEntries((recs ?? []).map((r) => [r.id as string, r.label as string])),
+          }));
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [supabase, contacts, visibleCustomKey]);
+
+  const isShown = (c: BuiltinColumn) => !colPrefs.hidden.includes(c);
+  const customCount = visibleCustom.length;
+  // checkbox + name + phone + actions, plus the optional columns
+  const colCount = 4 + BUILTIN_COLUMNS.filter(isShown).length + customCount;
 
   function openAddForm() {
     setEditContact(null);
@@ -342,20 +514,170 @@ export default function ContactsPage() {
   const allTags = Object.values(tagsMap).sort((a, b) =>
     a.name.localeCompare(b.name)
   );
-  const hasActiveFilters = search.trim().length > 0 || selectedTagIds.length > 0;
+  const ruleCount = countRules(effectiveFilter);
+  const hasActiveFilters = search.trim().length > 0 || ruleCount > 0;
+  const activeSegment = segments.find((sg) => sg.id === activeSegmentId) ?? null;
+  const segmentDirty =
+    !!activeSegment &&
+    JSON.stringify(normalizeFilter(activeSegment.filter, customKindMap(fieldDefs))) !==
+      JSON.stringify(effectiveFilter);
 
-  function toggleTagFilter(tagId: string) {
-    setSelectedTagIds((prev) =>
-      prev.includes(tagId)
-        ? prev.filter((id) => id !== tagId)
-        : [...prev, tagId]
-    );
+  function applyFilter(next: FilterGroup) {
+    setFilterDraft(next);
     setPage(0);
   }
 
-  function clearTagFilters() {
-    setSelectedTagIds([]);
+  function clearFilters() {
+    setFilterDraft(EMPTY_FILTER);
+    setFilter(EMPTY_FILTER);
+    setActiveSegmentId(null);
     setPage(0);
+  }
+
+  function chooseSegment(id: string | null) {
+    setActiveSegmentId(id);
+    const next = id ? (segments.find((sg) => sg.id === id)?.filter ?? EMPTY_FILTER) : EMPTY_FILTER;
+    setFilterDraft(next);
+    setFilter(next);
+    setPage(0);
+  }
+
+  function toggleSort(field: string) {
+    setPage(0);
+    setSort((prev) => {
+      if (!prev || prev.field !== field) return { field, dir: 'asc' };
+      if (prev.dir === 'asc') return { field, dir: 'desc' };
+      return null;
+    });
+  }
+
+  /** Download every contact matching the current search + filters, with all custom fields. */
+  async function exportCsv() {
+    setExporting(true);
+    try {
+      const PAGE = 1000;
+      const all: Contact[] = [];
+      for (let offset = 0; ; offset += PAGE) {
+        const { data, error } = await supabase.rpc('filter_contacts', {
+          p_filter: effectiveFilter,
+          p_search: contactSearchPattern(search.trim()),
+          p_limit: PAGE,
+          p_offset: offset,
+          p_sort_field: sort?.field ?? null,
+          p_sort_dir: sort?.dir ?? 'desc',
+        });
+        if (error) throw error;
+        const rows = (data ?? []) as { contact: Contact }[];
+        all.push(...rows.map((r) => r.contact));
+        if (rows.length < PAGE) break;
+      }
+
+      const tagNamesByContact: Record<string, string[]> = {};
+      const valuesByContact: Record<string, Record<string, string>> = {};
+      const refIds = new Set<string>();
+      const refFieldIds = new Set(fieldDefs.filter((f) => f.field_type === 'reference').map((f) => f.id));
+      for (let i = 0; i < all.length; i += 100) {
+        const ids = all.slice(i, i + 100).map((c) => c.id);
+        const [{ data: ct }, { data: vals }] = await Promise.all([
+          supabase.from('contact_tags').select('contact_id, tag_id').in('contact_id', ids),
+          fieldDefs.length > 0
+            ? supabase
+                .from('contact_custom_values')
+                .select('contact_id, custom_field_id, value')
+                .in('contact_id', ids)
+                .in('custom_field_id', fieldDefs.map((f) => f.id))
+            : Promise.resolve({ data: [] as { contact_id: string; custom_field_id: string; value: string | null }[] }),
+        ]);
+        for (const row of ct ?? []) {
+          const name = tagsMap[row.tag_id]?.name;
+          if (name) (tagNamesByContact[row.contact_id] ??= []).push(name);
+        }
+        for (const v of vals ?? []) {
+          (valuesByContact[v.contact_id] ??= {})[v.custom_field_id] = v.value ?? '';
+          if (refFieldIds.has(v.custom_field_id) && v.value) refIds.add(v.value);
+        }
+      }
+
+      const refLabels: Record<string, string> = {};
+      const refList = [...refIds];
+      for (let i = 0; i < refList.length; i += 100) {
+        const { data: recs } = await supabase.from('custom_records').select('id, label').in('id', refList.slice(i, i + 100));
+        for (const r of recs ?? []) refLabels[r.id as string] = r.label as string;
+      }
+
+      const csv = buildContactsCsv({
+        contacts: all,
+        fields: fieldDefs.map((f) => ({ id: f.id, field_name: f.field_name, field_type: f.field_type as FieldDef['field_type'] })),
+        tagNamesByContact,
+        valuesByContact,
+        referenceLabel: (id) => refLabels[id],
+      });
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `contacts-${new Date().toISOString().slice(0, 10)}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast.success(t('columns.exported', { count: all.length }));
+    } catch {
+      toast.error(t('columns.exportFailed'));
+    } finally {
+      setExporting(false);
+    }
+  }
+
+  async function loadSegments() {
+    const { data } = await supabase.from('segments').select('*').order('name');
+    setSegments((data as Segment[] | null) ?? []);
+  }
+
+  async function saveSegment() {
+    const name = segmentName.trim();
+    if (!name || !accountId) return;
+    setSavingSegment(true);
+    const { data, error } = await supabase
+      .from('segments')
+      .insert({ account_id: accountId, name, filter: effectiveFilter })
+      .select()
+      .single();
+    setSavingSegment(false);
+    if (error || !data) {
+      toast.error(error?.code === '23505' ? t('segments.duplicate', { name }) : t('segments.saveFailed'));
+      return;
+    }
+    toast.success(t('segments.saved', { name }));
+    setSegmentName('');
+    await loadSegments();
+    setActiveSegmentId((data as Segment).id);
+  }
+
+  async function updateSegment() {
+    if (!activeSegment) return;
+    setSavingSegment(true);
+    const { error } = await supabase
+      .from('segments')
+      .update({ filter: effectiveFilter, updated_at: new Date().toISOString() })
+      .eq('id', activeSegment.id);
+    setSavingSegment(false);
+    if (error) {
+      toast.error(t('segments.saveFailed'));
+      return;
+    }
+    toast.success(t('segments.updated', { name: activeSegment.name }));
+    await loadSegments();
+  }
+
+  async function deleteSegment() {
+    if (!activeSegment || !window.confirm(t('segments.deleteConfirm', { name: activeSegment.name }))) return;
+    const { error } = await supabase.from('segments').delete().eq('id', activeSegment.id);
+    if (error) {
+      toast.error(t('segments.saveFailed'));
+      return;
+    }
+    toast.success(t('segments.deleted', { name: activeSegment.name }));
+    clearFilters();
+    await loadSegments();
   }
 
   return (
@@ -404,6 +726,24 @@ export default function ContactsPage() {
       {/* Search + tag filter */}
       <div className="space-y-2">
         <div className="flex flex-col sm:flex-row gap-2">
+          {segments.length > 0 && (
+            <Select
+              value={activeSegmentId ?? '__all__'}
+              onValueChange={(v) => chooseSegment(!v || v === '__all__' ? null : v)}
+            >
+              <SelectTrigger className="h-9 w-full shrink-0 sm:w-44" aria-label={t('segments.label')}>
+                <SelectValue>{activeSegment?.name ?? t('segments.all')}</SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="__all__">{t('segments.all')}</SelectItem>
+                {segments.map((sg) => (
+                  <SelectItem key={sg.id} value={sg.id}>
+                    {sg.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
           <div className="relative w-full max-w-sm">
             <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
             <Input
@@ -429,89 +769,143 @@ export default function ContactsPage() {
               }
             >
               <Filter className="size-4" />
-              {t('filterByTags')}
-              {selectedTagIds.length > 0 && (
+              {t('filter.button')}
+              {ruleCount > 0 && (
                 <span className="ml-1 inline-flex items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-semibold text-primary-foreground">
-                  {selectedTagIds.length}
+                  {ruleCount}
                 </span>
               )}
             </PopoverTrigger>
-            <PopoverContent align="start" className="w-64 p-0">
-              <div className="flex items-center justify-between px-3 py-2 border-b border-border">
-                <span className="text-sm font-medium text-popover-foreground">
-                  {t('filterByTags')}
+            <PopoverContent align="start" className="w-[min(34rem,92vw)] p-3">
+              <FilterBuilder
+                value={filterDraft}
+                onChange={applyFilter}
+                customFields={fieldDefs}
+                tags={allTags}
+              />
+              <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-border pt-3">
+                <span className="mr-auto text-xs text-muted-foreground">
+                  {t('filter.matches', { count: totalCount })}
                 </span>
-                {selectedTagIds.length > 0 && (
-                  <button
-                    onClick={clearTagFilters}
-                    className="text-xs text-muted-foreground hover:text-foreground"
-                  >
-                    {t('clearAll')}
-                  </button>
+                {ruleCount > 0 && (
+                  <Button variant="ghost" size="sm" onClick={clearFilters} className="h-7 text-xs">
+                    {t('filter.clear')}
+                  </Button>
+                )}
+                {activeSegment ? (
+                  segmentDirty && (
+                    <Button size="sm" onClick={updateSegment} disabled={savingSegment} className="h-7 text-xs">
+                      {t('segments.update')}
+                    </Button>
+                  )
+                ) : (
+                  ruleCount > 0 && (
+                    <div className="flex items-center gap-1.5">
+                      <Input
+                        value={segmentName}
+                        onChange={(e) => setSegmentName(e.target.value)}
+                        placeholder={t('segments.namePlaceholder')}
+                        className="h-7 w-36 bg-muted text-xs"
+                      />
+                      <Button
+                        size="sm"
+                        onClick={saveSegment}
+                        disabled={savingSegment || !segmentName.trim() || !canEdit}
+                        className="h-7 text-xs"
+                      >
+                        {t('segments.save')}
+                      </Button>
+                    </div>
+                  )
                 )}
               </div>
-              {allTags.length === 0 ? (
-                <p className="px-3 py-4 text-sm text-muted-foreground text-center">
-                  {t('noTagsYet')}
-                </p>
-              ) : (
-                <div className="max-h-64 overflow-y-auto py-1">
-                  {allTags.map((tag) => (
-                    <label
-                      key={tag.id}
-                      className="flex items-center gap-2.5 px-3 py-1.5 cursor-pointer hover:bg-muted/50"
-                    >
+            </PopoverContent>
+          </Popover>
+
+          {/* Columns: icon-only, so the toolbar stays a single quiet row */}
+          <Popover>
+            <PopoverTrigger
+              render={
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="border-border text-muted-foreground hover:bg-muted shrink-0"
+                  aria-label={t('columns.title')}
+                  title={t('columns.title')}
+                />
+              }
+            >
+              <Columns3 className="size-4" />
+            </PopoverTrigger>
+            <PopoverContent align="end" className="w-60 p-0">
+              <div className="border-b border-border px-3 py-2 text-sm font-medium text-popover-foreground">
+                {t('columns.title')}
+              </div>
+              <div className="max-h-72 overflow-y-auto py-1">
+                {BUILTIN_COLUMNS.map((c) => (
+                  <label key={c} className="flex cursor-pointer items-center gap-2 px-3 py-1.5 text-sm hover:bg-muted">
+                    <Checkbox
+                      checked={isShown(c)}
+                      onCheckedChange={(on) =>
+                        updatePrefs({
+                          ...colPrefs,
+                          hidden: on ? colPrefs.hidden.filter((h) => h !== c) : [...colPrefs.hidden, c],
+                        })
+                      }
+                    />
+                    {t(`tableColumns.${c === 'created' ? 'createdAt' : c}`)}
+                  </label>
+                ))}
+                {fieldDefs.length > 0 && (
+                  <div className="mt-1 border-t border-border px-3 pb-1 pt-2 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                    {t('columns.customFields')}
+                  </div>
+                )}
+                {fieldDefs.map((f) => {
+                  const on = visibleCustom.some((v) => v.id === f.id);
+                  return (
+                    <label key={f.id} className="flex cursor-pointer items-center gap-2 px-3 py-1.5 text-sm hover:bg-muted">
                       <Checkbox
-                        checked={selectedTagIds.includes(tag.id)}
-                        onCheckedChange={() => toggleTagFilter(tag.id)}
-                        aria-label={t('filterByTag', { name: tag.name })}
+                        checked={on}
+                        onCheckedChange={(checked) => {
+                          const current = visibleCustom.map((v) => v.id);
+                          updatePrefs({
+                            ...colPrefs,
+                            custom: checked ? [...current, f.id] : current.filter((id) => id !== f.id),
+                          });
+                        }}
                       />
-                      <span
-                        className="size-2.5 shrink-0 rounded-full"
-                        style={{ backgroundColor: tag.color }}
-                      />
-                      <span className="text-sm text-popover-foreground truncate">
-                        {tag.name}
-                      </span>
+                      <span className="truncate">{f.field_name}</span>
                     </label>
-                  ))}
-                </div>
-              )}
+                  );
+                })}
+              </div>
+              <div className="border-t border-border p-1">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={exportCsv}
+                  disabled={exporting || totalCount === 0}
+                  className="h-8 w-full justify-start gap-2 text-xs"
+                >
+                  {exporting ? <Loader2 className="size-3.5 animate-spin" /> : <Download className="size-3.5" />}
+                  {t('columns.export')}
+                </Button>
+              </div>
             </PopoverContent>
           </Popover>
         </div>
 
-        {/* Active tag-filter chips */}
-        {selectedTagIds.length > 0 && (
-          <div className="flex flex-wrap items-center gap-1.5">
-            {selectedTagIds.map((id) => {
-              const tag = tagsMap[id];
-              if (!tag) return null;
-              return (
-                <span
-                  key={id}
-                  className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium"
-                  style={{
-                    backgroundColor: tag.color + '20',
-                    color: tag.color,
-                  }}
-                >
-                  {tag.name}
-                  <button
-                    onClick={() => toggleTagFilter(id)}
-                    aria-label={t('removeTagFilter', { name: tag.name })}
-                    className="hover:opacity-70"
-                  >
-                    <X className="size-3" />
-                  </button>
-                </span>
-              );
-            })}
-            <button
-              onClick={clearTagFilters}
-              className="text-xs text-muted-foreground hover:text-foreground px-1"
-            >
-              {t('clearAll')}
+        {activeSegment && (
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <span>{t('segments.viewing', { name: activeSegment.name })}</span>
+            {!activeSegment.locked && (
+              <button onClick={deleteSegment} className="hover:text-red-400">
+                {t('segments.delete')}
+              </button>
+            )}
+            <button onClick={clearFilters} className="hover:text-foreground">
+              {t('filter.clear')}
             </button>
           </div>
         )}
@@ -560,19 +954,30 @@ export default function ContactsPage() {
                   aria-label={t('selectAllOnPage')}
                 />
               </TableHead>
-              <TableHead className="text-muted-foreground">{t('tableColumns.name')}</TableHead>
+              <TableHead className="text-muted-foreground">
+                <SortButton active={sort?.field === 'name' ? sort.dir : null} onClick={() => toggleSort('name')}>
+                  {t('tableColumns.name')}
+                </SortButton>
+              </TableHead>
               <TableHead className="text-muted-foreground">{t('tableColumns.phone')}</TableHead>
-              <TableHead className="text-muted-foreground hidden md:table-cell">{t('tableColumns.email')}</TableHead>
-              <TableHead className="text-muted-foreground hidden lg:table-cell">{t('tableColumns.company')}</TableHead>
-              <TableHead className="text-muted-foreground hidden md:table-cell">{t('tableColumns.tags')}</TableHead>
-              <TableHead className="text-muted-foreground hidden lg:table-cell">{t('tableColumns.createdAt')}</TableHead>
+              {isShown('email') && <TableHead className="text-muted-foreground hidden md:table-cell">{t('tableColumns.email')}</TableHead>}
+              {isShown('company') && <TableHead className={`text-muted-foreground hidden ${customCount > 0 ? 'xl:table-cell' : 'lg:table-cell'}`}>{t('tableColumns.company')}</TableHead>}
+              {isShown('tags') && <TableHead className="text-muted-foreground hidden md:table-cell">{t('tableColumns.tags')}</TableHead>}
+              {visibleCustom.map((f) => (
+                <TableHead key={f.id} title={f.field_name} className="text-muted-foreground max-w-[130px] truncate px-2">
+                  <SortButton active={sort?.field === `cf:${f.id}` ? sort.dir : null} onClick={() => toggleSort(`cf:${f.id}`)}>
+                    {f.field_name}
+                  </SortButton>
+                </TableHead>
+              ))}
+              {isShown('created') && <TableHead className={`text-muted-foreground hidden ${customCount > 0 ? 'xl:table-cell' : 'lg:table-cell'}`}>{t('tableColumns.createdAt')}</TableHead>}
               <TableHead className="text-muted-foreground w-12" />
             </TableRow>
           </TableHeader>
           <TableBody>
             {loading ? (
               <TableRow className="border-border">
-                <TableCell colSpan={8} className="text-center py-12">
+                <TableCell colSpan={colCount} className="text-center py-12">
                   <div className="flex flex-col items-center gap-2">
                     <Loader2 className="size-6 animate-spin text-primary" />
                     <p className="text-sm text-muted-foreground">{t('loading')}</p>
@@ -581,7 +986,7 @@ export default function ContactsPage() {
               </TableRow>
             ) : contacts.length === 0 ? (
               <TableRow className="border-border">
-                <TableCell colSpan={8} className="text-center py-12">
+                <TableCell colSpan={colCount} className="text-center py-12">
                   <div className="flex flex-col items-center gap-2">
                     <Users className="size-8 text-muted-foreground" />
                     <p className="text-sm text-muted-foreground">
@@ -625,12 +1030,17 @@ export default function ContactsPage() {
                   <TableCell className="text-muted-foreground font-mono text-xs">
                     {contact.phone}
                   </TableCell>
-                  <TableCell className="text-muted-foreground hidden md:table-cell text-sm">
-                    {contact.email || <span className="text-muted-foreground">-</span>}
-                  </TableCell>
-                  <TableCell className="text-muted-foreground hidden lg:table-cell text-sm">
-                    {contact.company || <span className="text-muted-foreground">-</span>}
-                  </TableCell>
+                  {isShown('email') && (
+                    <TableCell className="text-muted-foreground hidden md:table-cell text-sm">
+                      {contact.email || <span className="text-muted-foreground">-</span>}
+                    </TableCell>
+                  )}
+                  {isShown('company') && (
+                    <TableCell className={`text-muted-foreground hidden text-sm ${customCount > 0 ? 'xl:table-cell' : 'lg:table-cell'}`}>
+                      {contact.company || <span className="text-muted-foreground">-</span>}
+                    </TableCell>
+                  )}
+                  {isShown('tags') && (
                   <TableCell className="hidden md:table-cell">
                     <div className="flex flex-wrap gap-1">
                       {contact.tags && contact.tags.length > 0 ? (
@@ -656,13 +1066,38 @@ export default function ContactsPage() {
                       )}
                     </div>
                   </TableCell>
-                  <TableCell className="text-muted-foreground text-xs hidden lg:table-cell">
+                  )}
+                  {visibleCustom.map((f) => {
+                    const raw = valuesByContact[contact.id]?.[f.id] ?? '';
+                    const text = formatFieldValue(f as FieldDef, raw, {
+                      defaultCurrency,
+                      resolveReference: (id) => refLabels[id],
+                      yes: t('yes'),
+                      no: t('no'),
+                    });
+                    return (
+                      <TableCell
+                        key={f.id}
+                        title={text || undefined}
+                        className="text-muted-foreground max-w-[130px] truncate px-2 text-sm"
+                      >
+                        {f.field_type === 'media' ? (
+                          <MediaCell value={raw} />
+                        ) : (
+                          text || <span className="text-muted-foreground">-</span>
+                        )}
+                      </TableCell>
+                    );
+                  })}
+                  {isShown('created') && (
+                  <TableCell className={`text-muted-foreground text-xs hidden ${customCount > 0 ? 'xl:table-cell' : 'lg:table-cell'}`}>
                     {new Date(contact.created_at).toLocaleDateString('en-US', {
                       month: 'short',
                       day: 'numeric',
                       year: 'numeric',
                     })}
                   </TableCell>
+                  )}
                   <TableCell>
                     <DropdownMenu>
                       <DropdownMenuTrigger

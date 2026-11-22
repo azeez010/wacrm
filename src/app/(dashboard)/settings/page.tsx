@@ -15,6 +15,8 @@ import { LanguagePanel } from '@/components/settings/language-panel';
 import { LOCALE_NAMES, isLocale } from '@/i18n/locales';
 import { WhatsAppEmbeddedSignup } from '@/components/settings/whatsapp-embedded-signup';
 import { TemplateManager } from '@/components/settings/template-manager';
+import { TimezonePanel } from '@/components/settings/timezone-panel';
+import { TablesPanel } from '@/components/settings/tables-panel';
 import { QuickRepliesManager } from '@/components/settings/quick-replies-manager';
 import { FieldsAndTagsPanel } from '@/components/settings/fields-and-tags-panel';
 import { DealsSettings } from '@/components/settings/deals-settings';
@@ -47,7 +49,7 @@ export default function SettingsPage() {
 function SettingsPageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { defaultCurrency } = useAuth();
+  const { defaultCurrency, accountTimezone } = useAuth();
   const { mode } = useTheme();
   const t = useTranslations('Settings');
   const rawLocale = useLocale();
@@ -71,9 +73,10 @@ function SettingsPageInner() {
     () => ({
       appearance: mode.charAt(0).toUpperCase() + mode.slice(1),
       language: isLocale(rawLocale) ? LOCALE_NAMES[rawLocale] : undefined,
+      timezone: accountTimezone,
       deals: defaultCurrency,
     }),
-    [mode, defaultCurrency, rawLocale]
+    [mode, defaultCurrency, rawLocale, accountTimezone]
   );
 
   const panel: Record<SettingsSection, ReactNode> = {
@@ -83,12 +86,14 @@ function SettingsPageInner() {
     security: <SecurityPanel />,
     appearance: <AppearancePanel />,
     language: <LanguagePanel />,
+    timezone: <TimezonePanel />,
     whatsapp: (
       <WhatsAppEmbeddedSignup onConnected={() => window.location.reload()} />
     ),
     templates: <TemplateManager />,
     'quick-replies': <QuickRepliesManager />,
     fields: <FieldsAndTagsPanel />,
+    tables: <TablesPanel />,
     inbox: <InboxSettings />,
     deals: <DealsSettings />,
     members: <MembersTab />,

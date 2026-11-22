@@ -2,7 +2,8 @@
 
 import { useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { countAudience } from '@/lib/broadcast-audience';
+import { countAudience, type AudienceConfig, type AudienceType, type CustomFieldFilter } from '@/lib/broadcast-audience';
+import type { Segment } from '@/lib/segments/types';
 import { parseBroadcastCsv } from '@/lib/broadcast-csv';
 import { CustomField, Tag } from '@/types';
 import { Button } from '@/components/ui/button';
@@ -11,6 +12,7 @@ import {
   Users,
   Tags,
   Filter,
+  Layers,
   Upload,
   FileText,
   Loader2,
@@ -20,22 +22,7 @@ import {
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
-type AudienceType = 'all' | 'tags' | 'custom_field' | 'csv';
 type CustomFieldOperator = 'is' | 'is_not' | 'contains';
-
-interface CustomFieldFilter {
-  fieldId: string;
-  operator: CustomFieldOperator;
-  value: string;
-}
-
-interface AudienceConfig {
-  type: AudienceType;
-  tagIds?: string[];
-  customField?: CustomFieldFilter;
-  csvContacts?: { phone: string; name?: string }[];
-  excludeTagIds?: string[];
-}
 
 interface Step2Props {
   audience: AudienceConfig;
@@ -83,6 +70,12 @@ export function Step2SelectAudience({
       icon: Filter,
     },
     {
+      type: 'segment',
+      label: t('selectAudience.method.segment'),
+      description: t('selectAudience.segmentDesc'),
+      icon: Layers,
+    },
+    {
       type: 'csv',
       label: t('selectAudience.method.csv'),
       description: t('selectAudience.csvDesc'),
@@ -91,6 +84,7 @@ export function Step2SelectAudience({
   ], [t]);
   const [tags, setTags] = useState<Tag[]>([]);
   const [customFields, setCustomFields] = useState<CustomField[]>([]);
+  const [segments, setSegments] = useState<Segment[]>([]);
   const [loadingTags, setLoadingTags] = useState(false);
   const [loadingFields, setLoadingFields] = useState(false);
   const [estimatedCount, setEstimatedCount] = useState<number | null>(null);
@@ -121,6 +115,19 @@ export function Step2SelectAudience({
     }
     fetchTags();
   }, []);
+
+  // Saved segments for the "Segment" audience.
+  useEffect(() => {
+    if (audience.type !== 'segment') return;
+    let cancelled = false;
+    void (async () => {
+      const { data } = await createClient().from('segments').select('*').order('name');
+      if (!cancelled) setSegments((data as Segment[] | null) ?? []);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [audience.type]);
 
   // Lazy-load custom fields only when that audience type is active.
   useEffect(() => {
@@ -153,6 +160,7 @@ export function Step2SelectAudience({
         customField: audience.customField,
         csvContacts: audience.csvContacts,
         excludeTagIds: audience.excludeTagIds,
+        segmentId: audience.segmentId,
       });
     } catch {
       count = null;
@@ -166,6 +174,7 @@ export function Step2SelectAudience({
     audience.customField,
     audience.csvContacts,
     audience.excludeTagIds,
+    audience.segmentId,
   ]);
 
   useEffect(() => {
@@ -236,6 +245,7 @@ export function Step2SelectAudience({
     (audience.type === 'custom_field' &&
       !!audience.customField?.fieldId &&
       audience.customField.value.length > 0) ||
+    (audience.type === 'segment' && !!audience.segmentId) ||
     (audience.type === 'csv' &&
       audience.csvContacts &&
       audience.csvContacts.length > 0);
@@ -269,6 +279,8 @@ export function Step2SelectAudience({
                       : undefined,
                   csvContacts:
                     option.type === 'csv' ? audience.csvContacts : undefined,
+                  segmentId:
+                    option.type === 'segment' ? audience.segmentId : undefined,
                 })
               }
               className={`flex items-start gap-3 rounded-xl border p-4 text-left transition-all ${
@@ -380,6 +392,35 @@ export function Step2SelectAudience({
               />
             </div>
           )}
+        </div>
+      )}
+
+      {audience.type === 'segment' && (
+        <div className="rounded-xl border border-border bg-card/50 p-4">
+          <p className="mb-3 text-sm font-medium text-foreground">{t('selectAudience.pickSegment')}</p>
+          {segments.length === 0 ? (
+            <p className="text-xs text-muted-foreground">{t('selectAudience.noSegments')}</p>
+          ) : (
+            <div className="flex flex-wrap gap-2">
+              {segments.map((sg) => {
+                const on = audience.segmentId === sg.id;
+                return (
+                  <button
+                    key={sg.id}
+                    onClick={() => onUpdate({ ...audience, segmentId: sg.id })}
+                    className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium transition-all ${
+                      on
+                        ? 'border-primary/30 bg-primary/10 text-primary'
+                        : 'border-border bg-muted text-muted-foreground hover:border-border'
+                    }`}
+                  >
+                    {sg.name}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+          <p className="mt-3 text-xs text-muted-foreground">{t('selectAudience.segmentLive')}</p>
         </div>
       )}
 

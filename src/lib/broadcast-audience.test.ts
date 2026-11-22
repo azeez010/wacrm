@@ -1,9 +1,11 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 import {
   countAudience,
+  parseStoredAudience,
   resolveAudienceContacts,
+  serializeAudience,
   type AudienceConfig,
 } from './broadcast-audience';
 import type { Contact } from '@/types';
@@ -380,3 +382,63 @@ describe('countAudience', () => {
     expect(await countAudience(db, { type: 'csv' })).toBeNull();
   });
 });
+
+describe('audience persistence', () => {
+  it('round-trips every audience field through one shape', () => {
+    const a = {
+      type: 'segment' as const,
+      segmentId: 's1',
+      excludeTagIds: ['t1'],
+      tagIds: undefined,
+    }
+    const stored = serializeAudience({ ...a, csvContacts: [{ phone: '+1' }] })
+    expect(stored).not.toHaveProperty('csvContacts')
+    expect(parseStoredAudience(stored)).toMatchObject({ type: 'segment', segmentId: 's1', excludeTagIds: ['t1'] })
+  })
+  it('tolerates legacy and malformed rows', () => {
+    expect(parseStoredAudience({ type: 'tags', tagIds: ['a'] })).toMatchObject({ type: 'tags', tagIds: ['a'] })
+    expect(parseStoredAudience(null).type).toBe('all')
+    expect(parseStoredAudience({ type: 'bogus' }).type).toBe('all')
+  })
+})
+
+function fakeSegmentDb(opts: { filter?: unknown; pages?: unknown[][]; count?: number }) {
+  const pages = [...(opts.pages ?? [])]
+  const rpc = vi.fn(async (name: string) => {
+    if (name === 'count_contacts') return { data: opts.count ?? 0, error: null }
+    return { data: (pages.shift() ?? []).map((c) => ({ contact: c })), error: null }
+  })
+  const db = {
+    rpc,
+    from: (table: string) => {
+      const chain: Record<string, unknown> = {}
+      chain.select = () => chain
+      chain.eq = () => chain
+      chain.maybeSingle = async () => ({ data: table === 'segments' && opts.filter ? { filter: opts.filter } : null })
+      return chain
+    },
+  }
+  return { db: db as never, rpc }
+}
+
+describe('segment audience', () => {
+  const filter = { version: 1, op: 'and', rules: [] }
+  it('resolves contacts through filter_contacts with the account guard', async () => {
+    const { db, rpc } = fakeSegmentDb({ filter, pages: [[{ id: 'c1' }, { id: 'c2' }]] })
+    const out = await resolveAudienceContacts(db, { type: 'segment', segmentId: 's1' }, async () => [], { accountId: 'acc' })
+    expect(out.map((c) => c.id)).toEqual(['c1', 'c2'])
+    expect(rpc).toHaveBeenCalledWith('filter_contacts', expect.objectContaining({ p_account_id: 'acc' }))
+  })
+  it('fails loudly when the segment was deleted', async () => {
+    const { db } = fakeSegmentDb({})
+    await expect(
+      resolveAudienceContacts(db, { type: 'segment', segmentId: 'gone' }, async () => []),
+    ).rejects.toThrow(/no longer exists/)
+  })
+  it('counts via count_contacts and returns null for an unresolved segment', async () => {
+    const { db } = fakeSegmentDb({ filter, count: 42 })
+    expect(await countAudience(db, { type: 'segment', segmentId: 's1' })).toBe(42)
+    const { db: empty } = fakeSegmentDb({})
+    expect(await countAudience(empty, { type: 'segment', segmentId: 'x' })).toBeNull()
+  })
+})

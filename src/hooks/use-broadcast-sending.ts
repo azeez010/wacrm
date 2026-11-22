@@ -9,6 +9,7 @@ import {
 } from '@/lib/broadcast-retry';
 import {
   resolveAudienceContacts,
+  serializeAudience,
   type AudienceConfig,
 } from '@/lib/broadcast-audience';
 import { normalizeKey } from '@/lib/contacts/dedupe';
@@ -339,12 +340,7 @@ export function useBroadcastSending(): UseBroadcastSendingReturn {
           template_name: payload.template.name,
           template_language: payload.template.language ?? 'en_US',
           template_variables: payload.variables,
-          audience_filter: {
-            type: payload.audience.type,
-            tagIds: payload.audience.tagIds,
-            customField: payload.audience.customField,
-            excludeTagIds: payload.audience.excludeTagIds,
-          },
+          audience_filter: serializeAudience(payload.audience),
           status: 'sending',
           total_recipients: contacts.length,
           sent_count: 0,

@@ -8,6 +8,7 @@ import { z } from 'zod'
 import { createApiClient, type ApiClient } from './dispatch'
 import { READ, WRITE, cursor, errorResult, has, limit, run } from './helpers'
 import { registerBuilderTools } from './builder-tools'
+import { registerCustomTools } from './custom-tools'
 
 export function createWacrmMcpServer(
   authorization: string,
@@ -113,6 +114,10 @@ export function createWacrmMcpServer(
           email: z.string().email().optional(),
           company: z.string().optional(),
           tags: z.array(z.string()).optional().describe('Tag names; created if missing.'),
+          custom_fields: z
+            .record(z.string(), z.unknown())
+            .optional()
+            .describe('Typed custom field values keyed by field key, e.g. {"plan":"Gold","amount":15000}. null clears a value. See get_custom_data_reference.'),
         },
         annotations: { ...WRITE, title: 'Create contact' },
       },
@@ -129,6 +134,10 @@ export function createWacrmMcpServer(
           email: z.string().email().optional(),
           company: z.string().optional(),
           tags: z.array(z.string()).optional(),
+          custom_fields: z
+            .record(z.string(), z.unknown())
+            .optional()
+            .describe('Typed custom field values keyed by field key, e.g. {"plan":"Gold","amount":15000}. null clears a value. See get_custom_data_reference.'),
         },
         annotations: { ...WRITE, title: 'Update contact' },
       },
@@ -246,7 +255,12 @@ export function createWacrmMcpServer(
           recipients: z
             .array(z.object({ to: z.string(), params: z.array(z.string()).optional() }))
             .min(1)
-            .max(1000),
+            .max(1000)
+            .optional()
+            .describe('Explicit recipients. Omit when using segment_id or filter.'),
+          segment_id: z.string().optional().describe('Send to everyone currently in this segment (max 1000).'),
+          filter: z.record(z.string(), z.unknown()).optional().describe('Ad hoc filter instead of a saved segment.'),
+          params: z.array(z.string()).optional().describe('Template params shared by every segment/filter recipient.'),
           confirm: z.boolean().describe('Must be true to actually send.'),
         },
         annotations: { ...WRITE, destructiveHint: true, title: 'Send broadcast' },
@@ -254,7 +268,7 @@ export function createWacrmMcpServer(
       run(async ({ confirm, ...body }) => {
         if (confirm !== true) {
           return errorResult(
-            `Refusing to send: confirm must be true. This would message ${body.recipients.length} recipient(s). ` +
+            `Refusing to send: confirm must be true. This would message ${body.recipients?.length ?? 'every contact in the segment/filter'} recipient(s). ` +
               'Confirm the list and template with the user, then call again with confirm=true.',
           )
         }
@@ -274,6 +288,7 @@ export function createWacrmMcpServer(
   }
 
   registerBuilderTools(server, api, scopes)
+  registerCustomTools(server, api, scopes)
 
   return server
 }

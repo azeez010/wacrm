@@ -36,11 +36,15 @@ const PLANS = [
       webhook_endpoints: 0,
       ai_replies_per_month: 0,
       storage_mb: 100,
+      custom_fields_max: 5,
+      custom_tables_max: 1,
+      custom_records_max: 200,
     },
     features: {
       broadcasts: false, automations: true, flows: true, ai_assistant: false,
       public_api: false, mcp: false, outbound_webhooks: false, csv_import: true,
       coexistence: false, custom_connection: false, priority_support: false,
+      custom_fields: true,
     },
   },
   {
@@ -68,11 +72,15 @@ const PLANS = [
       webhook_endpoints: 2,
       ai_replies_per_month: 500,
       storage_mb: 2000,
+      custom_fields_max: 25,
+      custom_tables_max: 5,
+      custom_records_max: 5000,
     },
     features: {
       broadcasts: true, automations: true, flows: true, ai_assistant: true,
       public_api: true, mcp: true, outbound_webhooks: true, csv_import: true,
       coexistence: true, custom_connection: false, priority_support: false,
+      custom_fields: true,
     },
   },
   {
@@ -100,11 +108,15 @@ const PLANS = [
       webhook_endpoints: 20,
       ai_replies_per_month: 10000,
       storage_mb: 20000,
+      custom_fields_max: null,
+      custom_tables_max: null,
+      custom_records_max: null,
     },
     features: {
       broadcasts: true, automations: true, flows: true, ai_assistant: true,
       public_api: true, mcp: true, outbound_webhooks: true, csv_import: true,
       coexistence: true, custom_connection: true, priority_support: true,
+      custom_fields: true,
     },
   },
 ]

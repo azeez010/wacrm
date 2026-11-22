@@ -21,6 +21,9 @@ export const LIMIT_DEFS = {
   webhook_endpoints: 'Outbound webhooks',
   ai_replies_per_month: 'AI replies / month',
   storage_mb: 'Media storage (MB)',
+  custom_fields_max: 'Custom contact fields',
+  custom_tables_max: 'Custom tables',
+  custom_records_max: 'Custom table rows',
 } as const
 
 export const FEATURE_DEFS = {
@@ -35,7 +38,16 @@ export const FEATURE_DEFS = {
   coexistence: 'Use your existing WhatsApp Business app number',
   custom_connection: 'Bring your own Meta app',
   priority_support: 'Priority support',
+  custom_fields: 'Custom fields, segments and tables',
 } as const
+
+/**
+ * Features that predate their catalogue entry. A plan row that has never
+ * been re-seeded has no key for them, and a missing key normally means
+ * "locked" - for these it means "included" so existing accounts keep
+ * working until the plan is explicitly set to false.
+ */
+export const DEFAULT_ON_FEATURES: readonly FeatureKey[] = ['custom_fields']
 
 export type LimitKey = keyof typeof LIMIT_DEFS
 export type FeatureKey = keyof typeof FEATURE_DEFS

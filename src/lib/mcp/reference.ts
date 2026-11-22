@@ -155,3 +155,56 @@ export const FLOW_REFERENCE = {
     ],
   },
 }
+
+/**
+ * Plain-text reference for the custom-data MCP tools. Kept as one string so
+ * it can be returned verbatim by get_custom_data_reference.
+ */
+export const CUSTOM_DATA_REFERENCE = `
+CUSTOM FIELD TYPES (create_custom_field)
+  text        free text (max 2000 chars)
+  number      options: format plain|currency|percent, currency (ISO), min, max
+  bool        yes / no
+  date        options: include_time (default false = a calendar day)
+  enum        one of options.options
+  multi_enum  several of options.options
+  reference   points at a row of a custom table: options.table_key
+  media       one uploaded file (photo, PDF...): options.accept any|image|document|video|audio.
+              Files are uploaded by people in the app; via API/MCP you can only keep or clear an
+              existing value ({url,path,name,mime,size} of a file already in this account's storage).
+
+VALUE FORMATS (contact custom_fields: { field_key: value }, table rows: { column_key: value })
+  text "Gold"      number 15000 or "15,000"      bool true/false/"yes"
+  date "2026-11-02" or an ISO datetime            enum "Gold"
+  multi_enum ["Yoga","Boxing"]                    reference <row id>
+  media {url,path,name,mime,size} (read back as {url,name,mime,size}); null clears
+  null or "" clears a value. Invalid values are rejected with a reason.
+
+FILTER (segments, filter_contacts)
+  { "version": 1, "op": "and" | "or", "rules": [ { "field", "operator", "value" }, ... ] }
+  field: name | phone | email | company | created_at | tags | cf:<custom field id>
+  text / name / phone / email / company:
+      contains, not_contains, equals, not_equals, is_empty, is_set        value: string
+  number and date custom fields:
+      eq, neq, gt, gte, lt, lte, between, is_empty, is_set
+      value: a number or date; between takes [low, high]
+      dates accept "YYYY-MM-DD" or relative tokens: today, yesterday, tomorrow, "-7d", "+30d", "-1m", "+1y"
+  bool custom field:   is_true, is_false, is_empty, is_set
+  enum custom field:   is, is_not (value: string), is_any_of (value: [strings]), is_empty, is_set
+  multi_enum:          has_any, has_all, has_none (value: [strings]), is_empty, is_set
+  reference:           is, is_not (value: row id), is_empty, is_set
+  media:               is_empty, is_set
+  tags:                has_any, has_all, has_none (value: [tag ids])
+  created_at:          eq, neq, gt, gte, lt, lte, between (same date values)
+  Rules that point at a deleted field are ignored. Relative dates resolve in the account's time zone (Settings, Account, Time zone; default UTC).
+
+EXAMPLE (gym members on a Gold plan who started in the last 30 days and auto-renew)
+  { "version": 1, "op": "and", "rules": [
+    { "field": "cf:<plan field id>", "operator": "is", "value": "Gold" },
+    { "field": "cf:<started field id>", "operator": "gte", "value": "-30d" },
+    { "field": "cf:<auto-renew field id>", "operator": "is_true" } ] }
+
+SEGMENTS ARE DYNAMIC: they are re-evaluated whenever used, never a frozen list.
+BROADCASTS: a broadcast audience can be a segment (audience.type "segment").
+AUTOMATIONS: a condition step with subject "in_segment" and operand = segment id.
+`.trim()

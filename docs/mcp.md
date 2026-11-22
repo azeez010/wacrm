@@ -56,3 +56,20 @@ scopes. Give an assistant a read-only key and read-only config and it
 physically cannot send anything. See the
 [server README](../mcp-server/README.md) for the full tool list and
 safety model.
+
+
+## Custom fields, tables and segments
+
+With the `fields`, `tables` and `segments` scopes (included in the
+"Campaign builder" and "Full access" presets) Claude can design the data
+model of a custom app and target contacts with it:
+
+- `get_custom_data_reference`: field types, value formats and the filter operators per type. Claude reads this first.
+- `list_custom_fields`, `create_custom_field`, `update_custom_field`, `delete_custom_field`
+- `list_tables`, `get_table`, `create_table`, `update_table`, `delete_table`
+- `list_table_rows`, `create_table_row`, `update_table_row`, `delete_table_row`
+- `list_segments`, `get_segment`, `list_segment_contacts`, `create_segment`, `update_segment`, `delete_segment`
+- `filter_contacts` (needs `contacts:read`): ad hoc filter, or `count_only` for just the number
+- `create_contact` / `update_contact` take `custom_fields`; `send_broadcast` takes `segment_id` or `filter`
+
+Deleting a field, table, row or segment needs `confirm: true`.

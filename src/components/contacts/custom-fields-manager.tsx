@@ -1,7 +1,6 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { createClient } from '@/lib/supabase/client';
 import { useAuth } from '@/hooks/use-auth';
 import { toast } from 'sonner';
 import type { CustomField } from '@/types';
@@ -14,7 +13,17 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Loader2, Plus, Trash2 } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { ArrowDown, ArrowUp, Columns3, Loader2, Plus, Trash2 } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { FIELD_TYPES, MEDIA_ACCEPT_VALUES, type FieldType, type MediaAccept } from '@/lib/custom-fields/types';
 import { useTranslations } from 'next-intl';
 
 interface CustomFieldsManagerProps {
@@ -49,36 +58,47 @@ export function CustomFieldsManager({
 }
 
 /**
- * Create / rename / delete account-wide custom contact field definitions.
- * Per-contact values are edited elsewhere (contact detail → Custom Fields);
- * this only manages the field catalogue. Admin+ gated by the caller - the
- * `custom_fields` RLS also rejects non-admin writes as defense in depth.
+ * Create / rename / reorder / delete account-wide custom contact field
+ * definitions. Per-contact values are edited elsewhere (contact detail →
+ * Custom Fields); this only manages the field catalogue. Writes go through
+ * /api/custom-fields, which enforces the admin role, the plan feature and
+ * the field limit, and validates the per-type options.
  */
 export function CustomFieldsPanel() {
   const t = useTranslations('Contacts.customFields');
-  const supabase = createClient();
-  const { user, accountId } = useAuth();
+  const { accountId } = useAuth();
 
   const [fields, setFields] = useState<CustomField[]>([]);
+  const [tables, setTables] = useState<{ id: string; key: string; name: string }[]>([]);
   const [loading, setLoading] = useState(true);
-  const [newName, setNewName] = useState('');
-  const [creating, setCreating] = useState(false);
   const [busyId, setBusyId] = useState<string | null>(null);
 
-  const fetchFields = useCallback(async () => {
-    if (!accountId) return;
-    setLoading(true);
-    const { data } = await supabase
-      .from('custom_fields')
-      .select('*')
-      .order('field_name');
-    setFields((data as CustomField[] | null) ?? []);
-    setLoading(false);
-  }, [supabase, accountId]);
+  // Create form
+  const [newName, setNewName] = useState('');
+  const [newType, setNewType] = useState<FieldType>('text');
+  const [optionsText, setOptionsText] = useState('');
+  const [tableKey, setTableKey] = useState('');
+  const [numberFormat, setNumberFormat] = useState('plain');
+  const [mediaAccept, setMediaAccept] = useState<MediaAccept>('any');
+  const [showAsColumn, setShowAsColumn] = useState(false);
+  const [creating, setCreating] = useState(false);
 
-  // Load the field list on mount once the account is known. The setters
-  // inside fetchFields run after the Supabase await - not synchronously in
-  // the effect body - so the cascade the lint rule warns about doesn't apply.
+  const fetchFields = useCallback(async () => {
+    setLoading(true);
+    try {
+      const [fRes, tRes] = await Promise.all([
+        fetch('/api/custom-fields', { cache: 'no-store' }),
+        fetch('/api/custom-tables', { cache: 'no-store' }),
+      ]);
+      const f = await fRes.json().catch(() => ({}));
+      const tb = await tRes.json().catch(() => ({}));
+      setFields((f.fields as CustomField[] | undefined) ?? []);
+      setTables((tb.tables as { id: string; key: string; name: string }[] | undefined) ?? []);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     if (accountId) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -86,120 +106,229 @@ export function CustomFieldsPanel() {
     }
   }, [accountId, fetchFields]);
 
-  /** Case-insensitive name clash within the loaded list. */
-  function isDuplicate(name: string, exceptId?: string): boolean {
-    const lower = name.toLowerCase();
-    return fields.some(
-      (f) => f.id !== exceptId && f.field_name.toLowerCase() === lower
-    );
+  function buildOptions(): Record<string, unknown> {
+    if (newType === 'enum' || newType === 'multi_enum') {
+      return {
+        options: optionsText
+          .split(',')
+          .map((o) => o.trim())
+          .filter(Boolean),
+      };
+    }
+    if (newType === 'reference') return { table_key: tableKey };
+    if (newType === 'number' && numberFormat !== 'plain') return { format: numberFormat };
+    if (newType === 'media' && mediaAccept !== 'any') return { accept: mediaAccept };
+    return {};
   }
 
   async function handleCreate() {
     const name = newName.trim();
     if (!name) return;
-    if (!accountId || !user) {
-      toast.error(t('toastNoAccount'));
-      return;
-    }
-    if (isDuplicate(name)) {
-      toast.error(t('toastDuplicate', { name }));
-      return;
-    }
-
     setCreating(true);
-    const { error } = await supabase.from('custom_fields').insert({
-      field_name: name,
-      field_type: 'text',
-      user_id: user.id,
-      account_id: accountId,
+    const res = await fetch('/api/custom-fields', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name,
+        type: newType,
+        options: buildOptions(),
+        show_in_table: showAsColumn,
+      }),
     });
+    const data = await res.json().catch(() => ({}));
     setCreating(false);
-
-    if (error) {
-      toast.error(t('toastCreateFailed'));
+    if (!res.ok) {
+      toast.error(data.error ?? t('toastCreateFailed'));
       return;
     }
     toast.success(t('toastCreated', { name }));
     setNewName('');
+    setOptionsText('');
+    setTableKey('');
+    setNumberFormat('plain');
+    setMediaAccept('any');
+    setShowAsColumn(false);
     await fetchFields();
   }
 
-  /** Returns true on success so the row can keep the new name, false so it
-   *  reverts to the previous one. No-ops (blank / unchanged) count as success. */
-  async function handleRename(
-    field: CustomField,
-    nextName: string
-  ): Promise<boolean> {
-    const name = nextName.trim();
-    if (!name || name === field.field_name) return true;
-    if (isDuplicate(name, field.id)) {
-      toast.error(t('toastDuplicate', { name }));
-      return false;
-    }
+  async function patchField(field: CustomField, patch: Record<string, unknown>): Promise<boolean> {
     setBusyId(field.id);
-    const { error } = await supabase
-      .from('custom_fields')
-      .update({ field_name: name })
-      .eq('id', field.id);
+    const res = await fetch(`/api/custom-fields/${field.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(patch),
+    });
+    const data = await res.json().catch(() => ({}));
     setBusyId(null);
-    if (error) {
-      toast.error(t('toastRenameFailed'));
+    if (!res.ok) {
+      toast.error(data.error ?? t('toastRenameFailed'));
       return false;
     }
-    await fetchFields();
     return true;
   }
 
-  async function handleDelete(field: CustomField) {
-    if (
-      !window.confirm(
-        t('deleteConfirm', { name: field.field_name })
-      )
-    ) {
-      return;
-    }
-    setBusyId(field.id);
-    const { error } = await supabase
-      .from('custom_fields')
-      .delete()
-      .eq('id', field.id);
-    setBusyId(null);
-    if (error) {
-      toast.error(t('toastDeleteFailed'));
-      return;
-    }
-    toast.success(t('toastDeleted', { name: field.field_name }));
+  /** Returns true on success so the row keeps the new name, false to revert. */
+  async function handleRename(field: CustomField, nextName: string): Promise<boolean> {
+    const name = nextName.trim();
+    if (!name || name === field.field_name) return true;
+    const ok = await patchField(field, { name });
+    if (ok) await fetchFields();
+    return ok;
+  }
+
+  async function handleToggleColumn(field: CustomField) {
+    if (await patchField(field, { show_in_table: !field.show_in_table })) await fetchFields();
+  }
+
+  async function handleMove(index: number, dir: -1 | 1) {
+    const a = fields[index];
+    const b = fields[index + dir];
+    if (!a || !b) return;
+    // Swap positions; re-number the whole list so equal sort_orders can't stall a move.
+    const next = [...fields];
+    next[index] = b;
+    next[index + dir] = a;
+    setFields(next);
+    const results = await Promise.all(
+      next.map((f, i) =>
+        f.sort_order === i + 1
+          ? Promise.resolve(true)
+          : fetch(`/api/custom-fields/${f.id}`, {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ sort_order: i + 1 }),
+            }).then((r) => r.ok),
+      ),
+    );
+    if (results.some((ok) => !ok)) toast.error(t('toastRenameFailed'));
     await fetchFields();
   }
+
+  async function handleDelete(field: CustomField) {
+    if (!window.confirm(t('deleteConfirm', { name: field.field_name }))) return;
+    setBusyId(field.id);
+    const res = await fetch(`/api/custom-fields/${field.id}`, { method: 'DELETE' });
+    const data = await res.json().catch(() => ({}));
+    setBusyId(null);
+    if (!res.ok) {
+      toast.error(data.error ?? t('toastDeleteFailed'));
+      return;
+    }
+    toast.success(
+      data.archived
+        ? t('toastArchived', { name: field.field_name })
+        : t('toastDeleted', { name: field.field_name })
+    );
+    await fetchFields();
+  }
+
+  const needsOptions = newType === 'enum' || newType === 'multi_enum';
+  const canCreate =
+    !!newName.trim() &&
+    !creating &&
+    (!needsOptions || optionsText.trim().length > 0) &&
+    (newType !== 'reference' || !!tableKey);
 
   return (
     <div className="space-y-4">
       {/* Create */}
-      <div className="flex items-center gap-2">
-        <Input
-          value={newName}
-          onChange={(e) => setNewName(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              e.preventDefault();
-              void handleCreate();
-            }
-          }}
-          placeholder={t('fieldName')}
-          className="bg-muted text-foreground"
-        />
-        <Button
-          onClick={handleCreate}
-          disabled={creating || !newName.trim()}
-          className="bg-primary hover:bg-primary/90 text-primary-foreground shrink-0"
-        >
-          {creating ? (
-            <Loader2 className="size-4 animate-spin" />
-          ) : (
-            <Plus className="size-4" />
-          )}
-          {t('addField')}
-        </Button>
+      <div className="space-y-2">
+        <div className="flex items-center gap-2">
+          <Input
+            value={newName}
+            onChange={(e) => setNewName(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && canCreate) {
+                e.preventDefault();
+                void handleCreate();
+              }
+            }}
+            placeholder={t('fieldName')}
+            className="bg-muted text-foreground"
+          />
+          <Select value={newType} onValueChange={(v) => v && setNewType(v as FieldType)}>
+            <SelectTrigger className="w-36 shrink-0" aria-label={t('typeLabel')}>
+              <SelectValue>{t(`types.${newType}`)}</SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              {FIELD_TYPES.map((ft) => (
+                <SelectItem key={ft} value={ft}>
+                  {t(`types.${ft}`)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Button
+            onClick={handleCreate}
+            disabled={!canCreate}
+            className="bg-primary hover:bg-primary/90 text-primary-foreground shrink-0"
+          >
+            {creating ? <Loader2 className="size-4 animate-spin" /> : <Plus className="size-4" />}
+            {t('addField')}
+          </Button>
+        </div>
+
+        {needsOptions && (
+          <Input
+            value={optionsText}
+            onChange={(e) => setOptionsText(e.target.value)}
+            placeholder={t('optionsPlaceholder')}
+            aria-label={t('optionsLabel')}
+            className="bg-muted text-foreground"
+          />
+        )}
+
+        {newType === 'reference' && (
+          <Select value={tableKey} onValueChange={(v) => setTableKey(v ?? '')}>
+            <SelectTrigger aria-label={t('tableLabel')}>
+              <SelectValue placeholder={tables.length ? t('tablePlaceholder') : t('noTables')}>
+                {tables.find((tb) => tb.key === tableKey)?.name}
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              {tables.map((tb) => (
+                <SelectItem key={tb.id} value={tb.key}>
+                  {tb.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
+
+        {newType === 'media' && (
+          <Select value={mediaAccept} onValueChange={(v) => v && setMediaAccept(v as MediaAccept)}>
+            <SelectTrigger aria-label={t('acceptLabel')}>
+              <SelectValue>{t(`accept.${mediaAccept}`)}</SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              {MEDIA_ACCEPT_VALUES.map((a) => (
+                <SelectItem key={a} value={a}>
+                  {t(`accept.${a}`)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
+
+        {newType === 'number' && (
+          <Select value={numberFormat} onValueChange={(v) => v && setNumberFormat(v)}>
+            <SelectTrigger aria-label={t('numberFormat')}>
+              <SelectValue>{t(`formats.${numberFormat}`)}</SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              {['plain', 'currency', 'percent'].map((f) => (
+                <SelectItem key={f} value={f}>
+                  {t(`formats.${f}`)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
+
+        <label className="flex cursor-pointer items-center gap-2 text-sm text-muted-foreground">
+          <Checkbox checked={showAsColumn} onCheckedChange={(c) => setShowAsColumn(c === true)} />
+          {t('showAsColumn')}
+        </label>
       </div>
 
       {/* List */}
@@ -210,18 +339,20 @@ export function CustomFieldsPanel() {
             {t('loading')}
           </div>
         ) : fields.length === 0 ? (
-          <p className="py-8 text-center text-sm text-muted-foreground">
-            {t('empty')}
-          </p>
+          <p className="py-8 text-center text-sm text-muted-foreground">{t('empty')}</p>
         ) : (
           <ul className="divide-y divide-border">
-            {fields.map((field) => (
+            {fields.map((field, i) => (
               <FieldRow
                 key={field.id}
                 field={field}
                 busy={busyId === field.id}
+                isFirst={i === 0}
+                isLast={i === fields.length - 1}
                 onRename={handleRename}
                 onDelete={handleDelete}
+                onToggleColumn={handleToggleColumn}
+                onMove={(dir) => handleMove(i, dir)}
               />
             ))}
           </ul>
@@ -236,13 +367,21 @@ export function CustomFieldsPanel() {
 function FieldRow({
   field,
   busy,
+  isFirst,
+  isLast,
   onRename,
   onDelete,
+  onToggleColumn,
+  onMove,
 }: {
   field: CustomField;
   busy: boolean;
+  isFirst: boolean;
+  isLast: boolean;
   onRename: (field: CustomField, name: string) => Promise<boolean>;
   onDelete: (field: CustomField) => void;
+  onToggleColumn: (field: CustomField) => void;
+  onMove: (dir: -1 | 1) => void;
 }) {
   const t = useTranslations('Contacts.customFields');
   const [name, setName] = useState(field.field_name);
@@ -257,10 +396,10 @@ function FieldRow({
   }
 
   return (
-    <li className="flex items-center gap-2 px-3 py-2">
+    <li className="flex items-center gap-1.5 px-2 py-1.5">
       <Input
         value={name}
-        disabled={busy}
+        disabled={busy || field.locked}
         onChange={(e) => setName(e.target.value)}
         onBlur={commit}
         onKeyDown={(e) => {
@@ -269,19 +408,52 @@ function FieldRow({
         aria-label={t('renameAria', { name: field.field_name })}
         className="focus:border-primary h-8 border-transparent bg-transparent text-foreground hover:border-border"
       />
+      <span className="shrink-0 rounded bg-muted px-1.5 py-0.5 text-[11px] text-muted-foreground">
+        {t(`types.${field.field_type}`)}
+      </span>
       <Button
         variant="ghost"
         size="icon-sm"
         disabled={busy}
+        onClick={() => onToggleColumn(field)}
+        title={t('columnToggle')}
+        aria-pressed={!!field.show_in_table}
+        className={cn(
+          'shrink-0',
+          field.show_in_table ? 'text-primary' : 'text-muted-foreground'
+        )}
+      >
+        <Columns3 className="size-4" />
+      </Button>
+      <Button
+        variant="ghost"
+        size="icon-sm"
+        disabled={busy || isFirst}
+        onClick={() => onMove(-1)}
+        title={t('moveUp')}
+        className="shrink-0 text-muted-foreground"
+      >
+        <ArrowUp className="size-4" />
+      </Button>
+      <Button
+        variant="ghost"
+        size="icon-sm"
+        disabled={busy || isLast}
+        onClick={() => onMove(1)}
+        title={t('moveDown')}
+        className="shrink-0 text-muted-foreground"
+      >
+        <ArrowDown className="size-4" />
+      </Button>
+      <Button
+        variant="ghost"
+        size="icon-sm"
+        disabled={busy || field.locked}
         onClick={() => onDelete(field)}
         title={t('deleteTitle')}
         className="shrink-0 text-muted-foreground hover:text-red-400"
       >
-        {busy ? (
-          <Loader2 className="size-4 animate-spin" />
-        ) : (
-          <Trash2 className="size-4" />
-        )}
+        {busy ? <Loader2 className="size-4 animate-spin" /> : <Trash2 className="size-4" />}
       </Button>
     </li>
   );

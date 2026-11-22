@@ -13,6 +13,12 @@
 //     ]
 //   }
 //
+// Instead of `recipients`, target a saved segment or an ad hoc filter:
+//   { "template_name": "...", "segment_id": "<id>" }      // or
+//   { "template_name": "...", "filter": { ...FilterGroup } }
+// optionally with "params": [...] shared by every recipient. The segment is
+// evaluated at send time; it must match 1..1000 contacts.
+//
 // The broadcast + its recipient rows are persisted synchronously, then
 // the Meta fan-out runs in `after()` so the request returns fast. Poll
 // `GET /api/v1/broadcasts/{id}` for progress.
@@ -37,6 +43,8 @@ import { requireApiKey } from '@/lib/auth/api-context';
 export const maxDuration = 60;
 import { ok, fail, toApiErrorResponse } from '@/lib/api/v1/respond';
 import { resolveAuditUserId, ContactError } from '@/lib/api/v1/contacts';
+import { loadSegmentFilter } from '@/lib/broadcast-audience';
+import { filterContacts, segCtxFromKey } from '@/lib/segments/server';
 import {
   createBroadcast,
   deliverBroadcast,
@@ -57,7 +65,37 @@ export async function POST(request: Request) {
 
     const templateName =
       typeof body.template_name === 'string' ? body.template_name : '';
-    const recipients = Array.isArray(body.recipients) ? body.recipients : [];
+    let recipients: { to?: unknown; params?: unknown }[] = Array.isArray(body.recipients)
+      ? body.recipients
+      : [];
+
+    // Segment / filter audience: expand to recipients now (dynamic).
+    if (recipients.length === 0 && (body.segment_id || body.filter)) {
+      const sc = segCtxFromKey(ctx);
+      let filter: unknown = body.filter;
+      if (!filter) {
+        filter = await loadSegmentFilter(ctx.supabase, String(body.segment_id), ctx.accountId);
+        if (!filter) return fail('not_found', 'Segment not found', 404);
+      }
+      const matched = await filterContacts(sc, filter, { limit: 100, offset: 0 });
+      if (!matched.ok) return fail('bad_request', matched.error, matched.status);
+      if (matched.data.total > 1000) {
+        return fail(
+          'bad_request',
+          `The segment matches ${matched.data.total} contacts; a broadcast is limited to 1000. Narrow the filter.`,
+          400
+        );
+      }
+      const shared = Array.isArray(body.params) ? body.params : undefined;
+      const phones: string[] = [];
+      for (let offset = 0; offset < matched.data.total; offset += 100) {
+        const page =
+          offset === 0 ? matched : await filterContacts(sc, filter, { limit: 100, offset });
+        if (!page.ok) return fail('internal', page.error, page.status);
+        for (const c of page.data.contacts) phones.push(String(c.phone));
+      }
+      recipients = phones.map((to) => ({ to, params: shared }));
+    }
 
     const auditUserId = await resolveAuditUserId(ctx.supabase, ctx.accountId);
 

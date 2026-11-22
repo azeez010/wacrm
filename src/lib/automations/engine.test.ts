@@ -5,7 +5,7 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 const h = vi.hoisted(() => ({
   state: {
     owned: null as { id: string } | null,
-    ownedCustomField: null as { id: string } | null,
+    ownedCustomField: null as ({ id: string } & Record<string, unknown>) | null,
     /** Row the account-scoped `conversations` lookup resolves. */
     ownedConversation: null as { id: string } | null,
     automations: [] as Record<string, unknown>[],
@@ -333,10 +333,20 @@ describe("automation_logs, status is seeded pessimistically (issue #409)", () =>
   });
 });
 
+const TEXT_FIELD = {
+  id: "cf1",
+  key: "plan",
+  field_name: "Plan",
+  field_type: "text",
+  field_options: {},
+  required: false,
+  default_value: null,
+};
+
 describe("update_contact_field, custom fields", () => {
   it("upserts contact_custom_values when the field is account-owned", async () => {
     h.state.owned = { id: "c1" };
-    h.state.ownedCustomField = { id: "cf1" };
+    h.state.ownedCustomField = TEXT_FIELD;
     h.state.automations = [automationWithUpdateStep()];
     h.state.steps = [customStep("custom:cf1", "Premium")];
 
@@ -350,16 +360,53 @@ describe("update_contact_field, custom fields", () => {
     // No direct contacts column write for a custom field.
     expect(h.state.updateCalls).toHaveLength(0);
     expect(h.state.upsertCalls).toHaveLength(1);
-    expect(h.state.upsertCalls[0].payload).toEqual({
+    expect(h.state.upsertCalls[0].payload).toMatchObject({
       contact_id: "c1",
       custom_field_id: "cf1",
+      account_id: ACCOUNT,
       value: "Premium",
+      value_number: null,
+      value_date: null,
+      value_bool: null,
+      value_text_array: null,
     });
+  });
+
+  it("rejects a value that does not fit the field type and writes nothing", async () => {
+    h.state.owned = { id: "c1" };
+    h.state.ownedCustomField = { ...TEXT_FIELD, field_type: "number", field_name: "Amount" };
+    h.state.automations = [automationWithUpdateStep()];
+    h.state.steps = [customStep("custom:cf1", "not a number")];
+
+    await runAutomationsForTrigger({
+      accountId: ACCOUNT,
+      triggerType: "new_message_received",
+      contactId: "c1",
+      context: {},
+    });
+
+    expect(h.state.upsertCalls).toHaveLength(0);
+  });
+
+  it("stores typed columns for a number field", async () => {
+    h.state.owned = { id: "c1" };
+    h.state.ownedCustomField = { ...TEXT_FIELD, field_type: "number", field_name: "Amount" };
+    h.state.automations = [automationWithUpdateStep()];
+    h.state.steps = [customStep("custom:cf1", "15,000")];
+
+    await runAutomationsForTrigger({
+      accountId: ACCOUNT,
+      triggerType: "new_message_received",
+      contactId: "c1",
+      context: {},
+    });
+
+    expect(h.state.upsertCalls[0].payload).toMatchObject({ value: "15000", value_number: 15000 });
   });
 
   it("interpolates {{ vars.* }} into the custom value", async () => {
     h.state.owned = { id: "c1" };
-    h.state.ownedCustomField = { id: "cf1" };
+    h.state.ownedCustomField = TEXT_FIELD;
     h.state.automations = [automationWithUpdateStep()];
     h.state.steps = [customStep("custom:cf1", "{{ vars.source }}")];
 

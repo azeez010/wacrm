@@ -58,7 +58,11 @@
     "defaultAvatar": "Avatar",
     "menuProfile": "Perfil",
     "menuSettings": "Configurações",
-    "menuSignOut": "Sair"
+    "menuSignOut": "Sair",
+    "bell": {
+      "label": "Notificações",
+      "viewAll": "Ver todas"
+    }
   },
   "ModeToggle": {
     "switchMode": "Mudar para o modo {mode}"

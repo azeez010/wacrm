@@ -58,7 +58,11 @@
     "defaultAvatar": "Avatar",
     "menuProfile": "Perfil",
     "menuSettings": "Configuración",
-    "menuSignOut": "Cerrar sesión"
+    "menuSignOut": "Cerrar sesión",
+    "bell": {
+      "label": "Notificaciones",
+      "viewAll": "Ver todas"
+    }
   },
   "ModeToggle": {
     "switchMode": "Cambiar al modo {mode}"

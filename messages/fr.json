@@ -58,7 +58,11 @@
     "defaultAvatar": "Avatar",
     "menuProfile": "Profil",
     "menuSettings": "Paramètres",
-    "menuSignOut": "Se déconnecter"
+    "menuSignOut": "Se déconnecter",
+    "bell": {
+      "label": "Notifications",
+      "viewAll": "Tout voir"
+    }
   },
   "ModeToggle": {
     "switchMode": "Passer en mode {mode}"

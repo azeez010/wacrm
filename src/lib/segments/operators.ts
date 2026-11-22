@@ -17,6 +17,10 @@ export const OPERATORS_BY_KIND: Record<FilterFieldKind, FilterOperator[]> = {
   multi_enum: ['has_any', 'has_all', 'has_none', ...ANY_EMPTY],
   reference: ['is', 'is_not', ...ANY_EMPTY],
   media: ANY_EMPTY,
+  url: ['contains', 'not_contains', 'equals', 'not_equals', ...ANY_EMPTY],
+  phone: ['contains', 'not_contains', 'equals', 'not_equals', ...ANY_EMPTY],
+  email: ['contains', 'not_contains', 'equals', 'not_equals', ...ANY_EMPTY],
+  datetime: ['eq', 'neq', 'gt', 'gte', 'lt', 'lte', 'between', ...ANY_EMPTY],
   tags: ['has_any', 'has_all', 'has_none'],
 }
 

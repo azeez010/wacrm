@@ -15,6 +15,8 @@ import { parseMultiValue } from '@/lib/custom-fields/format';
 import type { FieldDef } from '@/lib/custom-fields/types';
 import { ReferencePicker } from './reference-picker';
 import { MediaInput } from './media-input';
+import { useAuth } from '@/hooks/use-auth';
+import { fromLocalInput, toLocalInput } from '@/lib/custom-fields/datetime-tz';
 
 const NONE = '__none__';
 
@@ -43,6 +45,7 @@ export function CustomFieldInput({
   className,
 }: CustomFieldInputProps) {
   const t = useTranslations('CustomFields.input');
+  const { accountTimezone } = useAuth();
   const opts = field.field_options ?? {};
   const base = 'bg-muted border-border text-foreground h-8 text-sm placeholder:text-muted-foreground';
 
@@ -78,18 +81,49 @@ export function CustomFieldInput({
       );
     case 'date': {
       const withTime = Boolean(opts.include_time);
-      // Stored as an ISO instant; the input wants a local YYYY-MM-DD(THH:mm).
-      const shown = value ? (withTime ? value.slice(0, 16) : value.slice(0, 10)) : '';
+      // A calendar day is shown as stored; a moment is shown in the account time zone.
+      const shown = value
+        ? withTime
+          ? toLocalInput(value, accountTimezone)
+          : value.slice(0, 10)
+        : '';
       return (
         <Input
           type={withTime ? 'datetime-local' : 'date'}
           value={shown}
           disabled={disabled}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={(e) => onChange(withTime ? fromLocalInput(e.target.value, accountTimezone) : e.target.value)}
           className={cn(base, className)}
         />
       );
     }
+    case 'datetime':
+      return (
+        <Input
+          type="datetime-local"
+          value={toLocalInput(value, accountTimezone)}
+          disabled={disabled}
+          onChange={(e) => onChange(fromLocalInput(e.target.value, accountTimezone))}
+          className={cn(base, className)}
+        />
+      );
+    case 'url':
+    case 'email':
+    case 'phone':
+      return (
+        <Input
+          type={field.field_type === 'phone' ? 'tel' : field.field_type}
+          inputMode={field.field_type === 'phone' ? 'tel' : field.field_type === 'email' ? 'email' : 'url'}
+          value={value}
+          disabled={disabled}
+          placeholder={
+            placeholder ??
+            (field.field_type === 'url' ? 'https://' : field.field_type === 'phone' ? '+234...' : 'name@example.com')
+          }
+          onChange={(e) => onChange(e.target.value)}
+          className={cn(base, className)}
+        />
+      );
     case 'enum':
       return (
         <Select

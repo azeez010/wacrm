@@ -22,14 +22,16 @@ const BOOL_WORDS = new Set(['true', 'false', 'yes', 'no', 'y', 'n']);
 
 /** Guess a field type from sample cells (ignoring blanks). */
 export function inferFieldType(samples: string[]): FieldType {
-  const filled = samples.map((s) => s.trim()).filter(Boolean);
-  if (filled.length === 0) return 'text';
-  if (filled.every((s) => BOOL_WORDS.has(s.toLowerCase()))) return 'bool';
-  if (filled.every((s) => /^[+-]?(\d{1,3}(,\d{3})+|\d+)(\.\d+)?$/.test(s))) return 'number';
-  if (filled.every((s) => /^\d{4}-\d{2}-\d{2}([T ][\d:.]+Z?)?$/.test(s) && !Number.isNaN(Date.parse(s)))) {
-    return 'date';
-  }
-  return 'text';
+  const filled = samples.map((s) => s.trim()).filter(Boolean)
+  if (filled.length === 0) return 'text'
+  if (filled.every((s) => BOOL_WORDS.has(s.toLowerCase()))) return 'bool'
+  if (filled.every((s) => /^[+-]?(\d{1,3}(,\d{3})+|\d+)(\.\d+)?$/.test(s) && !/^\+\d{8,}$/.test(s))) return 'number'
+  if (filled.every((s) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(s))) return 'email'
+  if (filled.every((s) => /^https?:\/\/\S+\.\S+$/i.test(s))) return 'url'
+  if (filled.every((s) => /^\+\d[\d\s().-]{7,}$/.test(s))) return 'phone'
+  if (filled.every((s) => /^\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}/.test(s) && !Number.isNaN(Date.parse(s)))) return 'datetime'
+  if (filled.every((s) => /^\d{4}-\d{2}-\d{2}$/.test(s) && !Number.isNaN(Date.parse(s)))) return 'date'
+  return 'text'
 }
 
 /**

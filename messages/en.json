@@ -588,7 +588,11 @@
         "customFields": "Custom fields",
         "export": "Export CSV (current view)",
         "exported": "Exported {count} contacts.",
-        "exportFailed": "Could not export contacts."
+        "exportFailed": "Could not export contacts.",
+        "tableBadge": "Table",
+        "expandTable": "Show columns of {name}",
+        "loadingTable": "Loading table…",
+        "labelColumn": "label"
       },
       "yes": "Yes",
       "no": "No",
@@ -730,7 +734,8 @@
       },
       "tagsTab": {
         "clickTagDesc": "Click a tag to add or remove it from this contact.",
-        "noTagsAvailable": "No tags available. Create tags in Settings."
+        "noTagsAvailable": "No tags available. Create tags in Settings.",
+        "manageDesc": "Add tags with + and remove them with x."
       },
       "sendTemplateBtn": "Send template",
       "saveChangesBtn": "Save Changes",
@@ -753,7 +758,6 @@
     },
     "importModal": {
       "title": "Import Contacts",
-      "desc": "Upload a CSV with a required <phoneCode>phone</phoneCode> column. Optional: <nameCode>name</nameCode>, <emailCode>email</emailCode>, <companyCode>company</companyCode>, <tagsCode>tags</tagsCode> (comma-separated; quote multi-tag cells).",
       "uploadDropzone": "Click to choose a CSV file",
       "uploadHint": ".csv up to your browser limit",
       "rowsReady": "{count} row ready",
@@ -810,18 +814,51 @@
       "customErrorsHeading": "{count, plural, one {# custom value was not imported} other {# custom values were not imported}}",
       "updateExisting": "Update existing contacts",
       "updateExistingHint": "Contacts whose phone is already saved get the values from this file. Blank cells never erase data.",
-      "mapping": {
-        "title": "Custom fields",
-        "skip": "Don't import",
-        "createLabel": "New field ({type})",
-        "hint": "Columns that match a custom field are filled in automatically. Unmatched ones can become new fields.",
-        "types": {
-          "text": "Text",
-          "number": "Number",
-          "bool": "Yes / No",
-          "date": "Date"
-        }
-      }
+      "instr": {
+        "required": "Required:",
+        "optional": "Optional:",
+        "yourFields": "and your fields",
+        "fewer": "show less",
+        "more": "+{count} more",
+        "tableRule": "Custom-table columns use one pattern:",
+        "forExample": "for example",
+        "mapHint": "Open a file to match its columns to your fields. You can also set one fixed value for every row."
+      },
+      "map": {
+        "title": "Match your columns",
+        "summary": "{mapped} of {total} columns matched",
+        "reset": "Reset",
+        "phoneRequired": "Choose which column holds the phone number.",
+        "notImported": "Not imported",
+        "createFieldHint": "Create a field named \"{name}\" and import this column",
+        "createFieldNote": "Click a column to create a new field from it.",
+        "createMissing": "Create missing table rows",
+        "createMissingHint": "A row is found by its name; if it doesn't exist yet it is added to the table.",
+        "otherMapped": "{count, plural, one {+ # more matched field imported} other {+ # more matched fields imported}}",
+        "tagsPlaceholder": "tag, another tag",
+        "valuePlaceholder": "Value…",
+        "columnN": "Column {n}",
+        "fixedValue": "Fixed value",
+        "fixedValueAll": "Same value for every row…",
+        "skip": "Skip",
+        "inUse": "(already used)",
+        "kind": {
+          "core_text": "Text",
+          "tags": "Tags"
+        },
+        "tagsEveryone": "Also add these tags to every contact",
+        "addTagsEveryone": "Add tags to every contact",
+        "fallbackLabel": "When the cell is empty, use",
+        "addFallback": "Default for empty cells",
+        "tableBadge": "Table",
+        "mappedCount": "{count} matched",
+        "showMore": "Show {count} more fields",
+        "showFewer": "Show fewer fields"
+      },
+      "toastFieldCreated": "Created the field \"{name}\".",
+      "errorNoLabelColumn": "Match the table's name column too, so rows can be found or created.",
+      "errorTableRow": "Could not find or create the table row.",
+      "resultTableRows": "{count, plural, one {# table row created} other {# table rows created}}"
     },
     "customFields": {
       "title": "Custom fields",
@@ -849,7 +886,11 @@
         "enum": "Choice",
         "multi_enum": "Multiple choice",
         "reference": "Reference",
-        "media": "Media (file)"
+        "media": "Media (file)",
+        "url": "Link (URL)",
+        "phone": "Phone",
+        "email": "Email",
+        "datetime": "Date and time"
       },
       "optionsLabel": "Options",
       "optionsPlaceholder": "Options, separated by commas (Gold, Silver, Platinum)",
@@ -862,7 +903,6 @@
         "currency": "Currency",
         "percent": "Percent"
       },
-      "showAsColumn": "Show as a column in Contacts",
       "toastArchived": "\"{name}\" was archived. Its values are kept.",
       "acceptLabel": "Allowed files",
       "accept": {
@@ -875,6 +915,32 @@
       "dragHandle": "Drag to reorder: {name}",
       "dragHint": "Drag to reorder",
       "toastReorderFailed": "Could not save the new order."
+    },
+    "tagEditor": {
+      "add": "Add tag",
+      "search": "Search tags…",
+      "noTags": "No tags yet. Create tags in Settings.",
+      "noMore": "No more tags to add.",
+      "failed": "Could not update the tag.",
+      "removed": "Removed \"{tag}\".",
+      "removeAria": "Remove tag {tag}",
+      "remove": {
+        "title": "Remove \"{tag}\" from {contact}?",
+        "subtitle": "Please check what depends on this tag first.",
+        "checking": "Checking what uses this tag…",
+        "checkFailed": "Could not check what uses this tag. You can still remove it.",
+        "nothingUses": "No segments, automations, flows or open broadcasts use this tag.",
+        "usedBy": "This tag is used by",
+        "segments": "{count, plural, one {# saved segment} other {# saved segments}}",
+        "automations": "{count, plural, one {# active automation} other {# active automations}}",
+        "flows": "{count, plural, one {# active chatbot flow} other {# active chatbot flows}}",
+        "broadcasts": "{count, plural, one {# draft or scheduled broadcast} other {# draft or scheduled broadcasts}}",
+        "andMore": "{count, plural, one {and # more} other {and # more}}",
+        "effect": "{contact} may stop matching those segments and automations, and may be left out of those broadcasts.",
+        "safe": "Only this contact loses the tag. The tag and your other contacts are not affected, and you can add it back at any time.",
+        "cancel": "Cancel",
+        "confirm": "Remove tag"
+      }
     }
   },
   "Pipelines": {

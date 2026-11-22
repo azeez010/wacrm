@@ -168,12 +168,17 @@ CUSTOM FIELD TYPES (create_custom_field)
   date        options: include_time (default false = a calendar day)
   enum        one of options.options
   multi_enum  several of options.options
+  url         a web link (https://...)
+  phone       international number with + (stored as +digits)
+  email       an email address (lower-cased)
+  datetime    a moment in time (ISO with Z or an offset); shown in the account time zone
   reference   points at a row of a custom table: options.table_key
   media       one uploaded file (photo, PDF...): options.accept any|image|document|video|audio.
               Files are uploaded by people in the app; via API/MCP you can only keep or clear an
               existing value ({url,path,name,mime,size} of a file already in this account's storage).
 
 VALUE FORMATS (contact custom_fields: { field_key: value }, table rows: { column_key: value })
+  url "https://acme.com"  email "ada@acme.com"  phone "+2348012345678"  datetime "2026-11-02T15:30:00Z"
   text "Gold"      number 15000 or "15,000"      bool true/false/"yes"
   date "2026-11-02" or an ISO datetime            enum "Gold"
   multi_enum ["Yoga","Boxing"]                    reference <row id>
@@ -183,9 +188,9 @@ VALUE FORMATS (contact custom_fields: { field_key: value }, table rows: { column
 FILTER (segments, filter_contacts)
   { "version": 1, "op": "and" | "or", "rules": [ { "field", "operator", "value" }, ... ] }
   field: name | phone | email | company | created_at | tags | cf:<custom field id>
-  text / name / phone / email / company:
+  text, url, email, phone and the built-ins name / phone / email / company:
       contains, not_contains, equals, not_equals, is_empty, is_set        value: string
-  number and date custom fields:
+  number, date and datetime custom fields:
       eq, neq, gt, gte, lt, lte, between, is_empty, is_set
       value: a number or date; between takes [low, high]
       dates accept "YYYY-MM-DD" or relative tokens: today, yesterday, tomorrow, "-7d", "+30d", "-1m", "+1y"

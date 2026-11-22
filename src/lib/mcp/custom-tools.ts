@@ -10,7 +10,7 @@ import { CUSTOM_DATA_REFERENCE } from './reference'
 
 const looseObj = z.record(z.string(), z.unknown())
 
-const fieldType = z.enum(['text', 'number', 'bool', 'date', 'enum', 'multi_enum', 'reference', 'media'])
+const fieldType = z.enum(['text', 'number', 'bool', 'date', 'enum', 'multi_enum', 'reference', 'media', 'url', 'phone', 'email', 'datetime'])
 
 const fieldOptions = z
   .object({

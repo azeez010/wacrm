@@ -15,7 +15,9 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { CustomFieldInput } from '@/components/custom-fields/custom-field-input';
+import { useAuth } from '@/hooks/use-auth';
 import { MediaCell } from '@/components/custom-fields/media-cell';
+import { LinkCell, isLinkType } from '@/components/custom-fields/link-cell';
 import { formatFieldValue } from '@/lib/custom-fields/format';
 import type { FieldDef } from '@/lib/custom-fields/types';
 import type { CustomFieldRow, RecordRow, TableSummary } from '@/lib/custom-fields/server';
@@ -40,6 +42,7 @@ interface Props {
 
 /** Rows of one custom table: search, add, edit, delete. */
 export function TableRecords({ table, isAdmin, canEditRows, onBack, onEditShape }: Props) {
+  const { accountTimezone } = useAuth();
   const t = useTranslations('Settings.tables.rows');
   const tTables = useTranslations('Settings.tables');
 
@@ -172,13 +175,15 @@ export function TableRecords({ table, isAdmin, canEditRows, onBack, onEditShape 
                     <td key={c.id} className="max-w-[180px] truncate px-3 py-2 text-foreground">
                       {c.field_type === 'media' ? (
                         <MediaCell value={toCanonical(c, rec.data[c.key])} />
+                      ) : isLinkType(c.field_type) ? (
+                        <LinkCell type={c.field_type} value={toCanonical(c, rec.data[c.key])} />
                       ) : c.field_type === 'reference' ? (
                         <ReferenceCell tableKey={c.field_options?.table_key} id={toCanonical(c, rec.data[c.key])} />
                       ) : (
                         formatFieldValue(
                           c as FieldDef,
                           toCanonical(c, rec.data[c.key]),
-                          { yes: t('yes'), no: t('no') }
+                          { yes: t('yes'), no: t('no'), timeZone: accountTimezone }
                         )
                       )}
                     </td>

@@ -588,7 +588,11 @@
         "customFields": "Campos personalizados",
         "export": "Exportar CSV (visão atual)",
         "exported": "{count} contatos exportados.",
-        "exportFailed": "Não foi possível exportar os contatos."
+        "exportFailed": "Não foi possível exportar os contatos.",
+        "tableBadge": "Tabela",
+        "expandTable": "Mostrar colunas de {name}",
+        "loadingTable": "Carregando tabela…",
+        "labelColumn": "rótulo"
       },
       "yes": "Sim",
       "no": "Não",
@@ -730,7 +734,8 @@
       },
       "tagsTab": {
         "clickTagDesc": "Clique em uma tag para adicioná-la ou removê-la deste contato.",
-        "noTagsAvailable": "Nenhuma tag disponível. Crie tags em Configurações."
+        "noTagsAvailable": "Nenhuma tag disponível. Crie tags em Configurações.",
+        "manageDesc": "Adicione tags com + e remova com x."
       },
       "sendTemplateBtn": "Enviar modelo",
       "saveChangesBtn": "Salvar alterações",
@@ -753,7 +758,6 @@
     },
     "importModal": {
       "title": "Importar contatos",
-      "desc": "Envie um CSV com uma coluna <phoneCode>phone</phoneCode> obrigatória. Opcionais: <nameCode>name</nameCode>, <emailCode>email</emailCode>, <companyCode>company</companyCode>, <tagsCode>tags</tagsCode> (separadas por vírgula; coloque células com várias tags entre aspas).",
       "uploadDropzone": "Clique para escolher um arquivo CSV",
       "uploadHint": ".csv até o limite do seu navegador",
       "rowsReady": "{count} linha pronta",
@@ -810,18 +814,51 @@
       "customErrorsHeading": "{count, plural, one {# valor personalizado não importado} other {# valores personalizados não importados}}",
       "updateExisting": "Atualizar contatos existentes",
       "updateExistingHint": "Contatos cujo telefone já existe recebem os valores deste arquivo. Células em branco nunca apagam dados.",
-      "mapping": {
-        "title": "Campos personalizados",
-        "skip": "Não importar",
-        "createLabel": "Novo campo ({type})",
-        "hint": "Colunas que correspondem a um campo personalizado são preenchidas automaticamente. As demais podem virar novos campos.",
-        "types": {
-          "text": "Texto",
-          "number": "Número",
-          "bool": "Sim / Não",
-          "date": "Data"
-        }
-      }
+      "instr": {
+        "required": "Obrigatório:",
+        "optional": "Opcional:",
+        "yourFields": "e seus campos",
+        "fewer": "ver menos",
+        "more": "+{count} mais",
+        "tableRule": "Colunas de tabelas personalizadas usam um único padrão:",
+        "forExample": "por exemplo",
+        "mapHint": "Abra um arquivo para ligar as colunas aos seus campos. Você também pode definir um valor fixo igual para todas as linhas."
+      },
+      "map": {
+        "title": "Ligue suas colunas",
+        "summary": "{mapped} de {total} colunas ligadas",
+        "reset": "Redefinir",
+        "phoneRequired": "Escolha qual coluna tem o telefone.",
+        "notImported": "Não importadas",
+        "createFieldHint": "Criar um campo chamado \"{name}\" e importar esta coluna",
+        "createFieldNote": "Clique em uma coluna para criar um novo campo a partir dela.",
+        "createMissing": "Criar linhas de tabela que faltam",
+        "createMissingHint": "Uma linha é encontrada pelo nome; se ainda não existir, é adicionada à tabela.",
+        "otherMapped": "{count, plural, one {+ # campo ligado a mais é importado} other {+ # campos ligados a mais são importados}}",
+        "tagsPlaceholder": "tag, outra tag",
+        "valuePlaceholder": "Valor…",
+        "columnN": "Coluna {n}",
+        "fixedValue": "Valor fixo",
+        "fixedValueAll": "Mesmo valor para todas as linhas…",
+        "skip": "Ignorar",
+        "inUse": "(já usada)",
+        "kind": {
+          "core_text": "Texto",
+          "tags": "Tags"
+        },
+        "tagsEveryone": "Adicionar também estas tags a todos os contatos",
+        "addTagsEveryone": "Adicionar tags a todos os contatos",
+        "fallbackLabel": "Quando a célula estiver vazia, usar",
+        "addFallback": "Padrão para células vazias",
+        "tableBadge": "Tabela",
+        "mappedCount": "{count} ligadas",
+        "showMore": "Mostrar mais {count} campos",
+        "showFewer": "Mostrar menos campos"
+      },
+      "toastFieldCreated": "Campo \"{name}\" criado.",
+      "errorNoLabelColumn": "Ligue também a coluna de nome da tabela, para encontrar ou criar linhas.",
+      "errorTableRow": "Não foi possível encontrar nem criar a linha da tabela.",
+      "resultTableRows": "{count, plural, one {# linha de tabela criada} other {# linhas de tabela criadas}}"
     },
     "customFields": {
       "title": "Campos personalizados",
@@ -849,7 +886,11 @@
         "enum": "Escolha",
         "multi_enum": "Escolha múltipla",
         "reference": "Referência",
-        "media": "Mídia (arquivo)"
+        "media": "Mídia (arquivo)",
+        "url": "Link (URL)",
+        "phone": "Telefone",
+        "email": "E-mail",
+        "datetime": "Data e hora"
       },
       "optionsLabel": "Opções",
       "optionsPlaceholder": "Opções separadas por vírgulas (Ouro, Prata, Platina)",
@@ -862,7 +903,6 @@
         "currency": "Moeda",
         "percent": "Percentual"
       },
-      "showAsColumn": "Mostrar como coluna em Contatos",
       "toastArchived": "\"{name}\" foi arquivado. Os valores dele foram mantidos.",
       "acceptLabel": "Arquivos permitidos",
       "accept": {
@@ -875,6 +915,32 @@
       "dragHandle": "Arraste para reordenar: {name}",
       "dragHint": "Arraste para reordenar",
       "toastReorderFailed": "Não foi possível salvar a nova ordem."
+    },
+    "tagEditor": {
+      "add": "Adicionar tag",
+      "search": "Pesquisar tags…",
+      "noTags": "Ainda não há tags. Crie tags em Configurações.",
+      "noMore": "Não há mais tags para adicionar.",
+      "failed": "Não foi possível atualizar a tag.",
+      "removed": "\"{tag}\" removida.",
+      "removeAria": "Remover tag {tag}",
+      "remove": {
+        "title": "Remover \"{tag}\" de {contact}?",
+        "subtitle": "Veja primeiro o que depende desta tag.",
+        "checking": "Verificando o que usa esta tag…",
+        "checkFailed": "Não foi possível verificar o que usa esta tag. Você ainda pode removê-la.",
+        "nothingUses": "Nenhum segmento, automação, fluxo ou transmissão aberta usa esta tag.",
+        "usedBy": "Esta tag é usada por",
+        "segments": "{count, plural, one {# segmento salvo} other {# segmentos salvos}}",
+        "automations": "{count, plural, one {# automação ativa} other {# automações ativas}}",
+        "flows": "{count, plural, one {# fluxo de chatbot ativo} other {# fluxos de chatbot ativos}}",
+        "broadcasts": "{count, plural, one {# transmissão em rascunho ou agendada} other {# transmissões em rascunho ou agendadas}}",
+        "andMore": "{count, plural, one {e mais #} other {e mais #}}",
+        "effect": "{contact} pode deixar de corresponder a esses segmentos e automações e ficar de fora dessas transmissões.",
+        "safe": "Só este contato perde a tag. A tag e seus outros contatos não são afetados, e você pode adicioná-la de volta quando quiser.",
+        "cancel": "Cancelar",
+        "confirm": "Remover tag"
+      }
     }
   },
   "Pipelines": {

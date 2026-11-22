@@ -13,7 +13,6 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Checkbox } from '@/components/ui/checkbox';
 import {
   Select,
   SelectContent,
@@ -97,7 +96,6 @@ export function CustomFieldsPanel() {
   const [tableKey, setTableKey] = useState('');
   const [numberFormat, setNumberFormat] = useState('plain');
   const [mediaAccept, setMediaAccept] = useState<MediaAccept>('any');
-  const [showAsColumn, setShowAsColumn] = useState(false);
   const [creating, setCreating] = useState(false);
 
   const fetchFields = useCallback(async () => {
@@ -149,7 +147,6 @@ export function CustomFieldsPanel() {
         name,
         type: newType,
         options: buildOptions(),
-        show_in_table: showAsColumn,
       }),
     });
     const data = await res.json().catch(() => ({}));
@@ -164,7 +161,6 @@ export function CustomFieldsPanel() {
     setTableKey('');
     setNumberFormat('plain');
     setMediaAccept('any');
-    setShowAsColumn(false);
     await fetchFields();
   }
 
@@ -344,11 +340,6 @@ export function CustomFieldsPanel() {
             </SelectContent>
           </Select>
         )}
-
-        <label className="flex cursor-pointer items-center gap-2 text-sm text-muted-foreground">
-          <Checkbox checked={showAsColumn} onCheckedChange={(c) => setShowAsColumn(c === true)} />
-          {t('showAsColumn')}
-        </label>
       </div>
 
       {/* List */}

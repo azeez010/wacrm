@@ -9,6 +9,26 @@ Versions follow [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Pre-1.0, `MINOR` bumps cover new modules; `PATCH` bumps cover bug fixes
 and polish.
 
+## [Unreleased, next]
+
+> **Migration required:** apply `074_more_field_types.sql`.
+
+### Added
+
+- **New field types:** link (URL), phone, email and date and time, for contact fields and custom table columns. Date and time is entered and shown in the account time zone.
+- **Tags:** a + to add and an x to remove a tag, in the contact detail and in the Contacts table. Removing asks first and lists what uses the tag (segments, active automations and flows, open broadcasts).
+- **Columns:** a custom field that points at a custom table can be expanded in the Columns menu to pick that table's own columns. Values load in one round trip and are cached for instant paging.
+- **CSV import:** match any CSV column to any field (including `field.column` for custom-table columns), set a fixed value for every row or a default for blank cells, and create fields from unmatched columns. Missing table rows can be created automatically.
+
+### Changed
+
+- Removed the unused "Show as a column" option when adding a field.
+- Table columns can now be named "name", "phone" and so on (reserved names only apply to contact fields).
+
+### Fixed
+
+- Editing or deleting a custom table by its key (API) now acts on the right table.
+
 ## [Unreleased]
 
 Typed custom fields, custom tables and segments.

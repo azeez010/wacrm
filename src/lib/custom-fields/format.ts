@@ -26,6 +26,8 @@ export function formatFieldValue(
     defaultCurrency?: string
     locale?: string
     resolveReference?: (id: string) => string | undefined
+    /** IANA zone used to show moments in time (account time zone). */
+    timeZone?: string
     yes?: string
     no?: string
   } = {},
@@ -48,9 +50,16 @@ export function formatFieldValue(
       const d = new Date(value)
       if (Number.isNaN(d.getTime())) return value
       return o.include_time
-        ? d.toLocaleString(opts.locale, { dateStyle: 'medium', timeStyle: 'short' })
+        ? d.toLocaleString(opts.locale, { dateStyle: 'medium', timeStyle: 'short', timeZone: opts.timeZone })
         : d.toLocaleDateString(opts.locale, { dateStyle: 'medium', timeZone: 'UTC' })
     }
+    case 'datetime': {
+      const d = new Date(value)
+      if (Number.isNaN(d.getTime())) return value
+      return d.toLocaleString(opts.locale, { dateStyle: 'medium', timeStyle: 'short', timeZone: opts.timeZone })
+    }
+    case 'url':
+      return value.replace(/^https?:\/\//i, '').replace(/\/$/, '')
     case 'multi_enum':
       return parseMultiValue(value).join(', ')
     case 'media': {

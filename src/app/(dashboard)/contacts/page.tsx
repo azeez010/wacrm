@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { Suspense, useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { toast } from 'sonner';
 import type { Contact, Tag, ContactTag, CustomField } from '@/types';
@@ -67,9 +68,25 @@ import { pageAfterRangeError, pageAfterShrink } from '@/lib/contacts/page-bounds
 import { formatFieldValue } from '@/lib/custom-fields/format';
 import { buildContactsCsv } from '@/lib/contacts/export-csv';
 import { MediaCell } from '@/components/custom-fields/media-cell';
+import { LinkCell, isLinkType } from '@/components/custom-fields/link-cell';
+import { ContactTagEditor } from '@/components/contacts/contact-tag-editor';
+import {
+  clearTableMetaCache,
+  fetchColumnValues,
+  loadTableMeta,
+  parseColumnPrefs,
+  peekTableMeta,
+  readCached,
+  splitSubColumnId,
+  subColumnId,
+  valueCache,
+  type TableColumnMeta,
+  type TableMetaByKey,
+  type ValuesByContact,
+} from '@/lib/contacts/column-cache';
 import type { FieldDef } from '@/lib/custom-fields/types';
 import { useAuth } from '@/hooks/use-auth';
-import { ArrowDown, ArrowUp, Columns3, Download, RefreshCw } from 'lucide-react';
+import { ArrowDown, ArrowUp, ChevronDown, Columns3, Download, RefreshCw } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { BulkActionsMenu, type BulkAction } from '@/components/contacts/bulk-actions-menu';
 import { BulkTagDialog } from '@/components/contacts/bulk-tag-dialog';
@@ -97,6 +114,8 @@ interface ColumnPrefs {
   hidden: BuiltinColumn[];
   /** Custom field ids the user picked; null = use the defaults. */
   custom: string[] | null;
+  /** "<fieldId>:<columnKey>" sub-columns of custom-table reference fields. */
+  refCols?: string[];
 }
 
 interface ContactWithTags extends Contact {
@@ -121,7 +140,17 @@ function SortButton({
   );
 }
 
+// `useSearchParams` needs a Suspense boundary (see settings/page.tsx).
 export default function ContactsPage() {
+  return (
+    <Suspense fallback={null}>
+      <ContactsPageInner />
+    </Suspense>
+  );
+}
+
+function ContactsPageInner() {
+  const searchParams = useSearchParams();
   const t = useTranslations('Contacts.page');
   const tGate = useTranslations('GatedButton');
   const supabase = createClient();
@@ -164,6 +193,7 @@ export default function ContactsPage() {
   // After a refresh or a bulk action the selection should survive: when this
   // timestamp is in the future the next fetches keep (and prune) the selection.
   const keepSelectionUntil = useRef(0);
+  const tableMetaForce = useRef(false);
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
 
   // All tags for display
@@ -171,11 +201,12 @@ export default function ContactsPage() {
 
   // Custom-field columns. Which ones show is a per-browser preference
   // (localStorage); a field's "Show as column" flag provides the default.
-  const { accountId, defaultCurrency } = useAuth();
+  const { accountId, defaultCurrency, accountTimezone } = useAuth();
   const [fieldDefs, setFieldDefs] = useState<CustomField[]>([]);
-  const [colPrefs, setColPrefs] = useState<ColumnPrefs>({ hidden: [], custom: null });
-  const [valuesByContact, setValuesByContact] = useState<Record<string, Record<string, string>>>({});
-  const [refLabels, setRefLabels] = useState<Record<string, string>>({});
+  const [colPrefs, setColPrefs] = useState<ColumnPrefs>({ hidden: [], custom: null, refCols: [] });
+  const [valuesByContact, setValuesByContact] = useState<ValuesByContact>({});
+  const [tableMeta, setTableMeta] = useState<TableMetaByKey>({});
+  const [expandedFields, setExpandedFields] = useState<Set<string>>(new Set());
   const [exporting, setExporting] = useState(false);
   const prefsKey = accountId ? `wacrm:contact-columns:${accountId}` : null;
 
@@ -366,7 +397,7 @@ export default function ContactsPage() {
     try {
       const raw = window.localStorage.getItem(prefsKey);
       // eslint-disable-next-line react-hooks/set-state-in-effect
-      if (raw) setColPrefs(JSON.parse(raw) as ColumnPrefs);
+      if (raw) setColPrefs(parseColumnPrefs(raw) as ColumnPrefs);
     } catch {
       /* storage unavailable or corrupt: keep defaults */
     }
@@ -387,55 +418,103 @@ export default function ContactsPage() {
     return fieldDefs.filter((f) => f.show_in_table && live.has(f.id)).slice(0, DEFAULT_CUSTOM_COLUMNS);
   }, [fieldDefs, colPrefs.custom]);
 
-  const visibleCustomKey = visibleCustom.map((f) => f.id).join(',');
-
-  // Fetch the values for the visible custom columns of the current page.
+  // Pre-load the columns of every custom table a field points at, as soon as the
+  // field definitions are known, so the Columns accordion never waits on a click.
   useEffect(() => {
-    if (visibleCustom.length === 0 || contacts.length === 0) {
+    if (!accountId) return;
+    const keys = fieldDefs
+      .filter((f) => f.field_type === 'reference')
+      .map((f) => (f.field_options as { table_key?: string } | undefined)?.table_key)
+      .filter((k): k is string => !!k);
+    if (keys.length === 0) return;
+    const instant = peekTableMeta(accountId);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (instant) setTableMeta(instant);
+    let cancelled = false;
+    void loadTableMeta(supabase, accountId, keys, tableMetaForce.current)
+      .then((m) => {
+        tableMetaForce.current = false;
+        if (!cancelled) setTableMeta(m);
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, [supabase, accountId, fieldDefs]);
+
+  /** Sub-columns picked in the accordion, resolved against live fields and table metadata. */
+  const visibleSubCols = useMemo(() => {
+    const out: { id: string; field: CustomField; column: TableColumnMeta }[] = [];
+    for (const id of colPrefs.refCols ?? []) {
+      const parts = splitSubColumnId(id);
+      if (!parts) continue;
+      const field = fieldDefs.find((f) => f.id === parts.fieldId);
+      const meta = field ? tableMeta[(field.field_options as { table_key?: string } | undefined)?.table_key ?? ''] : undefined;
+      const column = meta?.columns.find((c) => c.key === parts.columnKey);
+      if (field && column) out.push({ id, field, column });
+    }
+    return out;
+  }, [colPrefs.refCols, fieldDefs, tableMeta]);
+
+  /** One ordered list of custom columns: a field, then its picked sub-columns. */
+  const customColumns = useMemo(() => {
+    const cols: (
+      | { id: string; kind: 'field'; field: CustomField }
+      | { id: string; kind: 'sub'; field: CustomField; column: TableColumnMeta }
+    )[] = [];
+    for (const f of fieldDefs) {
+      if (visibleCustom.some((v) => v.id === f.id)) cols.push({ id: f.id, kind: 'field', field: f });
+      for (const sc of visibleSubCols) {
+        if (sc.field.id === f.id) cols.push({ id: sc.id, kind: 'sub', field: f, column: sc.column });
+      }
+    }
+    return cols;
+  }, [fieldDefs, visibleCustom, visibleSubCols]);
+
+  // Field ids whose values the table needs (the main columns and every field with a sub-column).
+  const neededFieldIds = useMemo(
+    () => [...new Set(customColumns.map((c) => c.field.id))],
+    [customColumns]
+  );
+  const neededKey = neededFieldIds.join(',');
+
+  // Custom values for the current page: paint from the cache instantly, then
+  // revalidate with ONE round trip (values + referenced row label/data together).
+  useEffect(() => {
+    if (neededFieldIds.length === 0 || contacts.length === 0) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setValuesByContact({});
       return;
     }
+    const ids = contacts.map((c) => c.id);
+    setValuesByContact(readCached(valueCache, ids, neededFieldIds));
     let cancelled = false;
-    void (async () => {
-      const { data } = await supabase
-        .from('contact_custom_values')
-        .select('contact_id, custom_field_id, value')
-        .in('contact_id', contacts.map((c) => c.id))
-        .in('custom_field_id', visibleCustom.map((f) => f.id));
-      if (cancelled) return;
-      const map: Record<string, Record<string, string>> = {};
-      for (const v of data ?? []) {
-        (map[v.contact_id] ??= {})[v.custom_field_id] = v.value ?? '';
-      }
-      setValuesByContact(map);
-
-      const refFieldIds = new Set(visibleCustom.filter((f) => f.field_type === 'reference').map((f) => f.id));
-      const refIds = [
-        ...new Set(
-          (data ?? []).filter((v) => refFieldIds.has(v.custom_field_id) && v.value).map((v) => v.value as string)
-        ),
-      ];
-      if (refIds.length > 0) {
-        const { data: recs } = await supabase.from('custom_records').select('id, label').in('id', refIds);
-        if (!cancelled) {
-          setRefLabels((prev) => ({
-            ...prev,
-            ...Object.fromEntries((recs ?? []).map((r) => [r.id as string, r.label as string])),
-          }));
-        }
-      }
-    })();
+    void fetchColumnValues(supabase, ids, neededFieldIds)
+      .then((fresh) => {
+        if (!cancelled) setValuesByContact(fresh);
+      })
+      .catch(() => undefined);
     return () => {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [supabase, contacts, visibleCustomKey]);
+  }, [supabase, contacts, neededKey]);
 
   const isShown = (c: BuiltinColumn) => !colPrefs.hidden.includes(c);
-  const customCount = visibleCustom.length;
+  const customCount = customColumns.length;
   // checkbox + name + phone + actions, plus the optional columns
   const colCount = 4 + BUILTIN_COLUMNS.filter(isShown).length + customCount;
+
+  // Dashboard "New contact" links here with ?new=1: open the add form once,
+  // then drop the param so a refresh doesn't reopen it.
+  const wantsNew = searchParams.get('new') === '1';
+  useEffect(() => {
+    if (!wantsNew || !canEdit) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    openAddForm();
+    router.replace('/contacts');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [wantsNew, canEdit]);
 
   function openAddForm() {
     setEditContact(null);
@@ -628,40 +707,43 @@ export default function ContactsPage() {
 
       const tagNamesByContact: Record<string, string[]> = {};
       const valuesByContact: Record<string, Record<string, string>> = {};
-      const refIds = new Set<string>();
-      const refFieldIds = new Set(fieldDefs.filter((f) => f.field_type === 'reference').map((f) => f.id));
+      const refLabels: Record<string, string> = {};
+      const fieldIdList = fieldDefs.map((f) => f.id);
+      const toText = (raw: unknown): string =>
+        raw === null || raw === undefined ? '' : Array.isArray(raw) ? (raw.length ? JSON.stringify(raw) : '') : String(raw);
       for (let i = 0; i < all.length; i += 100) {
         const ids = all.slice(i, i + 100).map((c) => c.id);
-        const [{ data: ct }, { data: vals }] = await Promise.all([
+        const [{ data: ct }, cells] = await Promise.all([
           supabase.from('contact_tags').select('contact_id, tag_id').in('contact_id', ids),
-          fieldDefs.length > 0
-            ? supabase
-                .from('contact_custom_values')
-                .select('contact_id, custom_field_id, value')
-                .in('contact_id', ids)
-                .in('custom_field_id', fieldDefs.map((f) => f.id))
-            : Promise.resolve({ data: [] as { contact_id: string; custom_field_id: string; value: string | null }[] }),
+          // one round trip: values plus referenced row label/data
+          fetchColumnValues(supabase, ids, fieldIdList),
         ]);
         for (const row of ct ?? []) {
           const name = tagsMap[row.tag_id]?.name;
           if (name) (tagNamesByContact[row.contact_id] ??= []).push(name);
         }
-        for (const v of vals ?? []) {
-          (valuesByContact[v.contact_id] ??= {})[v.custom_field_id] = v.value ?? '';
-          if (refFieldIds.has(v.custom_field_id) && v.value) refIds.add(v.value);
+        for (const [contactId, byField] of Object.entries(cells)) {
+          for (const [fieldId, cell] of Object.entries(byField)) {
+            (valuesByContact[contactId] ??= {})[fieldId] = cell.value;
+            if (cell.refLabel !== null) refLabels[cell.value] = cell.refLabel;
+          }
+          for (const sc of visibleSubCols) {
+            const cell = byField[sc.field.id];
+            if (cell?.refData) (valuesByContact[contactId] ??= {})[sc.id] = toText(cell.refData[sc.column.key]);
+          }
         }
-      }
-
-      const refLabels: Record<string, string> = {};
-      const refList = [...refIds];
-      for (let i = 0; i < refList.length; i += 100) {
-        const { data: recs } = await supabase.from('custom_records').select('id, label').in('id', refList.slice(i, i + 100));
-        for (const r of recs ?? []) refLabels[r.id as string] = r.label as string;
       }
 
       const csv = buildContactsCsv({
         contacts: all,
-        fields: fieldDefs.map((f) => ({ id: f.id, field_name: f.field_name, field_type: f.field_type as FieldDef['field_type'] })),
+        fields: [
+          ...fieldDefs.map((f) => ({ id: f.id, field_name: f.field_name, field_type: f.field_type as FieldDef['field_type'] })),
+          ...visibleSubCols.map((sc) => ({
+            id: sc.id,
+            field_name: `${sc.field.field_name}.${sc.column.key}`,
+            field_type: sc.column.type as FieldDef['field_type'],
+          })),
+        ],
         tagNamesByContact,
         valuesByContact,
         referenceLabel: (id) => refLabels[id],
@@ -705,6 +787,8 @@ export default function ContactsPage() {
   /** Reload rows, tags, segments and field definitions, keeping the selection. */
   function refresh() {
     keepSelectionUntil.current = Date.now() + 4000;
+    if (accountId) clearTableMetaCache(accountId);
+    tableMetaForce.current = true;
     setFieldsRefreshKey((k) => k + 1);
     void fetchTags();
     void loadSegments();
@@ -1004,20 +1088,88 @@ export default function ContactsPage() {
                 )}
                 {fieldDefs.map((f) => {
                   const on = visibleCustom.some((v) => v.id === f.id);
+                  const tableKey = f.field_type === 'reference' ? (f.field_options as { table_key?: string } | undefined)?.table_key : undefined;
+                  const meta = tableKey ? tableMeta[tableKey] : undefined;
+                  const open = expandedFields.has(f.id);
+                  const pickedHere = (colPrefs.refCols ?? []).filter((id) => id.startsWith(`${f.id}:`)).length;
                   return (
-                    <label key={f.id} className="flex cursor-pointer items-center gap-2 px-3 py-1.5 text-sm hover:bg-muted">
-                      <Checkbox
-                        checked={on}
-                        onCheckedChange={(checked) => {
-                          const current = visibleCustom.map((v) => v.id);
-                          updatePrefs({
-                            ...colPrefs,
-                            custom: checked ? [...current, f.id] : current.filter((id) => id !== f.id),
-                          });
-                        }}
-                      />
-                      <span className="truncate">{f.field_name}</span>
-                    </label>
+                    <div key={f.id}>
+                      <div className="flex items-center hover:bg-muted">
+                        <label className="flex min-w-0 flex-1 cursor-pointer items-center gap-2 px-3 py-1.5 text-sm">
+                          <Checkbox
+                            checked={on}
+                            onCheckedChange={(checked) => {
+                              const current = visibleCustom.map((v) => v.id);
+                              updatePrefs({
+                                ...colPrefs,
+                                custom: checked ? [...current, f.id] : current.filter((id) => id !== f.id),
+                              });
+                            }}
+                          />
+                          <span className="truncate">{f.field_name}</span>
+                          {tableKey && (
+                            <span className="shrink-0 rounded bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">
+                              {t('columns.tableBadge')}
+                            </span>
+                          )}
+                        </label>
+                        {tableKey && (
+                          <button
+                            type="button"
+                            aria-expanded={open}
+                            aria-label={t('columns.expandTable', { name: f.field_name })}
+                            onClick={() =>
+                              setExpandedFields((prev) => {
+                                const next = new Set(prev);
+                                if (next.has(f.id)) next.delete(f.id);
+                                else next.add(f.id);
+                                return next;
+                              })
+                            }
+                            className="mr-1 flex items-center gap-1 rounded px-1.5 py-1 text-muted-foreground hover:text-foreground"
+                          >
+                            {pickedHere > 0 && (
+                              <span className="rounded-full bg-primary px-1.5 text-[10px] font-semibold text-primary-foreground">
+                                {pickedHere}
+                              </span>
+                            )}
+                            <ChevronDown className={`size-3.5 transition-transform ${open ? 'rotate-180' : ''}`} />
+                          </button>
+                        )}
+                      </div>
+                      {tableKey && open && (
+                        <div className="border-l border-border bg-muted/30 py-1 pl-6">
+                          {!meta ? (
+                            <p className="px-3 py-1.5 text-xs text-muted-foreground">{t('columns.loadingTable')}</p>
+                          ) : (
+                            meta.columns
+                              .filter((c) => c.type !== 'reference')
+                              .map((c) => {
+                                const id = subColumnId(f.id, c.key);
+                                const picked = (colPrefs.refCols ?? []).includes(id);
+                                return (
+                                  <label key={c.key} className="flex cursor-pointer items-center gap-2 px-3 py-1 text-sm hover:bg-muted">
+                                    <Checkbox
+                                      checked={picked}
+                                      onCheckedChange={(checked) => {
+                                        const current = colPrefs.refCols ?? [];
+                                        updatePrefs({
+                                          ...colPrefs,
+                                          refCols: checked ? [...current, id] : current.filter((x) => x !== id),
+                                        });
+                                      }}
+                                    />
+                                    <span className="truncate">{c.name}</span>
+                                    {c.key === meta.labelKey && (
+                                      <span className="shrink-0 text-[10px] text-muted-foreground">{t('columns.labelColumn')}</span>
+                                    )}
+                                  </label>
+                                );
+                              })
+                          )}
+                        </div>
+                      )}
+                    </div>
                   );
                 })}
               </div>
@@ -1117,13 +1269,23 @@ export default function ContactsPage() {
               {isShown('email') && <TableHead className="text-muted-foreground hidden md:table-cell">{t('tableColumns.email')}</TableHead>}
               {isShown('company') && <TableHead className={`text-muted-foreground hidden ${customCount > 0 ? 'xl:table-cell' : 'lg:table-cell'}`}>{t('tableColumns.company')}</TableHead>}
               {isShown('tags') && <TableHead className="text-muted-foreground hidden md:table-cell">{t('tableColumns.tags')}</TableHead>}
-              {visibleCustom.map((f) => (
-                <TableHead key={f.id} title={f.field_name} className="text-muted-foreground max-w-[130px] truncate px-2">
-                  <SortButton active={sort?.field === `cf:${f.id}` ? sort.dir : null} onClick={() => toggleSort(`cf:${f.id}`)}>
-                    {f.field_name}
-                  </SortButton>
-                </TableHead>
-              ))}
+              {customColumns.map((col) =>
+                col.kind === 'field' ? (
+                  <TableHead key={col.id} title={col.field.field_name} className="text-muted-foreground max-w-[130px] truncate px-2">
+                    <SortButton active={sort?.field === `cf:${col.field.id}` ? sort.dir : null} onClick={() => toggleSort(`cf:${col.field.id}`)}>
+                      {col.field.field_name}
+                    </SortButton>
+                  </TableHead>
+                ) : (
+                  <TableHead
+                    key={col.id}
+                    title={`${col.field.field_name} › ${col.column.name}`}
+                    className="text-muted-foreground max-w-[130px] truncate px-2"
+                  >
+                    {col.field.field_name} <span className="text-muted-foreground/70">› {col.column.name}</span>
+                  </TableHead>
+                )
+              )}
               {isShown('created') && <TableHead className={`text-muted-foreground hidden ${customCount > 0 ? 'xl:table-cell' : 'lg:table-cell'}`}>{t('tableColumns.createdAt')}</TableHead>}
               <TableHead className="text-muted-foreground w-12" />
             </TableRow>
@@ -1195,48 +1357,63 @@ export default function ContactsPage() {
                     </TableCell>
                   )}
                   {isShown('tags') && (
-                  <TableCell className="hidden md:table-cell">
-                    <div className="flex flex-wrap gap-1">
-                      {contact.tags && contact.tags.length > 0 ? (
-                        contact.tags.slice(0, 3).map((tag) => (
-                          <span
-                            key={tag.id}
-                            className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium"
-                            style={{
-                              backgroundColor: tag.color + '20',
-                              color: tag.color,
-                            }}
-                          >
-                            {tag.name}
-                          </span>
-                        ))
-                      ) : (
-                        <span className="text-muted-foreground text-xs">-</span>
-                      )}
-                      {contact.tags && contact.tags.length > 3 && (
-                        <span className="text-[10px] text-muted-foreground">
-                          +{contact.tags.length - 3}
-                        </span>
-                      )}
-                    </div>
+                  <TableCell className="hidden md:table-cell" onClick={(e) => e.stopPropagation()}>
+                    <ContactTagEditor
+                      compact
+                      contactId={contact.id}
+                      contactName={contact.name || contact.phone}
+                      tags={contact.tags ?? []}
+                      allTags={allTags}
+                      canEdit={canEdit}
+                      onChange={(next) =>
+                        setContacts((prev) => prev.map((c) => (c.id === contact.id ? { ...c, tags: next } : c)))
+                      }
+                    />
                   </TableCell>
                   )}
-                  {visibleCustom.map((f) => {
-                    const raw = valuesByContact[contact.id]?.[f.id] ?? '';
-                    const text = formatFieldValue(f as FieldDef, raw, {
+                  {customColumns.map((col) => {
+                    const cell = valuesByContact[contact.id]?.[col.field.id];
+                    // A field shows its own value; a sub-column reads the referenced row's data.
+                    const subRaw =
+                      col.kind === 'sub' ? cell?.refData?.[col.column.key] : undefined;
+                    const raw =
+                      col.kind === 'field'
+                        ? (cell?.value ?? '')
+                        : subRaw === null || subRaw === undefined
+                          ? ''
+                          : Array.isArray(subRaw)
+                            ? subRaw.length
+                              ? JSON.stringify(subRaw)
+                              : ''
+                            : String(subRaw);
+                    const type = col.kind === 'field' ? col.field.field_type : col.column.type;
+                    const def =
+                      col.kind === 'field'
+                        ? (col.field as FieldDef)
+                        : ({
+                            id: col.id,
+                            key: col.column.key,
+                            field_name: col.column.name,
+                            field_type: col.column.type,
+                            field_options: col.column.options,
+                          } as FieldDef);
+                    const text = formatFieldValue(def, raw, {
                       defaultCurrency,
-                      resolveReference: (id) => refLabels[id],
+                      timeZone: accountTimezone,
+                      resolveReference: () => cell?.refLabel ?? undefined,
                       yes: t('yes'),
                       no: t('no'),
                     });
                     return (
                       <TableCell
-                        key={f.id}
+                        key={col.id}
                         title={text || undefined}
                         className="text-muted-foreground max-w-[130px] truncate px-2 text-sm"
                       >
-                        {f.field_type === 'media' ? (
+                        {type === 'media' ? (
                           <MediaCell value={raw} />
+                        ) : isLinkType(type) ? (
+                          <LinkCell type={type} value={raw} />
                         ) : (
                           text || <span className="text-muted-foreground">-</span>
                         )}

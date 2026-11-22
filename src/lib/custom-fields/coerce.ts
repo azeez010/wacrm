@@ -1,3 +1,4 @@
+import { parseInternationalPhone } from '@/lib/whatsapp/phone-utils'
 import { acceptsMime, kindFromMime, mediaBelongsToAccount, MEDIA_FIELD_MAX_BYTES, parseMediaValue } from './media'
 import {
   MAX_OPTIONS,
@@ -91,6 +92,50 @@ function parseDate(raw: unknown, includeTime: boolean): string | null {
   return d.toISOString()
 }
 
+/**
+ * A moment in time: ISO with Z / an offset, or a bare "YYYY-MM-DDTHH:mm"
+ * which is read as UTC (the form converts the account-time-zone input to a
+ * real instant before it gets here, see datetime-tz.ts).
+ */
+function parseDateTime(raw: unknown): string | null {
+  if (raw instanceof Date) return Number.isNaN(raw.getTime()) ? null : raw.toISOString()
+  if (typeof raw !== 'string') return null
+  let s = raw.trim().replace(' ', 'T')
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) s += 'T00:00:00Z'
+  if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(s)) return null
+  if (!/(Z|[+-]\d{2}:?\d{2})$/i.test(s)) s += 'Z'
+  const d = new Date(s)
+  return Number.isNaN(d.getTime()) ? null : d.toISOString()
+}
+
+/** "example.com" becomes https://example.com; only http(s) links with a real host pass. */
+export function normalizeUrl(raw: string): string | null {
+  const s = raw.trim()
+  if (!s || s.length > 2000 || /\s/.test(s)) return null
+  const withScheme = /^[a-z][a-z0-9+.-]*:\/\//i.test(s) ? s : `https://${s}`
+  try {
+    const u = new URL(withScheme)
+    if (u.protocol !== 'http:' && u.protocol !== 'https:') return null
+    if (!u.hostname.includes('.') && u.hostname !== 'localhost') return null
+    return u.href
+  } catch {
+    return null
+  }
+}
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
+
+export function normalizeEmail(raw: string): string | null {
+  const s = raw.trim().toLowerCase()
+  return s.length <= 254 && EMAIL_RE.test(s) ? s : null
+}
+
+/** International number with a leading +; stored as +digits. */
+export function normalizePhoneValue(raw: string): string | null {
+  const digits = parseInternationalPhone(raw)
+  return digits ? `+${digits}` : null
+}
+
 function matchOption(options: string[], raw: string): string | null {
   const wanted = raw.trim().toLowerCase()
   return options.find((o) => o.toLowerCase() === wanted) ?? null
@@ -173,6 +218,26 @@ export function coerceValue(
       const iso = parseDate(raw, Boolean(opts.include_time))
       if (!iso) return fail(`${field.field_name} must be a valid date (YYYY-MM-DD)`)
       return done(iso, { value_date: iso })
+    }
+    case 'datetime': {
+      const iso = parseDateTime(raw)
+      if (!iso) return fail(`${field.field_name} must be a valid date and time`)
+      return done(iso, { value_date: iso })
+    }
+    case 'url': {
+      const u = normalizeUrl(String(raw))
+      if (!u) return fail(`${field.field_name} must be a valid web link (https://...)`)
+      return done(u)
+    }
+    case 'email': {
+      const e = normalizeEmail(String(raw))
+      if (!e) return fail(`${field.field_name} must be a valid email address`)
+      return done(e)
+    }
+    case 'phone': {
+      const p = normalizePhoneValue(String(raw))
+      if (!p) return fail(`${field.field_name} must be an international number starting with + (e.g. +14155550123)`)
+      return done(p)
     }
     case 'enum': {
       const match = matchOption(opts.options ?? [], String(raw))

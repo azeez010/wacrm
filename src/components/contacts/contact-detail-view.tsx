@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { addContactTag, deleteContactTag } from '@/lib/contacts/tag-api';
 import { useAuth } from '@/hooks/use-auth';
 import { formatCurrency } from '@/lib/currency';
 import { toast } from 'sonner';
@@ -45,6 +44,7 @@ import { planTypedValueWrites } from '@/lib/custom-fields/value-writes';
 import type { FieldDef } from '@/lib/custom-fields/types';
 import { CustomFieldInput } from '@/components/custom-fields/custom-field-input';
 import { BulkDealDialog } from '@/components/contacts/bulk-deal-dialog';
+import { ContactTagEditor } from '@/components/contacts/contact-tag-editor';
 import { contactHandle } from '@/lib/whatsapp/wa-identity';
 import { parseInternationalPhone } from '@/lib/whatsapp/phone-utils';
 
@@ -86,7 +86,6 @@ export function ContactDetailView({
   // Tags tab
   const [allTags, setAllTags] = useState<Tag[]>([]);
   const [contactTagIds, setContactTagIds] = useState<string[]>([]);
-  const [savingTags, setSavingTags] = useState(false);
 
   // Notes tab
   const [notes, setNotes] = useState<ContactNote[]>([]);
@@ -246,27 +245,6 @@ export function ContactDetailView({
       onUpdated();
     }
     setSavingDetails(false);
-  }
-
-  async function toggleTag(tagId: string) {
-    if (!contactId) return;
-    setSavingTags(true);
-
-    const isSelected = contactTagIds.includes(tagId);
-
-    try {
-      if (isSelected) {
-        await deleteContactTag(contactId, tagId);
-        setContactTagIds((prev) => prev.filter((id) => id !== tagId));
-      } else {
-        await addContactTag(contactId, tagId);
-        setContactTagIds((prev) => [...prev, tagId]);
-      }
-      onUpdated();
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : t('toastUpdateFailed'));
-    }
-    setSavingTags(false);
   }
 
   async function addNote() {
@@ -594,38 +572,19 @@ export function ContactDetailView({
               {/* Tags Tab */}
               <TabsContent value="tags" className="flex-1 overflow-y-auto px-4 py-3">
                 <div className="space-y-3">
-                  <p className="text-xs text-muted-foreground">
-                    {t('tagsTab.clickTagDesc')}
-                  </p>
-                  {allTags.length === 0 ? (
-                    <p className="text-sm text-muted-foreground">
-                      {t('tagsTab.noTagsAvailable')}
-                    </p>
-                  ) : (
-                    <div className="flex flex-wrap gap-2">
-                      {allTags.map((tag) => {
-                        const selected = contactTagIds.includes(tag.id);
-                        return (
-                          <button
-                            key={tag.id}
-                            onClick={() => toggleTag(tag.id)}
-                            disabled={savingTags}
-                            className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium transition-all cursor-pointer ${
-                              selected
-                                ? 'ring-2 ring-primary ring-offset-1 ring-offset-border'
-                                : 'opacity-50 hover:opacity-80'
-                            }`}
-                            style={{
-                              backgroundColor: tag.color + '20',
-                              color: tag.color,
-                            }}
-                          >
-                            {selected && <Check className="size-3 mr-1" />}
-                            {tag.name}
-                          </button>
-                        );
-                      })}
-                    </div>
+                  <p className="text-xs text-muted-foreground">{t('tagsTab.manageDesc')}</p>
+                  {contact && (
+                    <ContactTagEditor
+                      contactId={contact.id}
+                      contactName={contact.name || contact.phone}
+                      tags={allTags.filter((tg) => contactTagIds.includes(tg.id))}
+                      allTags={allTags}
+                      canEdit
+                      onChange={(next) => {
+                        setContactTagIds(next.map((tg) => tg.id));
+                        onUpdated();
+                      }}
+                    />
                   )}
                 </div>
               </TabsContent>

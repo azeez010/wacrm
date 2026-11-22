@@ -15,6 +15,10 @@ export const FIELD_TYPES = [
   'multi_enum',
   'reference',
   'media',
+  'url',
+  'phone',
+  'email',
+  'datetime',
 ] as const
 
 export type FieldType = (typeof FIELD_TYPES)[number]

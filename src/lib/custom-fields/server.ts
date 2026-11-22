@@ -1,5 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
-import { assertFeature, assertWithinLimit, FeatureLockedError, PlanLimitError } from '@/lib/billing/entitlements'
+import { assertFeature, assertWithinLimit, FeatureLockedError, getLimit, PlanLimitError } from '@/lib/billing/entitlements'
 import { hasMinRole, isAccountRole, type AccountRole } from '@/lib/auth/roles'
 import { coerceValue, isValidKey, slugifyKey, validateFieldOptions } from './coerce'
 import { FIELD_TYPES, type FieldDef, type FieldOptions, type FieldType } from './types'
@@ -131,7 +131,9 @@ export async function createField(ctx: Ctx, input: FieldInput): Promise<Result<C
 
   const wantedKey = typeof input.key === 'string' && input.key ? input.key : slugifyKey(name)
   if (!/^[a-z][a-z0-9_]{0,62}$/.test(wantedKey)) return fail(400, 'Invalid field key')
-  const baseKey = isValidKey(wantedKey) ? wantedKey : `${wantedKey}_field`
+  // Reserved names (name, phone, email...) only clash with the built-in CONTACT columns;
+  // a table column may freely be called "name", which is what imports and the API expect.
+  const baseKey = tableId || isValidKey(wantedKey) ? wantedKey : `${wantedKey}_field`
 
   const role = input.min_role_edit
   if (role !== undefined && !(isAccountRole(role) && role !== 'viewer')) {
@@ -565,7 +567,7 @@ export async function updateTable(
   const { data, error } = await ctx.db
     .from('custom_tables')
     .update(update)
-    .eq('id', tableId)
+    .eq('id', table.id)
     .eq('account_id', ctx.accountId)
     .select()
     .single()
@@ -590,7 +592,7 @@ export async function deleteTable(ctx: Ctx, tableId: string): Promise<Result<{ d
   const { error } = await ctx.db
     .from('custom_tables')
     .delete()
-    .eq('id', tableId)
+    .eq('id', table.id)
     .eq('account_id', ctx.accountId)
   if (error) return fail(500, error.message)
   return ok({ deleted: true })
@@ -802,4 +804,120 @@ export async function deleteRecord(
     .eq('account_id', ctx.accountId)
   if (error) return fail(500, error.message)
   return ok({ cleared_contacts: cleared })
+}
+
+
+// ------------------------------------------------------------
+// Bulk find-or-create of rows by label (used by the contacts import)
+// ------------------------------------------------------------
+
+export interface BulkRecordResult {
+  /** Label the row resolved to (empty when the row was rejected). */
+  label: string
+  id: string | null
+  created: boolean
+  error?: string
+}
+
+/**
+ * Resolve up to 200 rows to table-row ids in one go: an existing row with the
+ * same label (case-insensitive) is reused untouched; a missing one is created
+ * when `createMissing` is on. Values are validated like any other row save,
+ * duplicates inside the batch collapse to one row, and the plan's row limit is
+ * checked once for the whole batch.
+ */
+export async function bulkResolveRecords(
+  ctx: Ctx,
+  tableIdOrKey: string,
+  rows: Record<string, unknown>[],
+  opts: { createMissing: boolean },
+): Promise<Result<{ results: BulkRecordResult[] }>> {
+  if (rows.length === 0) return ok({ results: [] })
+  if (rows.length > 200) return fail(400, 'At most 200 rows per call')
+  const found = await getTable(ctx, tableIdOrKey)
+  if (!found.ok) return found
+  const { table, columns } = found.data
+  if (opts.createMissing && !canEditRows(ctx, table)) {
+    return fail(403, 'You do not have permission to add rows to this table')
+  }
+
+  return gated(async () => {
+    if (opts.createMissing) await assertFeature(ctx.db, ctx.accountId, 'custom_fields')
+
+    const built = rows.map((values) => buildRecordData(columns, table.label_field_key, values, {}, ctx.accountId))
+    const labels = [...new Set(built.flatMap((b) => (b.ok && b.data.label ? [b.data.label.toLowerCase()] : [])))]
+
+    // Existing rows by lower-cased label (paged so big tables still resolve).
+    const existing = new Map<string, string>()
+    if (labels.length > 0) {
+      for (let from = 0; from < 50_000; from += 1000) {
+        const { data, error } = await ctx.db
+          .from('custom_records')
+          .select('id, label')
+          .eq('account_id', ctx.accountId)
+          .eq('table_id', table.id)
+          .range(from, from + 999)
+        if (error) return fail(500, error.message)
+        for (const r of (data ?? []) as { id: string; label: string }[]) {
+          const k = r.label.toLowerCase()
+          if (!existing.has(k)) existing.set(k, r.id)
+        }
+        if (!data || data.length < 1000) break
+      }
+    }
+
+    // Which labels need creating (first row per label wins).
+    const toCreate = new Map<string, { label: string; data: Record<string, unknown> }>()
+    built.forEach((b) => {
+      if (!b.ok || !b.data.label) return
+      const k = b.data.label.toLowerCase()
+      if (!existing.has(k) && !toCreate.has(k)) toCreate.set(k, { label: b.data.label, data: b.data.data })
+    })
+
+    let blocked: string | null = null
+    if (opts.createMissing && toCreate.size > 0) {
+      const { count } = await ctx.db
+        .from('custom_records')
+        .select('id', { count: 'exact', head: true })
+        .eq('account_id', ctx.accountId)
+      const { limit, planName } = await getLimit(ctx.db, ctx.accountId, 'custom_records_max')
+      if (limit !== null && (count ?? 0) + toCreate.size > limit) {
+        blocked = `Your ${planName} plan allows ${limit} table rows. Upgrade to add more.`
+      }
+    }
+
+    const createdIds = new Map<string, string>()
+    if (opts.createMissing && !blocked && toCreate.size > 0) {
+      const entries = [...toCreate.entries()]
+      for (let i = 0; i < entries.length; i += 200) {
+        const part = entries.slice(i, i + 200)
+        const { data, error } = await ctx.db
+          .from('custom_records')
+          .insert(
+            part.map(([, v]) => ({
+              account_id: ctx.accountId,
+              table_id: table.id,
+              label: v.label,
+              data: v.data,
+              created_by: ctx.userId,
+            })),
+          )
+          .select('id, label')
+        if (error) return fail(500, error.message)
+        for (const r of (data ?? []) as { id: string; label: string }[]) createdIds.set(r.label.toLowerCase(), r.id)
+      }
+    }
+
+    const results: BulkRecordResult[] = built.map((b) => {
+      if (!b.ok) return { label: '', id: null, created: false, error: b.error }
+      const label = b.data.label
+      if (!label) return { label: '', id: null, created: false, error: 'The label column is empty' }
+      const k = label.toLowerCase()
+      const id = existing.get(k) ?? createdIds.get(k) ?? null
+      if (id) return { label, id, created: !existing.has(k) }
+      if (!opts.createMissing) return { label, id: null, created: false, error: 'No row with this label' }
+      return { label, id: null, created: false, error: blocked ?? 'Could not create the row' }
+    })
+    return ok({ results })
+  })
 }

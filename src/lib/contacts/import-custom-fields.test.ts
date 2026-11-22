@@ -28,6 +28,10 @@ describe('inferFieldType', () => {
     expect(inferFieldType(['15,000', '8000', ''])).toBe('number');
     expect(inferFieldType(['yes', 'No'])).toBe('bool');
     expect(inferFieldType(['2026-11-02', '2026-01-01'])).toBe('date');
+    expect(inferFieldType(['2026-11-02 15:30', '2026-01-01T09:00:00Z'])).toBe('datetime');
+    expect(inferFieldType(['a@b.com', 'c@d.org'])).toBe('email');
+    expect(inferFieldType(['https://a.io', 'http://b.com/x'])).toBe('url');
+    expect(inferFieldType(['+234 801 234 5678', '+14155550123'])).toBe('phone');
     expect(inferFieldType(['Gold', 'Silver'])).toBe('text');
     expect(inferFieldType([])).toBe('text');
   });

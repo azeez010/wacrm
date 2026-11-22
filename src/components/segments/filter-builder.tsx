@@ -384,7 +384,7 @@ function SingleValue({
   const t = useTranslations('Segments');
   const base = 'h-8 bg-muted text-xs';
 
-  if (kind === 'date' || kind === 'created_at') {
+  if (kind === 'date' || kind === 'datetime' || kind === 'created_at') {
     const relative = isRelativeDate(value);
     const mode = relative ? value : 'date';
     return (

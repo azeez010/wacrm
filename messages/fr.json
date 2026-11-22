@@ -588,7 +588,11 @@
         "customFields": "Champs personnalisés",
         "export": "Exporter en CSV (vue actuelle)",
         "exported": "{count} contacts exportés.",
-        "exportFailed": "Impossible d'exporter les contacts."
+        "exportFailed": "Impossible d'exporter les contacts.",
+        "tableBadge": "Table",
+        "expandTable": "Afficher les colonnes de {name}",
+        "loadingTable": "Chargement de la table…",
+        "labelColumn": "libellé"
       },
       "yes": "Oui",
       "no": "Non",
@@ -730,7 +734,8 @@
       },
       "tagsTab": {
         "clickTagDesc": "Cliquez sur une étiquette pour l'ajouter à ce contact ou la retirer.",
-        "noTagsAvailable": "Aucune étiquette disponible. Créez des étiquettes dans Paramètres."
+        "noTagsAvailable": "Aucune étiquette disponible. Créez des étiquettes dans Paramètres.",
+        "manageDesc": "Ajoutez des étiquettes avec + et retirez-les avec x."
       },
       "sendTemplateBtn": "Envoyer un modèle",
       "saveChangesBtn": "Enregistrer les modifications",
@@ -753,7 +758,6 @@
     },
     "importModal": {
       "title": "Importer des contacts",
-      "desc": "Téléversez un CSV avec une colonne <phoneCode>phone</phoneCode> obligatoire. Facultatif : <nameCode>name</nameCode>, <emailCode>email</emailCode>, <companyCode>company</companyCode>, <tagsCode>tags</tagsCode> (séparées par des virgules ; mettez les cellules à plusieurs étiquettes entre guillemets).",
       "uploadDropzone": "Cliquez pour choisir un fichier CSV",
       "uploadHint": ".csv jusqu'à la limite de votre navigateur",
       "rowsReady": "{count} ligne prête",
@@ -810,18 +814,51 @@
       "customErrorsHeading": "{count, plural, one {# valeur personnalisée non importée} other {# valeurs personnalisées non importées}}",
       "updateExisting": "Mettre à jour les contacts existants",
       "updateExistingHint": "Les contacts dont le téléphone existe déjà reçoivent les valeurs de ce fichier. Les cellules vides n'effacent jamais de données.",
-      "mapping": {
-        "title": "Champs personnalisés",
-        "skip": "Ne pas importer",
-        "createLabel": "Nouveau champ ({type})",
-        "hint": "Les colonnes qui correspondent à un champ personnalisé sont remplies automatiquement. Les autres peuvent devenir de nouveaux champs.",
-        "types": {
-          "text": "Texte",
-          "number": "Nombre",
-          "bool": "Oui / Non",
-          "date": "Date"
-        }
-      }
+      "instr": {
+        "required": "Obligatoire :",
+        "optional": "Facultatif :",
+        "yourFields": "et vos champs",
+        "fewer": "voir moins",
+        "more": "+{count} de plus",
+        "tableRule": "Les colonnes des tables personnalisées suivent un seul modèle :",
+        "forExample": "par exemple",
+        "mapHint": "Ouvrez un fichier pour associer ses colonnes à vos champs. Vous pouvez aussi fixer une valeur identique pour toutes les lignes."
+      },
+      "map": {
+        "title": "Associez vos colonnes",
+        "summary": "{mapped} colonnes sur {total} associées",
+        "reset": "Réinitialiser",
+        "phoneRequired": "Choisissez la colonne qui contient le téléphone.",
+        "notImported": "Non importées",
+        "createFieldHint": "Créer un champ nommé « {name} » et importer cette colonne",
+        "createFieldNote": "Cliquez sur une colonne pour en faire un nouveau champ.",
+        "createMissing": "Créer les lignes de table manquantes",
+        "createMissingHint": "Une ligne est retrouvée par son nom ; si elle n'existe pas encore, elle est ajoutée à la table.",
+        "otherMapped": "{count, plural, one {+ # autre champ associé est importé} other {+ # autres champs associés sont importés}}",
+        "tagsPlaceholder": "étiquette, autre étiquette",
+        "valuePlaceholder": "Valeur…",
+        "columnN": "Colonne {n}",
+        "fixedValue": "Valeur fixe",
+        "fixedValueAll": "Même valeur pour toutes les lignes…",
+        "skip": "Ignorer",
+        "inUse": "(déjà utilisée)",
+        "kind": {
+          "core_text": "Texte",
+          "tags": "Étiquettes"
+        },
+        "tagsEveryone": "Ajouter aussi ces étiquettes à tous les contacts",
+        "addTagsEveryone": "Ajouter des étiquettes à tous les contacts",
+        "fallbackLabel": "Si la cellule est vide, utiliser",
+        "addFallback": "Valeur par défaut pour les cellules vides",
+        "tableBadge": "Table",
+        "mappedCount": "{count} associées",
+        "showMore": "Afficher {count} champs de plus",
+        "showFewer": "Afficher moins de champs"
+      },
+      "toastFieldCreated": "Champ « {name} » créé.",
+      "errorNoLabelColumn": "Associez aussi la colonne de nom de la table, pour retrouver ou créer les lignes.",
+      "errorTableRow": "Impossible de retrouver ou de créer la ligne de la table.",
+      "resultTableRows": "{count, plural, one {# ligne de table créée} other {# lignes de table créées}}"
     },
     "customFields": {
       "title": "Champs personnalisés",
@@ -849,7 +886,11 @@
         "enum": "Choix",
         "multi_enum": "Choix multiple",
         "reference": "Référence",
-        "media": "Média (fichier)"
+        "media": "Média (fichier)",
+        "url": "Lien (URL)",
+        "phone": "Téléphone",
+        "email": "E-mail",
+        "datetime": "Date et heure"
       },
       "optionsLabel": "Options",
       "optionsPlaceholder": "Options séparées par des virgules (Or, Argent, Platine)",
@@ -862,7 +903,6 @@
         "currency": "Devise",
         "percent": "Pourcentage"
       },
-      "showAsColumn": "Afficher comme colonne dans Contacts",
       "toastArchived": "\"{name}\" a été archivé. Ses valeurs sont conservées.",
       "acceptLabel": "Fichiers autorisés",
       "accept": {
@@ -875,6 +915,32 @@
       "dragHandle": "Faites glisser pour réordonner : {name}",
       "dragHint": "Faites glisser pour réordonner",
       "toastReorderFailed": "Impossible d'enregistrer le nouvel ordre."
+    },
+    "tagEditor": {
+      "add": "Ajouter une étiquette",
+      "search": "Rechercher des étiquettes…",
+      "noTags": "Aucune étiquette pour l'instant. Créez-en dans Paramètres.",
+      "noMore": "Plus d'étiquettes à ajouter.",
+      "failed": "Impossible de mettre à jour l'étiquette.",
+      "removed": "« {tag} » retirée.",
+      "removeAria": "Retirer l'étiquette {tag}",
+      "remove": {
+        "title": "Retirer « {tag} » de {contact} ?",
+        "subtitle": "Vérifiez d'abord ce qui dépend de cette étiquette.",
+        "checking": "Vérification de l'utilisation de cette étiquette…",
+        "checkFailed": "Impossible de vérifier l'utilisation de cette étiquette. Vous pouvez quand même la retirer.",
+        "nothingUses": "Aucun segment, automatisation, flux ni diffusion en cours n'utilise cette étiquette.",
+        "usedBy": "Cette étiquette est utilisée par",
+        "segments": "{count, plural, one {# segment enregistré} other {# segments enregistrés}}",
+        "automations": "{count, plural, one {# automatisation active} other {# automatisations actives}}",
+        "flows": "{count, plural, one {# flux de chatbot actif} other {# flux de chatbot actifs}}",
+        "broadcasts": "{count, plural, one {# diffusion en brouillon ou programmée} other {# diffusions en brouillon ou programmées}}",
+        "andMore": "{count, plural, one {et # autre} other {et # autres}}",
+        "effect": "{contact} pourrait ne plus correspondre à ces segments et automatisations, et être exclu de ces diffusions.",
+        "safe": "Seul ce contact perd l'étiquette. L'étiquette et vos autres contacts ne sont pas affectés, et vous pouvez la rajouter à tout moment.",
+        "cancel": "Annuler",
+        "confirm": "Retirer l'étiquette"
+      }
     }
   },
   "Pipelines": {

@@ -319,6 +319,10 @@ and nothing is written.
 | `date` | `"YYYY-MM-DD"` or ISO datetime | `include_time` |
 | `enum` | one of `options` | `options` |
 | `multi_enum` | array of `options` | `options` |
+| `url` | web link, `"https://acme.com"` (a bare `acme.com` becomes `https://acme.com/`) | |
+| `email` | email address (lower-cased) | |
+| `phone` | international number with `+`, stored as `+digits` | |
+| `datetime` | ISO moment, `"2026-11-02T15:30:00Z"` (no offset means UTC); shown in the account time zone | |
 | `reference` | id of a row in a custom table | `table_key` |
 | `media` | one uploaded file: `{ url, path, name, mime, size }`, read back as `{ url, name, mime, size }` | `accept` (`any`/`image`/`document`/`video`/`audio`) |
 
@@ -360,8 +364,8 @@ a file already stored under your account; a link to anything else is rejected.
 `field` is `name`, `phone`, `email`, `company`, `created_at`, `tags`, or
 `cf:<custom field id>`. Operators by type:
 
-- text and built-ins: `contains`, `not_contains`, `equals`, `not_equals`, `is_empty`, `is_set`
-- number, date, `created_at`: `eq`, `neq`, `gt`, `gte`, `lt`, `lte`, `between` (`[low, high]`), `is_empty`, `is_set`
+- text, url, email, phone and built-ins: `contains`, `not_contains`, `equals`, `not_equals`, `is_empty`, `is_set`
+- number, date, datetime, `created_at`: `eq`, `neq`, `gt`, `gte`, `lt`, `lte`, `between` (`[low, high]`), `is_empty`, `is_set`
 - bool: `is_true`, `is_false`, `is_empty`, `is_set`
 - enum and reference: `is`, `is_not`, `is_any_of` (enum only), `is_empty`, `is_set`
 - media: `is_empty`, `is_set`

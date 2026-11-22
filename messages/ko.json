@@ -588,7 +588,11 @@
         "customFields": "사용자 지정 필드",
         "export": "CSV 내보내기 (현재 보기)",
         "exported": "연락처 {count}개를 내보냈습니다.",
-        "exportFailed": "연락처를 내보낼 수 없습니다."
+        "exportFailed": "연락처를 내보낼 수 없습니다.",
+        "tableBadge": "테이블",
+        "expandTable": "{name}의 열 보기",
+        "loadingTable": "테이블 불러오는 중…",
+        "labelColumn": "라벨"
       },
       "yes": "예",
       "no": "아니요",
@@ -730,7 +734,8 @@
       },
       "tagsTab": {
         "clickTagDesc": "태그를 클릭해 이 연락처에 추가하거나 제거하세요.",
-        "noTagsAvailable": "사용 가능한 태그가 없습니다. 설정에서 태그를 만드세요."
+        "noTagsAvailable": "사용 가능한 태그가 없습니다. 설정에서 태그를 만드세요.",
+        "manageDesc": "+로 태그를 추가하고 x로 제거하세요."
       },
       "sendTemplateBtn": "템플릿 보내기",
       "saveChangesBtn": "변경 사항 저장",
@@ -753,7 +758,6 @@
     },
     "importModal": {
       "title": "연락처 가져오기",
-      "desc": "필수 <phoneCode>phone</phoneCode> 열이 포함된 CSV를 업로드하세요. 선택 항목: <nameCode>name</nameCode>, <emailCode>email</emailCode>, <companyCode>company</companyCode>, <tagsCode>tags</tagsCode> (쉼표로 구분; 여러 태그가 있는 셀은 따옴표로 묶으세요).",
       "uploadDropzone": "클릭하여 CSV 파일 선택",
       "uploadHint": "브라우저 제한까지 .csv 업로드 가능",
       "rowsReady": "{count}개 행 준비됨",
@@ -810,18 +814,51 @@
       "customErrorsHeading": "사용자 지정 값 {count}개를 가져오지 못했습니다",
       "updateExisting": "기존 연락처 업데이트",
       "updateExistingHint": "전화번호가 이미 있는 연락처에 이 파일의 값이 적용됩니다. 빈 셀은 데이터를 지우지 않습니다.",
-      "mapping": {
-        "title": "사용자 지정 필드",
-        "skip": "가져오지 않음",
-        "createLabel": "새 필드 ({type})",
-        "hint": "사용자 지정 필드와 일치하는 열은 자동으로 채워집니다. 나머지는 새 필드로 만들 수 있습니다.",
-        "types": {
-          "text": "텍스트",
-          "number": "숫자",
-          "bool": "예 / 아니요",
-          "date": "날짜"
-        }
-      }
+      "instr": {
+        "required": "필수:",
+        "optional": "선택:",
+        "yourFields": "및 내 필드",
+        "fewer": "접기",
+        "more": "+{count}개 더",
+        "tableRule": "사용자 지정 테이블 열은 하나의 형식을 씁니다:",
+        "forExample": "예를 들어",
+        "mapHint": "파일을 열어 열을 내 필드에 연결하세요. 모든 행에 같은 값을 고정할 수도 있습니다."
+      },
+      "map": {
+        "title": "열 연결",
+        "summary": "열 {total}개 중 {mapped}개 연결됨",
+        "reset": "초기화",
+        "phoneRequired": "전화번호가 들어 있는 열을 선택하세요.",
+        "notImported": "가져오지 않음",
+        "createFieldHint": "\"{name}\" 필드를 만들고 이 열을 가져오기",
+        "createFieldNote": "열을 클릭하면 그 열로 새 필드를 만듭니다.",
+        "createMissing": "없는 테이블 행 만들기",
+        "createMissingHint": "행은 이름으로 찾으며, 아직 없으면 테이블에 추가됩니다.",
+        "otherMapped": "연결된 필드 {count}개를 더 가져옵니다",
+        "tagsPlaceholder": "태그, 다른 태그",
+        "valuePlaceholder": "값…",
+        "columnN": "열 {n}",
+        "fixedValue": "고정값",
+        "fixedValueAll": "모든 행에 같은 값…",
+        "skip": "건너뛰기",
+        "inUse": "(이미 사용 중)",
+        "kind": {
+          "core_text": "텍스트",
+          "tags": "태그"
+        },
+        "tagsEveryone": "모든 연락처에 이 태그도 추가",
+        "addTagsEveryone": "모든 연락처에 태그 추가",
+        "fallbackLabel": "셀이 비어 있으면 다음 사용",
+        "addFallback": "빈 셀 기본값",
+        "tableBadge": "테이블",
+        "mappedCount": "{count}개 연결됨",
+        "showMore": "필드 {count}개 더 보기",
+        "showFewer": "필드 접기"
+      },
+      "toastFieldCreated": "\"{name}\" 필드를 만들었습니다.",
+      "errorNoLabelColumn": "행을 찾거나 만들 수 있도록 테이블의 이름 열도 연결하세요.",
+      "errorTableRow": "테이블 행을 찾거나 만들 수 없습니다.",
+      "resultTableRows": "테이블 행 {count}개 생성됨"
     },
     "customFields": {
       "title": "커스텀 필드",
@@ -849,7 +886,11 @@
         "enum": "선택",
         "multi_enum": "다중 선택",
         "reference": "참조",
-        "media": "미디어(파일)"
+        "media": "미디어(파일)",
+        "url": "링크(URL)",
+        "phone": "전화번호",
+        "email": "이메일",
+        "datetime": "날짜 및 시간"
       },
       "optionsLabel": "옵션",
       "optionsPlaceholder": "쉼표로 구분한 옵션 (골드, 실버, 플래티넘)",
@@ -862,7 +903,6 @@
         "currency": "통화",
         "percent": "퍼센트"
       },
-      "showAsColumn": "연락처 목록에 열로 표시",
       "toastArchived": "\"{name}\" 필드가 보관되었습니다. 값은 유지됩니다.",
       "acceptLabel": "허용 파일",
       "accept": {
@@ -875,6 +915,32 @@
       "dragHandle": "끌어서 순서 변경: {name}",
       "dragHint": "끌어서 순서 변경",
       "toastReorderFailed": "새 순서를 저장할 수 없습니다."
+    },
+    "tagEditor": {
+      "add": "태그 추가",
+      "search": "태그 검색…",
+      "noTags": "아직 태그가 없습니다. 설정에서 만드세요.",
+      "noMore": "추가할 태그가 더 없습니다.",
+      "failed": "태그를 업데이트할 수 없습니다.",
+      "removed": "\"{tag}\" 태그를 제거했습니다.",
+      "removeAria": "{tag} 태그 제거",
+      "remove": {
+        "title": "{contact}에서 \"{tag}\" 태그를 제거할까요?",
+        "subtitle": "먼저 이 태그에 의존하는 항목을 확인하세요.",
+        "checking": "이 태그를 사용하는 항목을 확인하는 중…",
+        "checkFailed": "이 태그를 사용하는 항목을 확인할 수 없습니다. 그래도 제거할 수 있습니다.",
+        "nothingUses": "이 태그를 사용하는 세그먼트, 자동화, 플로우, 진행 중인 브로드캐스트가 없습니다.",
+        "usedBy": "이 태그를 사용하는 항목",
+        "segments": "저장된 세그먼트 {count}개",
+        "automations": "활성 자동화 {count}개",
+        "flows": "활성 챗봇 플로우 {count}개",
+        "broadcasts": "초안 또는 예약된 브로드캐스트 {count}개",
+        "andMore": "외 {count}개",
+        "effect": "{contact} 연락처가 해당 세그먼트와 자동화에 더 이상 해당하지 않거나 해당 브로드캐스트에서 제외될 수 있습니다.",
+        "safe": "이 연락처에서만 태그가 제거됩니다. 태그와 다른 연락처는 영향을 받지 않으며 언제든 다시 추가할 수 있습니다.",
+        "cancel": "취소",
+        "confirm": "태그 제거"
+      }
     }
   },
   "Pipelines": {

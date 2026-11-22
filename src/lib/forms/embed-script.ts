@@ -85,10 +85,20 @@ export const EMBED_SCRIPT = `(function () {
     '@media (prefers-reduced-motion:reduce){.og-pulse,.og-bounce,.og-wiggle,.og-ring{animation:none!important}}';
   function isMobile() { return /mobi|android|iphone/i.test(navigator.userAgent) || window.innerWidth < 600; }
   function isDark(theme) { return theme === 'dark' || (theme !== 'light' && window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches); }
-  function beep(kind) {
+  // Browsers only allow audio after a user gesture: unlock on the first one, and play any chime that was waiting.
+  var pendingSound = null, unlocked = false;
+  function unlock() {
+    if (unlocked) return; unlocked = true;
+    ['pointerdown', 'keydown', 'touchstart'].forEach(function (ev) { window.removeEventListener(ev, unlock, true); });
+    try { var C = window.AudioContext || window.webkitAudioContext; if (C) { var a = window.__ogA || (window.__ogA = new C()); if (a.state === 'suspended') a.resume(); } } catch (e) {}
+    if (pendingSound) { var k = pendingSound; pendingSound = null; setTimeout(function () { beep(k, true); }, 0); }
+  }
+  ['pointerdown', 'keydown', 'touchstart'].forEach(function (ev) { window.addEventListener(ev, unlock, true); });
+  function beep(kind, force) {
     try {
       var Ctx = window.AudioContext || window.webkitAudioContext; if (!Ctx || !kind || kind === 'none') return;
       var a = window.__ogA || (window.__ogA = new Ctx()); if (a.state === 'suspended') a.resume();
+      if (!force && a.state !== 'running') { pendingSound = kind; return; }
       var t = a.currentTime;
       function tone(f, s, d, v) {
         var o = a.createOscillator(), g = a.createGain(); o.type = 'sine'; o.frequency.value = f;

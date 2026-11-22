@@ -33,6 +33,7 @@ export function SupportEditor({
 }) {
   const t = useTranslations('Forms.support');
   const td = useTranslations('Forms.edit');
+  const ts = useTranslations('Forms.settings');
   const [more, setMore] = useState(false);
   // Defaults come from the schema so the editor and the saved form agree.
   const w = settings.widget ?? formSettingsSchema.shape.widget.unwrap().parse({});
@@ -74,13 +75,23 @@ export function SupportEditor({
           </select>
         </div>
       </div>
-      <div className="space-y-1.5">
-        <Label className="text-xs text-muted-foreground">{t('icon')}</Label>
-        <select className={selectCls} disabled={!canEdit} value={w.icon} onChange={(e) => patchW({ icon: e.target.value })}>
-          <option value="whatsapp">WhatsApp</option>
-          <option value="chat">{t('iconChat')}</option>
-          <option value="headset">{t('iconHeadset')}</option>
-        </select>
+      <div className="grid grid-cols-2 gap-3">
+        <div className="space-y-1.5">
+          <Label className="text-xs text-muted-foreground">{t('icon')}</Label>
+          <select className={selectCls} disabled={!canEdit} value={w.icon} onChange={(e) => patchW({ icon: e.target.value })}>
+            <option value="whatsapp">WhatsApp</option>
+            <option value="chat">{t('iconChat')}</option>
+            <option value="headset">{t('iconHeadset')}</option>
+          </select>
+        </div>
+        <div className="space-y-1.5">
+          <Label className="text-xs text-muted-foreground">{ts('theme')}</Label>
+          <select className={selectCls} disabled={!canEdit} value={settings.theme ?? 'auto'} onChange={(e) => dispatch({ type: 'settings', patch: { theme: e.target.value } })}>
+            <option value="auto">{ts('themeAuto')}</option>
+            <option value="light">{ts('themeLight')}</option>
+            <option value="dark">{ts('themeDark')}</option>
+          </select>
+        </div>
       </div>
       <div className="space-y-1.5">
         <Label className="text-xs text-muted-foreground">{t('greeting')}</Label>

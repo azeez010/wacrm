@@ -617,7 +617,7 @@ export async function runSideEffects(db: Db, c: FinishCtx): Promise<void> {
           user_id,
           type: 'form_submission',
           contact_id: cid,
-          title: `New lead: ${label}`,
+          title: `${form.kind === 'support' ? 'New support' : 'New lead'}: ${label}`,
           body: `${form.name}${c.qualified === false ? ' (not qualified)' : ''}`,
         })),
       )

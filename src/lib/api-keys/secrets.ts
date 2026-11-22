@@ -50,6 +50,8 @@ export async function passwordIsCorrect(email: string, password: string): Promis
   });
   const { data, error } = await client.auth.signInWithPassword({ email, password });
   if (error || !data.session) return false;
-  void client.auth.signOut().catch(() => {});
+  // Drop only the session this check just created. A plain signOut() is GLOBAL: it would end
+  // every session of the user, including the browser they are using right now.
+  await supabaseAdmin().auth.admin.signOut(data.session.access_token, 'local').catch(() => {});
   return true;
 }

@@ -646,7 +646,8 @@
         "currency": "통화",
         "dealsCreated": "딜 {count}개 생성됨",
         "addDealRun": "딜 {count}개 생성"
-      }
+      },
+      "tagsButton": "태그"
     },
     "form": {
       "addTitle": "연락처 추가",
@@ -862,9 +863,6 @@
         "percent": "퍼센트"
       },
       "showAsColumn": "연락처 목록에 열로 표시",
-      "columnToggle": "연락처 목록에 열로 표시",
-      "moveUp": "위로 이동",
-      "moveDown": "아래로 이동",
       "toastArchived": "\"{name}\" 필드가 보관되었습니다. 값은 유지됩니다.",
       "acceptLabel": "허용 파일",
       "accept": {
@@ -873,7 +871,10 @@
         "document": "문서만",
         "video": "동영상만",
         "audio": "오디오만"
-      }
+      },
+      "dragHandle": "끌어서 순서 변경: {name}",
+      "dragHint": "끌어서 순서 변경",
+      "toastReorderFailed": "새 순서를 저장할 수 없습니다."
     }
   },
   "Pipelines": {
@@ -2435,7 +2436,10 @@
         "api_keys": "API 키",
         "webhook_endpoints": "아웃바운드 웹훅",
         "ai_replies_per_month": "월 AI 답변",
-        "storage_mb": "미디어 저장소 (MB)"
+        "storage_mb": "미디어 저장소 (MB)",
+        "custom_fields_max": "사용자 지정 연락처 필드",
+        "custom_tables_max": "사용자 지정 테이블",
+        "custom_records_max": "사용자 지정 테이블 행"
       },
       "features": {
         "broadcasts": "브로드캐스트 캠페인",
@@ -2448,7 +2452,8 @@
         "csv_import": "CSV 가져오기 / 내보내기",
         "coexistence": "기존 WhatsApp Business 앱 번호 사용",
         "custom_connection": "내 Meta 앱 사용",
-        "priority_support": "우선 지원"
+        "priority_support": "우선 지원",
+        "custom_fields": "사용자 지정 필드, 세그먼트 및 테이블"
       }
     },
     "language": {

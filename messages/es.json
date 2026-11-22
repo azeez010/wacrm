@@ -646,7 +646,8 @@
         "currency": "Moneda",
         "dealsCreated": "{count, plural, one {# negocio creado} other {# negocios creados}}",
         "addDealRun": "{count, plural, one {Crear # negocio} other {Crear # negocios}}"
-      }
+      },
+      "tagsButton": "Etiquetas"
     },
     "form": {
       "addTitle": "Agregar contacto",
@@ -862,9 +863,6 @@
         "percent": "Porcentaje"
       },
       "showAsColumn": "Mostrar como columna en Contactos",
-      "columnToggle": "Mostrar como columna en Contactos",
-      "moveUp": "Subir",
-      "moveDown": "Bajar",
       "toastArchived": "\"{name}\" se archivó. Se conservan sus valores.",
       "acceptLabel": "Archivos permitidos",
       "accept": {
@@ -873,7 +871,10 @@
         "document": "Solo documentos",
         "video": "Solo vídeo",
         "audio": "Solo audio"
-      }
+      },
+      "dragHandle": "Arrastra para reordenar: {name}",
+      "dragHint": "Arrastra para reordenar",
+      "toastReorderFailed": "No se pudo guardar el nuevo orden."
     }
   },
   "Pipelines": {
@@ -2435,7 +2436,10 @@
         "api_keys": "Claves de API",
         "webhook_endpoints": "Webhooks salientes",
         "ai_replies_per_month": "Respuestas de IA / mes",
-        "storage_mb": "Almacenamiento multimedia (MB)"
+        "storage_mb": "Almacenamiento multimedia (MB)",
+        "custom_fields_max": "Campos personalizados de contacto",
+        "custom_tables_max": "Tablas personalizadas",
+        "custom_records_max": "Filas de tablas personalizadas"
       },
       "features": {
         "broadcasts": "Campañas de difusión",
@@ -2448,7 +2452,8 @@
         "csv_import": "Importar / exportar CSV",
         "coexistence": "Usa el número de tu app WhatsApp Business actual",
         "custom_connection": "Trae tu propia app de Meta",
-        "priority_support": "Soporte prioritario"
+        "priority_support": "Soporte prioritario",
+        "custom_fields": "Campos personalizados, segmentos y tablas"
       }
     },
     "language": {

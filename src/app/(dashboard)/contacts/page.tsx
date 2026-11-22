@@ -48,6 +48,7 @@ import {
   ChevronRight,
   SlidersHorizontal,
   Filter,
+  Tag as TagIcon,
   X,
 } from 'lucide-react';
 import { ContactForm } from '@/components/contacts/contact-form';
@@ -76,7 +77,7 @@ import { BulkDealDialog } from '@/components/contacts/bulk-deal-dialog';
 import { BROADCAST_CONTACTS_KEY } from '@/lib/contacts/bulk';
 import { FilterBuilder, customKindMap } from '@/components/segments/filter-builder';
 import { countRules, normalizeFilter } from '@/lib/segments/validate';
-import { EMPTY_FILTER, type FilterGroup, type Segment } from '@/lib/segments/types';
+import { EMPTY_FILTER, isGroup, type FilterGroup, type FilterRule, type Segment } from '@/lib/segments/types';
 import {
   Select,
   SelectContent,
@@ -549,6 +550,37 @@ export default function ContactsPage() {
     setPage(0);
   }
 
+  /** Tags ticked in the quick Tags filter = the values of the top-level "tags has any of" rule. */
+  const tagFilterIds: string[] = (() => {
+    const rule = filterDraft.rules.find(
+      (r): r is FilterRule => !isGroup(r) && r.field === 'tags' && r.operator === 'has_any'
+    );
+    return Array.isArray(rule?.value) ? (rule.value as string[]) : [];
+  })();
+
+  function toggleTagFilter(tagId: string) {
+    const index = filterDraft.rules.findIndex((r) => !isGroup(r) && r.field === 'tags' && r.operator === 'has_any');
+    const current = tagFilterIds.includes(tagId)
+      ? tagFilterIds.filter((id) => id !== tagId)
+      : [...tagFilterIds, tagId];
+    let rules = [...filterDraft.rules];
+    if (current.length === 0) {
+      rules = rules.filter((_, i) => i !== index);
+    } else if (index >= 0) {
+      rules[index] = { field: 'tags', operator: 'has_any', value: current };
+    } else {
+      rules.push({ field: 'tags', operator: 'has_any', value: current });
+    }
+    applyFilter({ ...filterDraft, rules });
+  }
+
+  function clearTagFilter() {
+    applyFilter({
+      ...filterDraft,
+      rules: filterDraft.rules.filter((r) => isGroup(r) || r.field !== 'tags' || r.operator !== 'has_any'),
+    });
+  }
+
   function clearFilters() {
     setFilterDraft(EMPTY_FILTER);
     setFilter(EMPTY_FILTER);
@@ -753,8 +785,7 @@ export default function ContactsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">{t('title')}</h1>
-          <p className="text-sm text-muted-foreground mt-1">
+          <p className="text-sm text-muted-foreground">
             {totalCount > 0 ? t('subtitle', { count: totalCount }) : t('subtitleZero')}
           </p>
         </div>
@@ -826,6 +857,48 @@ export default function ContactsPage() {
               className="pl-8 bg-card border-border text-foreground placeholder:text-muted-foreground"
             />
           </div>
+
+          <Popover>
+            <PopoverTrigger
+              render={
+                <Button
+                  variant="outline"
+                  className="border-border text-muted-foreground hover:bg-muted shrink-0"
+                />
+              }
+            >
+              <TagIcon className="size-4" />
+              {t('tagsButton')}
+              {tagFilterIds.length > 0 && (
+                <span className="ml-1 inline-flex items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-semibold text-primary-foreground">
+                  {tagFilterIds.length}
+                </span>
+              )}
+            </PopoverTrigger>
+            <PopoverContent align="start" className="w-64 p-0">
+              <div className="flex items-center justify-between border-b border-border px-3 py-2">
+                <span className="text-sm font-medium text-popover-foreground">{t('filterByTags')}</span>
+                {tagFilterIds.length > 0 && (
+                  <button onClick={clearTagFilter} className="text-xs text-muted-foreground hover:text-foreground">
+                    {t('clearAll')}
+                  </button>
+                )}
+              </div>
+              <div className="max-h-64 overflow-y-auto py-1">
+                {allTags.length === 0 ? (
+                  <p className="px-3 py-4 text-center text-xs text-muted-foreground">{t('noTagsYet')}</p>
+                ) : (
+                  allTags.map((tag) => (
+                    <label key={tag.id} className="flex cursor-pointer items-center gap-2 px-3 py-1.5 text-sm hover:bg-muted">
+                      <Checkbox checked={tagFilterIds.includes(tag.id)} onCheckedChange={() => toggleTagFilter(tag.id)} />
+                      <span className="size-2 shrink-0 rounded-full" style={{ backgroundColor: tag.color }} />
+                      <span className="truncate">{tag.name}</span>
+                    </label>
+                  ))
+                )}
+              </div>
+            </PopoverContent>
+          </Popover>
 
           <Popover>
             <PopoverTrigger

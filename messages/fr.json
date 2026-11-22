@@ -646,7 +646,8 @@
         "currency": "Devise",
         "dealsCreated": "{count, plural, one {# affaire créée} other {# affaires créées}}",
         "addDealRun": "{count, plural, one {Créer # affaire} other {Créer # affaires}}"
-      }
+      },
+      "tagsButton": "Étiquettes"
     },
     "form": {
       "addTitle": "Ajouter un contact",
@@ -862,9 +863,6 @@
         "percent": "Pourcentage"
       },
       "showAsColumn": "Afficher comme colonne dans Contacts",
-      "columnToggle": "Afficher comme colonne dans Contacts",
-      "moveUp": "Monter",
-      "moveDown": "Descendre",
       "toastArchived": "\"{name}\" a été archivé. Ses valeurs sont conservées.",
       "acceptLabel": "Fichiers autorisés",
       "accept": {
@@ -873,7 +871,10 @@
         "document": "Documents uniquement",
         "video": "Vidéo uniquement",
         "audio": "Audio uniquement"
-      }
+      },
+      "dragHandle": "Faites glisser pour réordonner : {name}",
+      "dragHint": "Faites glisser pour réordonner",
+      "toastReorderFailed": "Impossible d'enregistrer le nouvel ordre."
     }
   },
   "Pipelines": {
@@ -2435,7 +2436,10 @@
         "api_keys": "Clés API",
         "webhook_endpoints": "Webhooks sortants",
         "ai_replies_per_month": "Réponses IA / mois",
-        "storage_mb": "Stockage de médias (Mo)"
+        "storage_mb": "Stockage de médias (Mo)",
+        "custom_fields_max": "Champs de contact personnalisés",
+        "custom_tables_max": "Tables personnalisées",
+        "custom_records_max": "Lignes de tables personnalisées"
       },
       "features": {
         "broadcasts": "Campagnes de diffusion",
@@ -2448,7 +2452,8 @@
         "csv_import": "Import / export CSV",
         "coexistence": "Utilisez le numéro de votre application WhatsApp Business existante",
         "custom_connection": "Utilisez votre propre application Meta",
-        "priority_support": "Support prioritaire"
+        "priority_support": "Support prioritaire",
+        "custom_fields": "Champs personnalisés, segments et tables"
       }
     },
     "language": {

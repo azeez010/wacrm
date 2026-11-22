@@ -21,7 +21,24 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { ArrowDown, ArrowUp, Columns3, Loader2, Plus, Trash2 } from 'lucide-react';
+import { GripVertical, Loader2, Plus, Trash2 } from 'lucide-react';
+import {
+  DndContext,
+  KeyboardSensor,
+  PointerSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  arrayMove,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { cn } from '@/lib/utils';
 import { FIELD_TYPES, MEDIA_ACCEPT_VALUES, type FieldType, type MediaAccept } from '@/lib/custom-fields/types';
 import { useTranslations } from 'next-intl';
@@ -176,19 +193,22 @@ export function CustomFieldsPanel() {
     return ok;
   }
 
-  async function handleToggleColumn(field: CustomField) {
-    if (await patchField(field, { show_in_table: !field.show_in_table })) await fetchFields();
-  }
+  const sensors = useSensors(
+    // A small distance so a click on the grip (or a stray tap) doesn't start a drag.
+    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
 
-  async function handleMove(index: number, dir: -1 | 1) {
-    const a = fields[index];
-    const b = fields[index + dir];
-    if (!a || !b) return;
-    // Swap positions; re-number the whole list so equal sort_orders can't stall a move.
-    const next = [...fields];
-    next[index] = b;
-    next[index + dir] = a;
+  /** Drop a row somewhere new: reorder locally right away, then save the new order. */
+  async function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const from = fields.findIndex((f) => f.id === active.id);
+    const to = fields.findIndex((f) => f.id === over.id);
+    if (from < 0 || to < 0) return;
+    const next = arrayMove(fields, from, to);
     setFields(next);
+    // Re-number the whole list so equal sort_orders can never stall a move.
     const results = await Promise.all(
       next.map((f, i) =>
         f.sort_order === i + 1
@@ -197,10 +217,10 @@ export function CustomFieldsPanel() {
               method: 'PATCH',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ sort_order: i + 1 }),
-            }).then((r) => r.ok),
-      ),
+            }).then((r) => r.ok)
+      )
     );
-    if (results.some((ok) => !ok)) toast.error(t('toastRenameFailed'));
+    if (results.some((ok) => !ok)) toast.error(t('toastReorderFailed'));
     await fetchFields();
   }
 
@@ -341,21 +361,21 @@ export function CustomFieldsPanel() {
         ) : fields.length === 0 ? (
           <p className="py-8 text-center text-sm text-muted-foreground">{t('empty')}</p>
         ) : (
-          <ul className="divide-y divide-border">
-            {fields.map((field, i) => (
-              <FieldRow
-                key={field.id}
-                field={field}
-                busy={busyId === field.id}
-                isFirst={i === 0}
-                isLast={i === fields.length - 1}
-                onRename={handleRename}
-                onDelete={handleDelete}
-                onToggleColumn={handleToggleColumn}
-                onMove={(dir) => handleMove(i, dir)}
-              />
-            ))}
-          </ul>
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            <SortableContext items={fields.map((f) => f.id)} strategy={verticalListSortingStrategy}>
+              <ul className="divide-y divide-border">
+                {fields.map((field) => (
+                  <FieldRow
+                    key={field.id}
+                    field={field}
+                    busy={busyId === field.id}
+                    onRename={handleRename}
+                    onDelete={handleDelete}
+                  />
+                ))}
+              </ul>
+            </SortableContext>
+          </DndContext>
         )}
       </div>
     </div>
@@ -367,24 +387,18 @@ export function CustomFieldsPanel() {
 function FieldRow({
   field,
   busy,
-  isFirst,
-  isLast,
   onRename,
   onDelete,
-  onToggleColumn,
-  onMove,
 }: {
   field: CustomField;
   busy: boolean;
-  isFirst: boolean;
-  isLast: boolean;
   onRename: (field: CustomField, name: string) => Promise<boolean>;
   onDelete: (field: CustomField) => void;
-  onToggleColumn: (field: CustomField) => void;
-  onMove: (dir: -1 | 1) => void;
 }) {
   const t = useTranslations('Contacts.customFields');
   const [name, setName] = useState(field.field_name);
+  const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } =
+    useSortable({ id: field.id });
 
   async function commit() {
     if (name.trim() === field.field_name) {
@@ -396,7 +410,25 @@ function FieldRow({
   }
 
   return (
-    <li className="flex items-center gap-1.5 px-2 py-1.5">
+    <li
+      ref={setNodeRef}
+      style={{ transform: CSS.Transform.toString(transform), transition }}
+      className={cn(
+        'relative flex items-center gap-1.5 bg-card px-1.5 py-1.5',
+        isDragging && 'z-10 rounded-md shadow-lg ring-1 ring-primary/40'
+      )}
+    >
+      <button
+        type="button"
+        ref={setActivatorNodeRef}
+        {...attributes}
+        {...listeners}
+        aria-label={t('dragHandle', { name: field.field_name })}
+        title={t('dragHint')}
+        className="flex size-7 shrink-0 cursor-grab touch-none items-center justify-center rounded text-muted-foreground hover:bg-muted hover:text-foreground active:cursor-grabbing"
+      >
+        <GripVertical className="size-4" />
+      </button>
       <Input
         value={name}
         disabled={busy || field.locked}
@@ -411,40 +443,6 @@ function FieldRow({
       <span className="shrink-0 rounded bg-muted px-1.5 py-0.5 text-[11px] text-muted-foreground">
         {t(`types.${field.field_type}`)}
       </span>
-      <Button
-        variant="ghost"
-        size="icon-sm"
-        disabled={busy}
-        onClick={() => onToggleColumn(field)}
-        title={t('columnToggle')}
-        aria-pressed={!!field.show_in_table}
-        className={cn(
-          'shrink-0',
-          field.show_in_table ? 'text-primary' : 'text-muted-foreground'
-        )}
-      >
-        <Columns3 className="size-4" />
-      </Button>
-      <Button
-        variant="ghost"
-        size="icon-sm"
-        disabled={busy || isFirst}
-        onClick={() => onMove(-1)}
-        title={t('moveUp')}
-        className="shrink-0 text-muted-foreground"
-      >
-        <ArrowUp className="size-4" />
-      </Button>
-      <Button
-        variant="ghost"
-        size="icon-sm"
-        disabled={busy || isLast}
-        onClick={() => onMove(1)}
-        title={t('moveDown')}
-        className="shrink-0 text-muted-foreground"
-      >
-        <ArrowDown className="size-4" />
-      </Button>
       <Button
         variant="ghost"
         size="icon-sm"

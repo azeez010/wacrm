@@ -646,7 +646,8 @@
         "currency": "Moeda",
         "dealsCreated": "{count, plural, one {# negócio criado} other {# negócios criados}}",
         "addDealRun": "{count, plural, one {Criar # negócio} other {Criar # negócios}}"
-      }
+      },
+      "tagsButton": "Tags"
     },
     "form": {
       "addTitle": "Adicionar contato",
@@ -862,9 +863,6 @@
         "percent": "Percentual"
       },
       "showAsColumn": "Mostrar como coluna em Contatos",
-      "columnToggle": "Mostrar como coluna em Contatos",
-      "moveUp": "Mover para cima",
-      "moveDown": "Mover para baixo",
       "toastArchived": "\"{name}\" foi arquivado. Os valores dele foram mantidos.",
       "acceptLabel": "Arquivos permitidos",
       "accept": {
@@ -873,7 +871,10 @@
         "document": "Somente documentos",
         "video": "Somente vídeo",
         "audio": "Somente áudio"
-      }
+      },
+      "dragHandle": "Arraste para reordenar: {name}",
+      "dragHint": "Arraste para reordenar",
+      "toastReorderFailed": "Não foi possível salvar a nova ordem."
     }
   },
   "Pipelines": {
@@ -2435,7 +2436,10 @@
         "api_keys": "Chaves de API",
         "webhook_endpoints": "Webhooks de saída",
         "ai_replies_per_month": "Respostas de IA / mês",
-        "storage_mb": "Armazenamento de mídia (MB)"
+        "storage_mb": "Armazenamento de mídia (MB)",
+        "custom_fields_max": "Campos personalizados de contato",
+        "custom_tables_max": "Tabelas personalizadas",
+        "custom_records_max": "Linhas de tabelas personalizadas"
       },
       "features": {
         "broadcasts": "Campanhas de transmissão",
@@ -2448,7 +2452,8 @@
         "csv_import": "Importar / exportar CSV",
         "coexistence": "Use o número do seu app WhatsApp Business atual",
         "custom_connection": "Traga seu próprio app da Meta",
-        "priority_support": "Suporte prioritário"
+        "priority_support": "Suporte prioritário",
+        "custom_fields": "Campos personalizados, segmentos e tabelas"
       }
     },
     "language": {

@@ -611,6 +611,41 @@
         "deleted": "\"{name}\" 세그먼트를 삭제했습니다.",
         "duplicate": "\"{name}\" 세그먼트가 이미 있습니다.",
         "saveFailed": "세그먼트를 저장할 수 없습니다."
+      },
+      "refresh": "새로고침",
+      "rowsPerPage": "페이지당 행 수",
+      "bulk": {
+        "actions": "작업",
+        "addTag": "태그 추가",
+        "removeTag": "태그 제거",
+        "sendTemplate": "템플릿 보내기",
+        "addDeal": "딜 추가",
+        "close": "닫기",
+        "cancel": "취소",
+        "progress": "{total}개 중 {done}개",
+        "failedCount": "{count}개 실패",
+        "addTagTitle": "태그 추가",
+        "removeTagTitle": "태그 제거",
+        "forContacts": "선택한 연락처 {count}개",
+        "forOneContact": "이 연락처",
+        "pickTag": "태그 선택",
+        "noTags": "아직 태그가 없습니다. 설정에서 만드세요.",
+        "taggedCount": "연락처 {count}개에 태그 추가됨",
+        "untaggedCount": "연락처 {count}개에서 태그 제거됨",
+        "alreadyHadCount": "{count}개는 이미 있음",
+        "addTagRun": "연락처 {count}개에 태그 추가",
+        "removeTagRun": "연락처 {count}개에서 태그 제거",
+        "sendTemplateFailed": "선택 항목을 브로드캐스트 마법사로 넘기지 못했습니다.",
+        "addDealTitle": "딜 추가",
+        "noPipelines": "아직 파이프라인이 없습니다. 파이프라인 페이지에서 만드세요.",
+        "pipeline": "파이프라인",
+        "stage": "단계",
+        "dealTitle": "딜 제목",
+        "dealTitleHint": "연락처 이름은 {name}을 사용하세요. 연락처마다 딜이 하나씩 생성됩니다.",
+        "dealValue": "금액",
+        "currency": "통화",
+        "dealsCreated": "딜 {count}개 생성됨",
+        "addDealRun": "딜 {count}개 생성"
       }
     },
     "form": {
@@ -689,7 +724,8 @@
         "noNotes": "아직 메모가 없습니다."
       },
       "dealsTab": {
-        "noDeals": "아직 딜이 없습니다"
+        "noDeals": "아직 딜이 없습니다",
+        "addDeal": "딜 추가"
       },
       "tagsTab": {
         "clickTagDesc": "태그를 클릭해 이 연락처에 추가하거나 제거하세요.",
@@ -1117,7 +1153,10 @@
         "segmentDesc": "저장된 연락처 세그먼트로 보냅니다.",
         "pickSegment": "세그먼트 선택",
         "noSegments": "아직 세그먼트가 없습니다. 연락처 필터에서 저장하세요.",
-        "segmentLive": "세그먼트는 발송 시점에 다시 계산되므로 항상 최신 연락처가 사용됩니다."
+        "segmentLive": "세그먼트는 발송 시점에 다시 계산되므로 항상 최신 연락처가 사용됩니다.",
+        "selectedContacts": "선택한 연락처 {count}개",
+        "selectedContactsDesc": "연락처 페이지에서 고른 연락처로 브로드캐스트가 전송됩니다.",
+        "chooseDifferent": "다른 대상 선택"
       },
       "personalize": {
         "title": "변수 개인화",
@@ -1179,7 +1218,8 @@
         "language": "언어",
         "confirmTitle": "브로드캐스트 확인",
         "confirmDesc": "<b>{template}</b> 템플릿으로 연락처 <b>{count, number}</b>명에게 이 브로드캐스트를 보내려고 합니다. 이 작업은 되돌릴 수 없습니다.",
-        "audienceSegment": "저장된 세그먼트"
+        "audienceSegment": "저장된 세그먼트",
+        "audienceContacts": "선택한 연락처"
       }
     },
     "sending": {

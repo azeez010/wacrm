@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { BROADCAST_CONTACTS_KEY } from '@/lib/contacts/bulk';
 import { createClient } from '@/lib/supabase/client';
 import { useAuth } from '@/hooks/use-auth';
 import { toast } from 'sonner';
@@ -36,6 +37,22 @@ export default function NewBroadcastPage() {
   >({});
   const [headerMediaUrl, setHeaderMediaUrl] = useState('');
   const [name, setName] = useState('');
+
+  // "Send template" from the Contacts bulk bar hands over the selected ids.
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get('audience') !== 'contacts') return;
+    try {
+      const raw = window.sessionStorage.getItem(BROADCAST_CONTACTS_KEY);
+      window.sessionStorage.removeItem(BROADCAST_CONTACTS_KEY);
+      const ids: unknown = raw ? JSON.parse(raw) : null;
+      if (Array.isArray(ids) && ids.length > 0) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setAudience({ type: 'contacts', contactIds: ids.filter((x): x is string => typeof x === 'string') });
+      }
+    } catch {
+      /* no selection handed over: keep the default audience */
+    }
+  }, []);
 
   async function handleSend() {
     if (!template) return;

@@ -68,7 +68,12 @@ import { buildContactsCsv } from '@/lib/contacts/export-csv';
 import { MediaCell } from '@/components/custom-fields/media-cell';
 import type { FieldDef } from '@/lib/custom-fields/types';
 import { useAuth } from '@/hooks/use-auth';
-import { ArrowDown, ArrowUp, Columns3, Download } from 'lucide-react';
+import { ArrowDown, ArrowUp, Columns3, Download, RefreshCw } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { BulkActionsMenu, type BulkAction } from '@/components/contacts/bulk-actions-menu';
+import { BulkTagDialog } from '@/components/contacts/bulk-tag-dialog';
+import { BulkDealDialog } from '@/components/contacts/bulk-deal-dialog';
+import { BROADCAST_CONTACTS_KEY } from '@/lib/contacts/bulk';
 import { FilterBuilder, customKindMap } from '@/components/segments/filter-builder';
 import { countRules, normalizeFilter } from '@/lib/segments/validate';
 import { EMPTY_FILTER, type FilterGroup, type Segment } from '@/lib/segments/types';
@@ -80,7 +85,9 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 
-const PAGE_SIZE = 25;
+const PAGE_SIZES = [25, 50, 100] as const;
+const DEFAULT_PAGE_SIZE = 25;
+const PAGE_SIZE_KEY = 'wacrm:contacts-page-size';
 /** Custom columns shown by default (fields flagged show_in_table), so the table stays scroll-free. */
 const DEFAULT_CUSTOM_COLUMNS = 3;
 type BuiltinColumn = 'email' | 'company' | 'tags' | 'created';
@@ -148,7 +155,14 @@ export default function ContactsPage() {
   const [deleting, setDeleting] = useState(false);
 
   // Bulk selection (page-scoped - only the loaded rows are selectable)
+  const router = useRouter();
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [pageSize, setPageSize] = useState<number>(DEFAULT_PAGE_SIZE);
+  const [fieldsRefreshKey, setFieldsRefreshKey] = useState(0);
+  const [bulkAction, setBulkAction] = useState<'add-tag' | 'remove-tag' | 'add-deal' | null>(null);
+  // After a refresh or a bulk action the selection should survive: when this
+  // timestamp is in the future the next fetches keep (and prune) the selection.
+  const keepSelectionUntil = useRef(0);
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
 
   // All tags for display
@@ -175,7 +189,7 @@ export default function ContactsPage() {
     if (data) {
       const map: Record<string, Tag> = {};
       data.forEach((t) => (map[t.id] = t));
-      setTagsMap(map);
+      setTagsMap((prev) => (JSON.stringify(prev) === JSON.stringify(map) ? prev : map));
     }
   }, [supabase]);
 
@@ -192,10 +206,10 @@ export default function ContactsPage() {
     // The visible rows are about to change - drop any selection that
     // referred to the old page/search results so the bulk bar can't
     // act on rows the user can no longer see.
-    setSelected(new Set());
+    if (Date.now() >= keepSelectionUntil.current) setSelected(new Set());
 
-    const from = page * PAGE_SIZE;
-    const to = from + PAGE_SIZE - 1;
+    const from = page * pageSize;
+    const to = from + pageSize - 1;
     const term = search.trim();
 
     let contactRows: Contact[];
@@ -209,7 +223,7 @@ export default function ContactsPage() {
       const { data, error } = await supabase.rpc('filter_contacts', {
         p_filter: effectiveFilter,
         p_search: contactSearchPattern(term),
-        p_limit: PAGE_SIZE,
+        p_limit: pageSize,
         p_offset: from,
         p_sort_field: sort?.field ?? null,
         p_sort_dir: sort?.dir ?? 'desc',
@@ -237,7 +251,7 @@ export default function ContactsPage() {
       const { data, count: exactCount, error } = await query;
       if (seq !== fetchSeq.current) return; // superseded by a newer fetch
       const pageInRange = error
-        ? pageAfterRangeError(page, PAGE_SIZE, error)
+        ? pageAfterRangeError(page, pageSize, error)
         : null;
       if (pageInRange !== null && pageInRange !== page) {
         setPage(pageInRange);
@@ -254,11 +268,19 @@ export default function ContactsPage() {
 
     setTotalCount(count);
 
-    const boundedPage = pageAfterShrink(page, count, PAGE_SIZE, countIsExact);
+    const boundedPage = pageAfterShrink(page, count, pageSize, countIsExact);
     if (contactRows.length === 0 && boundedPage !== page) {
       setPage(boundedPage);
       return;
     }
+
+    // Keep only selected ids that are still on this page.
+    const idsOnPage = new Set(contactRows.map((c) => c.id));
+    setSelected((prev) =>
+      prev.size === 0 || [...prev].every((id) => idsOnPage.has(id))
+        ? prev
+        : new Set([...prev].filter((id) => idsOnPage.has(id)))
+    );
 
     if (contactRows.length === 0) {
       setContacts([]);
@@ -289,7 +311,7 @@ export default function ContactsPage() {
 
     setContacts(enriched);
     setLoading(false);
-  }, [supabase, page, search, effectiveFilter, sort, tagsMap, t]);
+  }, [supabase, page, pageSize, search, effectiveFilter, sort, tagsMap, t]);
 
   // Load-once-on-mount-ish data fetches. Each setter inside runs
   // inside an async promise completion (Supabase await), not
@@ -335,7 +357,7 @@ export default function ContactsPage() {
     return () => {
       cancelled = true;
     };
-  }, [supabase, customFieldsOpen]);
+  }, [supabase, customFieldsOpen, fieldsRefreshKey]);
 
   // Load the saved column preference for this account.
   useEffect(() => {
@@ -505,7 +527,7 @@ export default function ContactsPage() {
     setBulkDeleteOpen(false);
   }
 
-  const totalPages = Math.ceil(totalCount / PAGE_SIZE);
+  const totalPages = Math.ceil(totalCount / pageSize);
   const hasNext = page < totalPages - 1;
   const hasPrev = page > 0;
 
@@ -625,6 +647,52 @@ export default function ContactsPage() {
     } finally {
       setExporting(false);
     }
+  }
+
+  // Remembered rows-per-page (per browser).
+  useEffect(() => {
+    try {
+      const saved = Number(window.localStorage.getItem(PAGE_SIZE_KEY));
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      if ((PAGE_SIZES as readonly number[]).includes(saved)) setPageSize(saved);
+    } catch {
+      /* storage unavailable: keep the default */
+    }
+  }, []);
+
+  function changePageSize(next: number) {
+    setPageSize(next);
+    setPage(0);
+    try {
+      window.localStorage.setItem(PAGE_SIZE_KEY, String(next));
+    } catch {
+      /* ignore */
+    }
+  }
+
+  /** Reload rows, tags, segments and field definitions, keeping the selection. */
+  function refresh() {
+    keepSelectionUntil.current = Date.now() + 4000;
+    setFieldsRefreshKey((k) => k + 1);
+    void fetchTags();
+    void loadSegments();
+    void fetchContacts();
+  }
+
+  const selectedContacts = contacts.filter((c) => selected.has(c.id));
+
+  function handleBulkAction(action: BulkAction) {
+    if (action === 'send-template') {
+      try {
+        window.sessionStorage.setItem(BROADCAST_CONTACTS_KEY, JSON.stringify([...selected]));
+      } catch {
+        toast.error(t('bulk.sendTemplateFailed'));
+        return;
+      }
+      router.push('/broadcasts/new?audience=contacts');
+      return;
+    }
+    setBulkAction(action);
   }
 
   async function loadSegments() {
@@ -894,6 +962,18 @@ export default function ContactsPage() {
               </div>
             </PopoverContent>
           </Popover>
+
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={refresh}
+            disabled={loading}
+            className="border-border text-muted-foreground hover:bg-muted shrink-0"
+            aria-label={t('refresh')}
+            title={t('refresh')}
+          >
+            <RefreshCw className={`size-4 ${loading ? 'animate-spin' : ''}`} />
+          </Button>
         </div>
 
         {activeSegment && (
@@ -926,6 +1006,7 @@ export default function ContactsPage() {
             >
               {t('clearSelection')}
             </Button>
+            {canEdit && <BulkActionsMenu onAction={handleBulkAction} />}
             <GatedButton
               variant="destructive"
               size="sm"
@@ -1147,40 +1228,75 @@ export default function ContactsPage() {
         </Table>
       </div>
 
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex items-center justify-between">
-          <p className="text-xs text-muted-foreground">
-            {t('showingPagination', {
-              start: page * PAGE_SIZE + 1,
-              end: Math.min((page + 1) * PAGE_SIZE, totalCount),
-              total: totalCount
-            })}
-          </p>
-          <div className="flex items-center gap-1">
-            <Button
-              variant="outline"
-              size="icon-sm"
-              disabled={!hasPrev}
-              onClick={() => setPage((p) => p - 1)}
-              className="border-border text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-30"
-            >
-              <ChevronLeft className="size-4" />
-            </Button>
-            <span className="text-xs text-muted-foreground px-2">
-              {t('pageCount', { page: page + 1, total: totalPages })}
-            </span>
-            <Button
-              variant="outline"
-              size="icon-sm"
-              disabled={!hasNext}
-              onClick={() => setPage((p) => p + 1)}
-              className="border-border text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-30"
-            >
-              <ChevronRight className="size-4" />
-            </Button>
+      {/* Pagination + rows per page */}
+      {totalCount > PAGE_SIZES[0] && (
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex flex-wrap items-center gap-3">
+            <p className="text-xs text-muted-foreground">
+              {t('showingPagination', {
+                start: page * pageSize + 1,
+                end: Math.min((page + 1) * pageSize, totalCount),
+                total: totalCount
+              })}
+            </p>
+            <label className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              {t('rowsPerPage')}
+              <select
+                value={pageSize}
+                onChange={(e) => changePageSize(Number(e.target.value))}
+                className="h-7 rounded-md border border-border bg-card px-1.5 text-xs text-foreground outline-none focus:border-primary"
+              >
+                {PAGE_SIZES.map((n) => (
+                  <option key={n} value={n}>
+                    {n}
+                  </option>
+                ))}
+              </select>
+            </label>
           </div>
+          {totalPages > 1 && (
+            <div className="flex items-center gap-1">
+              <Button
+                variant="outline"
+                size="icon-sm"
+                disabled={!hasPrev}
+                onClick={() => setPage((p) => p - 1)}
+                className="border-border text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-30"
+              >
+                <ChevronLeft className="size-4" />
+              </Button>
+              <span className="text-xs text-muted-foreground px-2">
+                {t('pageCount', { page: page + 1, total: totalPages })}
+              </span>
+              <Button
+                variant="outline"
+                size="icon-sm"
+                disabled={!hasNext}
+                onClick={() => setPage((p) => p + 1)}
+                className="border-border text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-30"
+              >
+                <ChevronRight className="size-4" />
+              </Button>
+            </div>
+          )}
         </div>
+      )}
+
+      {/* Bulk dialogs */}
+      {(bulkAction === 'add-tag' || bulkAction === 'remove-tag') && (
+        <BulkTagDialog
+          mode={bulkAction === 'add-tag' ? 'add' : 'remove'}
+          contacts={selectedContacts}
+          tags={allTags}
+          onClose={() => setBulkAction(null)}
+          onDone={() => {
+            keepSelectionUntil.current = Date.now() + 4000;
+            void fetchContacts();
+          }}
+        />
+      )}
+      {bulkAction === 'add-deal' && (
+        <BulkDealDialog contacts={selectedContacts} onClose={() => setBulkAction(null)} onDone={() => undefined} />
       )}
 
       {/* Contact Form Dialog */}

@@ -611,6 +611,41 @@
         "deleted": "Segmento \"{name}\" eliminado.",
         "duplicate": "Ya existe un segmento llamado \"{name}\".",
         "saveFailed": "No se pudo guardar el segmento."
+      },
+      "refresh": "Actualizar",
+      "rowsPerPage": "Filas por página",
+      "bulk": {
+        "actions": "Acciones",
+        "addTag": "Añadir etiqueta",
+        "removeTag": "Quitar etiqueta",
+        "sendTemplate": "Enviar plantilla",
+        "addDeal": "Añadir negocio",
+        "close": "Cerrar",
+        "cancel": "Cancelar",
+        "progress": "{done} de {total}",
+        "failedCount": "{count, plural, one {# falló} other {# fallaron}}",
+        "addTagTitle": "Añadir una etiqueta",
+        "removeTagTitle": "Quitar una etiqueta",
+        "forContacts": "{count, plural, one {Para # contacto seleccionado} other {Para # contactos seleccionados}}",
+        "forOneContact": "Para este contacto",
+        "pickTag": "Elige una etiqueta",
+        "noTags": "Aún no hay etiquetas. Créalas en Ajustes.",
+        "taggedCount": "{count, plural, one {# contacto etiquetado} other {# contactos etiquetados}}",
+        "untaggedCount": "{count, plural, one {# contacto sin la etiqueta} other {# contactos sin la etiqueta}}",
+        "alreadyHadCount": "{count, plural, one {# ya la tenía} other {# ya la tenían}}",
+        "addTagRun": "{count, plural, one {Etiquetar # contacto} other {Etiquetar # contactos}}",
+        "removeTagRun": "{count, plural, one {Quitar etiqueta a # contacto} other {Quitar etiqueta a # contactos}}",
+        "sendTemplateFailed": "No se pudo pasar la selección al asistente de difusión.",
+        "addDealTitle": "Añadir un negocio",
+        "noPipelines": "Aún no hay embudos. Crea uno en la página Embudos.",
+        "pipeline": "Embudo",
+        "stage": "Etapa",
+        "dealTitle": "Título del negocio",
+        "dealTitleHint": "Usa {name} para el nombre del contacto. Cada contacto recibe su propio negocio.",
+        "dealValue": "Valor",
+        "currency": "Moneda",
+        "dealsCreated": "{count, plural, one {# negocio creado} other {# negocios creados}}",
+        "addDealRun": "{count, plural, one {Crear # negocio} other {Crear # negocios}}"
       }
     },
     "form": {
@@ -689,7 +724,8 @@
         "noNotes": "Aún no hay notas."
       },
       "dealsTab": {
-        "noDeals": "Aún no hay negocios"
+        "noDeals": "Aún no hay negocios",
+        "addDeal": "Añadir negocio"
       },
       "tagsTab": {
         "clickTagDesc": "Haz clic en una etiqueta para agregarla o quitarla de este contacto.",
@@ -1117,7 +1153,10 @@
         "segmentDesc": "Envía a un segmento guardado de contactos.",
         "pickSegment": "Elige un segmento",
         "noSegments": "Aún no hay segmentos. Guarda uno desde el filtro de Contactos.",
-        "segmentLive": "El segmento se vuelve a evaluar al enviar, así que siempre usa los contactos más recientes."
+        "segmentLive": "El segmento se vuelve a evaluar al enviar, así que siempre usa los contactos más recientes.",
+        "selectedContacts": "{count, plural, one {# contacto seleccionado} other {# contactos seleccionados}}",
+        "selectedContactsDesc": "La difusión se envía a los contactos que elegiste en la página Contactos.",
+        "chooseDifferent": "Elegir otra audiencia"
       },
       "personalize": {
         "title": "Personalizar variables",
@@ -1179,7 +1218,8 @@
         "language": "Idioma",
         "confirmTitle": "Confirmar difusión",
         "confirmDesc": "Estás a punto de enviar esta difusión a <b>{count, number}</b> {count, plural, =1 {contacto} other {contactos}} con la plantilla <b>{template}</b>. Esta acción no se puede deshacer.",
-        "audienceSegment": "Segmento guardado"
+        "audienceSegment": "Segmento guardado",
+        "audienceContacts": "Contactos seleccionados"
       }
     },
     "sending": {

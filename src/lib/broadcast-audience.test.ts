@@ -442,3 +442,21 @@ describe('segment audience', () => {
     expect(await countAudience(empty, { type: 'segment', segmentId: 'x' })).toBeNull()
   })
 })
+
+describe('explicit contacts audience (bulk "Send template")', () => {
+  it('stores only the count, never the ids', () => {
+    const stored = serializeAudience({ type: 'contacts', contactIds: ['a', 'b', 'c'] });
+    expect(stored).toMatchObject({ type: 'contacts', contactCount: 3 });
+    expect(JSON.stringify(stored)).not.toContain('"a"');
+    expect(parseStoredAudience(stored).type).toBe('contacts');
+  });
+  it('counts the picked ids without a database call', async () => {
+    const db = {} as never;
+    expect(await countAudience(db, { type: 'contacts', contactIds: ['a', 'b'] })).toBe(2);
+    expect(await countAudience(db, { type: 'contacts', contactIds: [] })).toBeNull();
+  });
+  it('resolves nothing for an empty selection', async () => {
+    const out = await resolveAudienceContacts({} as never, { type: 'contacts', contactIds: [] }, async () => []);
+    expect(out).toEqual([]);
+  });
+});

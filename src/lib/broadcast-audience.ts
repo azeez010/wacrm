@@ -12,7 +12,7 @@ export interface CustomFieldFilter {
   value: string;
 }
 
-export type AudienceType = 'all' | 'tags' | 'custom_field' | 'segment' | 'csv';
+export type AudienceType = 'all' | 'tags' | 'custom_field' | 'segment' | 'contacts' | 'csv';
 
 export interface CsvAudienceRow {
   phone: string;
@@ -29,6 +29,8 @@ export interface AudienceConfig {
   segmentId?: string;
   /** Ad hoc filter (API / MCP); wins over `segmentId` when both are set. */
   filter?: FilterGroup;
+  /** Explicit contacts picked on the Contacts page (not persisted, only the count is). */
+  contactIds?: string[];
 }
 
 /**
@@ -44,13 +46,15 @@ export function serializeAudience(audience: AudienceConfig): Record<string, unkn
     excludeTagIds: audience.excludeTagIds,
     segmentId: audience.segmentId,
     filter: audience.filter,
+    // Ids are not stored (could be thousands); the count is enough to recognise the audience.
+    contactCount: audience.type === 'contacts' ? audience.contactIds?.length : undefined,
   };
 }
 
 /** Read a stored `audience_filter` back into an AudienceConfig (tolerates old rows). */
 export function parseStoredAudience(raw: unknown): AudienceConfig {
   const r = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>;
-  const types: AudienceType[] = ['all', 'tags', 'custom_field', 'segment', 'csv'];
+  const types: AudienceType[] = ['all', 'tags', 'custom_field', 'segment', 'contacts', 'csv'];
   const type = types.includes(r.type as AudienceType) ? (r.type as AudienceType) : 'all';
   return {
     type,
@@ -221,6 +225,12 @@ export async function resolveAudienceContacts(
   const excluded = await fetchExcludedIds(db, audience);
   const keep = (contact: Contact) => !excluded.has(contact.id);
 
+  if (audience.type === 'contacts') {
+    const ids = audience.contactIds ?? [];
+    if (ids.length === 0) return [];
+    return (await fetchContactsByIds(db, ids)).filter(keep);
+  }
+
   if (audience.type === 'segment') {
     const filter = await audienceFilter(db, audience, opts.accountId);
     if (!filter) throw new Error('The selected segment no longer exists');
@@ -247,6 +257,14 @@ export async function countAudience(
   audience: AudienceConfig,
   opts: { accountId?: string } = {},
 ): Promise<number | null> {
+  if (audience.type === 'contacts') {
+    const ids = audience.contactIds ?? [];
+    if (ids.length === 0) return null;
+    if (!audience.excludeTagIds || audience.excludeTagIds.length === 0) return ids.length;
+    const excluded = await fetchExcludedIds(db, audience);
+    return ids.filter((id) => !excluded.has(id)).length;
+  }
+
   if (audience.type === 'segment') {
     const filter = await audienceFilter(db, audience, opts.accountId);
     if (!filter) return null;

@@ -611,6 +611,41 @@
         "deleted": "Segmento \"{name}\" excluído.",
         "duplicate": "Já existe um segmento chamado \"{name}\".",
         "saveFailed": "Não foi possível salvar o segmento."
+      },
+      "refresh": "Atualizar",
+      "rowsPerPage": "Linhas por página",
+      "bulk": {
+        "actions": "Ações",
+        "addTag": "Adicionar tag",
+        "removeTag": "Remover tag",
+        "sendTemplate": "Enviar modelo",
+        "addDeal": "Adicionar negócio",
+        "close": "Fechar",
+        "cancel": "Cancelar",
+        "progress": "{done} de {total}",
+        "failedCount": "{count, plural, one {# falhou} other {# falharam}}",
+        "addTagTitle": "Adicionar uma tag",
+        "removeTagTitle": "Remover uma tag",
+        "forContacts": "{count, plural, one {Para # contato selecionado} other {Para # contatos selecionados}}",
+        "forOneContact": "Para este contato",
+        "pickTag": "Escolha uma tag",
+        "noTags": "Ainda não há tags. Crie tags em Configurações.",
+        "taggedCount": "{count, plural, one {# contato marcado} other {# contatos marcados}}",
+        "untaggedCount": "{count, plural, one {# contato sem a tag} other {# contatos sem a tag}}",
+        "alreadyHadCount": "{count, plural, one {# já tinha} other {# já tinham}}",
+        "addTagRun": "{count, plural, one {Marcar # contato} other {Marcar # contatos}}",
+        "removeTagRun": "{count, plural, one {Remover tag de # contato} other {Remover tag de # contatos}}",
+        "sendTemplateFailed": "Não foi possível passar a seleção ao assistente de transmissão.",
+        "addDealTitle": "Adicionar um negócio",
+        "noPipelines": "Ainda não há funis. Crie um na página Funis.",
+        "pipeline": "Funil",
+        "stage": "Etapa",
+        "dealTitle": "Título do negócio",
+        "dealTitleHint": "Use {name} para o nome do contato. Cada contato recebe seu próprio negócio.",
+        "dealValue": "Valor",
+        "currency": "Moeda",
+        "dealsCreated": "{count, plural, one {# negócio criado} other {# negócios criados}}",
+        "addDealRun": "{count, plural, one {Criar # negócio} other {Criar # negócios}}"
       }
     },
     "form": {
@@ -689,7 +724,8 @@
         "noNotes": "Nenhuma nota ainda."
       },
       "dealsTab": {
-        "noDeals": "Nenhum negócio ainda"
+        "noDeals": "Nenhum negócio ainda",
+        "addDeal": "Adicionar negócio"
       },
       "tagsTab": {
         "clickTagDesc": "Clique em uma tag para adicioná-la ou removê-la deste contato.",
@@ -1117,7 +1153,10 @@
         "segmentDesc": "Envie para um segmento salvo de contatos.",
         "pickSegment": "Escolha um segmento",
         "noSegments": "Ainda não há segmentos. Salve um pelo filtro de Contatos.",
-        "segmentLive": "O segmento é reavaliado no envio, então sempre usa os contatos mais recentes."
+        "segmentLive": "O segmento é reavaliado no envio, então sempre usa os contatos mais recentes.",
+        "selectedContacts": "{count, plural, one {# contato selecionado} other {# contatos selecionados}}",
+        "selectedContactsDesc": "A transmissão vai para os contatos escolhidos na página Contatos.",
+        "chooseDifferent": "Escolher outro público"
       },
       "personalize": {
         "title": "Personalizar variáveis",
@@ -1179,7 +1218,8 @@
         "language": "Idioma",
         "confirmTitle": "Confirmar disparo",
         "confirmDesc": "Você está prestes a enviar este disparo para <b>{count, number}</b> {count, plural, =1 {contato} other {contatos}} usando o modelo <b>{template}</b>. Esta ação não pode ser desfeita.",
-        "audienceSegment": "Segmento salvo"
+        "audienceSegment": "Segmento salvo",
+        "audienceContacts": "Contatos selecionados"
       }
     },
     "sending": {

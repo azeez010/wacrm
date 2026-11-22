@@ -611,6 +611,41 @@
         "deleted": "Segment \"{name}\" deleted.",
         "duplicate": "A segment named \"{name}\" already exists.",
         "saveFailed": "Could not save the segment."
+      },
+      "refresh": "Refresh",
+      "rowsPerPage": "Rows per page",
+      "bulk": {
+        "actions": "Actions",
+        "addTag": "Add tag",
+        "removeTag": "Remove tag",
+        "sendTemplate": "Send template",
+        "addDeal": "Add deal",
+        "close": "Close",
+        "cancel": "Cancel",
+        "progress": "{done} of {total}",
+        "failedCount": "{count, plural, one {# failed} other {# failed}}",
+        "addTagTitle": "Add a tag",
+        "removeTagTitle": "Remove a tag",
+        "forContacts": "{count, plural, one {For # selected contact} other {For # selected contacts}}",
+        "forOneContact": "For this contact",
+        "pickTag": "Pick a tag",
+        "noTags": "No tags yet. Create tags in Settings.",
+        "taggedCount": "{count, plural, one {# contact tagged} other {# contacts tagged}}",
+        "untaggedCount": "{count, plural, one {# contact untagged} other {# contacts untagged}}",
+        "alreadyHadCount": "{count, plural, one {# already had it} other {# already had it}}",
+        "addTagRun": "{count, plural, one {Tag # contact} other {Tag # contacts}}",
+        "removeTagRun": "{count, plural, one {Untag # contact} other {Untag # contacts}}",
+        "sendTemplateFailed": "Could not hand the selection to the broadcast wizard.",
+        "addDealTitle": "Add a deal",
+        "noPipelines": "No pipelines yet. Create one on the Pipelines page.",
+        "pipeline": "Pipeline",
+        "stage": "Stage",
+        "dealTitle": "Deal title",
+        "dealTitleHint": "Use {name} for the contact's name. Each contact gets its own deal.",
+        "dealValue": "Value",
+        "currency": "Currency",
+        "dealsCreated": "{count, plural, one {# deal created} other {# deals created}}",
+        "addDealRun": "{count, plural, one {Create # deal} other {Create # deals}}"
       }
     },
     "form": {
@@ -689,7 +724,8 @@
         "noNotes": "No notes yet."
       },
       "dealsTab": {
-        "noDeals": "No deals yet"
+        "noDeals": "No deals yet",
+        "addDeal": "Add deal"
       },
       "tagsTab": {
         "clickTagDesc": "Click a tag to add or remove it from this contact.",
@@ -1117,7 +1153,10 @@
         "segmentDesc": "Send to a saved segment of contacts.",
         "pickSegment": "Pick a segment",
         "noSegments": "No segments yet. Save one from the Contacts filter.",
-        "segmentLive": "The segment is re-evaluated when you send, so it always uses the latest contacts."
+        "segmentLive": "The segment is re-evaluated when you send, so it always uses the latest contacts.",
+        "selectedContacts": "{count, plural, one {# selected contact} other {# selected contacts}}",
+        "selectedContactsDesc": "The broadcast goes to the contacts you picked on the Contacts page.",
+        "chooseDifferent": "Choose a different audience"
       },
       "personalize": {
         "title": "Personalize Variables",
@@ -1179,7 +1218,8 @@
         "language": "Language",
         "confirmTitle": "Confirm Broadcast",
         "confirmDesc": "You are about to send this broadcast to <b>{count, number}</b> {count, plural, =1 {contact} other {contacts}} using the <b>{template}</b> template. This action cannot be undone.",
-        "audienceSegment": "Saved segment"
+        "audienceSegment": "Saved segment",
+        "audienceContacts": "Selected contacts"
       }
     },
     "sending": {

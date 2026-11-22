@@ -44,6 +44,7 @@ import { useTranslations } from 'next-intl';
 import { planTypedValueWrites } from '@/lib/custom-fields/value-writes';
 import type { FieldDef } from '@/lib/custom-fields/types';
 import { CustomFieldInput } from '@/components/custom-fields/custom-field-input';
+import { BulkDealDialog } from '@/components/contacts/bulk-deal-dialog';
 import { contactHandle } from '@/lib/whatsapp/wa-identity';
 import { parseInternationalPhone } from '@/lib/whatsapp/phone-utils';
 
@@ -63,6 +64,7 @@ export function ContactDetailView({
   const t = useTranslations('Contacts.detailView');
   const supabase = createClient();
   const { accountId, defaultCurrency } = useAuth();
+  const [dealDialogOpen, setDealDialogOpen] = useState(false);
 
   const [contact, setContact] = useState<Contact | null>(null);
   const [loading, setLoading] = useState(false);
@@ -746,6 +748,17 @@ export function ContactDetailView({
 
               {/* Deals Tab */}
               <TabsContent value="deals" className="flex-1 overflow-y-auto px-4 py-3">
+                {contact && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setDealDialogOpen(true)}
+                    className="mb-3 w-full border-dashed text-muted-foreground"
+                  >
+                    <Plus className="size-3.5" />
+                    {t('dealsTab.addDeal')}
+                  </Button>
+                )}
                 {loadingDeals ? (
                   <div className="flex items-center justify-center py-8">
                     <Loader2 className="size-5 animate-spin text-primary" />
@@ -810,6 +823,13 @@ export function ContactDetailView({
       onOpenChange={setTemplatePickerOpen}
       onSelect={handleSendTemplate}
     />
+    {dealDialogOpen && contact && (
+      <BulkDealDialog
+        contacts={[{ id: contact.id, name: contact.name, phone: contact.phone }]}
+        onClose={() => setDealDialogOpen(false)}
+        onDone={() => void fetchDeals()}
+      />
+    )}
     </>
   );
 }

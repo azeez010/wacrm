@@ -161,6 +161,7 @@ export function Step2SelectAudience({
         csvContacts: audience.csvContacts,
         excludeTagIds: audience.excludeTagIds,
         segmentId: audience.segmentId,
+        contactIds: audience.contactIds,
       });
     } catch {
       count = null;
@@ -175,6 +176,7 @@ export function Step2SelectAudience({
     audience.csvContacts,
     audience.excludeTagIds,
     audience.segmentId,
+    audience.contactIds,
   ]);
 
   useEffect(() => {
@@ -246,6 +248,7 @@ export function Step2SelectAudience({
       !!audience.customField?.fieldId &&
       audience.customField.value.length > 0) ||
     (audience.type === 'segment' && !!audience.segmentId) ||
+    (audience.type === 'contacts' && (audience.contactIds?.length ?? 0) > 0) ||
     (audience.type === 'csv' &&
       audience.csvContacts &&
       audience.csvContacts.length > 0);
@@ -259,7 +262,31 @@ export function Step2SelectAudience({
         </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+      {audience.type === 'contacts' && (
+        <div className="flex items-center justify-between gap-3 rounded-xl border border-primary/30 bg-primary/5 p-4">
+          <div className="flex items-center gap-3">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <Users className="h-4 w-4" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-foreground">
+                {t('selectAudience.selectedContacts', { count: audience.contactIds?.length ?? 0 })}
+              </p>
+              <p className="mt-0.5 text-xs text-muted-foreground">{t('selectAudience.selectedContactsDesc')}</p>
+            </div>
+          </div>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => onUpdate({ ...audience, type: 'all', contactIds: undefined })}
+          >
+            {t('selectAudience.chooseDifferent')}
+          </Button>
+        </div>
+      )}
+
+      <div className={`grid grid-cols-1 gap-3 sm:grid-cols-2 ${audience.type === 'contacts' ? 'hidden' : ''}`}>
         {audienceOptions.map((option: { type: AudienceType; label: string; description: string; icon: typeof Users }) => {
           const isSelected = audience.type === option.type;
           const Icon = option.icon;

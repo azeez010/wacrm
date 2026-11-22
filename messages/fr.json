@@ -611,6 +611,41 @@
         "deleted": "Segment « {name} » supprimé.",
         "duplicate": "Un segment nommé « {name} » existe déjà.",
         "saveFailed": "Impossible d'enregistrer le segment."
+      },
+      "refresh": "Actualiser",
+      "rowsPerPage": "Lignes par page",
+      "bulk": {
+        "actions": "Actions",
+        "addTag": "Ajouter une étiquette",
+        "removeTag": "Retirer une étiquette",
+        "sendTemplate": "Envoyer un modèle",
+        "addDeal": "Ajouter une affaire",
+        "close": "Fermer",
+        "cancel": "Annuler",
+        "progress": "{done} sur {total}",
+        "failedCount": "{count, plural, one {# échec} other {# échecs}}",
+        "addTagTitle": "Ajouter une étiquette",
+        "removeTagTitle": "Retirer une étiquette",
+        "forContacts": "{count, plural, one {Pour # contact sélectionné} other {Pour # contacts sélectionnés}}",
+        "forOneContact": "Pour ce contact",
+        "pickTag": "Choisissez une étiquette",
+        "noTags": "Aucune étiquette pour l'instant. Créez-en dans Paramètres.",
+        "taggedCount": "{count, plural, one {# contact étiqueté} other {# contacts étiquetés}}",
+        "untaggedCount": "{count, plural, one {# contact sans l'étiquette} other {# contacts sans l'étiquette}}",
+        "alreadyHadCount": "{count, plural, one {# l'avait déjà} other {# l'avaient déjà}}",
+        "addTagRun": "{count, plural, one {Étiqueter # contact} other {Étiqueter # contacts}}",
+        "removeTagRun": "{count, plural, one {Retirer l'étiquette de # contact} other {Retirer l'étiquette de # contacts}}",
+        "sendTemplateFailed": "Impossible de transmettre la sélection à l'assistant de diffusion.",
+        "addDealTitle": "Ajouter une affaire",
+        "noPipelines": "Aucun pipeline pour l'instant. Créez-en un dans la page Pipelines.",
+        "pipeline": "Pipeline",
+        "stage": "Étape",
+        "dealTitle": "Titre de l'affaire",
+        "dealTitleHint": "Utilisez {name} pour le nom du contact. Chaque contact a sa propre affaire.",
+        "dealValue": "Valeur",
+        "currency": "Devise",
+        "dealsCreated": "{count, plural, one {# affaire créée} other {# affaires créées}}",
+        "addDealRun": "{count, plural, one {Créer # affaire} other {Créer # affaires}}"
       }
     },
     "form": {
@@ -689,7 +724,8 @@
         "noNotes": "Aucune note pour le moment."
       },
       "dealsTab": {
-        "noDeals": "Aucune affaire pour le moment"
+        "noDeals": "Aucune affaire pour le moment",
+        "addDeal": "Ajouter une affaire"
       },
       "tagsTab": {
         "clickTagDesc": "Cliquez sur une étiquette pour l'ajouter à ce contact ou la retirer.",
@@ -1117,7 +1153,10 @@
         "segmentDesc": "Envoyer à un segment de contacts enregistré.",
         "pickSegment": "Choisissez un segment",
         "noSegments": "Aucun segment pour l'instant. Enregistrez-en un depuis le filtre des Contacts.",
-        "segmentLive": "Le segment est réévalué à l'envoi, il utilise donc toujours les contacts les plus récents."
+        "segmentLive": "Le segment est réévalué à l'envoi, il utilise donc toujours les contacts les plus récents.",
+        "selectedContacts": "{count, plural, one {# contact sélectionné} other {# contacts sélectionnés}}",
+        "selectedContactsDesc": "La diffusion est envoyée aux contacts choisis sur la page Contacts.",
+        "chooseDifferent": "Choisir une autre audience"
       },
       "personalize": {
         "title": "Personnaliser les variables",
@@ -1179,7 +1218,8 @@
         "language": "Langue",
         "confirmTitle": "Confirmer la diffusion",
         "confirmDesc": "Vous êtes sur le point d'envoyer cette diffusion à <b>{count, number}</b> {count, plural, one {contact} other {contacts}} avec le modèle <b>{template}</b>. Cette action est irréversible.",
-        "audienceSegment": "Segment enregistré"
+        "audienceSegment": "Segment enregistré",
+        "audienceContacts": "Contacts sélectionnés"
       }
     },
     "sending": {

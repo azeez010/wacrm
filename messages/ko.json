@@ -651,7 +651,17 @@
         "dealsCreated": "딜 {count}개 생성됨",
         "addDealRun": "딜 {count}개 생성"
       },
-      "tagsButton": "태그"
+      "tagsButton": "태그",
+      "tagManage": {
+        "newPlaceholder": "새 태그 입력 후 Enter",
+        "add": "태그 추가",
+        "deleteAria": "{name} 태그 삭제",
+        "duplicate": "\"{name}\" 태그가 이미 있습니다.",
+        "createFailed": "태그를 만들 수 없습니다.",
+        "deleteFailed": "태그를 삭제할 수 없습니다.",
+        "created": "\"{name}\" 태그를 만들었습니다.",
+        "deleted": "\"{name}\" 태그를 삭제했습니다."
+      }
     },
     "form": {
       "addTitle": "연락처 추가",
@@ -788,7 +798,7 @@
       },
       "cancel": "취소",
       "close": "닫기",
-      "importBtn": "{count}개 연락처 가져오기",
+      "importBtn": "연락처 {count}개 가져오기",
       "importBtn_plural": "{count}개 연락처 가져오기",
       "toastNoValidRows": "유효한 행을 찾을 수 없습니다. CSV에 \"phone\" 열 헤더가 있는지 확인하세요.",
       "toastTagsWarning": "연락처는 가져왔지만 일부 태그 지정에 실패했습니다.",
@@ -817,12 +827,7 @@
       "instr": {
         "required": "필수:",
         "optional": "선택:",
-        "yourFields": "및 내 필드",
-        "fewer": "접기",
-        "more": "+{count}개 더",
-        "tableRule": "사용자 지정 테이블 열은 하나의 형식을 씁니다:",
-        "forExample": "예를 들어",
-        "mapHint": "파일을 열어 열을 내 필드에 연결하세요. 모든 행에 같은 값을 고정할 수도 있습니다."
+        "yourFields": "및 내 필드"
       },
       "map": {
         "title": "열 연결",
@@ -858,7 +863,8 @@
       "toastFieldCreated": "\"{name}\" 필드를 만들었습니다.",
       "errorNoLabelColumn": "행을 찾거나 만들 수 있도록 테이블의 이름 열도 연결하세요.",
       "errorTableRow": "테이블 행을 찾거나 만들 수 없습니다.",
-      "resultTableRows": "테이블 행 {count}개 생성됨"
+      "resultTableRows": "테이블 행 {count}개 생성됨",
+      "chooseAnother": "다른 파일 선택"
     },
     "customFields": {
       "title": "커스텀 필드",
@@ -940,6 +946,13 @@
         "safe": "이 연락처에서만 태그가 제거됩니다. 태그와 다른 연락처는 영향을 받지 않으며 언제든 다시 추가할 수 있습니다.",
         "cancel": "취소",
         "confirm": "태그 제거"
+      },
+      "delete": {
+        "title": "\"{tag}\" 태그를 삭제할까요?",
+        "subtitle": "이 태그를 가진 모든 연락처에서 태그가 제거됩니다.",
+        "onContacts": "연락처 {count}개가 이 태그를 잃게 됩니다.",
+        "safe": "연락처의 다른 정보는 그대로입니다. 되돌릴 수 없지만 태그를 다시 만들 수 있습니다.",
+        "confirm": "태그 삭제"
       }
     }
   },

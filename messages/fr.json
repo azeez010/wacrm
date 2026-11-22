@@ -651,7 +651,17 @@
         "dealsCreated": "{count, plural, one {# affaire créée} other {# affaires créées}}",
         "addDealRun": "{count, plural, one {Créer # affaire} other {Créer # affaires}}"
       },
-      "tagsButton": "Étiquettes"
+      "tagsButton": "Étiquettes",
+      "tagManage": {
+        "newPlaceholder": "Nouvelle étiquette, Entrée",
+        "add": "Ajouter l'étiquette",
+        "deleteAria": "Supprimer l'étiquette {name}",
+        "duplicate": "Une étiquette nommée « {name} » existe déjà.",
+        "createFailed": "Impossible de créer l'étiquette.",
+        "deleteFailed": "Impossible de supprimer l'étiquette.",
+        "created": "Étiquette « {name} » créée.",
+        "deleted": "Étiquette « {name} » supprimée."
+      }
     },
     "form": {
       "addTitle": "Ajouter un contact",
@@ -760,7 +770,7 @@
       "title": "Importer des contacts",
       "uploadDropzone": "Cliquez pour choisir un fichier CSV",
       "uploadHint": ".csv jusqu'à la limite de votre navigateur",
-      "rowsReady": "{count} ligne prête",
+      "rowsReady": "{count, plural, =1 {# ligne prête} other {# lignes prêtes}}",
       "rowsReady_plural": "{count} lignes prêtes",
       "preview": "Aperçu · {count} premières",
       "previewTags": "{tags} étiquette · {contacts} contact",
@@ -788,7 +798,7 @@
       },
       "cancel": "Annuler",
       "close": "Fermer",
-      "importBtn": "Importer {count} contact",
+      "importBtn": "Importer {count, plural, =1 {# contact} other {# contacts}}",
       "importBtn_plural": "Importer {count} contacts",
       "toastNoValidRows": "Aucune ligne valide trouvée. Vérifiez que le CSV comporte un en-tête de colonne « phone ».",
       "toastTagsWarning": "Contacts importés, mais certaines attributions d'étiquettes ont échoué.",
@@ -817,12 +827,7 @@
       "instr": {
         "required": "Obligatoire :",
         "optional": "Facultatif :",
-        "yourFields": "et vos champs",
-        "fewer": "voir moins",
-        "more": "+{count} de plus",
-        "tableRule": "Les colonnes des tables personnalisées suivent un seul modèle :",
-        "forExample": "par exemple",
-        "mapHint": "Ouvrez un fichier pour associer ses colonnes à vos champs. Vous pouvez aussi fixer une valeur identique pour toutes les lignes."
+        "yourFields": "et vos champs"
       },
       "map": {
         "title": "Associez vos colonnes",
@@ -858,7 +863,8 @@
       "toastFieldCreated": "Champ « {name} » créé.",
       "errorNoLabelColumn": "Associez aussi la colonne de nom de la table, pour retrouver ou créer les lignes.",
       "errorTableRow": "Impossible de retrouver ou de créer la ligne de la table.",
-      "resultTableRows": "{count, plural, one {# ligne de table créée} other {# lignes de table créées}}"
+      "resultTableRows": "{count, plural, one {# ligne de table créée} other {# lignes de table créées}}",
+      "chooseAnother": "Choisir un autre fichier"
     },
     "customFields": {
       "title": "Champs personnalisés",
@@ -940,6 +946,13 @@
         "safe": "Seul ce contact perd l'étiquette. L'étiquette et vos autres contacts ne sont pas affectés, et vous pouvez la rajouter à tout moment.",
         "cancel": "Annuler",
         "confirm": "Retirer l'étiquette"
+      },
+      "delete": {
+        "title": "Supprimer l'étiquette « {tag} » ?",
+        "subtitle": "Cela retire l'étiquette de tous les contacts qui l'ont.",
+        "onContacts": "{count, plural, one {# contact a cette étiquette et la perdra.} other {# contacts ont cette étiquette et la perdront.}}",
+        "safe": "Les contacts gardent tout le reste. Action irréversible, mais vous pouvez recréer l'étiquette.",
+        "confirm": "Supprimer l'étiquette"
       }
     }
   },

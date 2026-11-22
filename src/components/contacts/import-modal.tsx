@@ -45,7 +45,6 @@ import { ImportMappingList } from './import-mapping-list';
 
 const DEFAULT_TAG_COLOR = '#3b82f6';
 const PREVIEW_LIMIT = 5;
-const INSTRUCTION_FIELDS = 8;
 
 function truncateFilename(name: string, max = 48): string {
   if (name.length <= max) return name;
@@ -116,7 +115,6 @@ export function ImportModal({ open, onOpenChange, onImported }: ImportModalProps
   const [fieldInputs, setFieldInputs] = useState<ContactFieldInput[]>([]);
   const [tableMeta, setTableMeta] = useState<TableMetaByKey>({});
   const [accountTags, setAccountTags] = useState<TagRow[]>([]);
-  const [showAllInstructions, setShowAllInstructions] = useState(false);
 
   // The file and the mapping --------------------------------------------
   const [file, setFile] = useState<File | null>(null);
@@ -493,9 +491,8 @@ export function ImportModal({ open, onOpenChange, onImported }: ImportModalProps
     return { unique: names.size, rowsWithTags };
   }, [prepared]);
 
-  const customHeaders = hints.custom;
-  const shownCustom = showAllInstructions ? customHeaders : customHeaders.slice(0, INSTRUCTION_FIELDS);
-  const exampleTable = hints.table.slice(0, 2);
+  // One flat list: your fields, then every column of every table field (field.column).
+  const fieldHeaders = [...hints.custom, ...hints.table];
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -503,79 +500,58 @@ export function ImportModal({ open, onOpenChange, onImported }: ImportModalProps
         <div className="shrink-0 space-y-4 border-b border-border/80 px-6 pt-6 pb-5">
           <DialogHeader className="gap-1.5">
             <DialogTitle className="text-lg text-popover-foreground">{t('title')}</DialogTitle>
-            <DialogDescription className="space-y-1.5 leading-relaxed text-muted-foreground">
-              <span className="block">
+            {/* The instructions only matter before a file is chosen; afterwards the room goes to the mapping. */}
+            {!grid && (
+              <DialogDescription className="leading-relaxed text-muted-foreground">
                 {t('instr.required')} <Code>phone</Code>. {t('instr.optional')} <Code>name</Code> <Code>email</Code>{' '}
                 <Code>company</Code> <Code>tags</Code>
-                {shownCustom.length > 0 && <> {t('instr.yourFields')} </>}
-                {shownCustom.map((h) => (
+                {fieldHeaders.length > 0 && <> {t('instr.yourFields')} </>}
+                {fieldHeaders.map((h) => (
                   <span key={h}>
                     <Code>{h}</Code>{' '}
                   </span>
                 ))}
-                {customHeaders.length > INSTRUCTION_FIELDS && (
-                  <button type="button" onClick={() => setShowAllInstructions((v) => !v)} className="text-primary hover:underline">
-                    {showAllInstructions ? t('instr.fewer') : t('instr.more', { count: customHeaders.length - INSTRUCTION_FIELDS })}
-                  </button>
-                )}
-              </span>
-              <span className="block">
-                {t('instr.tableRule')} <Code>field.column</Code>
-                {exampleTable.length > 0 ? (
-                  <>
-                    {', '}
-                    {t('instr.forExample')}{' '}
-                    {exampleTable.map((h) => (
-                      <span key={h}>
-                        <Code>{h}</Code>{' '}
-                      </span>
-                    ))}
-                  </>
-                ) : (
-                  <>
-                    {', '}
-                    {t('instr.forExample')} <Code>profile.name</Code> <Code>profile.age</Code>
-                  </>
-                )}
-              </span>
-              <span className="block text-[11px]">{t('instr.mapHint')}</span>
-            </DialogDescription>
+              </DialogDescription>
+            )}
           </DialogHeader>
 
-          <div
-            role="button"
-            tabIndex={0}
-            onClick={() => fileInputRef.current?.click()}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') fileInputRef.current?.click();
-            }}
-            className={cn(
-              'group flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border border-dashed p-5 transition-all',
-              file ? 'border-primary/35 bg-primary/[0.04]' : 'hover:border-primary/40 border-border/80 bg-background/40 hover:bg-background/70'
-            )}
-          >
-            {file ? (
-              <>
-                <div className="bg-primary/15 ring-primary/25 flex size-10 items-center justify-center rounded-lg ring-1">
-                  <FileText className="text-primary size-5" />
-                </div>
-                <p className="max-w-full truncate px-2 text-sm font-medium text-popover-foreground" title={file.name}>
+          {grid && file ? (
+            <div className="flex items-center gap-3 rounded-xl border border-primary/35 bg-primary/[0.04] px-3 py-2">
+              <div className="bg-primary/15 ring-primary/25 flex size-8 shrink-0 items-center justify-center rounded-lg ring-1">
+                <FileText className="text-primary size-4" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-medium text-popover-foreground" title={file.name}>
                   {truncateFilename(file.name)}
                 </p>
-                <span className="rounded-full bg-muted px-2.5 py-0.5 text-[11px] font-medium text-muted-foreground">
-                  {t('rowsReady', { count: grid?.rows.length ?? 0 })}
-                </span>
-              </>
-            ) : (
-              <>
-                <div className="flex size-10 items-center justify-center rounded-lg bg-muted/80 ring-1 ring-border/80 transition-colors group-hover:bg-muted">
-                  <Upload className="size-5 text-muted-foreground group-hover:text-foreground" />
-                </div>
-                <p className="text-sm text-muted-foreground">{t('uploadDropzone')}</p>
-                <p className="text-[11px] text-muted-foreground">{t('uploadHint')}</p>
-              </>
-            )}
-          </div>
+                <p className="text-[11px] text-muted-foreground">{t('rowsReady', { count: grid.rows.length })}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={importing}
+                className="shrink-0 text-xs text-primary hover:underline disabled:opacity-50"
+              >
+                {t('chooseAnother')}
+              </button>
+            </div>
+          ) : (
+            <div
+              role="button"
+              tabIndex={0}
+              onClick={() => fileInputRef.current?.click()}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') fileInputRef.current?.click();
+              }}
+              className="group flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-border/80 bg-background/40 p-5 transition-all hover:border-primary/40 hover:bg-background/70"
+            >
+              <div className="flex size-10 items-center justify-center rounded-lg bg-muted/80 ring-1 ring-border/80 transition-colors group-hover:bg-muted">
+                <Upload className="size-5 text-muted-foreground group-hover:text-foreground" />
+              </div>
+              <p className="text-sm text-muted-foreground">{t('uploadDropzone')}</p>
+              <p className="text-[11px] text-muted-foreground">{t('uploadHint')}</p>
+            </div>
+          )}
           <input ref={fileInputRef} type="file" accept=".csv,text/csv" onChange={handleFileChange} className="hidden" />
         </div>
 

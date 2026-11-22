@@ -20,7 +20,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
     const db = supabaseAdmin()
     const acc = ctx.accountId
 
-    const [segments, automations, steps, nodes, broadcasts] = await Promise.all([
+    const [segments, automations, steps, nodes, broadcasts, contactCount] = await Promise.all([
       db.from('segments').select('id, name, filter').eq('account_id', acc),
       db
         .from('automations')
@@ -47,8 +47,14 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
         .select('id, name, status, audience_filter')
         .eq('account_id', acc)
         .in('status', ['draft', 'scheduled', 'sending']),
+      // contact_tags is scoped through its tag, so confirm the tag belongs to this account first
+      db
+        .from('contact_tags')
+        .select('id, tags!inner(account_id)', { count: 'exact', head: true })
+        .eq('tag_id', tagId)
+        .eq('tags.account_id', acc),
     ])
-    for (const r of [segments, automations, steps, nodes, broadcasts]) {
+    for (const r of [segments, automations, steps, nodes, broadcasts, contactCount]) {
       if (r.error) {
         console.error('[tags/usage]', r.error.message)
         return NextResponse.json({ error: 'Could not load tag usage' }, { status: 500 })
@@ -71,7 +77,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
       },
       tagId,
     )
-    return NextResponse.json({ usage })
+    return NextResponse.json({ usage: { ...usage, contactCount: contactCount.count ?? 0 } })
   } catch (err) {
     return toErrorResponse(err)
   }

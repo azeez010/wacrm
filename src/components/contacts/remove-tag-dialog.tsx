@@ -23,7 +23,7 @@ interface Props {
   onConfirm: () => void;
 }
 
-function NameList({ items }: { items: NamedRef[] }) {
+export function NameList({ items }: { items: NamedRef[] }) {
   const t = useTranslations('Contacts.tagEditor.remove');
   const shown = items.slice(0, 3).map((i) => i.name);
   const rest = items.length - shown.length;
@@ -32,6 +32,59 @@ function NameList({ items }: { items: NamedRef[] }) {
       {shown.join(', ')}
       {rest > 0 ? ` ${t('andMore', { count: rest })}` : ''}
     </span>
+  );
+}
+
+/** What depends on a tag: loading state, the lists, and the closing reassurance. Shared by remove and delete. */
+export function TagUsagePanel({
+  usage,
+  failed,
+  effectContact,
+  children,
+}: {
+  usage: TagUsage | null;
+  failed: boolean;
+  /** Contact name for the "may stop matching" sentence (remove-from-contact only). */
+  effectContact?: string;
+  children?: React.ReactNode;
+}) {
+  const t = useTranslations('Contacts.tagEditor.remove');
+  const rows: { key: string; label: string; items: NamedRef[] }[] = usage
+    ? [
+        { key: 'segments', label: t('segments', { count: usage.segments.length }), items: usage.segments },
+        { key: 'automations', label: t('automations', { count: usage.automations.length }), items: usage.automations },
+        { key: 'flows', label: t('flows', { count: usage.flows.length }), items: usage.flows },
+        { key: 'broadcasts', label: t('broadcasts', { count: usage.broadcasts.length }), items: usage.broadcasts },
+      ].filter((r) => r.items.length > 0)
+    : [];
+  return (
+    <div className="space-y-2 text-sm">
+      {children}
+      {!usage && !failed && (
+        <p className="flex items-center gap-2 text-muted-foreground">
+          <Loader2 className="size-4 animate-spin" />
+          {t('checking')}
+        </p>
+      )}
+      {failed && <p className="text-muted-foreground">{t('checkFailed')}</p>}
+      {usage && rows.length === 0 && <p className="text-muted-foreground">{t('nothingUses')}</p>}
+      {rows.length > 0 && (
+        <div className="space-y-2 rounded-lg border border-amber-500/30 bg-amber-500/5 p-3">
+          <p className="flex items-center gap-1.5 text-xs font-medium text-amber-400">
+            <AlertTriangle className="size-3.5" />
+            {t('usedBy')}
+          </p>
+          <ul className="space-y-1.5">
+            {rows.map((r) => (
+              <li key={r.key}>
+                <span className="text-foreground">{r.label}</span> <NameList items={r.items} />
+              </li>
+            ))}
+          </ul>
+          {effectContact && <p className="text-xs text-muted-foreground">{t('effect', { contact: effectContact })}</p>}
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -59,15 +112,6 @@ export function RemoveTagDialog({ tag, contactName, busy, onCancel, onConfirm }:
     };
   }, [tag.id]);
 
-  const rows: { key: string; label: string; items: NamedRef[] }[] = usage
-    ? [
-        { key: 'segments', label: t('segments', { count: usage.segments.length }), items: usage.segments },
-        { key: 'automations', label: t('automations', { count: usage.automations.length }), items: usage.automations },
-        { key: 'flows', label: t('flows', { count: usage.flows.length }), items: usage.flows },
-        { key: 'broadcasts', label: t('broadcasts', { count: usage.broadcasts.length }), items: usage.broadcasts },
-      ].filter((r) => r.items.length > 0)
-    : [];
-
   return (
     <Dialog open onOpenChange={(o) => !o && !busy && onCancel()}>
       <DialogContent className="border-border bg-popover text-popover-foreground sm:max-w-md">
@@ -76,33 +120,7 @@ export function RemoveTagDialog({ tag, contactName, busy, onCancel, onConfirm }:
           <DialogDescription>{t('subtitle')}</DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-2 text-sm">
-          {!usage && !failed && (
-            <p className="flex items-center gap-2 text-muted-foreground">
-              <Loader2 className="size-4 animate-spin" />
-              {t('checking')}
-            </p>
-          )}
-          {failed && <p className="text-muted-foreground">{t('checkFailed')}</p>}
-          {usage && rows.length === 0 && <p className="text-muted-foreground">{t('nothingUses')}</p>}
-          {rows.length > 0 && (
-            <div className="space-y-2 rounded-lg border border-amber-500/30 bg-amber-500/5 p-3">
-              <p className="flex items-center gap-1.5 text-xs font-medium text-amber-400">
-                <AlertTriangle className="size-3.5" />
-                {t('usedBy')}
-              </p>
-              <ul className="space-y-1.5">
-                {rows.map((r) => (
-                  <li key={r.key}>
-                    <span className="text-foreground">{r.label}</span> <NameList items={r.items} />
-                  </li>
-                ))}
-              </ul>
-              <p className="text-xs text-muted-foreground">{t('effect', { contact: contactName })}</p>
-            </div>
-          )}
-          <p className="text-xs text-muted-foreground">{t('safe')}</p>
-        </div>
+        <TagUsagePanel usage={usage} failed={failed} effectContact={contactName} />
 
         <DialogFooter>
           <Button variant="outline" onClick={onCancel} disabled={busy}>

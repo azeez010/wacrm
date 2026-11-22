@@ -16,6 +16,8 @@ export interface TagUsage {
   automations: (NamedRef & { why: 'trigger' | 'condition' | 'action' })[]
   flows: NamedRef[]
   broadcasts: NamedRef[]
+  /** How many contacts currently carry the tag (filled by the route, not by collectTagUsage). */
+  contactCount?: number
 }
 
 export const EMPTY_USAGE: TagUsage = { segments: [], automations: [], flows: [], broadcasts: [] }

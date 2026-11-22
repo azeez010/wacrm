@@ -1,6 +1,7 @@
 'use client';
 
 import { formatFieldValue } from '@/lib/custom-fields/format';
+import { ExpandableText } from '@/components/ui/expandable-text';
 
 type LinkType = 'url' | 'email' | 'phone';
 
@@ -9,17 +10,21 @@ export function LinkCell({ type, value }: { type: LinkType; value: string | null
   if (!value) return <span className="text-muted-foreground">-</span>;
   const href = type === 'url' ? value : type === 'email' ? `mailto:${value}` : `tel:${value}`;
   const text = type === 'url' ? formatFieldValue({ field_type: 'url' }, value) : value;
-  return (
+  const link = (
     <a
       href={href}
       target={type === 'url' ? '_blank' : undefined}
       rel={type === 'url' ? 'noopener noreferrer' : undefined}
-      title={value}
       onClick={(e) => e.stopPropagation()}
-      className="block truncate text-foreground hover:underline"
+      className="text-foreground hover:underline"
     >
       {text}
     </a>
+  );
+  return (
+    <ExpandableText text={text} className="max-w-[130px]">
+      {link}
+    </ExpandableText>
   );
 }
 

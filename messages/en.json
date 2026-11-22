@@ -651,7 +651,17 @@
         "dealsCreated": "{count, plural, one {# deal created} other {# deals created}}",
         "addDealRun": "{count, plural, one {Create # deal} other {Create # deals}}"
       },
-      "tagsButton": "Tags"
+      "tagsButton": "Tags",
+      "tagManage": {
+        "newPlaceholder": "New tag, press Enter",
+        "add": "Add tag",
+        "deleteAria": "Delete tag {name}",
+        "duplicate": "A tag named \"{name}\" already exists.",
+        "createFailed": "Could not create the tag.",
+        "deleteFailed": "Could not delete the tag.",
+        "created": "Tag \"{name}\" created.",
+        "deleted": "Tag \"{name}\" deleted."
+      }
     },
     "form": {
       "addTitle": "Add Contact",
@@ -760,7 +770,7 @@
       "title": "Import Contacts",
       "uploadDropzone": "Click to choose a CSV file",
       "uploadHint": ".csv up to your browser limit",
-      "rowsReady": "{count} row ready",
+      "rowsReady": "{count, plural, =1 {# row ready} other {# rows ready}}",
       "rowsReady_plural": "{count} rows ready",
       "preview": "Preview · first {count}",
       "previewTags": "{tags} tag · {contacts} contact",
@@ -788,7 +798,7 @@
       },
       "cancel": "Cancel",
       "close": "Close",
-      "importBtn": "Import {count} contact",
+      "importBtn": "Import {count, plural, =1 {# contact} other {# contacts}}",
       "importBtn_plural": "Import {count} contacts",
       "toastNoValidRows": "No valid rows found. Ensure CSV has a \"phone\" column header.",
       "toastTagsWarning": "Contacts imported, but some tag assignments failed.",
@@ -817,12 +827,7 @@
       "instr": {
         "required": "Required:",
         "optional": "Optional:",
-        "yourFields": "and your fields",
-        "fewer": "show less",
-        "more": "+{count} more",
-        "tableRule": "Custom-table columns use one pattern:",
-        "forExample": "for example",
-        "mapHint": "Open a file to match its columns to your fields. You can also set one fixed value for every row."
+        "yourFields": "and your fields"
       },
       "map": {
         "title": "Match your columns",
@@ -858,7 +863,8 @@
       "toastFieldCreated": "Created the field \"{name}\".",
       "errorNoLabelColumn": "Match the table's name column too, so rows can be found or created.",
       "errorTableRow": "Could not find or create the table row.",
-      "resultTableRows": "{count, plural, one {# table row created} other {# table rows created}}"
+      "resultTableRows": "{count, plural, one {# table row created} other {# table rows created}}",
+      "chooseAnother": "Choose another file"
     },
     "customFields": {
       "title": "Custom fields",
@@ -940,6 +946,13 @@
         "safe": "Only this contact loses the tag. The tag and your other contacts are not affected, and you can add it back at any time.",
         "cancel": "Cancel",
         "confirm": "Remove tag"
+      },
+      "delete": {
+        "title": "Delete tag \"{tag}\"?",
+        "subtitle": "This removes the tag from every contact that has it.",
+        "onContacts": "{count, plural, one {# contact has this tag and will lose it.} other {# contacts have this tag and will lose it.}}",
+        "safe": "Contacts keep everything else. This cannot be undone, but you can create the tag again.",
+        "confirm": "Delete tag"
       }
     }
   },

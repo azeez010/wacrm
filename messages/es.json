@@ -651,7 +651,17 @@
         "dealsCreated": "{count, plural, one {# negocio creado} other {# negocios creados}}",
         "addDealRun": "{count, plural, one {Crear # negocio} other {Crear # negocios}}"
       },
-      "tagsButton": "Etiquetas"
+      "tagsButton": "Etiquetas",
+      "tagManage": {
+        "newPlaceholder": "Nueva etiqueta, pulsa Enter",
+        "add": "Añadir etiqueta",
+        "deleteAria": "Eliminar etiqueta {name}",
+        "duplicate": "Ya existe una etiqueta llamada \"{name}\".",
+        "createFailed": "No se pudo crear la etiqueta.",
+        "deleteFailed": "No se pudo eliminar la etiqueta.",
+        "created": "Etiqueta \"{name}\" creada.",
+        "deleted": "Etiqueta \"{name}\" eliminada."
+      }
     },
     "form": {
       "addTitle": "Agregar contacto",
@@ -760,7 +770,7 @@
       "title": "Importar contactos",
       "uploadDropzone": "Haz clic para elegir un archivo CSV",
       "uploadHint": ".csv hasta el límite de tu navegador",
-      "rowsReady": "{count} fila lista",
+      "rowsReady": "{count, plural, =1 {# fila lista} other {# filas listas}}",
       "rowsReady_plural": "{count} filas listas",
       "preview": "Vista previa · primeras {count}",
       "previewTags": "{tags} etiqueta · {contacts} contacto",
@@ -788,7 +798,7 @@
       },
       "cancel": "Cancelar",
       "close": "Cerrar",
-      "importBtn": "Importar {count} contacto",
+      "importBtn": "Importar {count, plural, =1 {# contacto} other {# contactos}}",
       "importBtn_plural": "Importar {count} contactos",
       "toastNoValidRows": "No se encontraron filas válidas. Asegúrate de que el CSV tenga un encabezado de columna \"phone\".",
       "toastTagsWarning": "Contactos importados, pero algunas asignaciones de etiquetas fallaron.",
@@ -817,12 +827,7 @@
       "instr": {
         "required": "Obligatorio:",
         "optional": "Opcional:",
-        "yourFields": "y tus campos",
-        "fewer": "ver menos",
-        "more": "+{count} más",
-        "tableRule": "Las columnas de tablas personalizadas usan un solo patrón:",
-        "forExample": "por ejemplo",
-        "mapHint": "Abre un archivo para asignar sus columnas a tus campos. También puedes fijar un valor igual para todas las filas."
+        "yourFields": "y tus campos"
       },
       "map": {
         "title": "Asigna tus columnas",
@@ -858,7 +863,8 @@
       "toastFieldCreated": "Se creó el campo \"{name}\".",
       "errorNoLabelColumn": "Asigna también la columna de nombre de la tabla, para poder encontrar o crear filas.",
       "errorTableRow": "No se pudo encontrar ni crear la fila de la tabla.",
-      "resultTableRows": "{count, plural, one {# fila de tabla creada} other {# filas de tabla creadas}}"
+      "resultTableRows": "{count, plural, one {# fila de tabla creada} other {# filas de tabla creadas}}",
+      "chooseAnother": "Elegir otro archivo"
     },
     "customFields": {
       "title": "Campos personalizados",
@@ -940,6 +946,13 @@
         "safe": "Solo este contacto pierde la etiqueta. La etiqueta y tus demás contactos no se ven afectados, y puedes volver a añadirla cuando quieras.",
         "cancel": "Cancelar",
         "confirm": "Quitar etiqueta"
+      },
+      "delete": {
+        "title": "¿Eliminar la etiqueta \"{tag}\"?",
+        "subtitle": "Esto quita la etiqueta de todos los contactos que la tienen.",
+        "onContacts": "{count, plural, one {# contacto tiene esta etiqueta y la perderá.} other {# contactos tienen esta etiqueta y la perderán.}}",
+        "safe": "Los contactos conservan todo lo demás. No se puede deshacer, pero puedes crear la etiqueta de nuevo.",
+        "confirm": "Eliminar etiqueta"
       }
     }
   },

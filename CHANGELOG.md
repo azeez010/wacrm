@@ -11,7 +11,7 @@ and polish.
 
 ## [Unreleased, next]
 
-> **Migration required:** apply `074_more_field_types.sql`.
+> **Migrations required:** apply `074_more_field_types.sql` and `075_clean_table_column_keys.sql`.
 
 ### Added
 
@@ -22,6 +22,9 @@ and polish.
 
 ### Changed
 
+- **Import:** the instructions are one line listing every field (including every custom-table column, e.g. `test_data.name`) and disappear once a file is chosen; the file chip is compact; plurals fixed.
+- **Tags:** create and delete tags inside the Tags filter (deleting shows how many contacts and what else uses the tag); the Contacts table shows plain tag chips again.
+- **Table cells:** long values are cut to a fixed width and expand on hover for about 5 seconds so they can be copied.
 - Removed the unused "Show as a column" option when adding a field.
 - Table columns can now be named "name", "phone" and so on (reserved names only apply to contact fields).
 

@@ -651,7 +651,17 @@
         "dealsCreated": "{count, plural, one {# negócio criado} other {# negócios criados}}",
         "addDealRun": "{count, plural, one {Criar # negócio} other {Criar # negócios}}"
       },
-      "tagsButton": "Tags"
+      "tagsButton": "Tags",
+      "tagManage": {
+        "newPlaceholder": "Nova tag, pressione Enter",
+        "add": "Adicionar tag",
+        "deleteAria": "Excluir tag {name}",
+        "duplicate": "Já existe uma tag chamada \"{name}\".",
+        "createFailed": "Não foi possível criar a tag.",
+        "deleteFailed": "Não foi possível excluir a tag.",
+        "created": "Tag \"{name}\" criada.",
+        "deleted": "Tag \"{name}\" excluída."
+      }
     },
     "form": {
       "addTitle": "Adicionar contato",
@@ -817,12 +827,7 @@
       "instr": {
         "required": "Obrigatório:",
         "optional": "Opcional:",
-        "yourFields": "e seus campos",
-        "fewer": "ver menos",
-        "more": "+{count} mais",
-        "tableRule": "Colunas de tabelas personalizadas usam um único padrão:",
-        "forExample": "por exemplo",
-        "mapHint": "Abra um arquivo para ligar as colunas aos seus campos. Você também pode definir um valor fixo igual para todas as linhas."
+        "yourFields": "e seus campos"
       },
       "map": {
         "title": "Ligue suas colunas",
@@ -858,7 +863,8 @@
       "toastFieldCreated": "Campo \"{name}\" criado.",
       "errorNoLabelColumn": "Ligue também a coluna de nome da tabela, para encontrar ou criar linhas.",
       "errorTableRow": "Não foi possível encontrar nem criar a linha da tabela.",
-      "resultTableRows": "{count, plural, one {# linha de tabela criada} other {# linhas de tabela criadas}}"
+      "resultTableRows": "{count, plural, one {# linha de tabela criada} other {# linhas de tabela criadas}}",
+      "chooseAnother": "Escolher outro arquivo"
     },
     "customFields": {
       "title": "Campos personalizados",
@@ -940,6 +946,13 @@
         "safe": "Só este contato perde a tag. A tag e seus outros contatos não são afetados, e você pode adicioná-la de volta quando quiser.",
         "cancel": "Cancelar",
         "confirm": "Remover tag"
+      },
+      "delete": {
+        "title": "Excluir a tag \"{tag}\"?",
+        "subtitle": "Isso remove a tag de todos os contatos que a têm.",
+        "onContacts": "{count, plural, one {# contato tem esta tag e vai perdê-la.} other {# contatos têm esta tag e vão perdê-la.}}",
+        "safe": "Os contatos mantêm todo o resto. Não dá para desfazer, mas você pode criar a tag de novo.",
+        "confirm": "Excluir tag"
       }
     }
   },

@@ -18,6 +18,7 @@ import { CustomFieldInput } from '@/components/custom-fields/custom-field-input'
 import { useAuth } from '@/hooks/use-auth';
 import { MediaCell } from '@/components/custom-fields/media-cell';
 import { LinkCell, isLinkType } from '@/components/custom-fields/link-cell';
+import { ExpandableText } from '@/components/ui/expandable-text';
 import { formatFieldValue } from '@/lib/custom-fields/format';
 import type { FieldDef } from '@/lib/custom-fields/types';
 import type { CustomFieldRow, RecordRow, TableSummary } from '@/lib/custom-fields/server';
@@ -172,7 +173,7 @@ export function TableRecords({ table, isAdmin, canEditRows, onBack, onEditShape 
               records.map((rec) => (
                 <tr key={rec.id} className="hover:bg-muted/30">
                   {columns.map((c) => (
-                    <td key={c.id} className="max-w-[180px] truncate px-3 py-2 text-foreground">
+                    <td key={c.id} className="px-3 py-2 text-foreground">
                       {c.field_type === 'media' ? (
                         <MediaCell value={toCanonical(c, rec.data[c.key])} />
                       ) : isLinkType(c.field_type) ? (
@@ -180,11 +181,14 @@ export function TableRecords({ table, isAdmin, canEditRows, onBack, onEditShape 
                       ) : c.field_type === 'reference' ? (
                         <ReferenceCell tableKey={c.field_options?.table_key} id={toCanonical(c, rec.data[c.key])} />
                       ) : (
-                        formatFieldValue(
-                          c as FieldDef,
-                          toCanonical(c, rec.data[c.key]),
-                          { yes: t('yes'), no: t('no'), timeZone: accountTimezone }
-                        )
+                        (() => {
+                          const text = formatFieldValue(c as FieldDef, toCanonical(c, rec.data[c.key]), {
+                            yes: t('yes'),
+                            no: t('no'),
+                            timeZone: accountTimezone,
+                          });
+                          return text ? <ExpandableText text={text} className="max-w-[180px]" /> : '';
+                        })()
                       )}
                     </td>
                   ))}

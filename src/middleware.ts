@@ -3,6 +3,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 import createIntlMiddleware from 'next-intl/middleware'
 import { LOCALES } from '@/i18n/locales'
 import { routing } from '@/i18n/routing'
+import { canonicalRedirect } from '@/lib/canonical-host'
 
 // Path-based language for the public landing page only (`/`, `/fr`, ...).
 // The signed-in app, auth and legal pages are cookie-driven and untouched.
@@ -17,6 +18,14 @@ function isLocalizedLandingPath(pathname: string): boolean {
 const PUBLIC_FORM_PATH = /^\/(f|embed)\/|^\/embed\.js$|^\/api\/public\//
 
 export async function middleware(request: NextRequest) {
+  const canonical = canonicalRedirect(
+    request.headers.get('host'),
+    request.method,
+    request.nextUrl.pathname,
+    request.nextUrl.search,
+  )
+  if (canonical) return NextResponse.redirect(canonical, 308)
+
   if (PUBLIC_FORM_PATH.test(request.nextUrl.pathname)) {
     return NextResponse.next({ request })
   }

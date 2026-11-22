@@ -9,6 +9,17 @@
 	],
 	"routes": [
 		{
+			"pattern": "ogadesk.com",
+			"custom_domain": true
+		},
+		{
+			// Redirects to the apex in middleware (src/lib/canonical-host.ts)
+			"pattern": "www.ogadesk.com",
+			"custom_domain": true
+		},
+		{
+			// Legacy address: page visits redirect to ogadesk.com; /api/* keeps
+			// working so existing WhatsApp webhooks and API clients don't break.
 			"pattern": "ogadesk.dataslid.com.ng",
 			"custom_domain": true
 		}

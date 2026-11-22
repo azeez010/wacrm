@@ -1,7 +1,7 @@
 # Public API (`/api/v1`)
 
 > **The hosted API reference is the source of truth for the endpoints it covers:**
-> `https://ogadesk.dataslid.com.ng/docs` (OpenAPI spec: `/api/v1/openapi.json`).
+> `https://ogadesk.com/docs` (OpenAPI spec: `/api/v1/openapi.json`).
 > It currently documents `me`, `messages`, `templates` and `webhooks`. The sections
 > below remain the reference for contacts, conversations and broadcasts until those
 > are added to the hosted spec (`src/lib/api/v1/openapi/`).

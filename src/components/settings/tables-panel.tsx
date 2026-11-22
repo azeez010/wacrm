@@ -27,7 +27,9 @@ export function TablesPanel() {
   const [tables, setTables] = useState<TableSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [openId, setOpenId] = useState<string | null>(null);
-  const [shape, setShape] = useState<{ mode: 'create' } | { mode: 'edit'; table: TableSummary } | null>(null);
+  const [shape, setShape] = useState<
+    { mode: 'create' } | { mode: 'edit'; table: TableSummary } | null
+  >(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -48,19 +50,37 @@ export function TablesPanel() {
     }
   }, [accountId, load]);
 
+  const shapeDialog = shape ? (
+    <TableShapeDialog
+      mode={shape.mode}
+      table={shape.mode === 'edit' ? shape.table : undefined}
+      existingTables={tables}
+      onClose={() => setShape(null)}
+      onChanged={(deleted) => {
+        if (deleted) setOpenId(null);
+        void load();
+      }}
+    />
+  ) : null;
+
   const open = tables.find((tb) => tb.id === openId);
   if (open) {
     return (
-      <TableRecords
-        table={open}
-        isAdmin={isAdmin}
-        canEditRows={accountRole ? hasMinRole(accountRole, open.min_role_edit) : false}
-        onBack={() => {
-          setOpenId(null);
-          void load();
-        }}
-        onEditShape={() => setShape({ mode: 'edit', table: open })}
-      />
+      <>
+        <TableRecords
+          table={open}
+          isAdmin={isAdmin}
+          canEditRows={
+            accountRole ? hasMinRole(accountRole, open.min_role_edit) : false
+          }
+          onBack={() => {
+            setOpenId(null);
+            void load();
+          }}
+          onEditShape={() => setShape({ mode: 'edit', table: open })}
+        />
+        {shapeDialog}
+      </>
     );
   }
 
@@ -80,30 +100,41 @@ export function TablesPanel() {
       />
 
       {loading ? (
-        <div className="flex items-center justify-center py-12 text-muted-foreground">
+        <div className="text-muted-foreground flex items-center justify-center py-12">
           <Loader2 className="size-5 animate-spin" />
         </div>
       ) : tables.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-border py-12 text-center">
-          <Table2 className="mx-auto mb-2 size-6 text-muted-foreground" />
-          <p className="text-sm text-muted-foreground">{t('empty')}</p>
+        <div className="border-border rounded-lg border border-dashed py-12 text-center">
+          <Table2 className="text-muted-foreground mx-auto mb-2 size-6" />
+          <p className="text-muted-foreground text-sm">{t('empty')}</p>
         </div>
       ) : (
-        <ul className="divide-y divide-border rounded-lg border border-border">
+        <ul className="divide-border border-border divide-y rounded-lg border">
           {tables.map((tb) => (
             <li key={tb.id} className="flex items-center gap-3 px-4 py-3">
-              <Table2 className="size-4 shrink-0 text-muted-foreground" />
+              <Table2 className="text-muted-foreground size-4 shrink-0" />
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-foreground">{tb.name}</p>
-                <p className="text-xs text-muted-foreground">
-                  {t('columnsCount', { count: tb.column_count })} · {t('rowsCount', { count: tb.row_count })}
+                <p className="text-foreground truncate text-sm font-medium">
+                  {tb.name}
+                </p>
+                <p className="text-muted-foreground text-xs">
+                  {t('columnsCount', { count: tb.column_count })} ·{' '}
+                  {t('rowsCount', { count: tb.row_count })}
                 </p>
               </div>
-              <Button variant="outline" size="sm" onClick={() => setOpenId(tb.id)}>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setOpenId(tb.id)}
+              >
                 {t('open')}
               </Button>
               {isAdmin && (
-                <Button variant="ghost" size="sm" onClick={() => setShape({ mode: 'edit', table: tb })}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShape({ mode: 'edit', table: tb })}
+                >
                   {t('editShape')}
                 </Button>
               )}
@@ -111,19 +142,7 @@ export function TablesPanel() {
           ))}
         </ul>
       )}
-
-      {shape && (
-        <TableShapeDialog
-          mode={shape.mode}
-          table={shape.mode === 'edit' ? shape.table : undefined}
-          existingTables={tables}
-          onClose={() => setShape(null)}
-          onChanged={(deleted) => {
-            if (deleted) setOpenId(null);
-            void load();
-          }}
-        />
-      )}
+      {shapeDialog}
     </div>
   );
 }

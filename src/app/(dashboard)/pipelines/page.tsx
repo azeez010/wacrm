@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { Suspense, useState, useEffect, useRef, useCallback } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import type { Pipeline, PipelineStage, Deal } from "@/types";
 import { PipelineBoard } from "@/components/pipelines/pipeline-board";
@@ -47,7 +48,18 @@ const SPEC_DEFAULT_STAGES = [
   { nameKey: "won", color: "#22c55e", position: 4 }, // green
 ] as const;
 
+// `useSearchParams` needs a Suspense boundary (see settings/page.tsx).
 export default function PipelinesPage() {
+  return (
+    <Suspense fallback={null}>
+      <PipelinesPageInner />
+    </Suspense>
+  );
+}
+
+function PipelinesPageInner() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const t = useTranslations("Pipelines.page");
   const tGate = useTranslations("GatedButton");
   const supabase = createClient();
@@ -243,6 +255,16 @@ export default function PipelinesPage() {
     },
     [stages],
   );
+
+  // Dashboard "New deal" links here with ?new=1: once the board has loaded,
+  // open the deal form, then drop the param so a refresh doesn't reopen it.
+  const wantsNew = searchParams.get("new") === "1";
+  useEffect(() => {
+    if (!wantsNew || loading || !canCreateDeals || stages.length === 0) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    handleAddDeal();
+    router.replace("/pipelines");
+  }, [wantsNew, loading, canCreateDeals, stages, handleAddDeal, router]);
 
   const handleEditDeal = useCallback((deal: Deal) => {
     setEditingDeal(deal);

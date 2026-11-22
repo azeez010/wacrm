@@ -24,8 +24,8 @@ import { useFormatDuration } from './use-format-duration'
 import { WhatsAppHealthChip } from './whatsapp-health-chip'
 
 const NEW_ITEMS = [
-  { key: 'newContact', href: '/contacts', icon: UserPlus },
-  { key: 'newDeal', href: '/pipelines', icon: Briefcase },
+  { key: 'newContact', href: '/contacts?new=1', icon: UserPlus },
+  { key: 'newDeal', href: '/pipelines?new=1', icon: Briefcase },
   { key: 'newBroadcast', href: '/broadcasts/new', icon: Radio },
   { key: 'newAutomation', href: '/automations/new', icon: Zap },
 ] as const

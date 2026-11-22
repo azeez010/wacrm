@@ -240,6 +240,10 @@ export default async function LandingPage({
           {t('footer.login')}
         </Link>
         {' · '}
+        <Link href="/docs" className="underline">
+          {t('footer.apiDocs')}
+        </Link>
+        {' · '}
         <Link href="/privacy" className="underline">
           {t('footer.privacy')}
         </Link>

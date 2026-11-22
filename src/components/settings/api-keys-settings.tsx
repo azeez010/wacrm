@@ -17,10 +17,10 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
-import { Copy, KeyRound, Loader2, Plus, Trash2 } from 'lucide-react';
+import { BookOpen, Copy, KeyRound, Loader2, Plus, Trash2 } from 'lucide-react';
 
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
@@ -145,12 +145,23 @@ export function ApiKeysSettings() {
           })
         }
         action={
-          <RequireRole min="admin">
-            <Button onClick={() => setCreateOpen(true)}>
-              <Plus className="size-4" />
-              {t('newApiKey')}
-            </Button>
-          </RequireRole>
+          <div className="flex flex-wrap items-center gap-2">
+            <a
+              href="/docs"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={buttonVariants({ variant: 'outline' })}
+            >
+              <BookOpen className="size-4" />
+              {t('viewDocs')}
+            </a>
+            <RequireRole min="admin">
+              <Button onClick={() => setCreateOpen(true)}>
+                <Plus className="size-4" />
+                {t('newApiKey')}
+              </Button>
+            </RequireRole>
+          </div>
         }
       />
 

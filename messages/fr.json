@@ -2207,7 +2207,8 @@
       "newKeyTitle": "Nouvelle clé API",
       "newKeyDesc": "Nommez-la d'après l'intégration qui l'utilisera, et n'accordez que les portées nécessaires.",
       "done": "Terminé",
-      "networkError": "Impossible de joindre le serveur"
+      "networkError": "Impossible de joindre le serveur",
+      "viewDocs": "Voir la documentation de l’API"
     },
     "deals": {
       "title": "Affaires et devise",
@@ -3233,7 +3234,8 @@
       "login": "Se connecter",
       "privacy": "Confidentialité",
       "terms": "Conditions",
-      "dataDeletion": "Suppression des données"
+      "dataDeletion": "Suppression des données",
+      "apiDocs": "Documentation API"
     }
   },
   "CustomFields": {

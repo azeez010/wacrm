@@ -2207,7 +2207,8 @@
       "newKeyTitle": "New API key",
       "newKeyDesc": "Name it after the integration that will use it, and grant only the scopes it needs.",
       "done": "Done",
-      "networkError": "Could not reach the server"
+      "networkError": "Could not reach the server",
+      "viewDocs": "View API docs"
     },
     "deals": {
       "title": "Deals & currency",
@@ -3233,7 +3234,8 @@
       "login": "Log in",
       "privacy": "Privacy",
       "terms": "Terms",
-      "dataDeletion": "Data deletion"
+      "dataDeletion": "Data deletion",
+      "apiDocs": "API docs"
     }
   },
   "CustomFields": {

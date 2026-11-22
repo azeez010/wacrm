@@ -2207,7 +2207,8 @@
       "newKeyTitle": "Nueva clave de API",
       "newKeyDesc": "Nómbrala según la integración que la usará y concede solo los alcances que necesite.",
       "done": "Listo",
-      "networkError": "No se pudo conectar con el servidor"
+      "networkError": "No se pudo conectar con el servidor",
+      "viewDocs": "Ver la documentación de la API"
     },
     "deals": {
       "title": "Negocios y moneda",
@@ -3233,7 +3234,8 @@
       "login": "Iniciar sesión",
       "privacy": "Privacidad",
       "terms": "Términos",
-      "dataDeletion": "Eliminación de datos"
+      "dataDeletion": "Eliminación de datos",
+      "apiDocs": "Documentación de la API"
     }
   },
   "CustomFields": {

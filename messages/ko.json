@@ -2207,7 +2207,8 @@
       "newKeyTitle": "새 API 키",
       "newKeyDesc": "이 키를 사용할 연동 서비스의 이름을 붙이고, 필요한 권한 범위만 부여하세요.",
       "done": "완료",
-      "networkError": "서버에 연결할 수 없습니다"
+      "networkError": "서버에 연결할 수 없습니다",
+      "viewDocs": "API 문서 보기"
     },
     "deals": {
       "title": "딜 & 통화",
@@ -3233,7 +3234,8 @@
       "login": "로그인",
       "privacy": "개인정보",
       "terms": "약관",
-      "dataDeletion": "데이터 삭제"
+      "dataDeletion": "데이터 삭제",
+      "apiDocs": "API 문서"
     }
   },
   "CustomFields": {

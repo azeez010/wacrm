@@ -64,6 +64,23 @@ describe('POST /api/mcp', () => {
     expect(tools).toEqual(['filter_contacts', 'get_contact', 'list_contacts', 'list_tags', 'whoami'])
   })
 
+  it('connects with just ?key= in the URL (no headers) and a header still wins', async () => {
+    const req = (url: string, headers: Record<string, string> = {}) =>
+      new Request(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json, text/event-stream', ...headers },
+        body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/list' }),
+      })
+    const { requireApiKey } = await import('@/lib/auth/api-context')
+    const spy = vi.mocked(requireApiKey)
+    spy.mockClear()
+    expect((await POST(req('http://localhost/api/mcp?key=wacrm_live_url'))).status).toBe(200)
+    expect(spy.mock.calls[0][0].headers.get('x-api-key')).toBe('wacrm_live_url')
+    spy.mockClear()
+    await POST(req('http://localhost/api/mcp?key=wacrm_live_url', { Authorization: 'Bearer wacrm_live_header' }))
+    expect(spy.mock.calls[0][0].headers.get('x-api-key')).toBeNull()
+  })
+
   it('answers 401 with a WWW-Authenticate header for a bad key', async () => {
     auth.mode = 'bad'
     const res = await POST(rpc({ jsonrpc: '2.0', id: 1, method: 'tools/list' }))

@@ -11,15 +11,14 @@ describe('buildSetup', () => {
       expect(without).toContain(KEY_PLACEHOLDER)
     }
   })
-  it('claude.ai gets url + header name + header value, and the config clients use valid JSON', () => {
-    const blocks = buildSetup('https://x.test', 'k', 'claudeai')
-    expect(blocks.map((b) => b.label)).toEqual(['serverUrl', 'headerName', 'headerValue'])
-    expect(blocks[0].value).toBe('https://x.test/api/mcp')
-    expect(blocks[1].value).toBe('X-API-Key')
-    for (const c of ['claudedesktop', 'cursor'] as const) {
-      const json = buildSetup('https://x.test', 'k', c).find((b) => b.label === 'configFile')!.value
-      expect(() => JSON.parse(json)).not.toThrow()
-    }
+  it('the default is one URL that carries the key', () => {
+    const blocks = buildSetup('https://x.test', 'wacrm_live_abc', 'url')
+    expect(blocks).toEqual([{ label: 'connectUrl', value: 'https://x.test/api/mcp?key=wacrm_live_abc' }])
+    expect(buildSetup('https://x.test', null, 'url')[0].value).toBe(`https://x.test/api/mcp?key=${KEY_PLACEHOLDER}`)
+  })
+  it('the config clients use valid JSON', () => {
+    const json = buildSetup('https://x.test', 'k', 'claudedesktop').find((b) => b.label === 'configFile')!.value
+    expect(() => JSON.parse(json)).not.toThrow()
   })
 })
 

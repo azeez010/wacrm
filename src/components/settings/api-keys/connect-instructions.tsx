@@ -40,68 +40,48 @@ export function CopyBlock({ label, value }: { label: string; value: string }) {
   );
 }
 
-function Disclosure({ title, children }: { title: string; children: React.ReactNode }) {
-  const [open, setOpen] = useState(false);
-  return (
-    <div className="border-border rounded-lg border">
-      <button type="button" onClick={() => setOpen(!open)} aria-expanded={open} className="flex w-full items-center justify-between px-3 py-2 text-left text-xs font-medium">
-        {title}
-        <ChevronDown className={cn('size-4 transition-transform', open && 'rotate-180')} />
-      </button>
-      {open ? <div className="border-border border-t p-3">{children}</div> : null}
-    </div>
-  );
-}
-
-const CAPS = ['read', 'build', 'write', 'send', 'templates', 'broadcast'] as const;
-
-/** Setup for one client at a time. `keyValue` null = show a placeholder instead of a key. */
+/**
+ * The default is a single URL to paste. Claude Code, Claude Desktop and the REST API
+ * (which need commands or files) sit behind one small link.
+ */
 export function ConnectInstructions({ keyValue }: { keyValue: string | null }) {
   const t = useTranslations('Settings.apiKeys');
-  const [client, setClient] = useState<SetupClient>('claudeai');
+  const [more, setMore] = useState(false);
+  const [client, setClient] = useState<SetupClient>('claudecode');
   const origin = typeof window !== 'undefined' ? window.location.origin : '';
-  const blocks = buildSetup(origin, keyValue, client);
+  const url = buildSetup(origin, keyValue, 'url')[0];
+  const others = CLIENTS.filter((c) => c !== 'url');
 
   return (
     <div className="space-y-3">
-      <div className="space-y-1.5">
-        <span className="text-muted-foreground text-xs">{t('connectTo')}</span>
-        <div className="flex flex-wrap gap-1.5" role="tablist">
-          {CLIENTS.map((c) => (
-            <button
-              key={c}
-              type="button"
-              role="tab"
-              aria-selected={client === c}
-              onClick={() => setClient(c)}
-              className={cn('rounded-full border px-3 py-1 text-xs', client === c ? 'border-primary bg-primary/10 text-primary' : 'border-border text-muted-foreground hover:bg-muted')}
-            >
-              {t(`client.${c}`)}
-            </button>
+      <CopyBlock label={t('block.connectUrl')} value={url.value} />
+      <p className="text-muted-foreground text-xs">{t('urlNote')}</p>
+
+      <button type="button" onClick={() => setMore(!more)} aria-expanded={more} className="text-muted-foreground hover:text-foreground flex items-center gap-1 text-xs underline-offset-2 hover:underline">
+        <ChevronDown className={cn('size-3.5 transition-transform', more && 'rotate-180')} />
+        {t('moreClients')}
+      </button>
+      {more ? (
+        <div className="space-y-3">
+          <div className="flex flex-wrap gap-1.5" role="tablist">
+            {others.map((c) => (
+              <button
+                key={c}
+                type="button"
+                role="tab"
+                aria-selected={client === c}
+                onClick={() => setClient(c)}
+                className={cn('rounded-full border px-3 py-1 text-xs', client === c ? 'border-primary bg-primary/10 text-primary' : 'border-border text-muted-foreground hover:bg-muted')}
+              >
+                {t(`client.${c}`)}
+              </button>
+            ))}
+          </div>
+          {buildSetup(origin, keyValue, client).map((b, i) => (
+            <CopyBlock key={`${client}-${i}`} label={t(`block.${b.label}`)} value={b.value} />
           ))}
         </div>
-        <p className="text-muted-foreground text-xs">{t(`clientHint.${client}`)}</p>
-      </div>
-
-      <div className="space-y-3">
-        {blocks.map((b, i) => (
-          <CopyBlock key={`${client}-${i}`} label={t(`block.${b.label}`)} value={b.value} />
-        ))}
-      </div>
-
-      <Disclosure title={t('otherWays')}>
-        <p className="text-muted-foreground text-xs">{t('otherWaysBody')}</p>
-      </Disclosure>
-      <Disclosure title={t('capsTitle')}>
-        <ul className="space-y-2">
-          {CAPS.map((c) => (
-            <li key={c}>
-              <p className="text-xs font-medium">{t(`caps.${c}.title`)}</p>
-              <p className="text-muted-foreground text-xs">{t(`caps.${c}.examples`)}</p>
-            </li>
-          ))}
-        </ul>
-      </Disclosure>
+      ) : null}
     </div>
   );
 }

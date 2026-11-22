@@ -2400,7 +2400,7 @@
       "connect": "Connect",
       "edit": "Edit",
       "revoke": "Revoke",
-      "delete": "Delete permanently",
+      "delete": "Delete",
       "confirmRevokeTitle": "Revoke \"{name}\"?",
       "confirmRevokeBody": "Anything using this key stops working right away.",
       "confirmDeleteTitle": "Delete \"{name}\" permanently?",
@@ -2441,62 +2441,25 @@
       "connectTitle": "Connect \"{name}\"",
       "connectDesc": "Pick the app you want to connect.",
       "legacyNote": "This key was created before keys could be viewed again, so it is shown as YOUR_API_KEY below. Use the key you saved, or create a new one.",
-      "connectTo": "Connect to",
       "client": {
-        "claudeai": "Claude.ai",
+        "url": "Claude.ai & most apps",
         "claudecode": "Claude Code",
         "claudedesktop": "Claude Desktop",
-        "cursor": "Cursor & others",
         "rest": "REST API"
       },
-      "clientHint": {
-        "claudeai": "In Claude.ai go to Settings, Connectors, Add custom connector. Paste the URL, then add a header with this name and value.",
-        "claudecode": "Run this in your terminal.",
-        "claudedesktop": "Add this to claude_desktop_config.json (needs Node.js).",
-        "cursor": "Works with any app that accepts an MCP server URL and headers: Cursor, Windsurf, ChatGPT, n8n and more.",
-        "rest": "Call the REST API directly. The full reference is in the API docs."
-      },
       "block": {
+        "connectUrl": "Server URL",
         "serverUrl": "Server URL",
-        "headerName": "Header name",
-        "headerValue": "Header value (your key)",
         "terminal": "Terminal command",
         "configFile": "Config",
         "curl": "Test it"
       },
-      "otherWays": "Other ways to send the key",
-      "otherWaysBody": "Either header works: X-API-Key: YOUR_API_KEY or Authorization: Bearer YOUR_API_KEY.",
-      "capsTitle": "What you can do once connected",
-      "caps": {
-        "read": {
-          "title": "Ask questions about your CRM",
-          "examples": "\"How many conversations are still open?\" · \"Which contacts are tagged VIP?\""
-        },
-        "build": {
-          "title": "Set up campaigns for you",
-          "examples": "\"Build a 3-day follow-up for people tagged Webinar\" · \"Make a Leads pipeline with 5 stages\""
-        },
-        "write": {
-          "title": "Keep contacts and deals up to date",
-          "examples": "\"Add this lead with the tag Webinar\" · \"Move Ada's deal to Negotiation\""
-        },
-        "send": {
-          "title": "Message customers",
-          "examples": "\"Send the order_update template to +234…\" · \"Reply to Tunde that his order shipped\""
-        },
-        "templates": {
-          "title": "Create message templates",
-          "examples": "\"Create a Utility template for shipping updates in English\" (needs a connected WhatsApp number)"
-        },
-        "broadcast": {
-          "title": "Run campaigns",
-          "examples": "\"Send the promo template to these 40 numbers\" (always asks to confirm first)"
-        }
-      },
       "pwTitle": "Confirm your password",
       "pwDesc": "Enter your password to see the setup for \"{name}\".",
       "pwLabel": "Password",
-      "pwCta": "Continue"
+      "pwCta": "Continue",
+      "urlNote": "Paste this where the app asks for the server URL. That's it, no sign-in needed.",
+      "moreClients": "Claude Code, Desktop or REST API"
     },
     "deals": {
       "title": "Deals & currency",

@@ -2400,7 +2400,7 @@
       "connect": "Connecter",
       "edit": "Modifier",
       "revoke": "Révoquer",
-      "delete": "Supprimer définitivement",
+      "delete": "Supprimer",
       "confirmRevokeTitle": "Révoquer « {name} » ?",
       "confirmRevokeBody": "Tout ce qui utilise cette clé cesse de fonctionner immédiatement.",
       "confirmDeleteTitle": "Supprimer « {name} » définitivement ?",
@@ -2441,62 +2441,25 @@
       "connectTitle": "Connecter « {name} »",
       "connectDesc": "Choisissez l'application à connecter.",
       "legacyNote": "Cette clé a été créée avant que les clés puissent être revues ; elle apparaît donc comme YOUR_API_KEY ci-dessous. Utilisez la clé que vous avez conservée ou créez-en une nouvelle.",
-      "connectTo": "Connecter à",
       "client": {
-        "claudeai": "Claude.ai",
+        "url": "Claude.ai et la plupart des apps",
         "claudecode": "Claude Code",
         "claudedesktop": "Claude Desktop",
-        "cursor": "Cursor et autres",
         "rest": "API REST"
       },
-      "clientHint": {
-        "claudeai": "Dans Claude.ai : Paramètres, Connecteurs, Ajouter un connecteur personnalisé. Collez l'URL, puis ajoutez un en-tête avec ce nom et cette valeur.",
-        "claudecode": "Exécutez ceci dans votre terminal.",
-        "claudedesktop": "Ajoutez ceci à claude_desktop_config.json (nécessite Node.js).",
-        "cursor": "Fonctionne avec toute application acceptant l'URL d'un serveur MCP et des en-têtes : Cursor, Windsurf, ChatGPT, n8n et plus.",
-        "rest": "Appelez directement l'API REST. La référence complète est dans la documentation de l'API."
-      },
       "block": {
+        "connectUrl": "URL du serveur",
         "serverUrl": "URL du serveur",
-        "headerName": "Nom de l'en-tête",
-        "headerValue": "Valeur de l'en-tête (votre clé)",
         "terminal": "Commande du terminal",
         "configFile": "Configuration",
         "curl": "Testez"
       },
-      "otherWays": "Autres façons d'envoyer la clé",
-      "otherWaysBody": "Les deux en-têtes fonctionnent : X-API-Key: YOUR_API_KEY ou Authorization: Bearer YOUR_API_KEY.",
-      "capsTitle": "Ce que vous pouvez faire une fois connecté",
-      "caps": {
-        "read": {
-          "title": "Poser des questions sur votre CRM",
-          "examples": "« Combien de conversations sont encore ouvertes ? » · « Quels contacts ont le tag VIP ? »"
-        },
-        "build": {
-          "title": "Préparer des campagnes pour vous",
-          "examples": "« Crée un suivi sur 3 jours pour les personnes taguées Webinar » · « Fais un pipeline Leads en 5 étapes »"
-        },
-        "write": {
-          "title": "Tenir contacts et affaires à jour",
-          "examples": "« Ajoute ce lead avec le tag Webinar » · « Passe l'affaire d'Ada en Négociation »"
-        },
-        "send": {
-          "title": "Écrire aux clients",
-          "examples": "« Envoie le modèle order_update à +234… » · « Réponds à Tunde que sa commande est partie »"
-        },
-        "templates": {
-          "title": "Créer des modèles de message",
-          "examples": "« Crée un modèle Utilitaire pour les suivis d'expédition en anglais » (nécessite un numéro WhatsApp connecté)"
-        },
-        "broadcast": {
-          "title": "Lancer des campagnes",
-          "examples": "« Envoie le modèle promo à ces 40 numéros » (demande toujours confirmation avant)"
-        }
-      },
       "pwTitle": "Confirmez votre mot de passe",
       "pwDesc": "Saisissez votre mot de passe pour voir la configuration de « {name} ».",
       "pwLabel": "Mot de passe",
-      "pwCta": "Continuer"
+      "pwCta": "Continuer",
+      "urlNote": "Collez-la là où l'application demande l'URL du serveur. C'est tout, sans connexion.",
+      "moreClients": "Claude Code, Desktop ou API REST"
     },
     "deals": {
       "title": "Affaires et devise",

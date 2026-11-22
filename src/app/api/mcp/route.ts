@@ -1,7 +1,7 @@
 /**
  * Hosted MCP endpoint (Streamable HTTP, stateless).
  *
- *   POST /api/mcp   Authorization: Bearer wacrm_live_…   (or  X-API-Key: wacrm_live_…)
+ *   POST /api/mcp   Authorization: Bearer wacrm_live_…   (or  X-API-Key: wacrm_live_…, or  ?key=wacrm_live_…)
  *
  * Auth is the same API key as the public API; its scopes decide which
  * tools exist (see lib/mcp/server.ts). A fresh server + transport is
@@ -29,7 +29,21 @@ function withCors(res: Response): Response {
   return out
 }
 
-async function handle(request: Request): Promise<Response> {
+/**
+ * Lets an app that only asks for a server URL connect: `?key=` is treated as the key when no header
+ * carries one. MCP endpoint only (the REST API stays header-only). The key is never logged or echoed.
+ */
+function withUrlKey(request: Request): Request {
+  if (extractKey(request)) return request
+  const key = new URL(request.url).searchParams.get('key')?.trim()
+  if (!key) return request
+  const headers = new Headers(request.headers)
+  headers.set('x-api-key', key)
+  return new Request(request, { headers })
+}
+
+async function handle(original: Request): Promise<Response> {
+  const request = withUrlKey(original)
   let ctx
   try {
     ctx = await requireApiKey(request)

@@ -8,11 +8,11 @@ export const maxDuration = 60
 /**
  * Drain the CRM outbox. Hit it every few minutes from an external scheduler
  * (it is how retries after a provider outage get delivered); every enqueue also
- * drains opportunistically. Header: `x-cron-secret: $CRM_CRON_SECRET`.
+ * drains opportunistically. Header: `x-cron-secret: $AUTOMATION_CRON_SECRET`.
  */
 async function run(request: Request) {
   const auth = cronAuthorized(request)
-  if (auth === 'unconfigured') return NextResponse.json({ error: 'CRM_CRON_SECRET is not set' }, { status: 503 })
+  if (auth === 'unconfigured') return NextResponse.json({ error: 'AUTOMATION_CRON_SECRET is not set' }, { status: 503 })
   if (auth === 'forbidden') return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
   const total: FlushResult = { claimed: 0, sent: 0, retried: 0, dead: 0 }

@@ -35,18 +35,16 @@ sent from Brevo itself. Email text lives in the `Emails` namespace of `messages/
 
 1. In Brevo: create an API key; verify the sender address or domain (SPF/DKIM) you will
    send from.
-2. Set the secrets on the Worker (`npx wrangler secret put NAME --name ogadesk`):
+2. Settings. Non-secret ones are plain variables in `wrangler.jsonc` (`vars`):
+   `CRM_PROVIDER=brevo`, `EMAIL_PROVIDER=brevo`, `EMAIL_FROM_ADDRESS` (the verified
+   sender, e.g. `hello@ogadesk.com`), `EMAIL_FROM_NAME`. Optional: `BREVO_FOLDER_ID`.
+   Secrets are set on the Worker (`npx wrangler secret put NAME --name ogadesk`):
 
-   | Name | Value |
+   | Secret | What it is |
    | --- | --- |
-   | `CRM_PROVIDER` | `brevo` |
-   | `EMAIL_PROVIDER` | `brevo` |
    | `BREVO_API_KEY` | your Brevo API key |
-   | `EMAIL_FROM_ADDRESS` | the verified sender, e.g. `hello@ogadesk.com` |
-   | `EMAIL_FROM_NAME` | `OgaDesk` |
-   | `CRM_CRON_SECRET` | any long random string |
-   | `BREVO_WEBHOOK_TOKEN` | any long random string |
-   | `BREVO_FOLDER_ID` | optional: a Brevo folder id for the lists |
+   | `AUTOMATION_CRON_SECRET` | the one shared cron password: guards `/api/crm/flush`, `/api/crm/resync`, `/api/automations/cron` and `/api/flows/cron` (any long random string) |
+   | `BREVO_WEBHOOK_TOKEN` | token in the unsubscribe webhook URL (it is a secret: the URL is configured in Brevo) |
 
 3. Nothing else to schedule: a Cloudflare Cron Trigger (`triggers.crons` in `wrangler.jsonc`,
    every 5 minutes) runs the `scheduled` handler in `worker/custom-worker.ts`, which calls
@@ -55,7 +53,7 @@ sent from Brevo itself. Email text lives in the `Emails` namespace of `messages/
 4. In Brevo (Settings, Webhooks) add a marketing webhook for unsubscribe, spam and hard
    bounce pointing at `https://ogadesk.com/api/crm/webhooks/brevo?token=<BREVO_WEBHOOK_TOKEN>`.
 5. Backfill existing users once (after the secrets are set and the app is deployed):
-   `CRM_BASE_URL=https://ogadesk.com CRM_CRON_SECRET=... npm run crm:backfill`
+   `CRM_BASE_URL=https://ogadesk.com AUTOMATION_CRON_SECRET=... npm run crm:backfill`
 
 Brevo's Events API can require a Marketing Automation plan. If it is not available,
 contacts, attributes, lists and emails still work; events are marked dead in the outbox.

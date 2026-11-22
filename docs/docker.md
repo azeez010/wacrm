@@ -74,5 +74,5 @@ docker run -d --env-file .env.local -e PORT=3000 -p 3000:3000 wacrm
   deployment, sending the shared secret in the `x-cron-secret` header
   (`AUTOMATION_CRON_SECRET`, see `.env.local.example`). Both return
   503 until that variable is set. The same goes for the CRM/email outbox (`POST /api/crm/flush`,
-  header `x-cron-secret: $CRM_CRON_SECRET`, see `docs/crm-email.md`). On Cloudflare
+  header `x-cron-secret: $AUTOMATION_CRON_SECRET`, see `docs/crm-email.md`). On Cloudflare
   Workers the 5-minute Cron Trigger in `wrangler.jsonc` calls all three.

@@ -9,11 +9,11 @@ export const maxDuration = 60
 /**
  * Queue a CRM sync for every user (first-time backfill, or a nightly refresh of
  * usage attributes). The jobs are then drained by /api/crm/flush.
- * Header: `x-cron-secret: $CRM_CRON_SECRET`.
+ * Header: `x-cron-secret: $AUTOMATION_CRON_SECRET`.
  */
 export async function POST(request: Request) {
   const auth = cronAuthorized(request)
-  if (auth === 'unconfigured') return NextResponse.json({ error: 'CRM_CRON_SECRET is not set' }, { status: 503 })
+  if (auth === 'unconfigured') return NextResponse.json({ error: 'AUTOMATION_CRON_SECRET is not set' }, { status: 503 })
   if (auth === 'forbidden') return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   if (!isCrmEnabled()) return NextResponse.json({ error: 'No CRM provider configured' }, { status: 409 })
 

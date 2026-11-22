@@ -13,7 +13,6 @@
 export interface CronEnv {
   /** Service binding to this same Worker (see wrangler.jsonc `services`). */
   WORKER_SELF_REFERENCE: { fetch(request: Request): Promise<Response> }
-  CRM_CRON_SECRET?: string
   AUTOMATION_CRON_SECRET?: string
 }
 
@@ -22,7 +21,7 @@ export interface CronJob {
   path: string
   method: 'GET' | 'POST'
   /** Which secret authorises the call (sent as `x-cron-secret`). */
-  secret: 'CRM_CRON_SECRET' | 'AUTOMATION_CRON_SECRET'
+  secret: 'AUTOMATION_CRON_SECRET'
 }
 
 /** The host the self-call is addressed to; the binding routes it to this Worker. */
@@ -31,7 +30,7 @@ const JOB_TIMEOUT_MS = 50_000
 
 export const CRON_JOBS: readonly CronJob[] = [
   // Drain the CRM / email outbox (retries after a provider outage).
-  { name: 'crm-flush', path: '/api/crm/flush', method: 'POST', secret: 'CRM_CRON_SECRET' },
+  { name: 'crm-flush', path: '/api/crm/flush', method: 'POST', secret: 'AUTOMATION_CRON_SECRET' },
   // Time-based automations and "wait" steps.
   { name: 'automations', path: '/api/automations/cron', method: 'GET', secret: 'AUTOMATION_CRON_SECRET' },
   // Time out abandoned chatbot flow runs.

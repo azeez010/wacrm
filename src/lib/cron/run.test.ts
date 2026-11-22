@@ -4,7 +4,6 @@ import { CRON_JOBS, CRON_ORIGIN, runScheduled, type CronEnv } from './run'
 const fetchSelf = vi.fn()
 const env = (over: Partial<CronEnv> = {}): CronEnv => ({
   WORKER_SELF_REFERENCE: { fetch: (r: Request) => fetchSelf(r) },
-  CRM_CRON_SECRET: 'crm-secret',
   AUTOMATION_CRON_SECRET: 'auto-secret',
   ...over,
 })
@@ -28,17 +27,14 @@ describe('runScheduled', () => {
       return [r.method, new URL(r.url).pathname, r.headers.get('x-cron-secret'), new URL(r.url).origin]
     })
     expect(sent).toEqual([
-      ['POST', '/api/crm/flush', 'crm-secret', CRON_ORIGIN],
+      ['POST', '/api/crm/flush', 'auto-secret', CRON_ORIGIN],
       ['GET', '/api/automations/cron', 'auto-secret', CRON_ORIGIN],
       ['GET', '/api/flows/cron', 'auto-secret', CRON_ORIGIN],
     ])
   })
 
   it('skips jobs whose secret is not set, without calling them', async () => {
-    const out = await runScheduled(env({ CRM_CRON_SECRET: undefined }))
-    expect(out[0]).toEqual({ job: 'crm-flush', result: 'skipped' })
-    expect(fetchSelf).toHaveBeenCalledTimes(2)
-    expect((await runScheduled(env({ CRM_CRON_SECRET: undefined, AUTOMATION_CRON_SECRET: undefined }))).every((o) => o.result === 'skipped')).toBe(true)
+    expect((await runScheduled(env({ AUTOMATION_CRON_SECRET: undefined }))).every((o) => o.result === 'skipped')).toBe(true)
   })
 
   it('keeps going when one job fails or answers an error', async () => {

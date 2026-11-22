@@ -1,15 +1,15 @@
 #!/usr/bin/env node
 // Queue every user for a CRM sync, then drain the queue.
 //
-//   CRM_BASE_URL=https://ogadesk.com CRM_CRON_SECRET=... npm run crm:backfill
+//   CRM_BASE_URL=https://ogadesk.com AUTOMATION_CRON_SECRET=... npm run crm:backfill
 //
 // Run it once after turning the CRM provider on (existing users were never synced),
 // and again any time you want to refresh usage attributes for everyone.
 
 const base = (process.env.CRM_BASE_URL || '').replace(/\/+$/, '')
-const secret = process.env.CRM_CRON_SECRET
+const secret = process.env.AUTOMATION_CRON_SECRET
 if (!base || !secret) {
-  console.error('Set CRM_BASE_URL (e.g. https://ogadesk.com) and CRM_CRON_SECRET.')
+  console.error('Set CRM_BASE_URL (e.g. https://ogadesk.com) and AUTOMATION_CRON_SECRET.')
   process.exit(1)
 }
 

@@ -26,9 +26,22 @@
 			"custom_domain": true
 		}
 	],
+	// Non-secret settings (change here and redeploy). Secrets - BREVO_API_KEY,
+	// BREVO_WEBHOOK_TOKEN, AUTOMATION_CRON_SECRET - are set with
+	// `wrangler secret put` and never live in this file. With no BREVO_API_KEY the
+	// CRM/email layer stays a no-op even though the provider is "brevo".
+	"vars": {
+		"CRM_PROVIDER": "brevo",
+		"EMAIL_PROVIDER": "brevo",
+		// Must be a sender/domain verified in Brevo.
+		"EMAIL_FROM_ADDRESS": "no.reply@ogadesk.com",
+		"EMAIL_FROM_NAME": "No Reply"
+	},
 	"triggers": {
 		// Every 5 minutes: CRM outbox flush, automations and flows crons.
-		"crons": ["*/5 * * * *"]
+		"crons": [
+			"*/5 * * * *"
+		]
 	},
 	"assets": {
 		"directory": ".open-next/assets",

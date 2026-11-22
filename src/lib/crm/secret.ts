@@ -7,9 +7,9 @@ export function safeEqual(a: string, b: string): boolean {
   return x.length === y.length && timingSafeEqual(x, y)
 }
 
-/** Guard for the scheduler endpoints: `x-cron-secret` must equal CRM_CRON_SECRET. */
+/** Guard for the scheduler endpoints: `x-cron-secret` must equal AUTOMATION_CRON_SECRET (the one shared cron secret). */
 export function cronAuthorized(request: Request): 'ok' | 'forbidden' | 'unconfigured' {
-  const expected = process.env.CRM_CRON_SECRET
+  const expected = process.env.AUTOMATION_CRON_SECRET
   if (!expected) return 'unconfigured'
   const given = request.headers.get('x-cron-secret') ?? ''
   return safeEqual(given, expected) ? 'ok' : 'forbidden'

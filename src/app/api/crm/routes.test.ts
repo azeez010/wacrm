@@ -16,7 +16,7 @@ const brevo = await import('./webhooks/brevo/route')
 const withSecret = (secret?: string) => new Request('https://x.test/api/crm/flush', { method: 'POST', headers: secret ? { 'x-cron-secret': secret } : {} })
 
 beforeEach(() => {
-  process.env.CRM_CRON_SECRET = 'cron-secret'
+  process.env.AUTOMATION_CRON_SECRET = 'cron-secret'
   process.env.BREVO_WEBHOOK_TOKEN = 'hook-token'
   crmOn = true
   flushOutbox.mockReset().mockResolvedValue({ claimed: 0, sent: 0, retried: 0, dead: 0 })
@@ -28,7 +28,7 @@ describe('/api/crm/flush', () => {
   it('requires the cron secret', async () => {
     expect((await flush.POST(withSecret())).status).toBe(403)
     expect((await flush.POST(withSecret('wrong'))).status).toBe(403)
-    delete process.env.CRM_CRON_SECRET
+    delete process.env.AUTOMATION_CRON_SECRET
     expect((await flush.POST(withSecret('anything'))).status).toBe(503)
     expect(flushOutbox).not.toHaveBeenCalled()
   })

@@ -1,3 +1,4 @@
+import { isBlocked } from '@/lib/contacts/block-guard'
 import { supabaseAdmin } from './admin-client'
 import { loadAiConfig } from './config'
 import { buildConversationContext } from './context'
@@ -63,6 +64,15 @@ export async function dispatchInboundToAiReply(
 
     const config = await loadAiConfig(db, accountId)
     if (!config || !config.autoReplyEnabled) return
+
+    // Blocked contacts get no AI reply (and no LLM spend / typing indicator).
+    const { data: blockedRow } = await db
+      .from('contacts')
+      .select('blocked_at')
+      .eq('id', contactId)
+      .eq('account_id', accountId)
+      .maybeSingle()
+    if (isBlocked(blockedRow)) return
 
     // Deterministic, user-configured responders win over the LLM - the
     // caller already excludes messages a Flow consumed. Message-level

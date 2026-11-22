@@ -51,7 +51,10 @@ describe('createBroadcast validation', () => {
 // Build a Supabase-shaped mock that gets createBroadcast past its config +
 // template lookups and into persistence. `rpcResult` is what the atomic
 // create_broadcast_with_recipients RPC returns.
-function makeDb(rpcResult: { data: unknown; error: unknown }) {
+function makeDb(
+  rpcResult: { data: unknown; error: unknown },
+  blockedContactIds: string[] = []
+) {
   const calls = {
     rpc: [] as { name: string; args: unknown }[],
     // Incremented if the OLD non-atomic path (a direct broadcasts /
@@ -92,6 +95,20 @@ function makeDb(rpcResult: { data: unknown; error: unknown }) {
           }),
         };
       }
+      if (table === 'contacts') {
+        // Blocked-contact lookup: nobody is blocked in these scenarios.
+        const chain: Record<string, unknown> = {
+          select: () => chain,
+          eq: () => chain,
+          not: () => chain,
+          in: () =>
+            Promise.resolve({
+              data: blockedContactIds.map((id) => ({ id })),
+              error: null,
+            }),
+        };
+        return chain;
+      }
       throw new Error(`unexpected table: ${table}`);
     },
     rpc(name: string, args: unknown) {
@@ -101,6 +118,19 @@ function makeDb(rpcResult: { data: unknown; error: unknown }) {
   } as unknown as SupabaseClient;
   return { db: database, calls };
 }
+
+describe('createBroadcast suppression list', () => {
+  it('refuses when every recipient is a blocked contact, creating nothing', async () => {
+    const { db, calls } = makeDb({ data: [], error: null }, ['c1']);
+    await expect(
+      createBroadcast(db, 'acc', 'user', {
+        templateName: 'promo',
+        recipients: [{ to: '+14155550123' }],
+      })
+    ).rejects.toMatchObject({ code: 'contact_blocked', status: 400 });
+    expect(calls.rpc).toHaveLength(0);
+  });
+});
 
 describe('createBroadcast recipient validation (#586)', () => {
   it('counts a recipient without a leading + as rejected instead of sending it abroad', async () => {

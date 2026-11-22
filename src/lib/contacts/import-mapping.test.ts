@@ -5,6 +5,7 @@ import {
   autoMapWithTableNames,
   buildSystemFields,
   instructionHeaders,
+  isTruthyCell,
   mappedCount,
   validateCustomValues,
   type Mapping,
@@ -33,7 +34,7 @@ const sys = buildSystemFields(fields, tables)
 describe('buildSystemFields', () => {
   it('lists core fields, custom fields and table columns, skipping media', () => {
     expect(sys.map((s) => s.id)).toEqual([
-      'phone', 'name', 'email', 'company', 'tags',
+      'phone', 'name', 'email', 'company', 'tags', 'blocked',
       'cf:f-bal', 'cf:f-out',
       'ref:f-prof:name', 'ref:f-prof:age',
     ])
@@ -103,5 +104,19 @@ describe('validateCustomValues', () => {
     const bad = validateCustomValues({ 'f-bal': 'abc' }, defs)
     expect(bad.issues).toHaveLength(1)
     expect(bad.values).toEqual({})
+  })
+})
+
+describe('blocked column (suppression list import)', () => {
+  it('auto-maps a blocked header and marks rows yes / true / 1', () => {
+    const g = parseCsvGrid('phone,blocked\n+15550001,yes\n+15550002,\n+15550003,No\n+15550004,TRUE\n')
+    const m = autoMapWithTableNames(g.headers, sys)
+    expect(m.blocked).toMatchObject({ kind: 'column' })
+    const rows = applyMapping(g, m, sys)
+    expect(rows.map((r) => Boolean(r.blocked))).toEqual([true, false, false, true])
+  })
+  it('only affirmative words block', () => {
+    expect(['yes', 'Y', 'true', '1', 'Blocked'].every(isTruthyCell)).toBe(true)
+    expect(['no', '0', 'false', '', 'maybe'].some(isTruthyCell)).toBe(false)
   })
 })

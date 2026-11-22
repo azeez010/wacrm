@@ -59,6 +59,8 @@ export type BroadcastSendInterruption = 'lease_lost' | 'lease_error';
 export interface BroadcastSendOutcome {
   broadcastId: string;
   interruption: BroadcastSendInterruption | null;
+  /** Contacts left out because they are blocked (suppression list). */
+  blockedSkipped?: number;
 }
 
 interface UseBroadcastSendingReturn {
@@ -186,10 +188,16 @@ export function useBroadcastSending(): UseBroadcastSendingReturn {
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
 
-  async function resolveAudience(audience: AudienceConfig): Promise<Contact[]> {
+  async function resolveAudience(
+    audience: AudienceConfig,
+    stats?: { blockedSkipped: number },
+  ): Promise<Contact[]> {
     const supabase = createClient();
-    return resolveAudienceContacts(supabase, audience, (rows) =>
-      upsertCsvContacts(supabase, rows),
+    return resolveAudienceContacts(
+      supabase,
+      audience,
+      (rows) => upsertCsvContacts(supabase, rows),
+      { stats },
     );
   }
 
@@ -323,7 +331,8 @@ export function useBroadcastSending(): UseBroadcastSendingReturn {
 
       // ── Step 1: Resolve audience contacts ─────────────────────────
       setProgress(5);
-      const contacts = await resolveAudience(payload.audience);
+      const audienceStats = { blockedSkipped: 0 };
+      const contacts = await resolveAudience(payload.audience, audienceStats);
 
       if (contacts.length === 0) {
         throw new Error(t('noContactsForAudience'));
@@ -598,7 +607,11 @@ export function useBroadcastSending(): UseBroadcastSendingReturn {
       }
 
       setProgress(100);
-      return { broadcastId: broadcast.id, interruption };
+      return {
+        broadcastId: broadcast.id,
+        interruption,
+        blockedSkipped: audienceStats.blockedSkipped,
+      };
     } finally {
       setIsProcessing(false);
     }

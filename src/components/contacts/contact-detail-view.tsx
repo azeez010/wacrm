@@ -38,12 +38,14 @@ import {
   X,
   DollarSign,
   LayoutTemplate,
+  Ban,
 } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { planTypedValueWrites } from '@/lib/custom-fields/value-writes';
 import type { FieldDef } from '@/lib/custom-fields/types';
 import { CustomFieldInput } from '@/components/custom-fields/custom-field-input';
 import { BulkDealDialog } from '@/components/contacts/bulk-deal-dialog';
+import { BulkBlockDialog } from '@/components/contacts/bulk-block-dialog';
 import { ContactTagEditor } from '@/components/contacts/contact-tag-editor';
 import { contactHandle } from '@/lib/whatsapp/wa-identity';
 import { parseInternationalPhone } from '@/lib/whatsapp/phone-utils';
@@ -68,6 +70,7 @@ export function ContactDetailView({
   const [dealDialogOpen, setDealDialogOpen] = useState(false);
 
   const [contact, setContact] = useState<Contact | null>(null);
+  const [blockDialog, setBlockDialog] = useState<'block' | 'unblock' | null>(null);
   const [loading, setLoading] = useState(false);
   const [copiedPhone, setCopiedPhone] = useState(false);
 
@@ -465,11 +468,17 @@ export function ContactDetailView({
                   </div>
                 </div>
               </div>
-              <div className="mt-3">
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                {contact.blocked_at && (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-destructive/10 px-2 py-0.5 text-xs font-medium text-destructive">
+                    <Ban className="size-3" />
+                    {t('blockedBadge')}
+                  </span>
+                )}
                 <Button
                   size="sm"
                   onClick={() => setTemplatePickerOpen(true)}
-                  disabled={sendingTemplate}
+                  disabled={sendingTemplate || Boolean(contact.blocked_at)}
                   className="bg-primary text-primary-foreground hover:bg-primary/90"
                 >
                   {sendingTemplate ? (
@@ -478,6 +487,15 @@ export function ContactDetailView({
                     <LayoutTemplate className="size-4" />
                   )}
                   {t('sendTemplateBtn')}
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="border-border text-muted-foreground"
+                  onClick={() => setBlockDialog(contact.blocked_at ? 'unblock' : 'block')}
+                >
+                  <Ban className="size-4" />
+                  {contact.blocked_at ? t('unblockBtn') : t('blockBtn')}
                 </Button>
               </div>
             </SheetHeader>
@@ -783,6 +801,21 @@ export function ContactDetailView({
       onOpenChange={setTemplatePickerOpen}
       onSelect={handleSendTemplate}
     />
+    {blockDialog && contact && (
+      <BulkBlockDialog
+        mode={blockDialog}
+        contacts={[contact]}
+        onClose={() => setBlockDialog(null)}
+        onDone={() => {
+          setContact({
+            ...contact,
+            blocked_at: blockDialog === 'block' ? new Date().toISOString() : null,
+            blocked_reason: blockDialog === 'block' ? 'manual' : null,
+          });
+          onUpdated();
+        }}
+      />
+    )}
     {dealDialogOpen && contact && (
       <BulkDealDialog
         contacts={[{ id: contact.id, name: contact.name, phone: contact.phone }]}

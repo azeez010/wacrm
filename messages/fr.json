@@ -390,7 +390,10 @@
       "assigneeNoLongerMember": "Ce coéquipier n'est plus membre de ce compte",
       "networkError": "erreur réseau",
       "documentFallback": "Document",
-      "you": "Vous"
+      "you": "Vous",
+      "blockedBanner": "Ce contact est bloqué. Débloquez-le pour lui envoyer des messages.",
+      "unblock": "Débloquer",
+      "unblockFailed": "Impossible de débloquer ce contact"
     },
     "sessionTimer": {
       "expired": "Expirée",
@@ -527,7 +530,10 @@
       "availableTags": "Étiquettes disponibles",
       "noAvailableTags": "Aucune étiquette n’a encore été créée.",
       "removeTag": "Retirer {tag}",
-      "tagUpdateFailed": "Impossible de mettre à jour les étiquettes du contact."
+      "tagUpdateFailed": "Impossible de mettre à jour les étiquettes du contact.",
+      "blocked": "Bloqué",
+      "blockContact": "Bloquer le contact",
+      "unblockContact": "Débloquer le contact"
     },
     "aiBanner": {
       "pausedTitle": "L'assistant IA est en pause ici",
@@ -562,7 +568,8 @@
         "email": "E-mail",
         "company": "Entreprise",
         "tags": "Étiquettes",
-        "createdAt": "Créé le"
+        "createdAt": "Créé le",
+        "blocked": "Bloqué"
       },
       "loading": "Chargement des contacts…",
       "noContactsMatch": "Aucun contact ne correspond à vos filtres.",
@@ -653,7 +660,19 @@
         "dealValue": "Valeur",
         "currency": "Devise",
         "dealsCreated": "{count, plural, one {# affaire créée} other {# affaires créées}}",
-        "addDealRun": "{count, plural, one {Créer # affaire} other {Créer # affaires}}"
+        "addDealRun": "{count, plural, one {Créer # affaire} other {Créer # affaires}}",
+        "block": "Bloquer",
+        "unblock": "Débloquer",
+        "blockTitle": "Bloquer des contacts",
+        "unblockTitle": "Débloquer des contacts",
+        "blockConsequences": "Les contacts bloqués ne recevront aucun message de votre part : ni diffusions, automatisations, flux, réponses IA, messages API ni messages manuels. Vous pouvez les débloquer à tout moment.",
+        "unblockConsequences": "Ces contacts pourront de nouveau recevoir des messages.",
+        "blockRun": "{count, plural, one {Bloquer # contact} other {Bloquer # contacts}}",
+        "unblockRun": "{count, plural, one {Débloquer # contact} other {Débloquer # contacts}}",
+        "blockedCount": "{count, plural, one {# contact bloqué} other {# contacts bloqués}}",
+        "unblockedCount": "{count, plural, one {# contact débloqué} other {# contacts débloqués}}",
+        "alreadyBlockedCount": "{count, plural, one {# était déjà bloqué} other {# étaient déjà bloqués}}",
+        "notBlockedCount": "{count, plural, one {# n'était pas bloqué} other {# n'étaient pas bloqués}}"
       },
       "tagsButton": "Étiquettes",
       "tagManage": {
@@ -665,6 +684,13 @@
         "deleteFailed": "Impossible de supprimer l'étiquette.",
         "created": "Étiquette « {name} » créée.",
         "deleted": "Étiquette « {name} » supprimée."
+      },
+      "blockedBadge": "Bloqué",
+      "blockedReason": {
+        "manual": "Bloqué par un collègue",
+        "opt_out": "Désinscrit",
+        "import": "Bloqué par import",
+        "api": "Bloqué via l'API"
       }
     },
     "form": {
@@ -768,7 +794,10 @@
       "toastTemplateSent": "Modèle « {name} » envoyé",
       "toastTemplateFailed": "Échec de l'envoi du modèle : {reason}",
       "networkError": "erreur réseau",
-      "toastReferenceMissing": "Cette valeur pointe vers une ligne qui n'existe plus. Choisissez-la à nouveau."
+      "toastReferenceMissing": "Cette valeur pointe vers une ligne qui n'existe plus. Choisissez-la à nouveau.",
+      "blockedBadge": "Bloqué",
+      "blockBtn": "Bloquer",
+      "unblockBtn": "Débloquer"
     },
     "importModal": {
       "title": "Importer des contacts",
@@ -1181,7 +1210,8 @@
       "toastDraftSaved": "Brouillon enregistré",
       "broadcastFailed": "Échec de la diffusion",
       "toastSendTakenOver": "Un autre envoi a repris cette diffusion : cet onglet a donc arrêté d'envoyer. Ouvrez la diffusion pour suivre sa progression.",
-      "toastSendInterrupted": "L'envoi s'est arrêté car la connexion au serveur a été coupée. Ouvrez la diffusion et sélectionnez Reprendre l'envoi pour joindre les destinataires restants. Le bouton apparaît d'ici 5 minutes."
+      "toastSendInterrupted": "L'envoi s'est arrêté car la connexion au serveur a été coupée. Ouvrez la diffusion et sélectionnez Reprendre l'envoi pour joindre les destinataires restants. Le bouton apparaît d'ici 5 minutes.",
+      "toastBlockedSkipped": "{count, plural, one {# contact bloqué a été ignoré} other {# contacts bloqués ont été ignorés}}"
     },
     "wizard": {
       "next": "Suivant",
@@ -1398,7 +1428,9 @@
         "wait": "Attendre",
         "condition": "Condition (Si/Sinon)",
         "send_webhook": "Envoyer un webhook",
-        "close_conversation": "Clôturer la conversation"
+        "close_conversation": "Clôturer la conversation",
+        "block_contact": "Bloquer le contact",
+        "unblock_contact": "Débloquer le contact"
       },
       "triggers": {
         "new_message_received": {
@@ -1530,7 +1562,8 @@
           "contact_field": "Champ du contact",
           "message_content": "Contenu du message",
           "time_of_day": "Heure de la journée",
-          "in_segment": "Dans un segment"
+          "in_segment": "Dans un segment",
+          "reply_id": "ID de réponse du bouton ou de la liste"
         },
         "operandLabel": "Opérande",
         "placeholderTime": "HH:mm-HH:mm",
@@ -1551,7 +1584,10 @@
         "waitForReplyHint": "Met en pause ici jusqu'à ce que le client touche un bouton ou réponde (jusqu'à 24 h). Les étapes suivantes, y compris un Si/Sinon sur le contenu du message, utilisent alors sa réponse.",
         "closeConversationHint": "Passe le statut de la conversation à « clôturée ». Aucune configuration nécessaire.",
         "segmentLabel": "Segment",
-        "segmentPlaceholder": "Choisissez un segment…"
+        "segmentPlaceholder": "Choisissez un segment…",
+        "blockContactHint": "Arrête tous les messages vers ce contact (diffusions, automatisations, flux, réponses IA et envois manuels). Placez tout message d'au revoir avant cette étape.",
+        "unblockContactHint": "Permet à ce contact de recevoir de nouveau des messages.",
+        "placeholderReplyId": "ex. unsub_yes"
       },
       "preview": {
         "noText": "pas encore de texte",
@@ -3265,7 +3301,8 @@
       "nameTriggerRequired": "name et trigger_type sont obligatoires"
     },
     "contacts": {
-      "tagIdRequired": "tag_id obligatoire"
+      "tagIdRequired": "tag_id obligatoire",
+      "notFound": "Contact introuvable"
     },
     "flows": {
       "statusInvalid": "status doit être l'une des valeurs « draft » | « active » | « archived »",
@@ -3287,7 +3324,8 @@
       "recipientsRequired": "Fournissez soit `recipients` (recommandé), soit `phone_numbers` ; ce doit être un tableau non vide",
       "templateNameRequired": "template_name est obligatoire",
       "templateMalformed": "La ligne du modèle est mal formée en local : lancez « Synchroniser depuis Meta » dans Paramètres pour la réparer avant de diffuser.",
-      "invalidPhoneFormat": "Format de numéro de téléphone invalide"
+      "invalidPhoneFormat": "Format de numéro de téléphone invalide",
+      "contactBlocked": "Le contact est bloqué"
     },
     "whatsappConfig": {
       "fetchFailed": "Échec de la récupération de la configuration",
@@ -3322,7 +3360,8 @@
       "unknownMetaError": "Erreur inconnue de l'API Meta",
       "metaError": "Erreur de l'API Meta : {message}",
       "dbDeleteFailed": "Réaction envoyée à Meta, mais la suppression en base a échoué",
-      "dbUpsertFailed": "Réaction envoyée à Meta, mais l'enregistrement en base a échoué"
+      "dbUpsertFailed": "Réaction envoyée à Meta, mais l'enregistrement en base a échoué",
+      "contactBlocked": "Ce contact est bloqué"
     },
     "send": {
       "idsRequired": "conversation_id ou contact_id, ainsi que message_type, sont obligatoires",
@@ -3451,7 +3490,8 @@
       "email": "E-mail",
       "company": "Société",
       "tags": "Étiquettes",
-      "created_at": "Créé le"
+      "created_at": "Créé le",
+      "blocked": "Bloqué"
     },
     "operators": {
       "contains": "contient",
@@ -3502,5 +3542,17 @@
     "minutesAgo": "{count, plural, =1 {il y a # minute} other {il y a # minutes}}",
     "hoursAgo": "{count, plural, =1 {il y a # heure} other {il y a # heures}}",
     "daysAgo": "{count, plural, =1 {il y a # jour} other {il y a # jours}}"
+  },
+  "DefaultAutomations": {
+    "unsubscribe": {
+      "name": "Désinscription",
+      "description": "Quand quelqu'un écrit stop ou désabonner, lui demande de confirmer avec un bouton, puis le bloque pour qu'il ne reçoive plus de messages. Modifiez-la ou désactivez-la à tout moment.",
+      "keywords": "stop,désabonner,arrêter,désinscrire",
+      "question": "Voulez-vous ne plus recevoir nos messages ?",
+      "yes": "Oui, me désinscrire",
+      "no": "Non, rester inscrit",
+      "confirmed": "Vous êtes désinscrit. Vous ne recevrez plus de messages de notre part.",
+      "kept": "D'accord, vous continuerez à recevoir nos messages."
+    }
   }
 }

@@ -390,7 +390,10 @@
       "assigneeNoLongerMember": "That teammate is no longer a member of this account",
       "networkError": "network error",
       "documentFallback": "Document",
-      "you": "You"
+      "you": "You",
+      "blockedBanner": "This contact is blocked. Unblock them to send messages.",
+      "unblock": "Unblock",
+      "unblockFailed": "Could not unblock this contact"
     },
     "sessionTimer": {
       "expired": "Expired",
@@ -527,7 +530,10 @@
       "removeTag": "Remove {tag}",
       "tagUpdateFailed": "Could not update contact tags.",
       "noDeals": "No deals",
-      "addNotePlaceholder": "Add a note..."
+      "addNotePlaceholder": "Add a note...",
+      "blocked": "Blocked",
+      "blockContact": "Block contact",
+      "unblockContact": "Unblock contact"
     },
     "aiBanner": {
       "pausedTitle": "AI assistant is paused here",
@@ -562,7 +568,8 @@
         "email": "Email",
         "company": "Company",
         "tags": "Tags",
-        "createdAt": "Created"
+        "createdAt": "Created",
+        "blocked": "Blocked"
       },
       "loading": "Loading contacts...",
       "noContactsMatch": "No contacts match your filters.",
@@ -653,7 +660,19 @@
         "dealValue": "Value",
         "currency": "Currency",
         "dealsCreated": "{count, plural, one {# deal created} other {# deals created}}",
-        "addDealRun": "{count, plural, one {Create # deal} other {Create # deals}}"
+        "addDealRun": "{count, plural, one {Create # deal} other {Create # deals}}",
+        "block": "Block",
+        "unblock": "Unblock",
+        "blockTitle": "Block contacts",
+        "unblockTitle": "Unblock contacts",
+        "blockConsequences": "Blocked contacts will not receive any message from you: no broadcasts, automations, flows, AI replies, API messages or manual messages. You can unblock them at any time.",
+        "unblockConsequences": "These contacts can be messaged again.",
+        "blockRun": "{count, plural, one {Block # contact} other {Block # contacts}}",
+        "unblockRun": "{count, plural, one {Unblock # contact} other {Unblock # contacts}}",
+        "blockedCount": "{count, plural, one {# contact blocked} other {# contacts blocked}}",
+        "unblockedCount": "{count, plural, one {# contact unblocked} other {# contacts unblocked}}",
+        "alreadyBlockedCount": "{count, plural, one {# was already blocked} other {# were already blocked}}",
+        "notBlockedCount": "{count, plural, one {# was not blocked} other {# were not blocked}}"
       },
       "tagsButton": "Tags",
       "tagManage": {
@@ -665,6 +684,13 @@
         "deleteFailed": "Could not delete the tag.",
         "created": "Tag \"{name}\" created.",
         "deleted": "Tag \"{name}\" deleted."
+      },
+      "blockedBadge": "Blocked",
+      "blockedReason": {
+        "manual": "Blocked by a teammate",
+        "opt_out": "Opted out",
+        "import": "Blocked by import",
+        "api": "Blocked via API"
       }
     },
     "form": {
@@ -768,7 +794,10 @@
       "toastTemplateSent": "Template \"{name}\" sent",
       "toastTemplateFailed": "Failed to send template: {reason}",
       "networkError": "network error",
-      "toastReferenceMissing": "That value points at a row that no longer exists. Pick it again."
+      "toastReferenceMissing": "That value points at a row that no longer exists. Pick it again.",
+      "blockedBadge": "Blocked",
+      "blockBtn": "Block",
+      "unblockBtn": "Unblock"
     },
     "importModal": {
       "title": "Import Contacts",
@@ -1181,7 +1210,8 @@
       "toastDraftSaved": "Draft saved",
       "broadcastFailed": "Broadcast failed",
       "toastSendTakenOver": "Another delivery took over this broadcast, so this tab stopped sending. Open the broadcast to follow its progress.",
-      "toastSendInterrupted": "Sending stopped because the connection to the server dropped. Open the broadcast and select Resume sending to reach the remaining recipients. The button appears within 5 minutes."
+      "toastSendInterrupted": "Sending stopped because the connection to the server dropped. Open the broadcast and select Resume sending to reach the remaining recipients. The button appears within 5 minutes.",
+      "toastBlockedSkipped": "{count, plural, one {# blocked contact was skipped} other {# blocked contacts were skipped}}"
     },
     "wizard": {
       "next": "Next",
@@ -1398,7 +1428,9 @@
         "wait": "Wait",
         "condition": "Condition (If/Else)",
         "send_webhook": "Send Webhook",
-        "close_conversation": "Close Conversation"
+        "close_conversation": "Close Conversation",
+        "block_contact": "Block Contact",
+        "unblock_contact": "Unblock Contact"
       },
       "triggers": {
         "new_message_received": {
@@ -1530,7 +1562,8 @@
           "contact_field": "Contact field",
           "message_content": "Message content",
           "time_of_day": "Time of day",
-          "in_segment": "In segment"
+          "in_segment": "In segment",
+          "reply_id": "Button or list reply id"
         },
         "operandLabel": "Operand",
         "placeholderTime": "HH:mm-HH:mm",
@@ -1551,7 +1584,10 @@
         "waitForReplyHint": "Pauses here until the customer taps a button or replies (up to 24h). The steps after this one, including If/Else on message content, then use their reply.",
         "closeConversationHint": "Sets the conversation status to \"closed\". No configuration needed.",
         "segmentLabel": "Segment",
-        "segmentPlaceholder": "Pick a segment…"
+        "segmentPlaceholder": "Pick a segment…",
+        "blockContactHint": "Stops all messages to this contact (broadcasts, automations, flows, AI replies and manual sends). Put any goodbye message before this step.",
+        "unblockContactHint": "Lets this contact receive messages again.",
+        "placeholderReplyId": "e.g. unsub_yes"
       },
       "preview": {
         "noText": "no text yet",
@@ -3279,7 +3315,8 @@
       "nameTriggerRequired": "name and trigger_type are required"
     },
     "contacts": {
-      "tagIdRequired": "tag_id required"
+      "tagIdRequired": "tag_id required",
+      "notFound": "Contact not found"
     },
     "flows": {
       "statusInvalid": "status must be one of 'draft' | 'active' | 'archived'",
@@ -3301,7 +3338,8 @@
       "recipientsRequired": "Provide either `recipients` (preferred) or `phone_numbers`, must be a non-empty array",
       "templateNameRequired": "template_name is required",
       "templateMalformed": "Template row is malformed locally, run \"Sync from Meta\" in Settings to repair it before broadcasting.",
-      "invalidPhoneFormat": "Invalid phone number format"
+      "invalidPhoneFormat": "Invalid phone number format",
+      "contactBlocked": "Contact is blocked"
     },
     "whatsappConfig": {
       "fetchFailed": "Failed to fetch configuration",
@@ -3336,7 +3374,8 @@
       "unknownMetaError": "Unknown Meta API error",
       "metaError": "Meta API error: {message}",
       "dbDeleteFailed": "Reaction sent to Meta but DB delete failed",
-      "dbUpsertFailed": "Reaction sent to Meta but DB upsert failed"
+      "dbUpsertFailed": "Reaction sent to Meta but DB upsert failed",
+      "contactBlocked": "This contact is blocked"
     },
     "send": {
       "idsRequired": "Either conversation_id or contact_id, plus message_type, are required",
@@ -3465,7 +3504,8 @@
       "email": "Email",
       "company": "Company",
       "tags": "Tags",
-      "created_at": "Created"
+      "created_at": "Created",
+      "blocked": "Blocked"
     },
     "operators": {
       "contains": "contains",
@@ -3502,5 +3542,17 @@
     "and": "and",
     "addGroup": "Add group",
     "removeGroup": "Remove group"
+  },
+  "DefaultAutomations": {
+    "unsubscribe": {
+      "name": "Unsubscribe",
+      "description": "When someone says stop or unsubscribe, asks them to confirm with a button, then blocks them so they get no more messages. Edit or turn off anytime.",
+      "keywords": "stop,unsubscribe",
+      "question": "Do you want to stop receiving messages from us?",
+      "yes": "Yes, unsubscribe",
+      "no": "No, stay subscribed",
+      "confirmed": "You have been unsubscribed. You will not receive any more messages from us.",
+      "kept": "Okay, you will keep receiving our messages."
+    }
   }
 }

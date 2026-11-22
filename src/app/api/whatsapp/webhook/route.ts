@@ -1,3 +1,4 @@
+import { isBlocked } from '@/lib/contacts/block-guard'
 import { NextResponse, after } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { decrypt, encrypt, isLegacyFormat } from '@/lib/whatsapp/encryption'
@@ -859,6 +860,16 @@ async function processMessage(
   // trigger installed in migration 003).
   await flagBroadcastReplyIfAny(accountId, contactRecord.id)
 
+  // A blocked contact's message is still stored and visible in the inbox,
+  // but nothing reacts to it: no flow, automation or AI reply.
+  const { data: blockedRow } = await supabaseAdmin()
+    .from('contacts')
+    .select('blocked_at')
+    .eq('id', contactRecord.id)
+    .eq('account_id', accountId)
+    .maybeSingle()
+  const contactBlocked = isBlocked(blockedRow)
+
   // ============================================================
   // Flow runner dispatch.
   //
@@ -878,7 +889,9 @@ async function processMessage(
   // no active flows take the runner's early-exit "no_match" path
   // basically for free (one indexed SELECT for the active run).
   // ============================================================
-  const flowResult = await dispatchInboundToFlows({
+  const flowResult = contactBlocked
+    ? { consumed: true }
+    : await dispatchInboundToFlows({
     accountId,
     userId: configOwnerUserId,
     contactId: contactRecord.id,

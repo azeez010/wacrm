@@ -130,6 +130,7 @@ export async function POST(request: Request) {
         accepted: plan.planned.length,
         rejected: plan.rejected,
         duplicates: plan.duplicates,
+        blocked_skipped: plan.blockedSkipped ?? 0,
       },
       202
     );

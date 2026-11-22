@@ -236,11 +236,13 @@ export interface ColumnPrefsShape {
   custom: string[] | null
   /** "<fieldId>:<columnKey>" sub-columns of custom-table reference fields. */
   refCols?: string[]
+  /** The optional Blocked column; off by default (opt-in) to keep the table quiet. */
+  showBlocked?: boolean
 }
 
 /** Parse saved preferences defensively (older shapes lack refCols). */
 export function parseColumnPrefs(raw: string | null): ColumnPrefsShape {
-  const empty: ColumnPrefsShape = { hidden: [], custom: null, refCols: [] }
+  const empty: ColumnPrefsShape = { hidden: [], custom: null, refCols: [], showBlocked: false }
   if (!raw) return empty
   try {
     const p = JSON.parse(raw) as Partial<ColumnPrefsShape>
@@ -248,6 +250,7 @@ export function parseColumnPrefs(raw: string | null): ColumnPrefsShape {
       hidden: Array.isArray(p.hidden) ? p.hidden.filter((x): x is string => typeof x === 'string') : [],
       custom: Array.isArray(p.custom) ? p.custom.filter((x): x is string => typeof x === 'string') : null,
       refCols: Array.isArray(p.refCols) ? p.refCols.filter((x): x is string => typeof x === 'string') : [],
+      showBlocked: p.showBlocked === true,
     }
   } catch {
     return empty

@@ -390,7 +390,10 @@
       "assigneeNoLongerMember": "Esse colega não é mais membro desta conta",
       "networkError": "erro de rede",
       "documentFallback": "Documento",
-      "you": "Você"
+      "you": "Você",
+      "blockedBanner": "Este contato está bloqueado. Desbloqueie-o para enviar mensagens.",
+      "unblock": "Desbloquear",
+      "unblockFailed": "Não foi possível desbloquear este contato"
     },
     "sessionTimer": {
       "expired": "Expirada",
@@ -527,7 +530,10 @@
       "removeTag": "Remover {tag}",
       "tagUpdateFailed": "Não foi possível atualizar as tags do contato.",
       "noDeals": "Sem negócios",
-      "addNotePlaceholder": "Adicionar uma nota..."
+      "addNotePlaceholder": "Adicionar uma nota...",
+      "blocked": "Bloqueado",
+      "blockContact": "Bloquear contato",
+      "unblockContact": "Desbloquear contato"
     },
     "aiBanner": {
       "pausedTitle": "O assistente de IA está pausado aqui",
@@ -562,7 +568,8 @@
         "email": "E-mail",
         "company": "Empresa",
         "tags": "Tags",
-        "createdAt": "Criado em"
+        "createdAt": "Criado em",
+        "blocked": "Bloqueado"
       },
       "loading": "Carregando contatos...",
       "noContactsMatch": "Nenhum contato corresponde aos seus filtros.",
@@ -653,7 +660,19 @@
         "dealValue": "Valor",
         "currency": "Moeda",
         "dealsCreated": "{count, plural, one {# negócio criado} other {# negócios criados}}",
-        "addDealRun": "{count, plural, one {Criar # negócio} other {Criar # negócios}}"
+        "addDealRun": "{count, plural, one {Criar # negócio} other {Criar # negócios}}",
+        "block": "Bloquear",
+        "unblock": "Desbloquear",
+        "blockTitle": "Bloquear contatos",
+        "unblockTitle": "Desbloquear contatos",
+        "blockConsequences": "Contatos bloqueados não receberão nenhuma mensagem sua: nem transmissões, automações, fluxos, respostas de IA, mensagens por API ou mensagens manuais. Você pode desbloqueá-los a qualquer momento.",
+        "unblockConsequences": "Esses contatos poderão receber mensagens novamente.",
+        "blockRun": "{count, plural, =1 {Bloquear # contato} other {Bloquear # contatos}}",
+        "unblockRun": "{count, plural, =1 {Desbloquear # contato} other {Desbloquear # contatos}}",
+        "blockedCount": "{count, plural, =1 {# contato bloqueado} other {# contatos bloqueados}}",
+        "unblockedCount": "{count, plural, =1 {# contato desbloqueado} other {# contatos desbloqueados}}",
+        "alreadyBlockedCount": "{count, plural, =1 {# já estava bloqueado} other {# já estavam bloqueados}}",
+        "notBlockedCount": "{count, plural, =1 {# não estava bloqueado} other {# não estavam bloqueados}}"
       },
       "tagsButton": "Tags",
       "tagManage": {
@@ -665,6 +684,13 @@
         "deleteFailed": "Não foi possível excluir a tag.",
         "created": "Tag \"{name}\" criada.",
         "deleted": "Tag \"{name}\" excluída."
+      },
+      "blockedBadge": "Bloqueado",
+      "blockedReason": {
+        "manual": "Bloqueado por um colega",
+        "opt_out": "Cancelou a inscrição",
+        "import": "Bloqueado por importação",
+        "api": "Bloqueado via API"
       }
     },
     "form": {
@@ -768,7 +794,10 @@
       "toastTemplateSent": "Modelo \"{name}\" enviado",
       "toastTemplateFailed": "Falha ao enviar o modelo: {reason}",
       "networkError": "erro de rede",
-      "toastReferenceMissing": "Esse valor aponta para uma linha que não existe mais. Escolha novamente."
+      "toastReferenceMissing": "Esse valor aponta para uma linha que não existe mais. Escolha novamente.",
+      "blockedBadge": "Bloqueado",
+      "blockBtn": "Bloquear",
+      "unblockBtn": "Desbloquear"
     },
     "importModal": {
       "title": "Importar contatos",
@@ -1181,7 +1210,8 @@
       "toastDraftSaved": "Rascunho salvo",
       "broadcastFailed": "Falha no disparo",
       "toastSendTakenOver": "Outro envio assumiu esta transmissão, então esta aba parou de enviar. Abra a transmissão para acompanhar o progresso.",
-      "toastSendInterrupted": "O envio parou porque a conexão com o servidor caiu. Abra a transmissão e use Retomar envio para enviar aos destinatários restantes. O botão aparece em até 5 minutos."
+      "toastSendInterrupted": "O envio parou porque a conexão com o servidor caiu. Abra a transmissão e use Retomar envio para enviar aos destinatários restantes. O botão aparece em até 5 minutos.",
+      "toastBlockedSkipped": "{count, plural, =1 {# contato bloqueado foi ignorado} other {# contatos bloqueados foram ignorados}}"
     },
     "wizard": {
       "next": "Avançar",
@@ -1398,7 +1428,9 @@
         "wait": "Aguardar",
         "condition": "Condição (Se/Senão)",
         "send_webhook": "Enviar webhook",
-        "close_conversation": "Fechar conversa"
+        "close_conversation": "Fechar conversa",
+        "block_contact": "Bloquear contato",
+        "unblock_contact": "Desbloquear contato"
       },
       "triggers": {
         "new_message_received": {
@@ -1530,7 +1562,8 @@
           "contact_field": "Campo do contato",
           "message_content": "Conteúdo da mensagem",
           "time_of_day": "Hora do dia",
-          "in_segment": "Em um segmento"
+          "in_segment": "Em um segmento",
+          "reply_id": "ID de resposta do botão ou da lista"
         },
         "operandLabel": "Operando",
         "placeholderTime": "HH:mm-HH:mm",
@@ -1551,7 +1584,10 @@
         "waitForReplyHint": "Pausa aqui até o cliente tocar em um botão ou responder (até 24h). As etapas seguintes, incluindo Se/Senão no conteúdo da mensagem, usam essa resposta.",
         "closeConversationHint": "Define o status da conversa como \"fechada\". Nenhuma configuração necessária.",
         "segmentLabel": "Segmento",
-        "segmentPlaceholder": "Escolha um segmento…"
+        "segmentPlaceholder": "Escolha um segmento…",
+        "blockContactHint": "Interrompe todas as mensagens para este contato (transmissões, automações, fluxos, respostas de IA e envios manuais). Coloque qualquer mensagem de despedida antes desta etapa.",
+        "unblockContactHint": "Permite que este contato receba mensagens novamente.",
+        "placeholderReplyId": "ex.: unsub_yes"
       },
       "preview": {
         "noText": "sem texto ainda",
@@ -3279,7 +3315,8 @@
       "nameTriggerRequired": "Nome e gatilho são obrigatórios"
     },
     "contacts": {
-      "tagIdRequired": "tag_id é obrigatório"
+      "tagIdRequired": "tag_id é obrigatório",
+      "notFound": "Contato não encontrado"
     },
     "flows": {
       "statusInvalid": "O status deve ser 'draft', 'active' ou 'archived'",
@@ -3301,7 +3338,8 @@
       "recipientsRequired": "Informe `recipients` (preferencial) ou `phone_numbers`, deve ser uma lista não vazia",
       "templateNameRequired": "O nome do modelo é obrigatório",
       "templateMalformed": "O registro local do modelo está corrompido, use \"Sincronizar da Meta\" em Configurações para corrigi-lo antes de disparar.",
-      "invalidPhoneFormat": "Formato de número de telefone inválido"
+      "invalidPhoneFormat": "Formato de número de telefone inválido",
+      "contactBlocked": "O contato está bloqueado"
     },
     "whatsappConfig": {
       "fetchFailed": "Falha ao buscar a configuração",
@@ -3336,7 +3374,8 @@
       "unknownMetaError": "Erro desconhecido da API da Meta",
       "metaError": "Erro da API da Meta: {message}",
       "dbDeleteFailed": "Reação enviada à Meta, mas falhou ao removê-la do banco de dados",
-      "dbUpsertFailed": "Reação enviada à Meta, mas falhou ao salvá-la no banco de dados"
+      "dbUpsertFailed": "Reação enviada à Meta, mas falhou ao salvá-la no banco de dados",
+      "contactBlocked": "Este contato está bloqueado"
     },
     "send": {
       "idsRequired": "É necessário informar conversation_id ou contact_id, além de message_type",
@@ -3465,7 +3504,8 @@
       "email": "E-mail",
       "company": "Empresa",
       "tags": "Tags",
-      "created_at": "Criado"
+      "created_at": "Criado",
+      "blocked": "Bloqueado"
     },
     "operators": {
       "contains": "contém",
@@ -3502,5 +3542,17 @@
     "and": "e",
     "addGroup": "Adicionar grupo",
     "removeGroup": "Remover grupo"
+  },
+  "DefaultAutomations": {
+    "unsubscribe": {
+      "name": "Cancelar inscrição",
+      "description": "Quando alguém escreve stop ou cancelar inscrição, pede que confirme com um botão e depois o bloqueia para que não receba mais mensagens. Edite ou desative quando quiser.",
+      "keywords": "stop,parar,cancelar inscrição,descadastrar",
+      "question": "Você quer parar de receber nossas mensagens?",
+      "yes": "Sim, cancelar",
+      "no": "Não, continuar",
+      "confirmed": "Sua inscrição foi cancelada. Você não receberá mais mensagens nossas.",
+      "kept": "Certo, você continuará recebendo nossas mensagens."
+    }
   }
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { ChevronDown, DollarSign, Send, Tag, TagsIcon } from 'lucide-react';
+import { Ban, ChevronDown, CircleCheck, DollarSign, Send, Tag, TagsIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import {
@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
-export type BulkAction = 'add-tag' | 'remove-tag' | 'send-template' | 'add-deal';
+export type BulkAction = 'add-tag' | 'remove-tag' | 'send-template' | 'add-deal' | 'block' | 'unblock';
 
 /** One "Actions" dropdown for the selection bar, so the bar stays a single quiet row. */
 export function BulkActionsMenu({
@@ -48,6 +48,15 @@ export function BulkActionsMenu({
         <DropdownMenuItem onClick={() => onAction('add-deal')}>
           <DollarSign className="size-4" />
           {t('addDeal')}
+        </DropdownMenuItem>
+        <DropdownMenuSeparator className="bg-border" />
+        <DropdownMenuItem onClick={() => onAction('block')}>
+          <Ban className="size-4" />
+          {t('block')}
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => onAction('unblock')}>
+          <CircleCheck className="size-4" />
+          {t('unblock')}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

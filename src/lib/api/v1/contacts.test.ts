@@ -45,10 +45,26 @@ describe('serializeContact', () => {
       email: null,
       company: 'Acme',
       avatar_url: null,
+      blocked: false,
+      blocked_reason: null,
+      blocked_at: null,
       tags: [{ id: 't1', name: 'vip', color: '#fff' }],
       created_at: '2026-01-01T00:00:00Z',
       updated_at: '2026-01-02T00:00:00Z',
     });
+  });
+
+  it('reports a blocked contact with its reason', () => {
+    const c = serializeContact({
+      id: 'c3',
+      phone: '+1',
+      blocked_at: '2026-02-01T00:00:00Z',
+      blocked_reason: 'opt_out',
+      created_at: 'a',
+      updated_at: 'b',
+    });
+    expect(c.blocked).toBe(true);
+    expect(c.blocked_reason).toBe('opt_out');
   });
 
   it('tolerates a row with no contact_tags key', () => {

@@ -441,6 +441,37 @@ describe("update_contact_field, custom fields", () => {
   });
 });
 
+describe("block_contact step", () => {
+  it("blocks only within the automation's account", async () => {
+    h.state.owned = { id: "c1" };
+    h.state.automations = [automationWithUpdateStep()];
+    h.state.steps = [
+      {
+        id: "s1",
+        automation_id: "a1",
+        step_type: "block_contact",
+        position: 0,
+        parent_step_id: null,
+        step_config: {},
+      },
+    ];
+
+    await runAutomationsForTrigger({
+      accountId: ACCOUNT,
+      triggerType: "new_message_received",
+      contactId: "c1",
+      context: {},
+    });
+
+    const blockUpdate = h.state.updateCalls.find((c) =>
+      c.filters.some(([, k]) => k === "id"),
+    );
+    expect(blockUpdate).toBeDefined();
+    expect(blockUpdate!.filters).toContainEqual(["eq", "id", "c1"]);
+    expect(blockUpdate!.filters).toContainEqual(["eq", "account_id", ACCOUNT]);
+  });
+});
+
 describe("send_webhook, SSRF guard (GHSA-8jqh-598v-rfxc)", () => {
   it("refuses a private / link-local destination and never calls fetch", async () => {
     const fetchSpy = vi.fn(async () => ({ ok: true, status: 200 }));

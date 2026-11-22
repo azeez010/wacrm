@@ -134,6 +134,10 @@ export function createWacrmMcpServer(
           email: z.string().email().optional(),
           company: z.string().optional(),
           tags: z.array(z.string()).optional(),
+          blocked: z
+            .boolean()
+            .optional()
+            .describe('true blocks the contact (no message of any kind is sent to them: manual, broadcast, automation, flow, AI); false unblocks.'),
           custom_fields: z
             .record(z.string(), z.unknown())
             .optional()

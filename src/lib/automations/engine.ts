@@ -1,3 +1,4 @@
+import { setContactBlocked } from '@/lib/contacts/block-write'
 import { coerceValue } from '@/lib/custom-fields/coerce'
 import type { FieldDef } from '@/lib/custom-fields/types'
 import type {
@@ -1025,6 +1026,20 @@ async function runStep(step: AutomationStep, args: ExecuteArgs): Promise<string>
       return 'conversation closed'
     }
 
+    case 'block_contact':
+    case 'unblock_contact': {
+      if (!args.contactId) throw new Error(tErr('needsContact', { step: step.step_type }))
+      const blocking = step.step_type === 'block_contact'
+      const r = await setContactBlocked(db, {
+        accountId: args.automation.account_id,
+        contactId: args.contactId,
+        blocked: blocking,
+        reason: 'opt_out',
+      })
+      if (!r.found) throw new Error(tErr('needsContact', { step: step.step_type }))
+      return blocking ? 'contact blocked' : 'contact unblocked'
+    }
+
     default:
       return `unknown step: ${step.step_type}`
   }
@@ -1185,6 +1200,10 @@ async function evaluateCondition(cfg: ConditionStepConfig, args: ExecuteArgs): P
       if (!needle) return false
       const text = (args.context.message_text ?? '').toString()
       return text.toLowerCase().includes(needle)
+    }
+    case 'reply_id': {
+      const wanted = (cfg.operand ?? '').trim()
+      return wanted !== '' && args.context.interactive_reply_id === wanted
     }
     case 'time_of_day':
       return isWithinTimeWindow(cfg.operand, new Date(), cfg.timezone)

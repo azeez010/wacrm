@@ -58,13 +58,14 @@ export default function NewBroadcastPage() {
     if (!template) return;
 
     try {
-      const { broadcastId, interruption } = await createAndSendBroadcast({
+      const { broadcastId, interruption, blockedSkipped } = await createAndSendBroadcast({
         name,
         template,
         audience,
         variables,
         headerMediaUrl,
       });
+      if (blockedSkipped) toast.info(t('toastBlockedSkipped', { count: blockedSkipped }));
       if (interruption === 'lease_lost') toast.warning(t('toastSendTakenOver'));
       if (interruption === 'lease_error') toast.error(t('toastSendInterrupted'));
       router.push(`/broadcasts/${broadcastId}`);

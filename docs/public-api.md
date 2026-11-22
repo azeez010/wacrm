@@ -192,6 +192,7 @@ or phone) and `?tag=<tagId>`.
     {
       "id": "…", "phone": "+14155550123", "name": "Jane Doe",
       "email": null, "company": "Acme", "avatar_url": null,
+      "blocked": false, "blocked_reason": null, "blocked_at": null,
       "tags": [{ "id": "…", "name": "vip", "color": "#3b82f6" }],
       "created_at": "…", "updated_at": "…"
     }
@@ -215,8 +216,10 @@ list rows above).
 ### `GET` / `PATCH /api/v1/contacts/{id}`
 
 Read or update one contact. Scopes: `contacts:read` / `contacts:write`.
-`PATCH` updates only the fields you send (`name`, `email`, `company`);
-pass `tags` (an array of tag names) to replace the contact's tags. A
+`PATCH` updates only the fields you send (`name`, `email`, `company`,
+`blocked`); `blocked: true` blocks the contact (no message of any kind is
+sent to them: API, broadcast, automation, flow, AI reply; sends return
+`contact_blocked`), `false` unblocks; pass `tags` (an array of tag names) to replace the contact's tags. A
 contact in another account returns `404`.
 
 ### `GET /api/v1/conversations`
@@ -361,7 +364,8 @@ a file already stored under your account; a link to anything else is rejected.
   ] }
 ```
 
-`field` is `name`, `phone`, `email`, `company`, `created_at`, `tags`, or
+`field` is `name`, `phone`, `email`, `company`, `created_at`, `tags`,
+`blocked` (`is_true` / `is_false`), or
 `cf:<custom field id>`. Operators by type:
 
 - text, url, email, phone and built-ins: `contains`, `not_contains`, `equals`, `not_equals`, `is_empty`, `is_set`

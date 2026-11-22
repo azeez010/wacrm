@@ -8,6 +8,7 @@
 // array of tag names) to replace the contact's tags.
 // ============================================================
 
+import { setContactBlocked } from '@/lib/contacts/block-write';
 import { requireApiKey } from '@/lib/auth/api-context';
 import { writeContactCustomFields } from '@/lib/custom-fields/contact-values';
 import { ok, fail, toApiErrorResponse } from '@/lib/api/v1/respond';
@@ -66,6 +67,18 @@ export async function PATCH(
       } else {
         return fail('bad_request', `'${field}' must be a string or null`, 400);
       }
+    }
+
+    if ('blocked' in body) {
+      if (typeof body.blocked !== 'boolean') {
+        return fail('bad_request', "'blocked' must be true or false", 400);
+      }
+      await setContactBlocked(ctx.supabase, {
+        accountId: ctx.accountId,
+        contactId: id,
+        blocked: body.blocked,
+        reason: 'api',
+      });
     }
 
     if (Object.keys(updates).length > 0) {

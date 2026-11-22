@@ -2,7 +2,7 @@ import type { FieldType } from '@/lib/custom-fields/types'
 import type { FilterOperator, ValueShape } from './types'
 
 /** The kinds of field a rule can target (custom field types + built-ins). */
-export type FilterFieldKind = FieldType | 'builtin_text' | 'created_at' | 'tags'
+export type FilterFieldKind = FieldType | 'builtin_text' | 'created_at' | 'tags' | 'blocked'
 
 const ANY_EMPTY: FilterOperator[] = ['is_empty', 'is_set']
 
@@ -22,6 +22,7 @@ export const OPERATORS_BY_KIND: Record<FilterFieldKind, FilterOperator[]> = {
   email: ['contains', 'not_contains', 'equals', 'not_equals', ...ANY_EMPTY],
   datetime: ['eq', 'neq', 'gt', 'gte', 'lt', 'lte', 'between', ...ANY_EMPTY],
   tags: ['has_any', 'has_all', 'has_none'],
+  blocked: ['is_true', 'is_false'],
 }
 
 export function valueShape(op: FilterOperator): ValueShape {

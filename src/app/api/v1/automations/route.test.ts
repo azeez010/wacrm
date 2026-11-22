@@ -8,7 +8,7 @@ const st = vi.hoisted(() => ({
 
 function builder(table: string) {
   const b: Record<string, unknown> = {}
-  for (const m of ['select', 'eq', 'order', 'limit', 'or', 'delete']) b[m] = () => b
+  for (const m of ['select', 'eq', 'is', 'order', 'limit', 'or', 'delete']) b[m] = () => b
   b.insert = (row: Record<string, unknown>) => {
     if (table === 'automations') st.inserted.push(row)
     return b

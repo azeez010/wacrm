@@ -40,6 +40,7 @@ import {
   Search,
   Plus,
   Upload,
+  Ban,
   MoreHorizontal,
   Pencil,
   Trash2,
@@ -92,6 +93,7 @@ import { ArrowDown, ArrowUp, ChevronDown, Columns3, Download, RefreshCw } from '
 import { useRouter } from 'next/navigation';
 import { BulkActionsMenu, type BulkAction } from '@/components/contacts/bulk-actions-menu';
 import { BulkTagDialog } from '@/components/contacts/bulk-tag-dialog';
+import { BulkBlockDialog } from '@/components/contacts/bulk-block-dialog';
 import { BulkDealDialog } from '@/components/contacts/bulk-deal-dialog';
 import { BROADCAST_CONTACTS_KEY } from '@/lib/contacts/bulk';
 import { FilterBuilder, customKindMap } from '@/components/segments/filter-builder';
@@ -119,6 +121,7 @@ interface ColumnPrefs {
   custom: string[] | null;
   /** "<fieldId>:<columnKey>" sub-columns of custom-table reference fields. */
   refCols?: string[];
+  showBlocked?: boolean;
 }
 
 interface ContactWithTags extends Contact {
@@ -193,7 +196,9 @@ function ContactsPageInner() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [pageSize, setPageSize] = useState<number>(DEFAULT_PAGE_SIZE);
   const [fieldsRefreshKey, setFieldsRefreshKey] = useState(0);
-  const [bulkAction, setBulkAction] = useState<'add-tag' | 'remove-tag' | 'add-deal' | null>(null);
+  // One contact's Block / Unblock from the row menu (reuses the bulk dialog).
+  const [singleBlock, setSingleBlock] = useState<{ contact: ContactWithTags; mode: 'block' | 'unblock' } | null>(null);
+  const [bulkAction, setBulkAction] = useState<'add-tag' | 'remove-tag' | 'add-deal' | 'block' | 'unblock' | null>(null);
   // After a refresh or a bulk action the selection should survive: when this
   // timestamp is in the future the next fetches keep (and prune) the selection.
   const keepSelectionUntil = useRef(0);
@@ -511,7 +516,7 @@ function ContactsPageInner() {
   const isShown = (c: BuiltinColumn) => !colPrefs.hidden.includes(c);
   const customCount = customColumns.length;
   // checkbox + name + phone + actions, plus the optional columns
-  const colCount = 4 + BUILTIN_COLUMNS.filter(isShown).length + customCount;
+  const colCount = 4 + BUILTIN_COLUMNS.filter(isShown).length + customCount + (colPrefs.showBlocked ? 1 : 0);
 
   // Dashboard "New contact" links here with ?new=1: open the add form once,
   // then drop the param so a refresh doesn't reopen it.
@@ -1182,6 +1187,13 @@ function ContactsPageInner() {
                     {t(`tableColumns.${c === 'created' ? 'createdAt' : c}`)}
                   </label>
                 ))}
+                <label className="flex cursor-pointer items-center gap-2 px-3 py-1.5 text-sm hover:bg-muted">
+                  <Checkbox
+                    checked={Boolean(colPrefs.showBlocked)}
+                    onCheckedChange={(on) => updatePrefs({ ...colPrefs, showBlocked: Boolean(on) })}
+                  />
+                  {t('tableColumns.blocked')}
+                </label>
                 {fieldDefs.length > 0 && (
                   <div className="mt-1 border-t border-border px-3 pb-1 pt-2 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
                     {t('columns.customFields')}
@@ -1387,6 +1399,7 @@ function ContactsPageInner() {
                   </TableHead>
                 )
               )}
+              {colPrefs.showBlocked && <TableHead className="text-muted-foreground">{t('tableColumns.blocked')}</TableHead>}
               {isShown('created') && <TableHead className={`text-muted-foreground hidden ${customCount > 0 ? 'xl:table-cell' : 'lg:table-cell'}`}>{t('tableColumns.createdAt')}</TableHead>}
               <TableHead className="text-muted-foreground w-12" />
             </TableRow>
@@ -1442,6 +1455,9 @@ function ContactsPageInner() {
                     />
                   </TableCell>
                   <TableCell className="text-foreground font-medium">
+                    {contact.blocked_at && (
+                      <Ban className="mr-1 inline size-3.5 text-destructive" aria-label={t('blockedBadge')} />
+                    )}
                     {contact.name ? (
                       <ExpandableText text={contact.name} className="max-w-[160px]" />
                     ) : (
@@ -1539,6 +1555,18 @@ function ContactsPageInner() {
                       </TableCell>
                     );
                   })}
+                  {colPrefs.showBlocked && (
+                    <TableCell className="text-sm">
+                      {contact.blocked_at ? (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-destructive/10 px-2 py-0.5 text-xs font-medium text-destructive" title={contact.blocked_reason ? t(`blockedReason.${contact.blocked_reason}`) : undefined}>
+                          <Ban className="size-3" />
+                          {t('blockedBadge')}
+                        </span>
+                      ) : (
+                        <span className="text-muted-foreground">-</span>
+                      )}
+                    </TableCell>
+                  )}
                   {isShown('created') && (
                   <TableCell className={`text-muted-foreground text-xs hidden ${customCount > 0 ? 'xl:table-cell' : 'lg:table-cell'}`}>
                     {new Date(contact.created_at).toLocaleDateString(locale, {
@@ -1576,6 +1604,18 @@ function ContactsPageInner() {
                           <Pencil className="size-4" />
                           {t('editAction')}
                         </DropdownMenuItem>
+                        {canEdit && (
+                          <DropdownMenuItem
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSingleBlock({ contact, mode: contact.blocked_at ? 'unblock' : 'block' });
+                            }}
+                            className="text-popover-foreground focus:bg-muted focus:text-foreground"
+                          >
+                            <Ban className="size-4" />
+                            {contact.blocked_at ? t('bulk.unblock') : t('bulk.block')}
+                          </DropdownMenuItem>
+                        )}
                         <DropdownMenuSeparator className="bg-border" />
                         <DropdownMenuItem
                           variant="destructive"
@@ -1667,6 +1707,28 @@ function ContactsPageInner() {
           contacts={selectedContacts}
           tags={allTags}
           onClose={() => setBulkAction(null)}
+          onDone={() => {
+            keepSelectionUntil.current = Date.now() + 4000;
+            void fetchContacts();
+          }}
+        />
+      )}
+      {(bulkAction === 'block' || bulkAction === 'unblock') && (
+        <BulkBlockDialog
+          mode={bulkAction}
+          contacts={selectedContacts}
+          onClose={() => setBulkAction(null)}
+          onDone={() => {
+            keepSelectionUntil.current = Date.now() + 4000;
+            void fetchContacts();
+          }}
+        />
+      )}
+      {singleBlock && (
+        <BulkBlockDialog
+          mode={singleBlock.mode}
+          contacts={[singleBlock.contact]}
+          onClose={() => setSingleBlock(null)}
           onDone={() => {
             keepSelectionUntil.current = Date.now() + 4000;
             void fetchContacts();

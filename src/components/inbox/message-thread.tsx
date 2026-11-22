@@ -27,6 +27,8 @@ import {
   RefreshCw,
   PanelRightOpen,
   PanelRightClose,
+  Ban,
+  Loader2,
 } from "lucide-react";
 import { format, isToday, isYesterday, differenceInHours } from "date-fns";
 import { useLocale, useTranslations } from "next-intl";
@@ -67,6 +69,7 @@ import {
   withBusinessReaction,
 } from "@/lib/inbox/business-reaction";
 import { toast } from "sonner";
+import { unblockContact } from "@/lib/contacts/block-api";
 import { Button } from "@/components/ui/button";
 import {
   confirmedSendUpdate,
@@ -194,6 +197,33 @@ export function MessageThread({
 
   const { user } = useAuth();
   const { getPresence, getRow, now } = usePresence();
+  // Blocked contacts can't be messaged; unblocking here updates the banner
+  // immediately without waiting for the contact to be refetched.
+  const [blockOverride, setBlockOverride] = useState<{ id: string; blocked: boolean } | null>(null);
+  const [unblocking, setUnblocking] = useState(false);
+  const contactBlocked =
+    blockOverride && blockOverride.id === contact?.id ? blockOverride.blocked : Boolean(contact?.blocked_at);
+  // The contact side panel announces block changes so this composer follows.
+  useEffect(() => {
+    const onChange = (e: Event) => {
+      const d = (e as CustomEvent<{ id: string; blocked: boolean }>).detail;
+      setBlockOverride({ id: d.id, blocked: d.blocked });
+    };
+    window.addEventListener("wacrm:contact-block-changed", onChange);
+    return () => window.removeEventListener("wacrm:contact-block-changed", onChange);
+  }, []);
+  async function handleUnblock() {
+    if (!contact) return;
+    setUnblocking(true);
+    try {
+      await unblockContact(contact.id);
+      setBlockOverride({ id: contact.id, blocked: false });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : t("unblockFailed"));
+    } finally {
+      setUnblocking(false);
+    }
+  }
   const [loading, setLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const scrollAnchorRef = useRef<{ scrollHeight: number; scrollTop: number } | null>(null);
@@ -1296,7 +1326,21 @@ export function MessageThread({
         }}
       />
 
-      {/* Composer */}
+      {/* Composer. A blocked contact can't be messaged at all (the server
+          refuses too), so the composer is replaced by an explanation and an
+          Unblock button. */}
+      {contactBlocked ? (
+        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border bg-muted/40 px-4 py-3">
+          <p className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Ban className="size-4 shrink-0 text-destructive" />
+            {t("blockedBanner")}
+          </p>
+          <Button size="sm" variant="outline" disabled={unblocking} onClick={() => void handleUnblock()}>
+            {unblocking && <Loader2 className="size-3.5 animate-spin" />}
+            {t("unblock")}
+          </Button>
+        </div>
+      ) : (
       <MessageComposer
         conversationId={conversation.id}
         sessionExpired={sessionInfo.expired}
@@ -1307,6 +1351,7 @@ export function MessageThread({
         replyTo={replyTo}
         onClearReply={() => setReplyTo(null)}
       />
+      )}
 
       <TemplatePicker
         open={templateModalOpen}

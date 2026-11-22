@@ -75,6 +75,8 @@ export interface BroadcastPlan {
 
 export interface CreatedBroadcastPlan extends BroadcastPlan {
   duplicates: number;
+  /** Recipients dropped because their contact is blocked. */
+  blockedSkipped?: number;
 }
 
 const MAX_RECIPIENTS = 1000;
@@ -182,6 +184,27 @@ export async function createBroadcast(
     return true;
   });
 
+  // Suppression list: blocked contacts never receive a broadcast. They
+  // are dropped here (not counted as recipients) and reported back.
+  const blockedIds = await fetchBlockedContactIds(
+    db,
+    accountId,
+    deduped.map((r) => r.contactId)
+  );
+  const blockedSkipped = deduped.filter((r) => blockedIds.has(r.contactId)).length;
+  if (blockedSkipped > 0) {
+    for (let i = deduped.length - 1; i >= 0; i--) {
+      if (blockedIds.has(deduped[i].contactId)) deduped.splice(i, 1);
+    }
+    if (deduped.length === 0) {
+      throw new BroadcastError(
+        'contact_blocked',
+        'Every recipient is blocked, so nothing was sent.',
+        400
+      );
+    }
+  }
+
   if (deduped.length === 0) {
     throw new BroadcastError(
       'bad_request',
@@ -246,7 +269,8 @@ export async function createBroadcast(
     templateRow,
     planned,
     rejected,
-    duplicates: resolved.length - deduped.length,
+    duplicates: resolved.length - deduped.length - blockedSkipped,
+    blockedSkipped,
   };
 }
 
@@ -267,7 +291,21 @@ export async function deliverBroadcast(
   db: SupabaseClient,
   plan: BroadcastPlan
 ): Promise<void> {
+  // Re-check right before sending: a contact may have been blocked since
+  // the broadcast was created (or this is a resume of an older one).
+  const blockedRows = await fetchBlockedRecipientRowIds(
+    db,
+    plan.planned.map((r) => r.recipientRowId)
+  );
+
   for (const recipient of plan.planned) {
+    if (blockedRows.has(recipient.recipientRowId)) {
+      await db
+        .from('broadcast_recipients')
+        .update({ status: 'failed', error_message: 'Contact is blocked' })
+        .eq('id', recipient.recipientRowId);
+      continue;
+    }
     const variants = phoneVariants(recipient.phone);
     let sentMessageId: string | null = null;
     let lastError: string | null = null;
@@ -361,4 +399,46 @@ export async function finalizeBroadcastStatus(
       updated_at: new Date().toISOString(),
     })
     .eq('id', broadcastId);
+}
+
+
+/** Of `contactIds`, the ones currently blocked in this account. */
+async function fetchBlockedContactIds(
+  db: SupabaseClient,
+  accountId: string,
+  contactIds: string[]
+): Promise<Set<string>> {
+  const out = new Set<string>();
+  for (let i = 0; i < contactIds.length; i += 200) {
+    const { data } = await db
+      .from('contacts')
+      .select('id')
+      .eq('account_id', accountId)
+      .not('blocked_at', 'is', null)
+      .in('id', contactIds.slice(i, i + 200));
+    for (const row of data ?? []) out.add(row.id as string);
+  }
+  return out;
+}
+
+/** Of these broadcast_recipients rows, the ones whose contact is blocked. */
+async function fetchBlockedRecipientRowIds(
+  db: SupabaseClient,
+  rowIds: string[]
+): Promise<Set<string>> {
+  const out = new Set<string>();
+  for (let i = 0; i < rowIds.length; i += 200) {
+    const { data } = await db
+      .from('broadcast_recipients')
+      .select('id, contact:contacts(blocked_at)')
+      .in('id', rowIds.slice(i, i + 200));
+    for (const row of (data ?? []) as {
+      id: string;
+      contact: { blocked_at?: string | null } | { blocked_at?: string | null }[] | null;
+    }[]) {
+      const c = Array.isArray(row.contact) ? row.contact[0] : row.contact;
+      if (c?.blocked_at) out.add(row.id);
+    }
+  }
+  return out;
 }

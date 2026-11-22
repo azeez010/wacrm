@@ -157,6 +157,8 @@ function validateOne(step: StepLike, path: string, issues: ValidationIssue[]): v
       }
       break
     case 'close_conversation':
+    case 'block_contact':
+    case 'unblock_contact':
       // No config required.
       break
     default:

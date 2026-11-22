@@ -365,6 +365,7 @@ export function ImportModal({ open, onOpenChange, onImported }: ImportModalProps
           name: row.name || null,
           email: row.email || null,
           company: row.company || null,
+          ...(row.blocked ? { blocked_at: new Date().toISOString(), blocked_reason: 'import', blocked_by: user.id } : {}),
         }));
 
         const { data, error } = await supabase.from('contacts').insert(rows).select('id');
@@ -407,6 +408,11 @@ export function ImportModal({ open, onOpenChange, onImported }: ImportModalProps
       // 5b) Update existing contacts (opt-in): only what the file provides changes.
       for (const { id, row } of toUpdate) {
         const patch: Record<string, string> = {};
+        if (row.blocked) {
+          patch.blocked_at = new Date().toISOString();
+          patch.blocked_reason = 'import';
+          patch.blocked_by = user.id;
+        }
         if (row.name) patch.name = row.name;
         if (row.email) patch.email = row.email;
         if (row.company) patch.company = row.company;

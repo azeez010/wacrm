@@ -390,7 +390,10 @@
       "assigneeNoLongerMember": "해당 팀원은 더 이상 이 계정의 멤버가 아닙니다",
       "networkError": "네트워크 오류",
       "documentFallback": "문서",
-      "you": "나"
+      "you": "나",
+      "blockedBanner": "이 연락처는 차단되었습니다. 메시지를 보내려면 차단을 해제하세요.",
+      "unblock": "차단 해제",
+      "unblockFailed": "이 연락처의 차단을 해제하지 못했습니다"
     },
     "sessionTimer": {
       "expired": "만료됨",
@@ -527,7 +530,10 @@
       "removeTag": "{tag} 태그 제거",
       "tagUpdateFailed": "연락처 태그를 업데이트하지 못했습니다.",
       "noDeals": "딜 없음",
-      "addNotePlaceholder": "메모 추가..."
+      "addNotePlaceholder": "메모 추가...",
+      "blocked": "차단됨",
+      "blockContact": "연락처 차단",
+      "unblockContact": "연락처 차단 해제"
     },
     "aiBanner": {
       "pausedTitle": "이 대화에서 AI 어시스턴트가 일시 중지됨",
@@ -562,7 +568,8 @@
         "email": "이메일",
         "company": "회사",
         "tags": "태그",
-        "createdAt": "생성일"
+        "createdAt": "생성일",
+        "blocked": "차단됨"
       },
       "loading": "연락처를 불러오는 중...",
       "noContactsMatch": "필터와 일치하는 연락처가 없습니다.",
@@ -653,7 +660,19 @@
         "dealValue": "금액",
         "currency": "통화",
         "dealsCreated": "딜 {count}개 생성됨",
-        "addDealRun": "딜 {count}개 생성"
+        "addDealRun": "딜 {count}개 생성",
+        "block": "차단",
+        "unblock": "차단 해제",
+        "blockTitle": "연락처 차단",
+        "unblockTitle": "연락처 차단 해제",
+        "blockConsequences": "차단된 연락처는 브로드캐스트, 자동화, 플로우, AI 답변, API 메시지, 수동 메시지 등 어떤 메시지도 받지 않습니다. 언제든지 차단을 해제할 수 있습니다.",
+        "unblockConsequences": "이 연락처에 다시 메시지를 보낼 수 있습니다.",
+        "blockRun": "{count, plural, other {연락처 #개 차단}}",
+        "unblockRun": "{count, plural, other {연락처 #개 차단 해제}}",
+        "blockedCount": "{count, plural, other {연락처 #개 차단됨}}",
+        "unblockedCount": "{count, plural, other {연락처 #개 차단 해제됨}}",
+        "alreadyBlockedCount": "{count, plural, other {#개는 이미 차단되어 있었음}}",
+        "notBlockedCount": "{count, plural, other {#개는 차단되어 있지 않았음}}"
       },
       "tagsButton": "태그",
       "tagManage": {
@@ -665,6 +684,13 @@
         "deleteFailed": "태그를 삭제할 수 없습니다.",
         "created": "\"{name}\" 태그를 만들었습니다.",
         "deleted": "\"{name}\" 태그를 삭제했습니다."
+      },
+      "blockedBadge": "차단됨",
+      "blockedReason": {
+        "manual": "팀원이 차단함",
+        "opt_out": "수신 거부",
+        "import": "가져오기로 차단됨",
+        "api": "API로 차단됨"
       }
     },
     "form": {
@@ -768,7 +794,10 @@
       "toastTemplateSent": "\"{name}\" 템플릿을 보냈습니다",
       "toastTemplateFailed": "템플릿을 보내지 못했습니다: {reason}",
       "networkError": "네트워크 오류",
-      "toastReferenceMissing": "해당 값이 더 이상 존재하지 않는 행을 가리킵니다. 다시 선택하세요."
+      "toastReferenceMissing": "해당 값이 더 이상 존재하지 않는 행을 가리킵니다. 다시 선택하세요.",
+      "blockedBadge": "차단됨",
+      "blockBtn": "차단",
+      "unblockBtn": "차단 해제"
     },
     "importModal": {
       "title": "연락처 가져오기",
@@ -1181,7 +1210,8 @@
       "toastDraftSaved": "초안이 저장되었습니다",
       "broadcastFailed": "브로드캐스트 실패",
       "toastSendTakenOver": "다른 전송 작업이 이 브로드캐스트를 넘겨받아 이 탭에서는 전송을 중단했습니다. 브로드캐스트를 열어 진행 상황을 확인하세요.",
-      "toastSendInterrupted": "서버 연결이 끊겨 전송이 중단되었습니다. 브로드캐스트를 열고 이어서 발송을 눌러 남은 수신자에게 보내세요. 버튼은 5분 이내에 표시됩니다."
+      "toastSendInterrupted": "서버 연결이 끊겨 전송이 중단되었습니다. 브로드캐스트를 열고 이어서 발송을 눌러 남은 수신자에게 보내세요. 버튼은 5분 이내에 표시됩니다.",
+      "toastBlockedSkipped": "{count, plural, other {차단된 연락처 #개를 건너뛰었습니다}}"
     },
     "wizard": {
       "next": "다음",
@@ -1398,7 +1428,9 @@
         "wait": "대기",
         "condition": "조건 (If/Else)",
         "send_webhook": "웹훅 보내기",
-        "close_conversation": "대화 닫기"
+        "close_conversation": "대화 닫기",
+        "block_contact": "연락처 차단",
+        "unblock_contact": "연락처 차단 해제"
       },
       "triggers": {
         "new_message_received": {
@@ -1530,7 +1562,8 @@
           "contact_field": "연락처 필드",
           "message_content": "메시지 내용",
           "time_of_day": "시간대",
-          "in_segment": "세그먼트에 포함"
+          "in_segment": "세그먼트에 포함",
+          "reply_id": "버튼 또는 목록 답장 ID"
         },
         "operandLabel": "피연산자",
         "placeholderTime": "HH:mm-HH:mm",
@@ -1551,7 +1584,10 @@
         "waitForReplyHint": "고객이 버튼을 누르거나 답장할 때까지 여기서 멈춥니다(최대 24시간). 이후 단계(메시지 내용 조건 포함)는 그 답장을 사용합니다.",
         "closeConversationHint": "대화 상태를 \"닫힘\"으로 설정합니다. 추가 설정이 필요 없습니다.",
         "segmentLabel": "세그먼트",
-        "segmentPlaceholder": "세그먼트 선택…"
+        "segmentPlaceholder": "세그먼트 선택…",
+        "blockContactHint": "이 연락처로 가는 모든 메시지(브로드캐스트, 자동화, 플로우, AI 답변, 수동 발송)를 중지합니다. 작별 메시지는 이 단계 앞에 두세요.",
+        "unblockContactHint": "이 연락처가 다시 메시지를 받을 수 있게 합니다.",
+        "placeholderReplyId": "예: unsub_yes"
       },
       "preview": {
         "noText": "아직 텍스트 없음",
@@ -3279,7 +3315,8 @@
       "nameTriggerRequired": "이름과 트리거는 필수입니다"
     },
     "contacts": {
-      "tagIdRequired": "tag_id는 필수입니다"
+      "tagIdRequired": "tag_id는 필수입니다",
+      "notFound": "연락처를 찾을 수 없습니다"
     },
     "flows": {
       "statusInvalid": "상태는 'draft', 'active', 'archived' 중 하나여야 합니다",
@@ -3301,7 +3338,8 @@
       "recipientsRequired": "`recipients`(권장) 또는 `phone_numbers`를 제공하세요, 비어 있지 않은 배열이어야 합니다",
       "templateNameRequired": "템플릿 이름은 필수입니다",
       "templateMalformed": "로컬 템플릿 데이터가 손상되었습니다, 브로드캐스트 전에 설정에서 \"Meta에서 동기화\"를 실행해 복구하세요.",
-      "invalidPhoneFormat": "전화번호 형식이 올바르지 않습니다"
+      "invalidPhoneFormat": "전화번호 형식이 올바르지 않습니다",
+      "contactBlocked": "연락처가 차단되었습니다"
     },
     "whatsappConfig": {
       "fetchFailed": "설정을 가져오지 못했습니다",
@@ -3336,7 +3374,8 @@
       "unknownMetaError": "알 수 없는 Meta API 오류",
       "metaError": "Meta API 오류: {message}",
       "dbDeleteFailed": "반응은 Meta로 전송되었지만 DB에서 삭제하지 못했습니다",
-      "dbUpsertFailed": "반응은 Meta로 전송되었지만 DB에 저장하지 못했습니다"
+      "dbUpsertFailed": "반응은 Meta로 전송되었지만 DB에 저장하지 못했습니다",
+      "contactBlocked": "이 연락처는 차단되었습니다"
     },
     "send": {
       "idsRequired": "conversation_id 또는 contact_id와 message_type이 필요합니다",
@@ -3465,7 +3504,8 @@
       "email": "이메일",
       "company": "회사",
       "tags": "태그",
-      "created_at": "생성일"
+      "created_at": "생성일",
+      "blocked": "차단됨"
     },
     "operators": {
       "contains": "포함",
@@ -3502,5 +3542,17 @@
     "and": "및",
     "addGroup": "그룹 추가",
     "removeGroup": "그룹 삭제"
+  },
+  "DefaultAutomations": {
+    "unsubscribe": {
+      "name": "수신 거부",
+      "description": "누군가 stop 또는 수신거부라고 입력하면 버튼으로 확인을 요청한 뒤 차단하여 더 이상 메시지를 받지 않게 합니다. 언제든지 수정하거나 끌 수 있습니다.",
+      "keywords": "stop,수신거부,구독취소,중지",
+      "question": "더 이상 저희 메시지를 받지 않으시겠어요?",
+      "yes": "예, 수신 거부",
+      "no": "아니요, 계속 받기",
+      "confirmed": "수신 거부되었습니다. 더 이상 메시지를 보내지 않습니다.",
+      "kept": "알겠습니다. 계속 메시지를 받으실 수 있습니다."
+    }
   }
 }

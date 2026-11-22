@@ -50,8 +50,8 @@ export const AUTOMATION_REFERENCE = {
     wait: { config: { amount: 2, unit: 'minutes | hours | days' }, note: 'Pauses the run, then continues with the next step. This is how you build follow-up sequences.' },
     condition: {
       config: {
-        subject: 'contact_field | tag_presence | message_content | time_of_day',
-        operand: 'contact_field: field name · tag_presence: tag id · time_of_day: "HH:mm-HH:mm" · (not needed for message_content)',
+        subject: 'contact_field | tag_presence | message_content | time_of_day | in_segment | reply_id',
+        operand: 'reply_id: the button / list-row id the contact tapped · contact_field: field name · tag_presence: tag id · time_of_day: "HH:mm-HH:mm" · (not needed for message_content)',
         value: 'contact_field / message_content: the text to compare',
         timezone: 'time_of_day only, optional',
       },
@@ -59,6 +59,8 @@ export const AUTOMATION_REFERENCE = {
     },
     send_webhook: { config: { url: 'https://…', headers: {}, body_template: 'optional' }, note: 'http(s) only.' },
     close_conversation: { config: {} },
+    block_contact: { config: {}, note: 'Blocks the contact: no message of any kind is sent to them afterwards. Put the confirmation message BEFORE this step.' },
+    unblock_contact: { config: {}, note: 'Lifts a block.' },
   },
   interpolation: 'Where supported, {{message.text}} inserts the inbound message and {{vars.key}} a stored variable. Unknown keys render empty.',
   example: {

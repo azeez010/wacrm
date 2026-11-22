@@ -14,6 +14,7 @@ export interface ExportContact {
   name?: string | null;
   email?: string | null;
   company?: string | null;
+  blocked_at?: string | null;
 }
 
 export type ExportField = Pick<FieldDef, 'id' | 'field_name' | 'field_type'>;
@@ -55,7 +56,7 @@ export function buildContactsCsv(input: {
   referenceLabel?: (id: string) => string | undefined;
 }): string {
   const { contacts, fields, tagNamesByContact, valuesByContact, referenceLabel } = input;
-  const header = ['phone', 'name', 'email', 'company', 'tags', ...fields.map((f) => f.field_name)];
+  const header = ['phone', 'name', 'email', 'company', 'tags', 'blocked', ...fields.map((f) => f.field_name)];
   const lines = [header.map(cell).join(',')];
   for (const c of contacts) {
     const row = [
@@ -64,6 +65,7 @@ export function buildContactsCsv(input: {
       c.email ?? '',
       c.company ?? '',
       (tagNamesByContact[c.id] ?? []).join('; '),
+      c.blocked_at ? 'yes' : '',
       ...fields.map((f) => exportCellValue(f, valuesByContact[c.id]?.[f.id], referenceLabel)),
     ];
     lines.push(row.map(cell).join(','));

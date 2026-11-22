@@ -46,6 +46,17 @@ describe('normalizeFilter', () => {
   })
 })
 
+describe('blocked field', () => {
+  it('is a known built-in with only is_true / is_false', () => {
+    expect(kindOf('blocked', {})).toBe('blocked')
+    expect(OPERATORS_BY_KIND.blocked).toEqual(['is_true', 'is_false'])
+    const out = normalizeFilter({ version: 1, op: 'and', rules: [{ field: 'blocked', operator: 'is_true' }] }, {})
+    expect(out.rules).toHaveLength(1)
+    const bad = normalizeFilter({ version: 1, op: 'and', rules: [{ field: 'blocked', operator: 'contains', value: 'x' }] }, {})
+    expect(bad.rules).toHaveLength(0)
+  })
+})
+
 describe('operators', () => {
   it('maps operators to the right value editor', () => {
     expect(valueShape('is_true')).toBe('none')

@@ -119,6 +119,11 @@ export interface Contact {
   email?: string;
   company?: string;
   avatar_url?: string;
+  /** Set when the contact is blocked: no outbound message of any kind is
+   *  sent to them (migration 076). */
+  blocked_at?: string | null;
+  blocked_reason?: 'manual' | 'opt_out' | 'import' | 'api' | null;
+  blocked_by?: string | null;
   created_at: string;
   updated_at: string;
   /** Hydrated by queries that embed `contact_tags(tags(*))` (e.g. the
@@ -532,7 +537,10 @@ export type AutomationStepType =
   | 'wait'
   | 'condition'
   | 'send_webhook'
-  | 'close_conversation';
+  | 'close_conversation'
+  /** Blocks the contact: no outbound message of any kind is sent to them. */
+  | 'block_contact'
+  | 'unblock_contact';
 
 export type AutomationLogStatus = 'success' | 'partial' | 'failed';
 
@@ -639,7 +647,9 @@ export type ConditionSubject =
   | 'message_content'
   | 'time_of_day'
   /** operand = a saved segment id; true when the contact currently matches it. */
-  | 'in_segment';
+  | 'in_segment'
+  /** operand = a button / list-row id; true when the contact just tapped exactly that reply. */
+  | 'reply_id';
 
 export interface ConditionStepConfig {
   subject: ConditionSubject;

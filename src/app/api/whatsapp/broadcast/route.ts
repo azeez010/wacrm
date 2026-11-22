@@ -171,7 +171,31 @@ export async function POST(request: Request) {
     let sentCount = 0
     let failedCount = 0
 
+    // Suppression list: never message a blocked contact, even if the
+    // caller's audience still includes them (the browser can't be trusted).
+    const digitsOf = (phone: string) => String(phone ?? '').replace(/\D/g, '')
+    const blockedPhones = new Set<string>()
+    const allDigits = [...new Set(recipients.map((r) => digitsOf(r.phone)).filter(Boolean))]
+    for (let i = 0; i < allDigits.length; i += 200) {
+      const { data: blockedRows } = await supabase
+        .from('contacts')
+        .select('phone_normalized')
+        .eq('account_id', accountId)
+        .not('blocked_at', 'is', null)
+        .in('phone_normalized', allDigits.slice(i, i + 200))
+      for (const row of blockedRows ?? []) blockedPhones.add(row.phone_normalized as string)
+    }
+
     for (const recipient of recipients) {
+      if (blockedPhones.has(digitsOf(recipient.phone))) {
+        results.push({
+          phone: recipient.phone,
+          status: 'failed',
+          error: t('broadcast.contactBlocked'),
+        })
+        failedCount++
+        continue
+      }
       const sanitized = sanitizePhoneForMeta(recipient.phone)
 
       if (!isValidE164(sanitized)) {

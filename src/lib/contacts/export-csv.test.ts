@@ -21,7 +21,7 @@ describe('buildContactsCsv', () => {
 
   it('writes a header the importer understands and quotes tricky cells', () => {
     const lines = csv.trim().split('\n');
-    expect(lines[0]).toBe('phone,name,email,company,tags,Plan,Started date,Sports');
+    expect(lines[0]).toBe('phone,name,email,company,tags,blocked,Plan,Started date,Sports');
     expect(lines[1]).toContain('"Ada, ""AJ"""');
     expect(lines[1]).toContain('Gold,2026-11-02,Yoga; Boxing');
   });
@@ -32,6 +32,24 @@ describe('buildContactsCsv', () => {
     expect(main.rows[0].phone).toBe('+15551234567');
     expect(extra.columns.map((c) => c.header)).toEqual(['Plan', 'Started date', 'Sports']);
     expect(extra.values[1][extra.columns[0].index]).toBe('');
+  });
+});
+
+describe('blocked column', () => {
+  it('exports yes for blocked contacts and blank otherwise', () => {
+    const out = buildContactsCsv({
+      contacts: [
+        { id: 'a', phone: '+1', blocked_at: '2026-01-01T00:00:00Z' },
+        { id: 'b', phone: '+2' },
+      ],
+      fields: [],
+      tagNamesByContact: {},
+      valuesByContact: {},
+    });
+    const lines = out.trim().split('\n');
+    expect(lines[0]).toBe('phone,name,email,company,tags,blocked');
+    expect(lines[1].endsWith(',yes')).toBe(true);
+    expect(lines[2].endsWith(',')).toBe(true);
   });
 });
 

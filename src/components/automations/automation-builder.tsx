@@ -26,6 +26,8 @@ import {
   Hourglass,
   GitBranch,
   Webhook,
+  Ban,
+  CheckCircle2,
   CircleSlash,
   Zap,
   Loader2,
@@ -134,6 +136,8 @@ const STEP_META: Record<AutomationStepType, StepMeta> = {
   condition: { label: "condition", icon: GitBranch, border: "border-l-amber-500" },
   send_webhook: { label: "send_webhook", icon: Webhook, border: "border-l-primary" },
   close_conversation: { label: "close_conversation", icon: CircleSlash, border: "border-l-primary" },
+  block_contact: { label: "block_contact", icon: Ban, border: "border-l-destructive" },
+  unblock_contact: { label: "unblock_contact", icon: CheckCircle2, border: "border-l-primary" },
 }
 
 const ADDABLE_STEPS: AutomationStepType[] = [
@@ -150,6 +154,8 @@ const ADDABLE_STEPS: AutomationStepType[] = [
   "condition",
   "send_webhook",
   "close_conversation",
+  "block_contact",
+  "unblock_contact",
 ]
 
 const TRIGGER_OPTIONS: { value: AutomationTriggerType }[] = [
@@ -216,6 +222,8 @@ function blankConfig(type: AutomationStepType): Record<string, unknown> {
     case "send_webhook":
       return { url: "", headers: {}, body_template: "" }
     case "close_conversation":
+    case "block_contact":
+    case "unblock_contact":
       return {}
     default:
       return {}
@@ -1350,6 +1358,7 @@ function ConditionEditor({
           <option value="message_content">{t("config.subjects.message_content")}</option>
           <option value="time_of_day">{t("config.subjects.time_of_day")}</option>
           <option value="in_segment">{t("config.subjects.in_segment")}</option>
+          <option value="reply_id">{t("config.subjects.reply_id")}</option>
         </select>
       </FieldBlock>
       {subject === "in_segment" && (
@@ -1378,6 +1387,8 @@ function ConditionEditor({
                 ? t("config.placeholderContact")
                 : subject === "tag_presence"
                 ? t("config.placeholderTag")
+                : subject === "reply_id"
+                ? t("config.placeholderReplyId")
                 : ""
             }
             value={(cfg.operand as string) ?? ""}
@@ -1619,6 +1630,10 @@ function StepEditor({
           {t("config.closeConversationHint", { defaultValue: "Sets the conversation status to \"closed\". No configuration needed." })}
         </p>
       )
+    case "block_contact":
+      return <p className="text-xs text-muted-foreground">{t("config.blockContactHint")}</p>
+    case "unblock_contact":
+      return <p className="text-xs text-muted-foreground">{t("config.unblockContactHint")}</p>
     default:
       return null
   }
@@ -1669,7 +1684,7 @@ function previewFor(
     }
     case "condition": {
       const subject = String(step.step_config.subject ?? "?")
-      const label = ["tag_presence", "contact_field", "message_content", "time_of_day"].includes(subject)
+      const label = ["tag_presence", "contact_field", "message_content", "time_of_day", "in_segment", "reply_id"].includes(subject)
         ? t(`config.subjects.${subject}`)
         : subject
       return t("preview.when", { subject: label })

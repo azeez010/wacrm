@@ -19,6 +19,7 @@
 // without duplicating ~250 lines of Meta plumbing.
 // ============================================================
 
+import { isBlocked } from '@/lib/contacts/block-guard';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 import {
@@ -261,6 +262,16 @@ export async function sendMessageToConversation(
   }
 
   const contact = conversation.contact;
+
+  // Blocked contacts never receive a message, whatever the entry point
+  // (inbox, API, MCP, OTP).
+  if (isBlocked(contact)) {
+    throw new SendMessageError(
+      'contact_blocked',
+      'This contact is blocked. Unblock them to send messages.',
+      403
+    );
+  }
 
   // A contact is addressable by phone number OR by business-scoped user
   // ID. Meta withholds the phone number for a customer who has adopted

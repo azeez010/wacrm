@@ -87,6 +87,7 @@ export function registerWriteTools(server: McpServer, client: WacrmClient): void
         email: z.string().email().optional(),
         company: z.string().optional(),
         tags: z.array(z.string()).optional().describe('Replaces the contact’s tags.'),
+        blocked: z.boolean().optional().describe('true blocks the contact (no message of any kind is sent to them); false unblocks.'),
       },
       annotations: { title: 'Update contact', readOnlyHint: false, openWorldHint: true },
     },

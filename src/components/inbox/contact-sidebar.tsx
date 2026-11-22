@@ -17,6 +17,7 @@ import {
   StickyNote,
   Plus,
   X,
+  Ban,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -35,6 +36,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { getDateLocale } from "@/i18n/date-locale";
 import { contactHandle } from "@/lib/whatsapp/wa-identity";
 import { addContactTag, deleteContactTag } from "@/lib/contacts/tag-api";
+import { BulkBlockDialog } from "@/components/contacts/bulk-block-dialog";
 
 interface ContactSidebarProps {
   contact: Contact | null;
@@ -53,6 +55,10 @@ export function ContactSidebar({ contact }: ContactSidebarProps) {
   const [tags, setTags] = useState<(Tag & { contact_tag_id: string })[]>([]);
   const [allTags, setAllTags] = useState<Tag[]>([]);
   const [savingTags, setSavingTags] = useState(false);
+  // Block / unblock from the inbox panel; `blockedOverride` reflects the
+  // result immediately without refetching the conversation.
+  const [blockDialog, setBlockDialog] = useState<'block' | 'unblock' | null>(null);
+  const [blockedOverride, setBlockedOverride] = useState<{ id: string; blocked: boolean } | null>(null);
   const [newNote, setNewNote] = useState("");
   const [addingNote, setAddingNote] = useState(false);
 
@@ -195,7 +201,46 @@ export function ContactSidebar({ contact }: ContactSidebarProps) {
             {contact.company && (
               <p className="text-xs text-muted-foreground">{contact.company}</p>
             )}
+            {(() => {
+              const isBlocked =
+                blockedOverride?.id === contact.id ? blockedOverride.blocked : Boolean(contact.blocked_at);
+              return (
+                <>
+                  {isBlocked && (
+                    <span className="mt-2 inline-flex items-center gap-1 rounded-full bg-destructive/10 px-2 py-0.5 text-xs font-medium text-destructive">
+                      <Ban className="size-3" />
+                      {tSidebar("blocked")}
+                    </span>
+                  )}
+                  {canManageContactTags && (
+                    <Button
+                      variant="ghost"
+                      size="xs"
+                      className="mt-2 text-muted-foreground"
+                      onClick={() => setBlockDialog(isBlocked ? "unblock" : "block")}
+                    >
+                      <Ban className="size-3.5" />
+                      {isBlocked ? tSidebar("unblockContact") : tSidebar("blockContact")}
+                    </Button>
+                  )}
+                </>
+              );
+            })()}
           </div>
+          {blockDialog && (
+            <BulkBlockDialog
+              mode={blockDialog}
+              contacts={[contact]}
+              onClose={() => setBlockDialog(null)}
+              onDone={() => {
+                const blocked = blockDialog === "block";
+                setBlockedOverride({ id: contact.id, blocked });
+                window.dispatchEvent(
+                  new CustomEvent("wacrm:contact-block-changed", { detail: { id: contact.id, blocked } }),
+                );
+              }}
+            />
+          )}
 
           {/* Phone */}
           <div className="mt-4 space-y-2">

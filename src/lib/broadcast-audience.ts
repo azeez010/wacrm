@@ -3,6 +3,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import { fetchAllInChunks, fetchAllPages } from '@/lib/supabase/paged-query';
 import type { Contact } from '@/types';
 import type { FilterGroup } from '@/lib/segments/types';
+import { isBlocked } from '@/lib/contacts/block-guard';
 
 export type CustomFieldOperator = 'is' | 'is_not' | 'contains';
 
@@ -220,7 +221,20 @@ export async function resolveAudienceContacts(
   db: SupabaseClient,
   audience: AudienceConfig,
   resolveCsv: (rows: CsvAudienceRow[]) => Promise<Contact[]>,
-  opts: { accountId?: string } = {},
+  opts: { accountId?: string; stats?: { blockedSkipped: number } } = {},
+): Promise<Contact[]> {
+  const contacts = await resolveUnfiltered(db, audience, resolveCsv, opts);
+  // Blocked contacts never receive a broadcast, whatever the audience.
+  const sendable = contacts.filter((c) => !isBlocked(c));
+  if (opts.stats) opts.stats.blockedSkipped = contacts.length - sendable.length;
+  return sendable;
+}
+
+async function resolveUnfiltered(
+  db: SupabaseClient,
+  audience: AudienceConfig,
+  resolveCsv: (rows: CsvAudienceRow[]) => Promise<Contact[]>,
+  opts: { accountId?: string },
 ): Promise<Contact[]> {
   const excluded = await fetchExcludedIds(db, audience);
   const keep = (contact: Contact) => !excluded.has(contact.id);

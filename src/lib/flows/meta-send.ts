@@ -1,3 +1,4 @@
+import { assertNotBlocked } from '@/lib/contacts/block-guard'
 import {
   sendInteractiveButtons,
   sendInteractiveList,
@@ -96,13 +97,15 @@ export async function engineSendText(
 
   const { data: contact, error: contactErr } = await db
     .from('contacts')
-    .select('id, phone, wa_user_id')
+    .select('id, phone, wa_user_id, blocked_at')
     .eq('id', args.contactId)
     .eq('account_id', args.accountId)
     .maybeSingle()
   if (contactErr || !contact) {
     throw new Error(t('send.contactNotFound'))
   }
+  // Blocked contacts never receive a message (suppression list).
+  assertNotBlocked(contact)
 
   // Same for the conversation the message lands in - see
   // conversation-scope.ts (GHSA-m4fx-g6pr-hrw8).
@@ -210,13 +213,15 @@ export async function engineSendMedia(
 
   const { data: contact, error: contactErr } = await db
     .from('contacts')
-    .select('id, phone, wa_user_id')
+    .select('id, phone, wa_user_id, blocked_at')
     .eq('id', args.contactId)
     .eq('account_id', args.accountId)
     .maybeSingle()
   if (contactErr || !contact) {
     throw new Error(t('send.contactNotFound'))
   }
+  // Blocked contacts never receive a message (suppression list).
+  assertNotBlocked(contact)
 
   // Same for the conversation the message lands in - see
   // conversation-scope.ts (GHSA-m4fx-g6pr-hrw8).
@@ -366,13 +371,15 @@ async function sendInteractiveViaMeta(
   // Migration 017 moved both tables to account-scoped tenancy.
   const { data: contact, error: contactErr } = await db
     .from('contacts')
-    .select('id, phone, wa_user_id')
+    .select('id, phone, wa_user_id, blocked_at')
     .eq('id', input.contactId)
     .eq('account_id', input.accountId)
     .maybeSingle()
   if (contactErr || !contact) {
     throw new Error(t('send.contactNotFound'))
   }
+  // Blocked contacts never receive a message (suppression list).
+  assertNotBlocked(contact)
 
   // Same for the conversation the message lands in - see
   // conversation-scope.ts (GHSA-m4fx-g6pr-hrw8).

@@ -18,6 +18,7 @@ const h = vi.hoisted(() => ({
     updates: [] as { payload: Record<string, unknown>; isNull: string[] }[],
     rpcCalls: [] as { name: string; args: unknown }[],
     latestInbound: [] as { message_id: string }[],
+    blocked: false as boolean,
   },
 }))
 
@@ -53,6 +54,20 @@ vi.mock('./admin-client', () => ({
           order: () => chain,
           limit: () =>
             Promise.resolve({ data: h.state.latestInbound, error: null }),
+        }
+        return chain
+      }
+      if (table === 'contacts') {
+        // blocked_at lookup: the contact is not blocked in these scenarios
+        // unless a test sets `blocked`.
+        const chain = {
+          select: () => chain,
+          eq: () => chain,
+          maybeSingle: () =>
+            Promise.resolve({
+              data: { blocked_at: h.state.blocked ? '2026-01-01T00:00:00Z' : null },
+              error: null,
+            }),
         }
         return chain
       }
@@ -120,6 +135,7 @@ beforeEach(() => {
   }
   h.state.autoResponders = []
   h.state.claim = true
+  h.state.blocked = false
   h.state.updatePayload = null
   h.state.updates = []
   h.state.rpcCalls = []
@@ -148,6 +164,14 @@ describe('dispatchInboundToAiReply, eligibility gates', () => {
     expect(h.engineSendText).toHaveBeenCalledWith(
       expect.objectContaining({ conversationId: 'conv-1', text: 'Hello!' }),
     )
+  })
+
+  it('sends nothing, and spends no LLM call, for a blocked contact', async () => {
+    h.state.blocked = true
+    await dispatchInboundToAiReply(ARGS)
+    expect(h.generateReply).not.toHaveBeenCalled()
+    expect(h.engineSendText).not.toHaveBeenCalled()
+    expect(h.sendTypingIndicator).not.toHaveBeenCalled()
   })
 
   it('grounds the reply in retrieved knowledge', async () => {

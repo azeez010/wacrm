@@ -25,6 +25,10 @@ export interface ApiContact {
   email: string | null;
   company: string | null;
   avatar_url: string | null;
+  /** True when the contact is blocked: no message of any kind is sent to them. */
+  blocked: boolean;
+  blocked_reason: 'manual' | 'opt_out' | 'import' | 'api' | null;
+  blocked_at: string | null;
   tags: { id: string; name: string; color: string }[];
   /** Typed custom field values keyed by field key. Filled by `attachCustomFields`. */
   custom_fields?: Record<string, unknown>;
@@ -54,6 +58,9 @@ export function serializeContact(row: Record<string, unknown>): ApiContact {
     email: (row.email as string | null) ?? null,
     company: (row.company as string | null) ?? null,
     avatar_url: (row.avatar_url as string | null) ?? null,
+    blocked: Boolean(row.blocked_at),
+    blocked_reason: (row.blocked_reason as ApiContact['blocked_reason']) ?? null,
+    blocked_at: (row.blocked_at as string | null) ?? null,
     tags: joins
       .map((j) => j.tags)
       .filter((t): t is NonNullable<RawTagJoin['tags']> => t != null)

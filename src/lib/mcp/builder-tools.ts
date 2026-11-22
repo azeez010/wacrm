@@ -26,6 +26,8 @@ const stepSchema = z.object({
     'condition',
     'send_webhook',
     'close_conversation',
+    'block_contact',
+    'unblock_contact',
   ]),
   step_config: looseObj.describe('Config for this step type — see get_automation_reference.'),
   branches: z

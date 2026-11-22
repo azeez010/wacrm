@@ -13,7 +13,7 @@ import { parseTagCell } from './parse-contact-csv'
 //    or nothing. A column can also carry a default for blank cells.
 // ============================================================
 
-export type CoreFieldId = 'phone' | 'name' | 'email' | 'company' | 'tags'
+export type CoreFieldId = 'phone' | 'name' | 'email' | 'company' | 'tags' | 'blocked'
 export type SystemFieldId = CoreFieldId | `cf:${string}` | `ref:${string}:${string}`
 
 export type SystemFieldKind = FieldType | 'core_text' | 'tags'
@@ -50,6 +50,8 @@ export const CORE_FIELDS: SystemField[] = [
   { id: 'email', label: 'Email', header: 'email', kind: 'core_text', group: 'core' },
   { id: 'company', label: 'Company', header: 'company', kind: 'core_text', group: 'core' },
   { id: 'tags', label: 'Tags', header: 'tags', kind: 'tags', group: 'core' },
+  // yes / true / 1 blocks the contact (a suppression list import); blank or anything else leaves them as they are.
+  { id: 'blocked', label: 'Blocked', header: 'blocked', kind: 'core_text', group: 'core' },
 ]
 
 export interface ContactFieldInput {
@@ -181,6 +183,8 @@ export interface PreparedRow {
   name?: string
   email?: string
   company?: string
+  /** True when the file marks this contact as blocked (yes / true / 1). */
+  blocked?: boolean
   tagNames: string[]
   /** Raw text per custom field id (validated later). */
   custom: Record<string, string>
@@ -193,6 +197,11 @@ function cellFor(src: FieldSource | undefined, row: string[]): string {
   if (src.kind === 'fixed') return src.value.trim()
   const raw = (row[src.index] ?? '').trim()
   return raw !== '' ? raw : (src.fallback ?? '').trim()
+}
+
+/** yes / y / true / 1 / blocked (any case) mean "block this contact". */
+export function isTruthyCell(value: string): boolean {
+  return ['yes', 'y', 'true', '1', 'blocked'].includes(value.trim().toLowerCase())
 }
 
 export function applyMapping(grid: CsvGrid, mapping: Mapping, fields: SystemField[]): PreparedRow[] {
@@ -215,6 +224,7 @@ export function applyMapping(grid: CsvGrid, mapping: Mapping, fields: SystemFiel
       else if (id === 'name') out.name = value
       else if (id === 'email') out.email = value
       else if (id === 'company') out.company = value
+      else if (id === 'blocked') out.blocked = isTruthyCell(value)
       else if (f.group === 'custom' && f.def) out.custom[f.def.id] = value
       else if (f.group === 'table' && f.refFieldId && f.columnKey) {
         ;(out.tables[f.refFieldId] ??= {})[f.columnKey] = value

@@ -35,7 +35,7 @@ import {
   type FilterRule,
 } from '@/lib/segments/types';
 
-const BUILTIN_FIELDS = ['name', 'phone', 'email', 'company', 'tags', 'created_at'] as const;
+const BUILTIN_FIELDS = ['name', 'phone', 'email', 'company', 'tags', 'created_at', 'blocked'] as const;
 
 interface FilterBuilderProps {
   value: FilterGroup;
@@ -206,7 +206,8 @@ function RuleRow({
   const kind = kindOf(rule.field, kinds) ?? 'builtin_text';
   const operators = OPERATORS_BY_KIND[kind];
   const shape = valueShape(rule.operator);
-  const isBool = kind === 'bool';
+  const isBool = kind === 'bool' || kind === 'blocked';
+  const isBlocked = kind === 'blocked';
 
   const fieldLabel = (f: string) =>
     f.startsWith('cf:') ? (customFields.find((c) => c.id === f.slice(3))?.field_name ?? t('unknownField')) : t(`fields.${f}`);
@@ -275,7 +276,7 @@ function RuleRow({
           <span className="text-xs text-muted-foreground">
             {rule.operator === 'is_true' ? t('on') : rule.operator === 'is_false' ? t('off') : ''}
           </span>
-          {operatorSelect('w-28')}
+          {!isBlocked && operatorSelect('w-28')}
         </div>
       ) : (
         <>

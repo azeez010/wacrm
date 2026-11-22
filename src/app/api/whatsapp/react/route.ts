@@ -1,3 +1,4 @@
+import { isBlocked } from '@/lib/contacts/block-guard';
 import { NextResponse } from 'next/server';
 import { requireRole, toErrorResponse } from '@/lib/auth/account';
 import { sendReactionMessage } from '@/lib/whatsapp/meta-api';
@@ -73,7 +74,7 @@ export async function POST(request: Request) {
 
     const { data: conversation, error: convError } = await supabase
       .from('conversations')
-      .select('id, account_id, contact:contacts(phone, wa_user_id)')
+      .select('id, account_id, contact:contacts(phone, wa_user_id, blocked_at)')
       .eq('id', targetMessage.conversation_id)
       .eq('account_id', accountId)
       .maybeSingle();
@@ -88,6 +89,9 @@ export async function POST(request: Request) {
     const contact = Array.isArray(conversation.contact)
       ? conversation.contact[0]
       : conversation.contact;
+    if (isBlocked(contact)) {
+      return NextResponse.json({ error: t('react.contactBlocked') }, { status: 403 });
+    }
     // Phone number, or the business-scoped user ID for a contact Meta
     // never gave us a number for (issue #519).
     const sendTarget = resolveContactSendTarget(contact);

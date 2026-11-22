@@ -3863,8 +3863,11 @@
       "preMessage": "메시지 말풍선",
       "preMessagePlaceholder": "예: 안녕하세요, 도움이 필요하세요?",
       "preMessageDelay": "표시 시점 (초)",
-      "soundNote": "말풍선은 방문당 한 번 표시됩니다. 방문자가 페이지와 상호작용하기 전에는 브라우저가 소리를 막을 수 있습니다.",
-      "askEmail": "이메일 요청"
+      "soundNote": "말풍선이 나타날 때 소리도 함께 재생됩니다. 방문자가 페이지와 상호작용하기 전에는 브라우저가 소리를 막을 수 있습니다.",
+      "askEmail": "이메일 요청",
+      "preMessageRepeat": "표시 빈도",
+      "repeatSession": "방문당 한 번",
+      "repeatAlways": "페이지를 불러올 때마다"
     },
     "share": {
       "title": "공유",

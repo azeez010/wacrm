@@ -3863,8 +3863,11 @@
       "preMessage": "Bulle de message",
       "preMessagePlaceholder": "p. ex. Bonjour, besoin d'aide ?",
       "preMessageDelay": "Afficher après (secondes)",
-      "soundNote": "La bulle s'affiche une fois par visite. Les navigateurs peuvent bloquer le son tant que le visiteur n'a pas interagi avec la page.",
-      "askEmail": "Demander son e-mail"
+      "soundNote": "La bulle et son son se déclenchent ensemble. Les navigateurs peuvent bloquer le son tant que le visiteur n'a pas interagi avec la page.",
+      "askEmail": "Demander son e-mail",
+      "preMessageRepeat": "Fréquence d'affichage",
+      "repeatSession": "Une fois par visite",
+      "repeatAlways": "À chaque chargement de page"
     },
     "share": {
       "title": "Partager",

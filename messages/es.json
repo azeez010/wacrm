@@ -3863,8 +3863,11 @@
       "preMessage": "Burbuja de mensaje",
       "preMessagePlaceholder": "p. ej. Hola, ¿necesitas ayuda?",
       "preMessageDelay": "Mostrar después de (segundos)",
-      "soundNote": "La burbuja se muestra una vez por visita. Los navegadores pueden bloquear el sonido hasta que el visitante interactúe con la página.",
-      "askEmail": "Pedir su correo"
+      "soundNote": "La burbuja y su sonido se reproducen juntos al aparecer. Los navegadores pueden bloquear el sonido hasta que el visitante interactúe con la página.",
+      "askEmail": "Pedir su correo",
+      "preMessageRepeat": "Con qué frecuencia mostrarla",
+      "repeatSession": "Una vez por visita",
+      "repeatAlways": "En cada carga de página"
     },
     "share": {
       "title": "Compartir",

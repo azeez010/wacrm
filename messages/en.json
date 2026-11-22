@@ -3863,8 +3863,11 @@
       "preMessage": "Message bubble",
       "preMessagePlaceholder": "e.g. Hi, need help?",
       "preMessageDelay": "Show after (seconds)",
-      "soundNote": "The bubble shows once per visit. Browsers may block sound until the visitor has interacted with the page.",
-      "askEmail": "Ask for their email"
+      "soundNote": "The bubble and its sound play together when it appears. Browsers may block sound until the visitor has interacted with the page.",
+      "askEmail": "Ask for their email",
+      "preMessageRepeat": "How often to show it",
+      "repeatSession": "Once per visit",
+      "repeatAlways": "Every page load"
     },
     "share": {
       "title": "Share",

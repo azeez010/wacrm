@@ -162,6 +162,8 @@ export const formSettingsSchema = z
         /** Teaser bubble above the button, and how long to wait before showing it. */
         preMessage: shortText.optional(),
         preMessageDelay: z.number().int().min(0).max(120).default(4),
+        /** 'session' = once per visit (browser tab session); 'always' = on every page load. */
+        preMessageRepeat: z.enum(['session', 'always']).default('session'),
         showOn: z.enum(['all', 'contains']).default('all'),
         urlContains: shortText.optional(),
         devices: z.enum(['all', 'mobile', 'desktop']).default('all'),

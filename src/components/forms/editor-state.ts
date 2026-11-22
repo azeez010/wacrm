@@ -40,7 +40,22 @@ export function mergeSettings(current: FormSettings, patch: Record<string, unkno
       next[k] = v
     }
   }
-  return parseFormSettings(next)
+  return keepTyping(parseFormSettings(next), next)
+}
+
+/**
+ * The schema trims text, which would eat every space as the owner types ("Hi," + space
+ * becomes "Hi,"). Keep what was typed while editing; the server trims on save.
+ */
+function keepTyping<T>(parsed: T, raw: unknown): T {
+  if (!parsed || typeof parsed !== 'object' || !raw || typeof raw !== 'object') return parsed
+  const out = { ...(parsed as Record<string, unknown>) }
+  for (const [k, r] of Object.entries(raw as Record<string, unknown>)) {
+    const p = out[k]
+    if (typeof r === 'string' && typeof p === 'string' && p === r.trim()) out[k] = r
+    else if (r && typeof r === 'object' && !Array.isArray(r)) out[k] = keepTyping(p, r)
+  }
+  return out as T
 }
 
 /** A short, unique field id. */

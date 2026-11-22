@@ -132,6 +132,15 @@ export function SupportEditor({
             <Input type="number" min={0} max={120} disabled={!canEdit} value={w.preMessageDelay} onChange={(e) => patchW({ preMessageDelay: Math.min(120, Math.max(0, Number(e.target.value) || 0)) })} />
           </div>
         ) : null}
+        {w.preMessage ? (
+          <div className="space-y-1.5">
+            <Label className="text-xs text-muted-foreground">{t('preMessageRepeat')}</Label>
+            <select className={selectCls} disabled={!canEdit} value={w.preMessageRepeat ?? 'session'} onChange={(e) => patchW({ preMessageRepeat: e.target.value })}>
+              <option value="session">{t('repeatSession')}</option>
+              <option value="always">{t('repeatAlways')}</option>
+            </select>
+          </div>
+        ) : null}
         <p className="text-xs text-muted-foreground">{t('soundNote')}</p>
       </div>
 

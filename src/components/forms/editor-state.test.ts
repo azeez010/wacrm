@@ -51,3 +51,13 @@ describe('form editor state', () => {
     expect(mergeSettings({ ...next, autoTag: 'vip' }, { autoTag: undefined }).autoTag).toBeUndefined()
   })
 })
+
+describe('typing spaces in settings', () => {
+  it('keeps a trailing space while typing', async () => {
+    const { mergeSettings } = await import('./editor-state')
+    const { parseFormSettings } = await import('@/lib/forms/types')
+    const s = mergeSettings(parseFormSettings({}), { widget: { preMessage: 'Hi, ' } })
+    expect(s.widget?.preMessage).toBe('Hi, ')
+    expect(mergeSettings(s, { title: 'A ' }).title).toBe('A ')
+  })
+})

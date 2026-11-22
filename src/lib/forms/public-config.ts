@@ -67,6 +67,7 @@ export interface PublicFormConfig {
     sound: 'none' | 'chime' | 'pop'
     preMessage?: string
     preMessageDelay: number
+    preMessageRepeat: 'session' | 'always'
     showOn: 'all' | 'contains'
     urlContains?: string
     devices: 'all' | 'mobile' | 'desktop'
@@ -182,13 +183,14 @@ export async function buildPublicConfig(db: SupabaseClient, form: FormRow): Prom
             sound: w.sound,
             preMessage: w.preMessage,
             preMessageDelay: w.preMessageDelay,
+            preMessageRepeat: w.preMessageRepeat,
             showOn: w.showOn,
             urlContains: w.urlContains,
             devices: w.devices,
             hours: w.hours,
           }
         : form.kind === 'support'
-          ? { corner: 'bottom-left', offsetX: 20, offsetY: 20, icon: 'whatsapp', animation: 'pulse', sound: 'none', preMessageDelay: 4, showOn: 'all', devices: 'all', color: settings.accent }
+          ? { corner: 'bottom-left', offsetX: 20, offsetY: 20, icon: 'whatsapp', animation: 'pulse', sound: 'none', preMessageDelay: 4, preMessageRepeat: 'session', showOn: 'all', devices: 'all', color: settings.accent }
           : undefined,
     fields: pub,
   }

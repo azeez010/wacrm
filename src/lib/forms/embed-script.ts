@@ -216,7 +216,7 @@ export const EMBED_SCRIPT = `(function () {
       apply(c);
       if (first) {
         document.body.appendChild(panel); document.body.appendChild(teaser); document.body.appendChild(btn);
-        if (!PREVIEW && w.preMessage && !store('ogadesk:teaser:' + id) && !store('ogadesk:opened:' + id)) {
+        if (!PREVIEW && w.preMessage && (w.preMessageRepeat === 'always' || (!store('ogadesk:teaser:' + id) && !store('ogadesk:opened:' + id)))) {
           teaserTimer = setTimeout(function () { showTeaser(true); }, Math.max(0, (w.preMessageDelay == null ? 4 : w.preMessageDelay)) * 1000);
         }
         if (PREVIEW && w.preMessage) setTimeout(function () { showTeaser(false); }, 500);

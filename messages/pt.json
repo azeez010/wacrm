@@ -3863,8 +3863,11 @@
       "preMessage": "Balão de mensagem",
       "preMessagePlaceholder": "ex.: Oi, precisa de ajuda?",
       "preMessageDelay": "Mostrar após (segundos)",
-      "soundNote": "O balão aparece uma vez por visita. Os navegadores podem bloquear o som até o visitante interagir com a página.",
-      "askEmail": "Pedir o e-mail"
+      "soundNote": "O balão e o som tocam juntos quando ele aparece. Os navegadores podem bloquear o som até o visitante interagir com a página.",
+      "askEmail": "Pedir o e-mail",
+      "preMessageRepeat": "Com que frequência mostrar",
+      "repeatSession": "Uma vez por visita",
+      "repeatAlways": "A cada carregamento da página"
     },
     "share": {
       "title": "Compartilhar",

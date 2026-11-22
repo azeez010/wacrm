@@ -589,14 +589,26 @@ export async function runSideEffects(db: Db, c: FinishCtx): Promise<void> {
         agent = a.agentIds[cursor % a.agentIds.length]
         await db.from('forms').update({ rr_cursor: cursor + 1 }).eq('id', form.id).eq('rr_cursor', cursor)
       }
-      const { error } = await db
+      const { data: assigned, error } = await db
         .from('conversations')
         .update({ assigned_agent_id: agent })
         .eq('id', conversationId)
         .eq('account_id', accountId)
         .is('assigned_agent_id', null)
+        .select('id')
       if (error) throw new Error(error.message)
       assignedTo = agent
+      // The database trigger just sent a generic "conversation assigned" notification. The lead
+      // notification below says more (who and what they wrote), so drop the generic one: one lead, one entry.
+      if (((assigned ?? []) as unknown[]).length > 0) {
+        await db
+          .from('notifications')
+          .delete()
+          .eq('user_id', agent)
+          .eq('conversation_id', conversationId)
+          .eq('type', 'conversation_assigned')
+          .gte('created_at', new Date(Date.now() - 60_000).toISOString())
+      }
     })
 
     await step('notify', async () => {

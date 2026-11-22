@@ -1,14 +1,14 @@
 /**
  * Hosted MCP endpoint (Streamable HTTP, stateless).
  *
- *   POST /api/mcp   Authorization: Bearer wacrm_live_…
+ *   POST /api/mcp   Authorization: Bearer wacrm_live_…   (or  X-API-Key: wacrm_live_…)
  *
  * Auth is the same API key as the public API; its scopes decide which
  * tools exist (see lib/mcp/server.ts). A fresh server + transport is
  * built per request - no session state, safe on Workers isolates.
  */
 import { WebStandardStreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js'
-import { requireApiKey } from '@/lib/auth/api-context'
+import { extractKey, requireApiKey } from '@/lib/auth/api-context'
 import { toApiErrorResponse } from '@/lib/api/v1/respond'
 import { assertFeature, FeatureLockedError } from '@/lib/billing/entitlements'
 import { createWacrmMcpServer } from '@/lib/mcp/server'
@@ -19,7 +19,7 @@ const CORS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'POST, GET, DELETE, OPTIONS',
   'Access-Control-Allow-Headers':
-    'Authorization, Content-Type, Accept, Mcp-Session-Id, Mcp-Protocol-Version, Last-Event-ID',
+    'Authorization, X-API-Key, Content-Type, Accept, Mcp-Session-Id, Mcp-Protocol-Version, Last-Event-ID',
   'Access-Control-Expose-Headers': 'Mcp-Session-Id',
 }
 
@@ -60,7 +60,7 @@ async function handle(request: Request): Promise<Response> {
     hasWhatsAppConnection = (count ?? 0) > 0
   }
 
-  const server = createWacrmMcpServer(request.headers.get('authorization') ?? '', ctx.scopes, {
+  const server = createWacrmMcpServer(`Bearer ${extractKey(request) ?? ''}`, ctx.scopes, {
     hasWhatsAppConnection,
   })
   const transport = new WebStandardStreamableHTTPServerTransport({

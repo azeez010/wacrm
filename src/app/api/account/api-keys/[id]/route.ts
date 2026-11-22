@@ -15,17 +15,61 @@
 import { NextResponse } from 'next/server';
 
 import { requireRole, toErrorResponse } from '@/lib/auth/account';
+import { normalizeScopes } from '@/lib/api-keys/scopes';
 import {
   checkRateLimit,
   rateLimitResponse,
   RATE_LIMITS,
 } from '@/lib/rate-limit';
 import { getT } from '@/lib/i18n/translate';
+import { onWorkspaceChanged } from '@/lib/onboarding/hooks';
 
 const t = getT('Api');
 
+/** PATCH - rename a key and/or change what it may do. Takes effect on its next request. */
+export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  try {
+    const ctx = await requireRole('admin');
+    const limit = checkRateLimit(`admin:apiKeyEdit:${ctx.userId}`, RATE_LIMITS.adminAction);
+    if (!limit.success) return rateLimitResponse(limit);
+
+    const body = (await request.json().catch(() => null)) as { name?: unknown; scopes?: unknown } | null;
+    const patch: Record<string, unknown> = {};
+    if (body?.name !== undefined) {
+      const name = typeof body.name === 'string' ? body.name.trim() : '';
+      if (!name) return NextResponse.json({ error: t('account.apiKeys.nameRequired') }, { status: 400 });
+      if (name.length > 80) return NextResponse.json({ error: t('account.apiKeys.nameTooLong', { max: 80 }) }, { status: 400 });
+      patch.name = name;
+    }
+    if (body?.scopes !== undefined) {
+      const scopes = normalizeScopes(body.scopes);
+      if (scopes === null) return NextResponse.json({ error: t('account.apiKeys.scopesInvalid') }, { status: 400 });
+      patch.scopes = scopes;
+    }
+    if (Object.keys(patch).length === 0) return NextResponse.json({ error: t('account.apiKeys.nothingToChange') }, { status: 400 });
+
+    const { id } = await params;
+    const { data, error } = await ctx.supabase
+      .from('api_keys')
+      .update(patch)
+      .eq('id', id)
+      .eq('account_id', ctx.accountId)
+      .is('revoked_at', null)
+      .select('id, name, key_prefix, scopes, last_used_at, expires_at, revoked_at, created_at')
+      .maybeSingle();
+    if (error) {
+      console.error('[PATCH /api/account/api-keys/[id]] error:', error);
+      return NextResponse.json({ error: t('account.apiKeys.updateFailed') }, { status: 500 });
+    }
+    if (!data) return NextResponse.json({ error: t('account.apiKeys.notFoundOrRevoked') }, { status: 404 });
+    return NextResponse.json({ key: data });
+  } catch (err) {
+    return toErrorResponse(err);
+  }
+}
+
 export async function DELETE(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -38,6 +82,24 @@ export async function DELETE(
     if (!limit.success) return rateLimitResponse(limit);
 
     const { id } = await params;
+
+    // ?permanent=1: really delete a key that is already revoked (its stored secret goes with it).
+    if (new URL(request.url).searchParams.get('permanent') === '1') {
+      const { data: gone, error: delError } = await ctx.supabase
+        .from('api_keys')
+        .delete()
+        .eq('id', id)
+        .eq('account_id', ctx.accountId)
+        .not('revoked_at', 'is', null)
+        .select('id')
+        .maybeSingle();
+      if (delError) {
+        console.error('[DELETE /api/account/api-keys/[id]?permanent] error:', delError);
+        return NextResponse.json({ error: t('account.apiKeys.deleteFailed') }, { status: 500 });
+      }
+      if (!gone) return NextResponse.json({ error: t('account.apiKeys.deleteOnlyRevoked') }, { status: 404 });
+      return NextResponse.json({ success: true });
+    }
 
     // Scope the update by account_id as well as id so an admin can
     // never revoke another account's key by guessing a UUID. (RLS
@@ -67,6 +129,7 @@ export async function DELETE(
       );
     }
 
+    await onWorkspaceChanged(ctx.accountId);
     return NextResponse.json({ success: true });
   } catch (err) {
     return toErrorResponse(err);

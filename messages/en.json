@@ -2245,8 +2245,7 @@
       "deals": "Deals & currency",
       "inbox": "Inbox",
       "members": "Team members",
-      "api": "API keys",
-      "mcp": "Claude (MCP)",
+      "api": "API & MCP",
       "language": "Language",
       "tables": "Custom tables",
       "timezone": "Time zone"
@@ -2324,6 +2323,10 @@
         "dark": "dark"
       },
       "themes": {
+        "teal": {
+          "name": "Teal",
+          "tagline": "The default — calm, trustworthy and clear."
+        },
         "violet": {
           "name": "Violet",
           "tagline": "The default — confident, slightly playful."
@@ -2375,43 +2378,125 @@
       }
     },
     "apiKeys": {
-      "title": "API keys",
-      "description": "Keys authenticate the public REST API (<apiCode>/api/v1</apiCode>) so you can build your own automations. Send them as <headerCode>Authorization: Bearer YOUR_API_KEY</headerCode>.",
-      "newApiKey": "New API key",
-      "noApiKeys": "No API keys yet.",
-      "createOneHint": "Click <bold>New API key</bold> to create one.",
-      "askAdminHint": "Ask an admin to create one.",
+      "title": "API & MCP",
+      "description": "Keys let your own code (REST API) and AI assistants (MCP) work with this CRM. Each key has its own permissions.",
+      "newKey": "New key",
+      "viewDocs": "API docs",
+      "more": "More",
+      "empty": "No keys yet",
+      "emptyHint": "Create a key to connect an AI assistant or your own code.",
+      "askAdmin": "Ask an admin to create one.",
       "revoked": "Revoked",
       "expired": "Expired",
-      "noScopes": "No scopes",
+      "noScopes": "No access",
+      "accessRead": "Read-only",
+      "accessBuilder": "Campaign builder",
+      "accessFull": "Full access",
+      "accessCustom": "Custom ({count})",
+      "accessCustomOption": "Custom…",
       "created": "Created {date}",
       "lastUsed": "last used {date}",
       "neverUsed": "never used",
-      "expires": "expires {date}",
+      "connect": "Connect",
+      "edit": "Edit",
       "revoke": "Revoke",
-      "revokeSuccess": "Revoked \"{name}\"",
-      "revokeFailed": "Failed to revoke key",
-      "loadFailed": "Failed to load API keys",
-      "createError": "Failed to create key",
-      "nameRequired": "Give the key a name",
-      "nameLabel": "Name",
-      "namePlaceholder": "e.g. Zapier automation",
-      "scopesLabel": "Scopes",
-      "scopesHint": "A key with no scopes can still call <code>GET /api/v1/me</code> to verify it works.",
-      "cancel": "Cancel",
-      "creating": "Creating…",
-      "createKey": "Create key",
-      "copyTitle": "Copy your API key",
-      "copyDesc": "This is the only time the full key is shown. Store it somewhere safe, if you lose it, revoke it and create a new one.",
-      "apiKeyLabel": "API key",
-      "copy": "Copy",
-      "copySuccess": "API key copied",
-      "copyFailed": "Copy failed, select and copy manually",
-      "newKeyTitle": "New API key",
-      "newKeyDesc": "Name it after the integration that will use it, and grant only the scopes it needs.",
-      "done": "Done",
+      "delete": "Delete permanently",
+      "confirmRevokeTitle": "Revoke \"{name}\"?",
+      "confirmRevokeBody": "Anything using this key stops working right away.",
+      "confirmDeleteTitle": "Delete \"{name}\" permanently?",
+      "confirmDeleteBody": "It disappears from this list. This can't be undone.",
+      "revokedToast": "Revoked \"{name}\"",
+      "deleted": "Deleted \"{name}\"",
+      "saved": "Saved",
+      "loadFailed": "Failed to load keys",
       "networkError": "Could not reach the server",
-      "viewDocs": "View API docs"
+      "createError": "Failed to create the key",
+      "updateFailed": "Failed to save",
+      "revokeFailed": "Failed to revoke the key",
+      "deleteFailed": "Failed to delete the key",
+      "nameRequired": "Give the key a name",
+      "newTitle": "New key",
+      "editTitle": "Edit key",
+      "newDesc": "Name it after what will use it, and give it only the access it needs.",
+      "nameLabel": "Name",
+      "namePlaceholder": "e.g. Claude, Zapier",
+      "accessLabel": "Access",
+      "hint": {
+        "read": "Look things up: contacts, conversations, pipelines, automations and more. Cannot change anything.",
+        "builder": "Read-only, plus build pipelines, automations, flows, templates, fields, tables, segments and forms. Cannot message customers.",
+        "full": "Everything above, plus edit contacts, send WhatsApp messages and launch broadcasts.",
+        "custom": "Choose exactly what this key may do."
+      },
+      "cancel": "Cancel",
+      "save": "Save",
+      "createKey": "Create key",
+      "done": "Done",
+      "copy": "Copy",
+      "copied": "Copied",
+      "copySuccess": "Key copied",
+      "copyFailed": "Could not copy, select the text manually",
+      "createdTitle": "Key created",
+      "createdNote": "Copy it now. You can also open the key later and enter your password to see it again.",
+      "keyLabel": "Your key",
+      "connectTitle": "Connect \"{name}\"",
+      "connectDesc": "Pick the app you want to connect.",
+      "legacyNote": "This key was created before keys could be viewed again, so it is shown as YOUR_API_KEY below. Use the key you saved, or create a new one.",
+      "connectTo": "Connect to",
+      "client": {
+        "claudeai": "Claude.ai",
+        "claudecode": "Claude Code",
+        "claudedesktop": "Claude Desktop",
+        "cursor": "Cursor & others",
+        "rest": "REST API"
+      },
+      "clientHint": {
+        "claudeai": "In Claude.ai go to Settings, Connectors, Add custom connector. Paste the URL, then add a header with this name and value.",
+        "claudecode": "Run this in your terminal.",
+        "claudedesktop": "Add this to claude_desktop_config.json (needs Node.js).",
+        "cursor": "Works with any app that accepts an MCP server URL and headers: Cursor, Windsurf, ChatGPT, n8n and more.",
+        "rest": "Call the REST API directly. The full reference is in the API docs."
+      },
+      "block": {
+        "serverUrl": "Server URL",
+        "headerName": "Header name",
+        "headerValue": "Header value (your key)",
+        "terminal": "Terminal command",
+        "configFile": "Config",
+        "curl": "Test it"
+      },
+      "otherWays": "Other ways to send the key",
+      "otherWaysBody": "Either header works: X-API-Key: YOUR_API_KEY or Authorization: Bearer YOUR_API_KEY.",
+      "capsTitle": "What you can do once connected",
+      "caps": {
+        "read": {
+          "title": "Ask questions about your CRM",
+          "examples": "\"How many conversations are still open?\" · \"Which contacts are tagged VIP?\""
+        },
+        "build": {
+          "title": "Set up campaigns for you",
+          "examples": "\"Build a 3-day follow-up for people tagged Webinar\" · \"Make a Leads pipeline with 5 stages\""
+        },
+        "write": {
+          "title": "Keep contacts and deals up to date",
+          "examples": "\"Add this lead with the tag Webinar\" · \"Move Ada's deal to Negotiation\""
+        },
+        "send": {
+          "title": "Message customers",
+          "examples": "\"Send the order_update template to +234…\" · \"Reply to Tunde that his order shipped\""
+        },
+        "templates": {
+          "title": "Create message templates",
+          "examples": "\"Create a Utility template for shipping updates in English\" (needs a connected WhatsApp number)"
+        },
+        "broadcast": {
+          "title": "Run campaigns",
+          "examples": "\"Send the promo template to these 40 numbers\" (always asks to confirm first)"
+        }
+      },
+      "pwTitle": "Confirm your password",
+      "pwDesc": "Enter your password to see the setup for \"{name}\".",
+      "pwLabel": "Password",
+      "pwCta": "Continue"
     },
     "deals": {
       "title": "Deals & currency",
@@ -3257,7 +3342,14 @@
         "nameRequired": "'name' is required",
         "nameTooLong": "Name must be {max} characters or fewer",
         "scopesInvalid": "'scopes' must be an array of known scope strings",
-        "createFailed": "Failed to create API key"
+        "createFailed": "Failed to create API key",
+        "passwordRequired": "Enter your password",
+        "noPasswordLogin": "This account has no password login, so the key cannot be shown. Set a password in Login & security first.",
+        "wrongPassword": "That password is not correct",
+        "nothingToChange": "Nothing to change",
+        "updateFailed": "Failed to update the API key",
+        "deleteFailed": "Failed to delete the API key",
+        "deleteOnlyRevoked": "Only a revoked key can be deleted"
       },
       "invitations": {
         "revokeFailed": "Failed to revoke invitation",
@@ -3976,6 +4068,143 @@
       "name": "Blank",
       "description": "Phone and name, nothing else.",
       "title": "Sign up"
+    }
+  },
+  "Onboarding": {
+    "title": "How will you use OgaDesk?",
+    "subtitle": "Pick everything that applies. We'll tailor your setup.",
+    "useCases": {
+      "developer": {
+        "title": "Developer API",
+        "description": "Send OTPs and messages from your own app."
+      },
+      "support": {
+        "title": "Customer support",
+        "description": "A shared inbox for your team."
+      },
+      "sales": {
+        "title": "Sales",
+        "description": "Pipelines, deals and follow-ups."
+      },
+      "marketing": {
+        "title": "Marketing",
+        "description": "Broadcasts, templates and segments."
+      }
+    },
+    "next": "Continue",
+    "back": "Back",
+    "finish": "Get started",
+    "skip": "Skip for now",
+    "saving": "Saving…",
+    "sourceTitle": "Where did you hear about us?",
+    "sourceSubtitle": "It helps us reach more people like you.",
+    "sources": {
+      "google": "Google search",
+      "social": "Social media",
+      "youtube": "YouTube",
+      "friend": "Friend or colleague",
+      "partner": "A partner",
+      "blog": "Article or blog",
+      "whatsapp": "WhatsApp",
+      "event": "Event or meetup",
+      "ai": "AI assistant (ChatGPT, Claude…)",
+      "other": "Other"
+    },
+    "detailLabel": "Tell us more (optional)",
+    "detailPlaceholder": "Which site, person or event?",
+    "marketingLabel": "Send me product tips, news and offers",
+    "marketingHint": "Optional. You can unsubscribe at any time.",
+    "error": "We couldn't save your answers. Please try again.",
+    "developer": {
+      "title": "Developer setup",
+      "subtitle": "Send your first one-time code in a few minutes.",
+      "done": "done",
+      "todo": "to do",
+      "genericError": "Something went wrong. Please try again.",
+      "connect": {
+        "title": "Connect a WhatsApp number",
+        "description": "Codes are sent from your own number.",
+        "action": "Connect a number"
+      },
+      "template": {
+        "title": "Authentication template",
+        "description": "WhatsApp must approve it before codes can be sent. It usually takes a few minutes.",
+        "missing": "Not created yet",
+        "pending": "Waiting for WhatsApp's approval",
+        "approved": "Approved",
+        "rejected": "Rejected",
+        "create": "Create template"
+      },
+      "key": {
+        "title": "Create an API key",
+        "description": "Your server uses it to call the API.",
+        "action": "Create API key",
+        "created": "Copy your key now. It is only shown once.",
+        "copy": "Copy",
+        "copied": "Key copied"
+      },
+      "test": {
+        "title": "Send yourself a test code",
+        "description": "We'll send a code to your own WhatsApp number.",
+        "waiting": "Available once the template is approved.",
+        "phonePlaceholder": "+2348012345678",
+        "send": "Send code",
+        "codePlaceholder": "The code you received",
+        "verify": "Verify",
+        "sent": "Code sent. Enter it here.",
+        "verified": "Verified. Your setup works.",
+        "wrong": "That code isn't right ({n} tries left).",
+        "expired": "That code can no longer be used. Send a new one."
+      },
+      "docs": {
+        "title": "Read the API docs",
+        "description": "Endpoints, examples and webhooks.",
+        "action": "Open docs"
+      }
+    }
+  },
+  "Emails": {
+    "footer": "You're receiving this service email because you have an OgaDesk account.",
+    "fallbackName": "there",
+    "welcome": {
+      "subject": "Welcome to OgaDesk",
+      "heading": "Welcome to OgaDesk, {name}",
+      "intro": "Your workspace is ready. Here is the quickest way to get going.",
+      "developer": {
+        "title": "Developer API",
+        "body": "Connect a number, create an API key and send your first one-time code in a few minutes.",
+        "cta": "Open the API docs"
+      },
+      "support": {
+        "title": "Customer support",
+        "body": "Connect your WhatsApp number and invite your teammates to the shared inbox.",
+        "cta": "Connect WhatsApp"
+      },
+      "sales": {
+        "title": "Sales",
+        "body": "Add your contacts and track every deal in a pipeline.",
+        "cta": "Open pipelines"
+      },
+      "marketing": {
+        "title": "Marketing",
+        "body": "Create a message template and send your first broadcast.",
+        "cta": "Open broadcasts"
+      },
+      "help": "Need a hand? Just reply to this email."
+    },
+    "quota80": {
+      "subject": "You've used 80% of your monthly messages",
+      "heading": "You're at 80% of your monthly messages",
+      "body": "Hi {name}, your {plan} plan includes {limit} messages a month and you've used {used} so far.",
+      "advice": "Upgrade before you run out so nothing you send is interrupted.",
+      "cta": "See your plan"
+    },
+    "quota100": {
+      "subject": "You've reached your monthly message limit",
+      "heading": "You've reached your monthly message limit",
+      "body": "Hi {name}, your {plan} plan includes {limit} messages a month and you've used {used}.",
+      "advice": "Template messages and verification codes won't send until your allowance renews next month or you upgrade.",
+      "cta": "Upgrade your plan"
     }
   }
 }

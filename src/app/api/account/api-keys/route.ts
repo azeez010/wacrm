@@ -11,10 +11,10 @@
 // is admin+ (a key hands out capabilities), enforced by both
 // `requireRole('admin')` here and the `api_keys_insert` RLS policy.
 //
-// IMPORTANT: the plaintext key is returned exactly ONCE, in the POST
-// response. We persist only its SHA-256 hash, so neither GET nor any
-// future endpoint can resurface it - same one-time-reveal contract
-// as invite links. If the admin loses it, they revoke and re-issue.
+// The plaintext key is returned in the POST response. We persist its SHA-256
+// hash for authentication, plus an ENCRYPTED copy in `api_key_secrets`
+// (service-role only) that an admin can re-show after confirming their
+// password (POST .../[id]/reveal). Keys made before that have no copy.
 // ============================================================
 
 import { NextResponse } from 'next/server';
@@ -25,6 +25,8 @@ import {
   toErrorResponse,
 } from '@/lib/auth/account';
 import { generateApiKey } from '@/lib/api-keys/keys';
+import { storeKeySecret } from '@/lib/api-keys/secrets';
+import { supabaseAdmin } from '@/lib/flows/admin-client';
 import {
   assertFeature,
   assertWithinLimit,
@@ -38,6 +40,7 @@ import {
   RATE_LIMITS,
 } from '@/lib/rate-limit';
 import { getT } from '@/lib/i18n/translate';
+import { onApiKeyCreated } from '@/lib/onboarding/hooks';
 
 const t = getT('Api');
 
@@ -71,7 +74,15 @@ export async function GET() {
       );
     }
 
-    return NextResponse.json({ keys: data ?? [] });
+    // Which keys can be re-shown (they have an encrypted copy). The secret itself never leaves the server.
+    const ids = (data ?? []).map((k) => k.id as string);
+    const withSecret = new Set<string>();
+    if (ids.length > 0) {
+      const { data: rows } = await supabaseAdmin().from('api_key_secrets').select('key_id').in('key_id', ids);
+      for (const r of (rows ?? []) as { key_id: string }[]) withSecret.add(r.key_id);
+    }
+
+    return NextResponse.json({ keys: (data ?? []).map((k) => ({ ...k, has_secret: withSecret.has(k.id as string) })) });
   } catch (err) {
     return toErrorResponse(err);
   }
@@ -162,6 +173,11 @@ export async function POST(request: Request) {
         { status: 500 }
       );
     }
+
+    // Keep an encrypted copy so an admin can re-show the setup later (best effort).
+    await storeKeySecret(ctx.accountId, data.id as string, plaintext);
+
+    await onApiKeyCreated(ctx.accountId, ctx.userId);
 
     return NextResponse.json(
       {

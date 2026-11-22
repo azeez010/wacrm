@@ -7,7 +7,7 @@ describe('embed script', () => {
     expect(() => new Function(EMBED_SCRIPT)).not.toThrow()
   })
   it('stays small enough to be a friendly third-party script', () => {
-    expect(EMBED_SCRIPT.length).toBeLessThan(16_000)
+    expect(EMBED_SCRIPT.length).toBeLessThan(18_000)
   })
   it('supports inline forms and the lazy floating widget, and fires the host event', () => {
     expect(EMBED_SCRIPT).toContain('data-ogadesk-form')

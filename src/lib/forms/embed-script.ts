@@ -85,27 +85,40 @@ export const EMBED_SCRIPT = `(function () {
     '@media (prefers-reduced-motion:reduce){.og-pulse,.og-bounce,.og-wiggle,.og-ring{animation:none!important}}';
   function isMobile() { return /mobi|android|iphone/i.test(navigator.userAgent) || window.innerWidth < 600; }
   function isDark(theme) { return theme === 'dark' || (theme !== 'light' && window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches); }
-  // Browsers only allow audio after a user gesture: unlock on the first one, and play any chime that was waiting.
-  var pendingSound = null, unlocked = false;
-  function unlock() {
-    if (unlocked) return; unlocked = true;
-    ['pointerdown', 'keydown', 'touchstart'].forEach(function (ev) { window.removeEventListener(ev, unlock, true); });
-    try { var C = window.AudioContext || window.webkitAudioContext; if (C) { var a = window.__ogA || (window.__ogA = new C()); if (a.state === 'suspended') a.resume(); } } catch (e) {}
-    if (pendingSound) { var k = pendingSound; pendingSound = null; setTimeout(function () { beep(k, true); }, 0); }
+  // Browsers (Chrome especially) keep audio locked until the visitor has clicked, tapped or pressed a key.
+  // We prepare the audio context on those gestures, and a chime that was blocked plays as soon as it unlocks
+  // (only if its bubble is still showing).
+  var pending = null;
+  function ctx() { var C = window.AudioContext || window.webkitAudioContext; if (!C) return null; return window.__ogA || (window.__ogA = new C()); }
+  function play(a, kind) {
+    var t = a.currentTime + 0.01;
+    function tone(f, s, d, v, type) {
+      var o = a.createOscillator(), g = a.createGain(); o.type = type || 'sine'; o.frequency.setValueAtTime(f, t + s);
+      g.gain.setValueAtTime(0.0001, t + s); g.gain.exponentialRampToValueAtTime(v, t + s + 0.008); g.gain.exponentialRampToValueAtTime(0.0001, t + s + d);
+      o.connect(g); g.connect(a.destination); o.start(t + s); o.stop(t + s + d + 0.05);
+    }
+    if (kind === 'pop') { tone(700, 0, 0.16, 0.7, 'triangle'); tone(1050, 0, 0.1, 0.35, 'sine'); }
+    else { tone(988, 0, 0.35, 0.6, 'triangle'); tone(1318, 0.11, 0.55, 0.55, 'triangle'); tone(1976, 0.11, 0.35, 0.18, 'sine'); }
   }
-  ['pointerdown', 'keydown', 'touchstart'].forEach(function (ev) { window.addEventListener(ev, unlock, true); });
-  function beep(kind, force) {
+  function unlock() {
+    var a = ctx(); if (!a) return;
+    var go = function () {
+      if (a.state !== 'running') return;
+      ['pointerdown', 'mousedown', 'keydown', 'touchstart', 'click'].forEach(function (ev) { window.removeEventListener(ev, unlock, true); });
+      try { var b = a.createBuffer(1, 1, 22050), src = a.createBufferSource(); src.buffer = b; src.connect(a.destination); src.start(0); } catch (e) {}
+      var p = pending; pending = null;
+      if (p && p.ok()) play(a, p.kind);
+    };
+    try { var r = a.resume(); if (r && r.then) r.then(go, function () {}); else go(); } catch (e) {}
+  }
+  ['pointerdown', 'mousedown', 'keydown', 'touchstart', 'click'].forEach(function (ev) { window.addEventListener(ev, unlock, true); });
+  function beep(kind, stillWanted) {
     try {
-      var Ctx = window.AudioContext || window.webkitAudioContext; if (!Ctx || !kind || kind === 'none') return;
-      var a = window.__ogA || (window.__ogA = new Ctx()); if (a.state === 'suspended') a.resume();
-      if (!force && a.state !== 'running') { pendingSound = kind; return; }
-      var t = a.currentTime;
-      function tone(f, s, d, v) {
-        var o = a.createOscillator(), g = a.createGain(); o.type = 'sine'; o.frequency.value = f;
-        g.gain.setValueAtTime(0.0001, t + s); g.gain.exponentialRampToValueAtTime(v, t + s + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t + s + d);
-        o.connect(g); g.connect(a.destination); o.start(t + s); o.stop(t + s + d + 0.05);
-      }
-      if (kind === 'pop') tone(520, 0, 0.14, 0.2); else { tone(880, 0, 0.25, 0.16); tone(1320, 0.13, 0.4, 0.13); }
+      if (!kind || kind === 'none') return;
+      var a = ctx(); if (!a) return;
+      if (a.state === 'running') { play(a, kind); return; }
+      pending = { kind: kind, ok: stillWanted || function () { return true; } };
+      var r = a.resume(); if (r && r.then) r.then(function () { if (a.state === 'running' && pending) { var p = pending; pending = null; if (p.ok()) play(a, p.kind); } }, function () {});
     } catch (e) {}
   }
   function inHours(h, tz) {
@@ -158,7 +171,7 @@ export const EMBED_SCRIPT = `(function () {
     function showTeaser(withSound) {
       if (!cfg || !cfg.widget || !cfg.widget.preMessage || opened) return;
       teaser.style.display = 'flex'; teaser.style.animation = 'ogpop .35s ease both';
-      if (withSound) beep(cfg.widget.sound);
+      if (withSound) beep(cfg.widget.sound, function () { return teaser.style.display === 'flex'; });
       if (!PREVIEW) store('ogadesk:teaser:' + id, '1');
     }
     function open() {

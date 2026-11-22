@@ -170,3 +170,16 @@ describe("requireApiKey, plan gate", () => {
     expect(touchLastUsed).not.toHaveBeenCalled();
   });
 });
+
+describe("extractKey", () => {
+  it("reads Bearer, a bare Authorization value, or X-API-Key", async () => {
+    const { extractKey } = await import("./api-context");
+    const r = (h: Record<string, string>) => new Request("https://x.test", { headers: h });
+    expect(extractKey(r({ authorization: "Bearer abc" }))).toBe("abc");
+    expect(extractKey(r({ authorization: "abc" }))).toBe("abc");
+    expect(extractKey(r({ "x-api-key": " abc " }))).toBe("abc");
+    expect(extractKey(r({ authorization: "Bearer one", "x-api-key": "two" }))).toBe("one");
+    expect(extractKey(r({}))).toBeNull();
+    expect(extractKey(r({ authorization: "Bearer " }))).toBeNull();
+  });
+});

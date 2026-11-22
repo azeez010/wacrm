@@ -22,8 +22,7 @@ import { FieldsAndTagsPanel } from '@/components/settings/fields-and-tags-panel'
 import { DealsSettings } from '@/components/settings/deals-settings';
 import { InboxSettings } from '@/components/settings/inbox-settings';
 import { MembersTab } from '@/components/settings/members-tab';
-import { ApiKeysSettings } from '@/components/settings/api-keys-settings';
-import { McpSettings } from '@/components/settings/mcp-settings';
+import { ApiKeysPanel } from '@/components/settings/api-keys-panel';
 import { BillingPanel } from '@/components/settings/billing-panel';
 import {
   resolveSection,
@@ -97,8 +96,7 @@ function SettingsPageInner() {
     inbox: <InboxSettings />,
     deals: <DealsSettings />,
     members: <MembersTab />,
-    api: <ApiKeysSettings />,
-    mcp: <McpSettings />,
+    api: <ApiKeysPanel />,
   };
 
   return (

@@ -34,7 +34,7 @@ export function buildOpenApiSpec(baseUrl: string): OpenApiObject {
       contact: { name: 'OgaDesk support', url: baseUrl },
     },
     servers: [{ url: `${baseUrl}/api/v1`, description: 'Production' }],
-    security: [{ bearerAuth: [] }],
+    security: [{ bearerAuth: [] }, { apiKeyAuth: [] }],
     tags: [
       { name: 'Account', description: 'Check that your key works.' },
       { name: 'Verifications', description: 'Send one-time codes over WhatsApp and check them (OTP).' },
@@ -48,7 +48,13 @@ export function buildOpenApiSpec(baseUrl: string): OpenApiObject {
         bearerAuth: {
           type: 'http',
           scheme: 'bearer',
-          description: 'An OgaDesk API key (`wacrm_live_…`) created in **Settings → API keys**.',
+          description: 'An OgaDesk API key (`wacrm_live_…`) created in **Settings → API & MCP**.',
+        },
+        apiKeyAuth: {
+          type: 'apiKey',
+          in: 'header',
+          name: 'X-API-Key',
+          description: 'The same key, sent as an `X-API-Key` header instead of `Authorization: Bearer`.',
         },
       },
       schemas,

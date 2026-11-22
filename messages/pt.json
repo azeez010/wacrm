@@ -2245,8 +2245,7 @@
       "deals": "Negócios e moeda",
       "inbox": "Caixa de entrada",
       "members": "Membros da equipe",
-      "api": "Chaves de API",
-      "mcp": "Claude (MCP)",
+      "api": "API e MCP",
       "language": "Idioma",
       "tables": "Tabelas personalizadas",
       "timezone": "Fuso horário"
@@ -2324,6 +2323,10 @@
         "dark": "escuro"
       },
       "themes": {
+        "teal": {
+          "name": "Azul-petróleo",
+          "tagline": "O padrão — calmo, confiável e claro."
+        },
         "violet": {
           "name": "Violeta",
           "tagline": "O padrão — transmite confiança com um toque descontraído."
@@ -2375,43 +2378,125 @@
       }
     },
     "apiKeys": {
-      "title": "Chaves de API",
-      "description": "As chaves autenticam a API REST pública (<apiCode>/api/v1</apiCode>) para que você crie suas próprias automações. Envie-as como <headerCode>Authorization: Bearer SUA_CHAVE_API</headerCode>.",
-      "newApiKey": "Nova chave de API",
-      "noApiKeys": "Nenhuma chave de API ainda.",
-      "createOneHint": "Clique em <bold>Nova chave de API</bold> para criar uma.",
-      "askAdminHint": "Peça a um administrador para criar uma.",
+      "title": "API e MCP",
+      "description": "As chaves permitem que o seu próprio código (API REST) e assistentes de IA (MCP) trabalhem com este CRM. Cada chave tem as suas permissões.",
+      "newKey": "Nova chave",
+      "viewDocs": "Documentação da API",
+      "more": "Mais",
+      "empty": "Ainda não há chaves",
+      "emptyHint": "Crie uma chave para conectar um assistente de IA ou o seu próprio código.",
+      "askAdmin": "Peça a um administrador para criar uma.",
       "revoked": "Revogada",
       "expired": "Expirada",
-      "noScopes": "Sem escopos",
+      "noScopes": "Sem acesso",
+      "accessRead": "Somente leitura",
+      "accessBuilder": "Criador de campanhas",
+      "accessFull": "Acesso total",
+      "accessCustom": "Personalizado ({count})",
+      "accessCustomOption": "Personalizado…",
       "created": "Criada em {date}",
-      "lastUsed": "último uso em {date}",
+      "lastUsed": "último uso {date}",
       "neverUsed": "nunca usada",
-      "expires": "expira em {date}",
+      "connect": "Conectar",
+      "edit": "Editar",
       "revoke": "Revogar",
-      "revokeSuccess": "\"{name}\" revogada",
-      "revokeFailed": "Falha ao revogar a chave",
-      "loadFailed": "Falha ao carregar as chaves de API",
-      "createError": "Falha ao criar a chave",
+      "delete": "Excluir permanentemente",
+      "confirmRevokeTitle": "Revogar \"{name}\"?",
+      "confirmRevokeBody": "Tudo que usa esta chave para de funcionar imediatamente.",
+      "confirmDeleteTitle": "Excluir \"{name}\" permanentemente?",
+      "confirmDeleteBody": "Ela some desta lista. Não é possível desfazer.",
+      "revokedToast": "\"{name}\" revogada",
+      "deleted": "\"{name}\" excluída",
+      "saved": "Salvo",
+      "loadFailed": "Não foi possível carregar as chaves",
+      "networkError": "Não foi possível alcançar o servidor",
+      "createError": "Não foi possível criar a chave",
+      "updateFailed": "Não foi possível salvar",
+      "revokeFailed": "Não foi possível revogar a chave",
+      "deleteFailed": "Não foi possível excluir a chave",
       "nameRequired": "Dê um nome à chave",
+      "newTitle": "Nova chave",
+      "editTitle": "Editar chave",
+      "newDesc": "Dê a ela o nome de quem vai usá-la e só o acesso de que precisa.",
       "nameLabel": "Nome",
-      "namePlaceholder": "ex.: Automação do Zapier",
-      "scopesLabel": "Escopos",
-      "scopesHint": "Uma chave sem escopos ainda pode chamar <code>GET /api/v1/me</code> para verificar se funciona.",
+      "namePlaceholder": "ex.: Claude, Zapier",
+      "accessLabel": "Acesso",
+      "hint": {
+        "read": "Consultar contatos, conversas, pipelines, automações e mais. Não pode alterar nada.",
+        "builder": "Somente leitura, mais criar pipelines, automações, fluxos, modelos, campos, tabelas, segmentos e formulários. Não pode escrever aos clientes.",
+        "full": "Tudo acima, mais editar contatos, enviar mensagens de WhatsApp e lançar transmissões.",
+        "custom": "Escolha exatamente o que esta chave pode fazer."
+      },
       "cancel": "Cancelar",
-      "creating": "Criando…",
+      "save": "Salvar",
       "createKey": "Criar chave",
-      "copyTitle": "Copie sua chave de API",
-      "copyDesc": "Esta é a única vez em que a chave completa é exibida. Guarde-a em um lugar seguro, se perdê-la, revogue-a e crie outra.",
-      "apiKeyLabel": "Chave de API",
-      "copy": "Copiar",
-      "copySuccess": "Chave de API copiada",
-      "copyFailed": "Falha ao copiar, selecione e copie manualmente",
-      "newKeyTitle": "Nova chave de API",
-      "newKeyDesc": "Nomeie-a conforme a integração que vai usá-la e conceda apenas os escopos necessários.",
       "done": "Concluído",
-      "networkError": "Não foi possível conectar ao servidor",
-      "viewDocs": "Ver a documentação da API"
+      "copy": "Copiar",
+      "copied": "Copiado",
+      "copySuccess": "Chave copiada",
+      "copyFailed": "Não foi possível copiar, selecione o texto manualmente",
+      "createdTitle": "Chave criada",
+      "createdNote": "Copie agora. Você também pode abrir a chave depois e digitar sua senha para vê-la novamente.",
+      "keyLabel": "Sua chave",
+      "connectTitle": "Conectar \"{name}\"",
+      "connectDesc": "Escolha o aplicativo que quer conectar.",
+      "legacyNote": "Esta chave foi criada antes de as chaves poderem ser vistas de novo, por isso aparece como YOUR_API_KEY abaixo. Use a chave que você guardou ou crie uma nova.",
+      "connectTo": "Conectar a",
+      "client": {
+        "claudeai": "Claude.ai",
+        "claudecode": "Claude Code",
+        "claudedesktop": "Claude Desktop",
+        "cursor": "Cursor e outros",
+        "rest": "API REST"
+      },
+      "clientHint": {
+        "claudeai": "No Claude.ai vá em Configurações, Conectores, Adicionar conector personalizado. Cole a URL e adicione um cabeçalho com este nome e valor.",
+        "claudecode": "Execute isto no seu terminal.",
+        "claudedesktop": "Adicione isto ao claude_desktop_config.json (requer Node.js).",
+        "cursor": "Funciona com qualquer app que aceite a URL de um servidor MCP e cabeçalhos: Cursor, Windsurf, ChatGPT, n8n e mais.",
+        "rest": "Chame a API REST diretamente. A referência completa está na documentação da API."
+      },
+      "block": {
+        "serverUrl": "URL do servidor",
+        "headerName": "Nome do cabeçalho",
+        "headerValue": "Valor do cabeçalho (sua chave)",
+        "terminal": "Comando do terminal",
+        "configFile": "Configuração",
+        "curl": "Teste"
+      },
+      "otherWays": "Outras formas de enviar a chave",
+      "otherWaysBody": "Qualquer um dos cabeçalhos funciona: X-API-Key: YOUR_API_KEY ou Authorization: Bearer YOUR_API_KEY.",
+      "capsTitle": "O que você pode fazer depois de conectar",
+      "caps": {
+        "read": {
+          "title": "Fazer perguntas sobre o seu CRM",
+          "examples": "\"Quantas conversas ainda estão abertas?\" · \"Quais contatos têm a tag VIP?\""
+        },
+        "build": {
+          "title": "Montar campanhas para você",
+          "examples": "\"Crie um acompanhamento de 3 dias para quem tem a tag Webinar\" · \"Faça um pipeline de Leads com 5 etapas\""
+        },
+        "write": {
+          "title": "Manter contatos e negócios em dia",
+          "examples": "\"Adicione este lead com a tag Webinar\" · \"Mova o negócio da Ada para Negociação\""
+        },
+        "send": {
+          "title": "Escrever aos clientes",
+          "examples": "\"Envie o modelo order_update para +234…\" · \"Responda ao Tunde que o pedido foi enviado\""
+        },
+        "templates": {
+          "title": "Criar modelos de mensagem",
+          "examples": "\"Crie um modelo Utilitário para avisos de envio em inglês\" (requer um número de WhatsApp conectado)"
+        },
+        "broadcast": {
+          "title": "Rodar campanhas",
+          "examples": "\"Envie o modelo promo para estes 40 números\" (sempre pede confirmação antes)"
+        }
+      },
+      "pwTitle": "Confirme sua senha",
+      "pwDesc": "Digite sua senha para ver a configuração de \"{name}\".",
+      "pwLabel": "Senha",
+      "pwCta": "Continuar"
     },
     "deals": {
       "title": "Negócios e moeda",
@@ -3257,7 +3342,14 @@
         "nameRequired": "O nome é obrigatório",
         "nameTooLong": "O nome deve ter no máximo {max} caracteres",
         "scopesInvalid": "Os escopos devem ser uma lista de escopos válidos",
-        "createFailed": "Falha ao criar a chave de API"
+        "createFailed": "Falha ao criar a chave de API",
+        "passwordRequired": "Digite sua senha",
+        "noPasswordLogin": "Esta conta não tem login com senha, então a chave não pode ser mostrada. Defina uma senha em Login e segurança primeiro.",
+        "wrongPassword": "Essa senha não está correta",
+        "nothingToChange": "Nada para alterar",
+        "updateFailed": "Não foi possível atualizar a chave de API",
+        "deleteFailed": "Não foi possível excluir a chave de API",
+        "deleteOnlyRevoked": "Só uma chave revogada pode ser excluída"
       },
       "invitations": {
         "revokeFailed": "Falha ao revogar o convite",
@@ -3976,6 +4068,143 @@
       "name": "Em branco",
       "description": "Telefone e nome, nada mais.",
       "title": "Cadastre-se"
+    }
+  },
+  "Onboarding": {
+    "title": "Como você vai usar o OgaDesk?",
+    "subtitle": "Escolha tudo o que se aplica. Vamos adaptar sua configuração.",
+    "useCases": {
+      "developer": {
+        "title": "API para desenvolvedores",
+        "description": "Envie códigos OTP e mensagens a partir do seu próprio aplicativo."
+      },
+      "support": {
+        "title": "Suporte ao cliente",
+        "description": "Uma caixa de entrada compartilhada para sua equipe."
+      },
+      "sales": {
+        "title": "Vendas",
+        "description": "Funis, negócios e acompanhamentos."
+      },
+      "marketing": {
+        "title": "Marketing",
+        "description": "Transmissões, modelos e segmentos."
+      }
+    },
+    "next": "Continuar",
+    "back": "Voltar",
+    "finish": "Começar",
+    "skip": "Pular por enquanto",
+    "saving": "Salvando…",
+    "sourceTitle": "Onde você ouviu falar de nós?",
+    "sourceSubtitle": "Isso nos ajuda a alcançar mais pessoas como você.",
+    "sources": {
+      "google": "Pesquisa no Google",
+      "social": "Redes sociais",
+      "youtube": "YouTube",
+      "friend": "Amigo ou colega",
+      "partner": "Um parceiro",
+      "blog": "Artigo ou blog",
+      "whatsapp": "WhatsApp",
+      "event": "Evento ou encontro",
+      "ai": "Assistente de IA (ChatGPT, Claude…)",
+      "other": "Outro"
+    },
+    "detailLabel": "Conte-nos mais (opcional)",
+    "detailPlaceholder": "Qual site, pessoa ou evento?",
+    "marketingLabel": "Envie-me dicas, novidades e ofertas",
+    "marketingHint": "Opcional. Você pode cancelar a inscrição a qualquer momento.",
+    "error": "Não foi possível salvar suas respostas. Tente novamente.",
+    "developer": {
+      "title": "Configuração para desenvolvedores",
+      "subtitle": "Envie seu primeiro código de uso único em poucos minutos.",
+      "done": "concluído",
+      "todo": "a fazer",
+      "genericError": "Algo deu errado. Tente novamente.",
+      "connect": {
+        "title": "Conecte um número do WhatsApp",
+        "description": "Os códigos são enviados do seu próprio número.",
+        "action": "Conectar um número"
+      },
+      "template": {
+        "title": "Modelo de autenticação",
+        "description": "O WhatsApp precisa aprová-lo antes de enviar códigos. Costuma levar alguns minutos.",
+        "missing": "Ainda não criado",
+        "pending": "Aguardando aprovação do WhatsApp",
+        "approved": "Aprovado",
+        "rejected": "Rejeitado",
+        "create": "Criar modelo"
+      },
+      "key": {
+        "title": "Crie uma chave de API",
+        "description": "Seu servidor a usa para chamar a API.",
+        "action": "Criar chave de API",
+        "created": "Copie sua chave agora. Ela só é exibida uma vez.",
+        "copy": "Copiar",
+        "copied": "Chave copiada"
+      },
+      "test": {
+        "title": "Envie um código de teste para você",
+        "description": "Enviaremos um código para o seu próprio número do WhatsApp.",
+        "waiting": "Disponível quando o modelo for aprovado.",
+        "phonePlaceholder": "+2348012345678",
+        "send": "Enviar código",
+        "codePlaceholder": "O código que você recebeu",
+        "verify": "Verificar",
+        "sent": "Código enviado. Digite-o aqui.",
+        "verified": "Verificado. Sua configuração funciona.",
+        "wrong": "Esse código não está correto ({n} tentativas restantes).",
+        "expired": "Esse código não pode mais ser usado. Envie um novo."
+      },
+      "docs": {
+        "title": "Leia a documentação da API",
+        "description": "Endpoints, exemplos e webhooks.",
+        "action": "Abrir documentação"
+      }
+    }
+  },
+  "Emails": {
+    "footer": "Você recebe este e-mail de serviço porque tem uma conta no OgaDesk.",
+    "fallbackName": "olá",
+    "welcome": {
+      "subject": "Boas-vindas ao OgaDesk",
+      "heading": "Boas-vindas ao OgaDesk, {name}",
+      "intro": "Seu espaço de trabalho está pronto. Veja a forma mais rápida de começar.",
+      "developer": {
+        "title": "API para desenvolvedores",
+        "body": "Conecte um número, crie uma chave de API e envie seu primeiro código de uso único em poucos minutos.",
+        "cta": "Abrir a documentação da API"
+      },
+      "support": {
+        "title": "Suporte ao cliente",
+        "body": "Conecte seu número do WhatsApp e convide sua equipe para a caixa de entrada compartilhada.",
+        "cta": "Conectar o WhatsApp"
+      },
+      "sales": {
+        "title": "Vendas",
+        "body": "Adicione seus contatos e acompanhe cada negócio em um funil.",
+        "cta": "Abrir funis"
+      },
+      "marketing": {
+        "title": "Marketing",
+        "body": "Crie um modelo de mensagem e envie sua primeira transmissão.",
+        "cta": "Abrir transmissões"
+      },
+      "help": "Precisa de ajuda? É só responder a este e-mail."
+    },
+    "quota80": {
+      "subject": "Você usou 80% das suas mensagens mensais",
+      "heading": "Você está em 80% das suas mensagens mensais",
+      "body": "Olá {name}, seu plano {plan} inclui {limit} mensagens por mês e você usou {used}.",
+      "advice": "Faça upgrade antes que acabem para que nada do que você envia seja interrompido.",
+      "cta": "Ver seu plano"
+    },
+    "quota100": {
+      "subject": "Você atingiu o limite mensal de mensagens",
+      "heading": "Você atingiu o limite mensal de mensagens",
+      "body": "Olá {name}, seu plano {plan} inclui {limit} mensagens por mês e você usou {used}.",
+      "advice": "Mensagens de modelo e códigos de verificação não serão enviados até a cota renovar no próximo mês ou você fazer upgrade.",
+      "cta": "Fazer upgrade"
     }
   }
 }

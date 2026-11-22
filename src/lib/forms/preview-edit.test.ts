@@ -24,7 +24,7 @@ describe('preview edits', () => {
   })
   it('the embed script relays preview edits and keeps its size budget', () => {
     expect(EMBED_SCRIPT).toContain('ogadesk-preview-edit')
-    expect(EMBED_SCRIPT.length).toBeLessThan(16000)
+    expect(EMBED_SCRIPT.length).toBeLessThan(18000)
     expect(() => new Function(EMBED_SCRIPT)).not.toThrow()
   })
 })

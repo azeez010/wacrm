@@ -53,15 +53,20 @@ export interface ApiKeyContext {
 }
 
 /**
- * Extract the bearer token from the `Authorization` header.
+ * Extract the key from `Authorization: Bearer` or `X-API-Key`.
  * Tolerates the `Bearer ` prefix being absent (some clients send the
  * bare key) but requires the value to look like one of our keys.
  */
-function extractKey(request: Request): string | null {
+export function extractKey(request: Request): string | null {
+  // `Authorization: Bearer <key>` first, then `X-API-Key: <key>` (what many MCP
+  // clients and connector forms use).
   const header = request.headers.get('authorization');
-  if (!header) return null;
-  const value = header.replace(/^\s*bearer\s+/i, '').trim();
-  return value.length > 0 ? value : null;
+  if (header) {
+    const value = header.replace(/^\s*bearer\s+/i, '').trim();
+    if (value.length > 0 && value.toLowerCase() !== 'bearer') return value;
+  }
+  const alt = request.headers.get('x-api-key')?.trim();
+  return alt ? alt : null;
 }
 
 /**

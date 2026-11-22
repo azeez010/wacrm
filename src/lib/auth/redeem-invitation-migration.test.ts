@@ -22,6 +22,9 @@ const tablesWithoutDomainData = new Set([
   // Short-lived OTP codes (hashed, 7-day purge); an empty personal account being
   // discarded can hold none that matter, and they cascade with the account.
   "otp_verifications",
+  // Encrypted copy of an api_keys row's secret: it only exists alongside that key,
+  // and api_keys is already checked above, so an account with data here has data there.
+  "api_key_secrets",
 ]);
 
 function accountScopedTables(): Set<string> {

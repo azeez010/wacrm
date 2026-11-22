@@ -332,6 +332,16 @@ describe('side effects (finish)', () => {
     expect(note.map((n) => n.user_id).sort()).toEqual(['admin-1', AGENT_B].sort())
   })
 
+  it('removes the generic assignment notification the trigger made, so the assignee gets one entry', async () => {
+    const handlers = { ...handlersOk, 'conversations.update': () => ({ data: [{ id: 'conv-1' }] }) }
+    const f = form({ rr_cursor: 0 }, { assignment: { mode: 'agent', agentIds: [AGENT_A] } })
+    const { calls } = await run(handlers, f)
+    const del = calls.find((c) => c.table === 'notifications' && c.op === 'delete')!
+    expect(del.filters).toEqual(expect.arrayContaining([['user_id', AGENT_A], ['type', 'conversation_assigned']]))
+    const note = calls.find((c) => c.table === 'notifications' && c.op === 'insert')!.payload as { user_id: string }[]
+    expect(note.map((n) => n.user_id)).toContain(AGENT_A)
+  })
+
   it('notify "selected" narrows recipients but always includes the assignee', async () => {
     const handlers = { ...handlersOk, 'profiles.select': () => ({ data: [{ user_id: 'admin-1' }, { user_id: AGENT_A }, { user_id: AGENT_B }] }) }
     const f = form({}, { notify: { mode: 'selected', agentIds: [AGENT_A] }, assignment: { mode: 'agent', agentIds: [AGENT_B] } })

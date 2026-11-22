@@ -32,6 +32,7 @@ import { after } from 'next/server';
 
 import { requireApiKey } from '@/lib/auth/api-context';
 import { assertMessageQuota } from '@/lib/billing/usage';
+import { scheduleQuotaCheck } from '@/lib/billing/quota-alerts';
 
 // The `after()` fan-out below sends to every recipient sequentially and
 // runs within this route's max duration (the same constraint the
@@ -121,6 +122,7 @@ export async function POST(request: Request) {
     // client - no request-scoped auth needed for the Meta calls or
     // the account-scoped row updates.
     after(() => deliverBroadcast(ctx.supabase, plan));
+    scheduleQuotaCheck(ctx.accountId);
 
     return ok(
       {

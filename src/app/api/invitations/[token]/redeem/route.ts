@@ -17,6 +17,8 @@
 // guard makes brute-force retries pointless past a few attempts.
 // ============================================================
 
+import { crmSyncUser } from "@/lib/crm";
+import { onWorkspaceChanged } from "@/lib/onboarding/hooks";
 import { NextResponse } from "next/server";
 import type { PostgrestError } from "@supabase/supabase-js";
 
@@ -83,5 +85,9 @@ export async function POST(
 
   if (error) return rpcErrorToResponse(error);
 
+  // The invitee moved workspaces (their personal one was discarded): refresh them
+  // and the team they joined.
+  await crmSyncUser(user.id);
+  if (typeof accountId === "string") await onWorkspaceChanged(accountId);
   return NextResponse.json({ ok: true, accountId });
 }

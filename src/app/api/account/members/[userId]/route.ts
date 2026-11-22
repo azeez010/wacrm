@@ -25,6 +25,8 @@ import {
   RATE_LIMITS,
 } from "@/lib/rate-limit";
 import { getT } from "@/lib/i18n/translate";
+import { onWorkspaceChanged } from "@/lib/onboarding/hooks";
+import { crmSyncUser } from "@/lib/crm";
 
 const t = getT("Api");
 
@@ -91,6 +93,7 @@ export async function PATCH(
 
     if (error) return rpcErrorToResponse(error);
 
+    await onWorkspaceChanged(ctx.accountId);
     return NextResponse.json({ ok: true });
   } catch (err) {
     return toErrorResponse(err);
@@ -118,6 +121,9 @@ export async function DELETE(
 
     if (error) return rpcErrorToResponse(error);
 
+    // The removed person now has a fresh personal workspace; the team shrank.
+    await onWorkspaceChanged(ctx.accountId);
+    await crmSyncUser(userId);
     return NextResponse.json({ ok: true, newPersonalAccountId: data });
   } catch (err) {
     return toErrorResponse(err);

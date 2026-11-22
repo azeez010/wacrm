@@ -18,6 +18,7 @@ import {
   NoConnectionError,
 } from '@/lib/whatsapp/resolve-config';
 import { getT } from '@/lib/i18n/translate';
+import { onWhatsAppDisconnected } from '@/lib/onboarding/hooks';
 
 const t = getT('Api');
 
@@ -267,6 +268,7 @@ export async function DELETE(
       );
     }
 
+    await onWhatsAppDisconnected(accountId);
     return NextResponse.json({ success: true });
   } catch (error) {
     if (error instanceof UnauthorizedError || error instanceof ForbiddenError) {

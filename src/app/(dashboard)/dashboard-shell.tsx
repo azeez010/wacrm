@@ -9,6 +9,7 @@ import { Header } from "@/components/layout/header";
 import { AccountAccessAlert } from "@/components/layout/account-access-alert";
 import { PresenceHeartbeat } from "@/components/presence/presence-heartbeat";
 import { DefaultsSeeder } from "@/components/automations/defaults-seeder";
+import { OnboardingDialog } from "@/components/onboarding/onboarding-dialog";
 import { BrowserNotificationsListener } from "@/components/notifications/browser-notifications-listener";
 
 // Auth-gated dashboard shell. Extracted from the layout so the layout
@@ -54,6 +55,8 @@ function DashboardShellInner({ children }: { children: React.ReactNode }) {
       <BrowserNotificationsListener />
       {/* Creates the default Unsubscribe automation once per account. */}
       <DefaultsSeeder />
+      {/* First-login questions for the workspace owner (use cases, source). */}
+      <OnboardingDialog />
       <Sidebar open={sidebarOpen} onClose={closeSidebar} />
       <div className="flex flex-1 flex-col overflow-hidden">
         <Header onOpenSidebar={() => setSidebarOpen(true)} />

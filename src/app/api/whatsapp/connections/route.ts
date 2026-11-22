@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { PlanLimitError, assertCanAddWhatsAppConnection } from '@/lib/billing/entitlements';
+import { onWhatsAppConnected } from '@/lib/onboarding/hooks';
 import { createClient as createAdminClient } from '@supabase/supabase-js';
 import {
   ForbiddenError,
@@ -351,6 +352,8 @@ export async function POST(request: Request) {
         phone_info: phoneInfo,
       });
     }
+
+    await onWhatsAppConnected(accountId, inserted.id, { mode: 'custom' });
 
     return NextResponse.json({
       success: true,

@@ -29,6 +29,7 @@ import { OverviewHeader } from '@/components/dashboard/overview-header'
 import { PipelineCard } from '@/components/dashboard/pipeline-card'
 import { ReplyQueueCard } from '@/components/dashboard/reply-queue-card'
 import { SetupChecklist } from '@/components/dashboard/setup-checklist'
+import { DeveloperChecklist } from '@/components/onboarding/developer-checklist'
 import { TeamCard } from '@/components/dashboard/team-card'
 
 const POLL_MS = 60_000
@@ -150,6 +151,9 @@ function DashboardPageInner() {
         range={range}
         onRangeChange={handleRangeChange}
       />
+
+      {/* Only renders for workspaces that picked "Developer API". */}
+      <DeveloperChecklist />
 
       {data && needsSetup(data.setup) ? (
         <SetupChecklist setup={data.setup} />

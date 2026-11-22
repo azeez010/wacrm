@@ -45,6 +45,7 @@ export default function PrivacyPage() {
             <><strong className="text-foreground">WhatsApp conversation data:</strong> messages sent and received through connected WhatsApp numbers (text, media, location, reactions, delivery and read status), including message history imported when a business links an existing WhatsApp Business app number.</>,
             <><strong className="text-foreground">Connection data:</strong> WhatsApp Business Account ID, phone number ID, display number and verified business name. For businesses that bring their own Meta app, the access token is stored encrypted (AES-256-GCM) and never shown again after saving.</>,
             <><strong className="text-foreground">Billing data:</strong> plan, status and payment records. Card details are handled by our payment processor and are never stored by us.</>,
+            <><strong className="text-foreground">Onboarding and usage data:</strong> what you tell us when you start (how you plan to use {BRAND_NAME} and how you heard about us), your language and country, your plan and subscription status, and simple usage figures (such as whether a WhatsApp number is connected and how many messages you sent this month). We use it to set up your workspace, to support you and to improve the service.</>,
             <><strong className="text-foreground">Technical data:</strong> IP address, browser and device type, timestamps and error logs, used for security and reliability.</>,
           ]}
         />
@@ -69,7 +70,7 @@ export default function PrivacyPage() {
             'To provide the service: show the shared inbox, send and receive WhatsApp messages, run broadcasts, automations and flows, and import history.',
             'To secure and operate it: authenticate users, enforce roles and plan limits, prevent abuse and fix problems.',
             'To bill: manage subscriptions and keep payment records.',
-            'To support you and to send service notices (not marketing, unless you opt in).',
+            'To support you and to send service notices, such as a welcome email and usage alerts. We send product tips, news and offers only if you opt in, and you can unsubscribe at any time.',
             'To meet legal obligations and enforce our Terms.',
           ]}
         />
@@ -87,7 +88,8 @@ export default function PrivacyPage() {
             'Cloudflare: application hosting, content delivery and file storage.',
             'Supabase: database, authentication and file storage (hosted in the EU, Ireland).',
             'The AI provider a business selects (for example OpenAI or Anthropic), only if AI features are turned on.',
-            'Payment processors (such as Paystack or Stripe), to take subscription payments.',
+            'Brevo: customer relationship management and email delivery. We share your name, email address, language, country, plan, usage figures and onboarding answers with it, so we can send service emails and, if you opt in, marketing emails.',
+            'Payment processors, to take subscription payments.',
           ]}
         />
         <p>We may also disclose data if the law requires it, to protect rights and safety, or in a business transfer (with notice). We never sell personal data.</p>

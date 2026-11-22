@@ -46,6 +46,7 @@ import type { InteractiveMessagePayload } from '@/lib/whatsapp/interactive';
 import { dispatchWebhookEvent } from '@/lib/webhooks/deliver';
 import { isUuid } from '@/lib/api/v1/pagination';
 import { assertMessageQuota } from '@/lib/billing/usage';
+import { scheduleQuotaCheck } from '@/lib/billing/quota-alerts';
 
 // The send core speaks in internal field names; the public API's are different.
 function publicSendMessage(message: string): string {
@@ -165,6 +166,8 @@ export async function POST(request: Request) {
             : null,
       }
     );
+
+    if (type === 'template') scheduleQuotaCheck(ctx.accountId);
 
     return ok(
       {

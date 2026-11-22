@@ -1,6 +1,8 @@
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
-	"main": ".open-next/worker.js",
+	// Thin wrapper around the OpenNext worker that adds the cron `scheduled` handler
+	// (see worker/custom-worker.ts and src/lib/cron/run.ts).
+	"main": "worker/custom-worker.ts",
 	"name": "ogadesk",
 	"compatibility_date": "2026-11-14",
 	"compatibility_flags": [
@@ -24,6 +26,10 @@
 			"custom_domain": true
 		}
 	],
+	"triggers": {
+		// Every 5 minutes: CRM outbox flush, automations and flows crons.
+		"crons": ["*/5 * * * *"]
+	},
 	"assets": {
 		"directory": ".open-next/assets",
 		"binding": "ASSETS"

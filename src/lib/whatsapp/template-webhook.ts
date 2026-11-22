@@ -41,6 +41,7 @@
  */
 
 import type { SupabaseClient } from '@supabase/supabase-js'
+import { crmTrack } from '@/lib/crm'
 import {
   clearsRejectionReason,
   templateStatusFromWebhookEvent,
@@ -171,7 +172,7 @@ async function handleStatusUpdate(
     .from('message_templates')
     .update(update)
     .eq('meta_template_id', metaTemplateId)
-    .select('id')
+    .select('id, account_id, name, category')
 
   if (error) {
     console.error(
@@ -203,6 +204,15 @@ async function handleStatusUpdate(
     console.warn(
       `[template-webhook] status update matched ${data.length} rows for meta_template_id ${metaTemplateId}, investigate.`,
     )
+  }
+
+  // Lifecycle signal for the CRM: an approved/rejected template is a milestone.
+  const row = data[0] as { account_id?: string; name?: string; category?: string }
+  if (row?.account_id && (status === 'APPROVED' || status === 'REJECTED')) {
+    await crmTrack(status === 'APPROVED' ? 'template_approved' : 'template_rejected', {
+      accountId: row.account_id,
+      properties: { template: row.name ?? '', category: row.category ?? '' },
+    })
   }
 }
 

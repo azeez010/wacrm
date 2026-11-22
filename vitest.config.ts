@@ -19,6 +19,9 @@ export default defineConfig({
       META_APP_SECRET: "test-meta-app-secret",
     },
     clearMocks: true,
+    // Several suites import the large message catalogues; under a full parallel run
+    // an unrelated test can need more than the 5 s default on a busy machine.
+    testTimeout: 20_000,
     // next-intl's ESM middleware imports "next/server" without an extension,
     // which Node's strict ESM resolver rejects; let Vite resolve it.
     server: { deps: { inline: [/next-intl/] } },

@@ -11,6 +11,8 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import { ApiError } from '@/lib/api/v1/respond'
 import { isUuid } from '@/lib/api/v1/pagination'
 import { assertMessageQuota } from '@/lib/billing/usage'
+import { scheduleQuotaCheck } from '@/lib/billing/quota-alerts'
+import { crmTrack, isCrmEnabled } from '@/lib/crm'
 import { parseInternationalPhone } from '@/lib/whatsapp/phone-utils'
 import { resolveConversationByPhone } from '@/lib/whatsapp/resolve-conversation'
 import {
@@ -312,6 +314,13 @@ export async function createVerification(
     .eq('phone', phone)
     .eq('status', 'pending')
     .neq('id', id)
+  // CRM: the first code a workspace ever sends is a milestone. And the monthly
+  // allowance may just have crossed 80% / 100%.
+  if (isCrmEnabled()) {
+    const { count: total } = await db.from('otp_verifications').select('id', { count: 'exact', head: true }).eq('account_id', accountId)
+    if (total === 1) await crmTrack('first_otp_sent', { accountId })
+  }
+  scheduleQuotaCheck(accountId)
   // Opportunistic purge of old rows (no cron on Workers).
   void db
     .from('otp_verifications')

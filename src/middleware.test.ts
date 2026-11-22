@@ -163,3 +163,12 @@ describe("middleware, path-based language on the landing page", () => {
     expect(res.headers.get("x-middleware-request-x-next-intl-locale")).toBeNull();
   });
 });
+
+describe("middleware, referral cookie", () => {
+  it("remembers ?ref= on a public page and leaves other requests alone", async () => {
+    const withRef = await middleware(new NextRequest("https://app.test/?ref=AMAKA"));
+    expect(withRef.cookies.get("ogadesk_ref")?.value).toBe("AMAKA");
+    const without = await middleware(new NextRequest("https://app.test/"));
+    expect(without.cookies.get("ogadesk_ref")).toBeUndefined();
+  });
+});

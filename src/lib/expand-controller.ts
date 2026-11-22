@@ -17,6 +17,10 @@ export interface ExpandControllerOptions {
   onChange: (open: boolean) => void
 }
 
+// Only one expanded value is visible at a time: entering any other value
+// closes the one that is open (instead of leaving it to its grace period).
+let active: { close: () => void } | null = null
+
 export function createExpandController(opts: ExpandControllerOptions) {
   const delay = opts.delay ?? 0
   const grace = opts.grace ?? 5000
@@ -36,10 +40,18 @@ export function createExpandController(opts: ExpandControllerOptions) {
     openTimer = clear(openTimer)
     closeTimer = clear(closeTimer)
     extended = 0
+    if (active === self) active = null
     if (open) {
       open = false
       opts.onChange(false)
     }
+  }
+
+  function show() {
+    if (active && active !== self) active.close()
+    active = self
+    open = true
+    opts.onChange(true)
   }
 
   function scheduleClose() {
@@ -54,22 +66,20 @@ export function createExpandController(opts: ExpandControllerOptions) {
     }, grace)
   }
 
-  return {
+  const self = {
     /** Pointer entered the value. `truncated` = the text is actually cut off. */
     enter(truncated: boolean) {
       closeTimer = clear(closeTimer)
       extended = 0
+      // Moving onto another value (cut off or not) dismisses the open one.
+      if (active && active !== self) active.close()
       if (open || !truncated) return
       openTimer = clear(openTimer)
       if (delay <= 0) {
-        open = true
-        opts.onChange(true)
+        show()
         return
       }
-      openTimer = setTimeout(() => {
-        open = true
-        opts.onChange(true)
-      }, delay)
+      openTimer = setTimeout(show, delay)
     },
     /** Pointer left the value or the expanded panel. */
     leave() {
@@ -86,4 +96,5 @@ export function createExpandController(opts: ExpandControllerOptions) {
       return open
     },
   }
+  return self
 }

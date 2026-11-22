@@ -4,7 +4,10 @@ import { useEffect } from 'react';
 
 import { useAuth } from '@/hooks/use-auth';
 
-const SESSION_KEY = 'wacrm:defaults-seeded';
+// v2: the server now also creates the default segments, so sessions that already
+// ran the automations-only version must call it once more.
+const SESSION_KEY = 'wacrm:defaults-seeded:v2';
+export const DEFAULTS_SEEDED_EVENT = 'wacrm:defaults-seeded';
 
 /**
  * Headless. Asks the server once per browser session to create the account's
@@ -21,14 +24,18 @@ export function DefaultsSeeder() {
       /* storage blocked: just call, it is idempotent */
     }
     void fetch('/api/automations/defaults', { method: 'POST' })
-      .then((res) => {
+      .then(async (res) => {
         // 403 = viewer; they can't seed, a teammate will.
-        if (res.ok) {
-          try {
-            sessionStorage.setItem(SESSION_KEY, accountId);
-          } catch {
-            /* ignore */
-          }
+        if (!res.ok) return;
+        try {
+          sessionStorage.setItem(SESSION_KEY, accountId);
+        } catch {
+          /* ignore */
+        }
+        // Tell open pages (e.g. Contacts' segment list) something new exists.
+        const body = (await res.json().catch(() => ({}))) as { created?: string[] };
+        if (body.created && body.created.length > 0) {
+          window.dispatchEvent(new Event(DEFAULTS_SEEDED_EVENT));
         }
       })
       .catch(() => {});

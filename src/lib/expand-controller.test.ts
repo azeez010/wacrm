@@ -81,4 +81,29 @@ describe('createExpandController', () => {
     expect(changes).toEqual([true, false])
     expect(c.isOpen).toBe(false)
   })
+
+  it('shows one value at a time: entering another closes the open one right away', () => {
+    const a = make()
+    const b = make()
+    a.c.enter(true)
+    a.c.leave() // A is now only waiting out its grace period
+    b.c.enter(true)
+    expect(a.changes).toEqual([true, false])
+    expect(b.changes).toEqual([true])
+    vi.advanceTimersByTime(6000)
+    // A's old grace timer must not touch anything, B stays until its own grace.
+    expect(a.changes).toEqual([true, false])
+    b.c.leave()
+    vi.advanceTimersByTime(6000)
+    expect(b.changes).toEqual([true, false])
+  })
+
+  it('moving onto a value that is not cut off still dismisses the open one', () => {
+    const a = make()
+    const b = make()
+    a.c.enter(true)
+    b.c.enter(false)
+    expect(a.changes).toEqual([true, false])
+    expect(b.changes).toEqual([])
+  })
 })

@@ -383,6 +383,11 @@ function ContactsPageInner() {
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     void loadSegments();
+    // The default segments are created in the background on first load;
+    // pick them up as soon as they exist instead of needing a refresh.
+    const onSeeded = () => void loadSegments();
+    window.addEventListener('wacrm:defaults-seeded', onSeeded);
+    return () => window.removeEventListener('wacrm:defaults-seeded', onSeeded);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

@@ -19,6 +19,9 @@ const tablesWithoutDomainData = new Set([
   // Financial history: guarded by ON DELETE RESTRICT (063), so account
   // deletion fails rather than silently dropping payment records.
   "subscription_payments",
+  // Short-lived OTP codes (hashed, 7-day purge); an empty personal account being
+  // discarded can hold none that matter, and they cascade with the account.
+  "otp_verifications",
 ]);
 
 function accountScopedTables(): Set<string> {

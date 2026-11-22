@@ -7,7 +7,8 @@ import {
 } from '@/lib/auth/account'
 import { resolveWhatsAppCredentials, type WhatsAppConfigRow } from '@/lib/whatsapp/resolve-config'
 import { normalizeStatus } from '@/lib/whatsapp/template-status-normalize'
-import type { TemplateButton, TemplateSampleValues } from '@/types'
+import type { AuthTemplateOptions, TemplateButton, TemplateSampleValues } from '@/types'
+import { AUTH_BODY_TEXT } from '@/lib/whatsapp/template-validators'
 import { checkRateLimit, rateLimitResponse, RATE_LIMITS } from '@/lib/rate-limit'
 import { getT } from '@/lib/i18n/translate'
 
@@ -41,6 +42,9 @@ interface MetaTemplateComponent {
   type: string
   text?: string
   format?: string
+  /** AUTHENTICATION BODY / FOOTER options. */
+  add_security_recommendation?: boolean
+  code_expiration_minutes?: number
   buttons?: MetaButton[]
   example?: {
     header_text?: string[]
@@ -110,7 +114,12 @@ function parseButtons(metaButtons: MetaButton[] | undefined): TemplateButton[] {
           example: Array.isArray(b.example) ? b.example[0] ?? '' : b.example ?? '',
         })
         break
-      // OTP, FLOW, etc - out of scope for v1; drop silently.
+      case 'OTP':
+        // Authentication templates. COPY_CODE / ONE_TAP / ZERO_TAP are all
+        // sent the same way (the code as a url-type button parameter).
+        out.push({ type: 'OTP', text: b.text || 'Copy code', otp_type: 'COPY_CODE' })
+        break
+      // FLOW, etc - out of scope for v1; drop silently.
     }
   }
   return out
@@ -215,6 +224,16 @@ export async function POST() {
 
       const parsedButtons = parseButtons(buttons?.buttons)
       const sampleValues = extractSampleValues(body, header)
+      const isAuth = normalizeCategory(t.category) === 'Authentication'
+      // Meta writes AUTHENTICATION wording and may not return the body text;
+      // keep display text and the options we need to show/recreate it.
+      const authConfig: AuthTemplateOptions | null = isAuth
+        ? {
+            add_security_recommendation: body?.add_security_recommendation ?? true,
+            code_expiration_minutes: footer?.code_expiration_minutes ?? 10,
+            otp_type: 'COPY_CODE',
+          }
+        : null
 
       const headerFormat = header?.format?.toUpperCase()
       const headerType =
@@ -236,8 +255,11 @@ export async function POST() {
         header_type: headerType,
         header_content: header?.text ?? null,
         header_handle: header?.example?.header_handle?.[0] ?? null,
-        body_text: body?.text ?? '',
-        footer_text: footer?.text ?? null,
+        body_text: body?.text || (isAuth ? AUTH_BODY_TEXT : ''),
+        footer_text:
+          footer?.text ??
+          (isAuth && authConfig ? `This code expires in ${authConfig.code_expiration_minutes} minutes.` : null),
+        auth_config: authConfig,
         buttons: parsedButtons.length ? parsedButtons : null,
         sample_values: sampleValues,
         status: normalizeStatus(t.status),

@@ -3011,7 +3011,12 @@
       "headerTextValueRequired": "Header text variable {var} requires a value, pass headerText.",
       "mediaHeaderSendSource": "{type} header requires a media link or id at send time, set header_media_url on the template or pass headerMediaUrl/headerMediaId.",
       "bodyValuesMissing": "Body has {count} variable(s) but only {got} value(s) were supplied.",
-      "urlButtonParamRequired": "URL button #{n} uses {var}, requires a buttonParams[{index}] value."
+      "urlButtonParamRequired": "URL button #{n} uses {var}, requires a buttonParams[{index}] value.",
+      "authOptionsInvalid": "Authentication options are invalid: add_security_recommendation must be true or false.",
+      "authExpiryRange": "code_expiration_minutes must be a whole number from {min} to {max}.",
+      "authOtpTypeUnsupported": "Only otp_type \"COPY_CODE\" is supported for authentication templates.",
+      "authNoCustomContent": "Authentication templates have fixed wording: do not send a header, footer, buttons or body. Set auth_options instead.",
+      "otpCodeRequired": "An authentication template needs the verification code to send."
     },
     "interactive": {
       "buttonCount": "Interactive button message requires 1-{max} buttons (got {got}).",

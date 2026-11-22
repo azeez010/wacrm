@@ -50,7 +50,12 @@ function makeDb(script: Script): SupabaseClient {
     eq: () => builder,
     order: () => builder,
     limit: () => {
-      // Only the conversation lookup terminates on `.limit(1)`.
+      // The connection check terminates on `.limit(1)` (an account may have
+      // several connections, so it can't use maybeSingle()).
+      if (table === 'whatsapp_config') {
+        return Promise.resolve({ data: script.config ? [script.config] : [], error: null });
+      }
+      // The conversation lookup also terminates on `.limit(1)`.
       if (table === 'conversations' && mode === 'select') {
         const row = script.existingConversationByCall
           ? (script.existingConversationByCall[convLookupCalls] ?? null)

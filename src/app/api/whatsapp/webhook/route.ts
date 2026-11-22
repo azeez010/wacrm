@@ -516,14 +516,26 @@ async function handleStatusUpdate(
   //    Runs last so a slow subscriber can't delay the mirrors above.
   if (!accountId) return
   for (const advanced of advancedMessages) {
+    // If this message carried an OTP, link the event to its verification so
+    // integrators can match a `failed`/`delivered` to the code they sent.
+    const { data: verification } = await supabaseAdmin()
+      .from('otp_verifications')
+      .select('id')
+      .eq('message_row_id', advanced.id)
+      .maybeSingle()
     await dispatchWebhookEvent(
       supabaseAdmin(),
       accountId,
       'message.status_updated',
       {
         whatsapp_message_id: status.id,
+        message_id: advanced.id,
         conversation_id: advanced.conversation_id,
+        to: status.recipient_id ? `+${status.recipient_id}` : null,
         status: status.status,
+        timestamp: metaTimestampToIso(status.timestamp),
+        error: failure,
+        verification_id: (verification?.id as string | undefined) ?? null,
       }
     )
   }

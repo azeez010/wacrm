@@ -134,6 +134,10 @@ export const schemas: Record<string, OpenApiObject> = {
         },
       },
       reply_to_message_id: { ...uuid, description: 'Quote an earlier message in the same conversation (its `id`).' },
+      whatsapp_config_id: {
+        ...uuid,
+        description: 'Send from this WhatsApp number. Required when the workspace has more than one number.',
+      },
       name: { type: 'string', description: 'Name for the contact, used only if the contact is created by this call.' },
     },
   },
@@ -145,6 +149,7 @@ export const schemas: Record<string, OpenApiObject> = {
         properties: {
           message_id: { ...uuid, description: 'Our id for the message.' },
           whatsapp_message_id: { type: 'string', description: 'WhatsApp message id (`wamid…`).' },
+          status: { type: 'string', enum: ['sent'], description: 'WhatsApp accepted the message. Later statuses arrive by webhook or `GET /messages/{id}`.' },
           conversation_id: uuid,
           contact_id: uuid,
           contact_created: { type: 'boolean', description: 'True if this call created the contact.' },
@@ -167,6 +172,20 @@ export const schemas: Record<string, OpenApiObject> = {
       status: { type: 'string', enum: ['sending', 'sent', 'delivered', 'read', 'failed'] },
       reply_to_message_id: { type: ['string', 'null'] },
       interactive_reply_id: { type: ['string', 'null'] },
+      error: {
+        description: 'Why WhatsApp could not deliver the message. `null` unless it failed.',
+        oneOf: [
+          { type: 'null' },
+          {
+            type: 'object',
+            properties: {
+              code: { type: ['integer', 'null'], description: "WhatsApp (Meta) error code, e.g. `131026`." },
+              title: { type: ['string', 'null'] },
+              details: { type: ['string', 'null'] },
+            },
+          },
+        ],
+      },
       created_at: ts,
     },
   },
@@ -224,6 +243,16 @@ export const schemas: Record<string, OpenApiObject> = {
       },
       {
         type: 'object',
+        description: 'Returned on Authentication templates. Not accepted in requests.',
+        required: ['type', 'text', 'otp_type'],
+        properties: {
+          type: { const: 'OTP' },
+          text: { type: 'string' },
+          otp_type: { type: 'string', enum: ['COPY_CODE'] },
+        },
+      },
+      {
+        type: 'object',
         required: ['type', 'text', 'example'],
         properties: {
           type: { const: 'COPY_CODE' },
@@ -235,16 +264,35 @@ export const schemas: Record<string, OpenApiObject> = {
   },
   CreateTemplateRequest: {
     type: 'object',
-    required: ['name', 'category', 'language', 'body_text'],
+    required: ['name', 'category', 'language'],
     properties: {
       name: { type: 'string', pattern: TEMPLATE_LIMITS.nameRegex.source, description: 'Lowercase letters, digits and underscores.' },
-      category: { type: 'string', enum: ['Marketing', 'Utility'] },
+      category: {
+        type: 'string',
+        enum: ['Marketing', 'Utility', 'Authentication'],
+        description:
+          'Use `Authentication` for one-time codes. Authentication templates have fixed wording written by WhatsApp: send only `name`, `language`, `category` and optionally `auth_options`; `body_text` is ignored.',
+      },
+      auth_options: {
+        type: 'object',
+        description: 'Only for `Authentication` templates.',
+        properties: {
+          add_security_recommendation: { type: 'boolean', default: true, description: 'Adds "For your security, do not share this code."' },
+          code_expiration_minutes: { type: 'integer', minimum: 1, maximum: 90, default: 10, description: 'Shown as "This code expires in N minutes."' },
+          otp_type: { type: 'string', enum: ['COPY_CODE'], default: 'COPY_CODE' },
+        },
+      },
       language: { type: 'string', examples: ['en_US'], description: 'Exact Meta language code; `en` and `en_US` are different.' },
       header_type: { type: 'string', enum: ['TEXT', 'IMAGE', 'VIDEO', 'DOCUMENT'] },
       header_content: { type: 'string', maxLength: TEMPLATE_LIMITS.headerTextMaxLength, description: 'Header text for `TEXT` headers.' },
       header_media_url: { type: 'string', format: 'uri', description: 'Public sample file for media headers.' },
       header_handle: { type: 'string', description: 'Meta resumable-upload handle, as an alternative to `header_media_url`.' },
-      body_text: { type: 'string', maxLength: TEMPLATE_LIMITS.bodyMaxLength, examples: ['Hello {{1}}, your order {{2}} is confirmed.'] },
+      body_text: {
+        type: 'string',
+        maxLength: TEMPLATE_LIMITS.bodyMaxLength,
+        description: 'Required for Marketing and Utility templates.',
+        examples: ['Hello {{1}}, your order {{2}} is confirmed.'],
+      },
       footer_text: { type: 'string', maxLength: TEMPLATE_LIMITS.footerMaxLength },
       buttons: { type: 'array', maxItems: TEMPLATE_LIMITS.maxButtonsTotal, items: { $ref: '#/components/schemas/TemplateButton' } },
       sample_values: {
@@ -253,6 +301,69 @@ export const schemas: Record<string, OpenApiObject> = {
         properties: { body: { type: 'array', items: { type: 'string' } }, header: { type: 'array', items: { type: 'string' } } },
       },
       whatsapp_config_id: { ...uuid, description: 'Required when the workspace has more than one WhatsApp number.' },
+    },
+  },
+  CreateVerificationRequest: {
+    type: 'object',
+    required: ['to'],
+    properties: {
+      to: { type: 'string', description: 'Recipient in international format with a leading `+`.', examples: ['+2348012345678'] },
+      code: {
+        type: 'string',
+        pattern: '^[A-Za-z0-9]{4,15}$',
+        description: 'Bring your own code (4 to 15 letters or digits). Omit it and OgaDesk generates a numeric code for you.',
+      },
+      code_length: { type: 'integer', minimum: 4, maximum: 8, default: 6, description: 'Length of the generated code.' },
+      ttl_seconds: { type: 'integer', minimum: 60, maximum: 900, default: 300, description: 'How long the code stays valid.' },
+      whatsapp_config_id: { ...uuid, description: 'Send from this WhatsApp number. Required when the workspace has more than one number.' },
+      template: {
+        type: 'object',
+        description: 'The approved authentication template to use. Defaults to `otp_verification` in `en_US`.',
+        properties: { name: { type: 'string', default: 'otp_verification' }, language: { type: 'string', default: 'en_US' } },
+      },
+      metadata: { type: 'object', description: 'Anything you want echoed back (up to 1 KB), for example your user id.' },
+    },
+  },
+  Verification: {
+    type: 'object',
+    properties: {
+      id: uuid,
+      status: {
+        type: 'string',
+        enum: ['pending', 'approved', 'failed', 'expired', 'canceled'],
+        description:
+          '`pending` until the code is checked; `approved` after a correct check; `failed` when the send failed or the guesses ran out; `expired` after `ttl_seconds`; `canceled` when a newer code replaced it.',
+      },
+      channel: { type: 'string', enum: ['whatsapp'] },
+      to: { type: 'string' },
+      expires_at: ts,
+      created_at: ts,
+      attempts_remaining: { type: 'integer', description: 'Wrong guesses left (5 in total).' },
+      message_id: { ...uuid, description: 'The WhatsApp message that carried the code. Use `GET /messages/{id}` for its delivery status.' },
+      metadata: { type: ['object', 'null'] },
+      delivery: {
+        type: 'object',
+        properties: {
+          status: { type: ['string', 'null'], enum: ['sending', 'sent', 'delivered', 'read', 'failed', null] },
+          error: {
+            oneOf: [
+              { type: 'null' },
+              {
+                type: 'object',
+                properties: { code: { type: ['integer', 'null'] }, title: { type: ['string', 'null'] }, details: { type: ['string', 'null'] } },
+              },
+            ],
+          },
+        },
+      },
+    },
+  },
+  VerificationCheckResult: {
+    type: 'object',
+    properties: {
+      id: uuid,
+      status: { type: 'string', enum: ['pending', 'approved', 'failed', 'expired', 'canceled'] },
+      attempts_remaining: { type: 'integer' },
     },
   },
   WebhookEndpoint: {

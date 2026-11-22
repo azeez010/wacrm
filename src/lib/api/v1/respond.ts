@@ -24,7 +24,11 @@ export type ApiErrorCode =
   | 'bad_request' // malformed input
   | 'not_found'
   | 'internal'
-  | 'unavailable';
+  | 'unavailable'
+  | 'otp_rate_limited' // too many codes requested for one phone number
+  | 'template_not_found'
+  | 'template_not_approved'
+  | 'ambiguous_connection';
 
 /**
  * Typed error a route (or `requireApiKey`) can throw and have mapped

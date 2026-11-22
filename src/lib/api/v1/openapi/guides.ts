@@ -31,6 +31,47 @@ curl -X POST {{BASE_URL}}/api/v1/messages \\
 
 A message to a number that has not written to you in the last 24 hours must be an approved **template**. Free-form \`text\` works inside the 24-hour customer-service window.
 
+## Send one-time codes (OTP)
+
+Use WhatsApp instead of SMS for verification codes. Two calls:
+
+1. **One-time setup.** Create an *authentication template* (WhatsApp writes the wording, you choose the expiry). Meta usually approves it within minutes.
+
+\`\`\`bash
+curl -X POST {{BASE_URL}}/api/v1/templates \\
+  -H "Authorization: Bearer $OGADESK_API_KEY" -H "Content-Type: application/json" \\
+  -d '{ "name": "otp_verification", "language": "en_US", "category": "Authentication",
+        "auth_options": { "code_expiration_minutes": 10 } }'
+\`\`\`
+
+Check \`GET /templates?status=APPROVED\` until it appears.
+
+2. **Send a code** when a user signs in, then **check** what they type:
+
+\`\`\`bash
+# send (needs the otp:send scope)
+curl -X POST {{BASE_URL}}/api/v1/verifications \\
+  -H "Authorization: Bearer $OGADESK_API_KEY" -H "Content-Type: application/json" \\
+  -d '{ "to": "+2348012345678" }'
+# -> { "data": { "id": "9b1f...", "status": "pending", "expires_at": "...", ... } }
+
+# check (needs the otp:verify scope)
+curl -X POST {{BASE_URL}}/api/v1/verifications/9b1f.../check \\
+  -H "Authorization: Bearer $OGADESK_API_KEY" -H "Content-Type: application/json" \\
+  -d '{ "code": "482913" }'
+# -> { "data": { "id": "9b1f...", "status": "approved", "attempts_remaining": 4 } }
+\`\`\`
+
+How it behaves:
+
+- **We hold no codes.** OgaDesk generates the code and stores only a keyed hash, never the code itself. Prefer to generate it yourself? Pass \`code\` (4 to 15 letters or digits) and we only deliver it.
+- **Expiry and guesses.** A code is valid for \`ttl_seconds\` (default 300, up to 900) and allows 5 wrong guesses; then the verification is \`failed\`.
+- **Resends.** Sending again to the same number cancels the previous pending code.
+- **Abuse protection.** At most 5 codes per number every 10 minutes (\`429 otp_rate_limited\`, with \`Retry-After\`). Add your own per-user limits too.
+- **Delivery.** \`GET /verifications/{id}\` returns \`delivery.status\` (\`sent\`, \`delivered\`, \`read\`, \`failed\`) and, on failure, WhatsApp's \`error\` (for example the number is not on WhatsApp). The \`message.status_updated\` webhook carries the same \`error\` and a \`verification_id\`.
+- **Several numbers?** Pass \`whatsapp_config_id\` to choose which WhatsApp number sends the code.
+- **Costs.** WhatsApp bills authentication messages per message to your WhatsApp Business account.
+
 ## Authentication
 
 Send your key in the \`Authorization\` header:
@@ -60,7 +101,11 @@ Branch on \`code\`, not on \`message\` (messages may be reworded).
 | 403 | \`forbidden\` | The key lacks the required scope |
 | 404 | \`not_found\` | The resource does not exist in your workspace |
 | 409 | \`conflict\` | The resource already exists |
+| 404 | \`template_not_found\` | No authentication template with that name/language |
+| 409 | \`template_not_approved\` | The template is still pending or was rejected by Meta |
+| 400 | \`ambiguous_connection\` | The workspace has several WhatsApp numbers: pass \`whatsapp_config_id\` |
 | 429 | \`rate_limited\` | Too many requests; see \`Retry-After\` |
+| 429 | \`otp_rate_limited\` | Too many codes requested for one phone number; see \`Retry-After\` |
 | 502 | \`meta_error\` | WhatsApp (Meta) rejected the request; the message contains Meta's reason |
 | 500 | \`internal\` | Something went wrong on our side |
 | 503 | \`unavailable\` | Temporarily unavailable; retry |

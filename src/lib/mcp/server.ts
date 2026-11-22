@@ -199,7 +199,7 @@ export function createWacrmMcpServer(
       {
         title: 'Create message template',
         description:
-          'Create a WhatsApp message template and submit it to Meta for approval (usually minutes to a day; check with list_templates). Name: lowercase letters, digits and underscores only. Category: "Marketing" or "Utility" (Authentication is not supported). Use {{1}}, {{2}}… in body_text for variables and provide one sample per variable in sample_values.body, Meta rejects templates without examples. Header: optional text (header_content, max 60 chars) or media (header_media_url). Max 10 buttons (≤2 URL, ≤1 phone, ≤1 copy-code). This submits to Meta on the user’s behalf, confirm the wording with the user first. If the account has several WhatsApp numbers, pass whatsapp_config_id.',
+          'Create a WhatsApp message template and submit it to Meta for approval (usually minutes to a day; check with list_templates). Name: lowercase letters, digits and underscores only. Category: "Marketing" or "Utility" (one-time-code templates and sending codes use the public API: POST /templates with category Authentication, then POST /verifications). Use {{1}}, {{2}}… in body_text for variables and provide one sample per variable in sample_values.body, Meta rejects templates without examples. Header: optional text (header_content, max 60 chars) or media (header_media_url). Max 10 buttons (≤2 URL, ≤1 phone, ≤1 copy-code). This submits to Meta on the user’s behalf, confirm the wording with the user first. If the account has several WhatsApp numbers, pass whatsapp_config_id.',
         inputSchema: {
           name: z.string().describe('Lowercase letters, digits, underscores, e.g. order_update.'),
           category: z.enum(['Marketing', 'Utility']),

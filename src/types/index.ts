@@ -355,7 +355,19 @@ export type TemplateButton =
   | { type: 'QUICK_REPLY'; text: string }
   | { type: 'URL'; text: string; url: string; example?: string }
   | { type: 'PHONE_NUMBER'; text: string; phone_number: string }
-  | { type: 'COPY_CODE'; text: string; example: string };
+  | { type: 'COPY_CODE'; text: string; example: string }
+  // Authentication (OTP) templates: Meta's one-tap copy-code button. Only
+  // COPY_CODE is supported (ONE_TAP / ZERO_TAP need an Android app signature).
+  | { type: 'OTP'; text: string; otp_type: 'COPY_CODE' };
+
+/** Options of an AUTHENTICATION template (Meta generates the wording). */
+export interface AuthTemplateOptions {
+  /** Adds "For your security, do not share this code." to the message. */
+  add_security_recommendation: boolean;
+  /** Footer "This code expires in N minutes" (1 to 90). */
+  code_expiration_minutes: number;
+  otp_type: 'COPY_CODE';
+}
 
 export interface TemplateSampleValues {
   body?: string[];
@@ -376,6 +388,8 @@ export interface MessageTemplate {
   footer_text?: string;
   buttons?: TemplateButton[];
   sample_values?: TemplateSampleValues;
+  /** Set on AUTHENTICATION templates only (migration 072). */
+  auth_config?: AuthTemplateOptions | null;
   status?: MessageTemplateStatus;
   meta_template_id?: string;
   rejection_reason?: string;

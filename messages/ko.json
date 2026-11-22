@@ -3011,7 +3011,12 @@
       "headerTextValueRequired": "헤더 텍스트 변수 {var}에 값이 필요합니다, headerText를 전달하세요.",
       "mediaHeaderSendSource": "{type} 헤더는 전송 시 미디어 링크나 id가 필요합니다, 템플릿에 header_media_url을 설정하거나 headerMediaUrl/headerMediaId를 전달하세요.",
       "bodyValuesMissing": "본문에 변수가 {count}개 있지만 값은 {got}개만 제공되었습니다.",
-      "urlButtonParamRequired": "URL 버튼 #{n}이(가) {var}을(를) 사용합니다, buttonParams[{index}] 값이 필요합니다."
+      "urlButtonParamRequired": "URL 버튼 #{n}이(가) {var}을(를) 사용합니다, buttonParams[{index}] 값이 필요합니다.",
+      "authOptionsInvalid": "인증 옵션이 올바르지 않습니다: add_security_recommendation은 true 또는 false여야 합니다.",
+      "authExpiryRange": "code_expiration_minutes는 {min}에서 {max} 사이의 정수여야 합니다.",
+      "authOtpTypeUnsupported": "인증 템플릿은 otp_type \"COPY_CODE\"만 지원합니다.",
+      "authNoCustomContent": "인증 템플릿은 문구가 고정되어 있습니다. 헤더, 푸터, 버튼, 본문을 보내지 마세요. auth_options를 사용하세요.",
+      "otpCodeRequired": "인증 템플릿을 보내려면 인증 코드가 필요합니다."
     },
     "interactive": {
       "buttonCount": "인터랙티브 버튼 메시지에는 버튼이 1-{max}개 필요합니다(현재 {got}개).",

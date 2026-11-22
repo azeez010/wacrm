@@ -205,6 +205,15 @@ vi.mock('@supabase/supabase-js', () => ({
               }
             },
           }
+        case 'otp_verifications':
+          // Status events look up whether the message carried an OTP.
+          return {
+            select: () => ({
+              eq: () => ({
+                maybeSingle: () => Promise.resolve({ data: null, error: null }),
+              }),
+            }),
+          }
         default:
           throw new Error(`unexpected table: ${table}`)
       }
@@ -1196,8 +1205,13 @@ describe('status webhook: scoped to the receiving number', () => {
       'message.status_updated',
       {
         whatsapp_message_id: 'wamid.OUT1',
+        message_id: 'm1',
         conversation_id: 'conv-9',
+        to: '+15551230000',
         status: 'delivered',
+        timestamp: '2023-11-14T22:15:00.000Z',
+        error: null,
+        verification_id: null,
       },
     ])
   })

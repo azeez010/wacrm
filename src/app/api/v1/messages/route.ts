@@ -23,6 +23,7 @@
 //       "params": ["A123"] | { "body": [...] }   // array = positional body; object = structured
 //     },
 //     "reply_to_message_id": "<uuid>",       // optional, must be in the same conversation
+//     "whatsapp_config_id": "<uuid>",       // optional; required on accounts with several WhatsApp numbers
 //     "name": "Jane Doe"                     // optional, names a newly-created contact
 //   }
 //
@@ -43,6 +44,15 @@ import {
 } from '@/lib/whatsapp/send-message';
 import type { InteractiveMessagePayload } from '@/lib/whatsapp/interactive';
 import { dispatchWebhookEvent } from '@/lib/webhooks/deliver';
+import { isUuid } from '@/lib/api/v1/pagination';
+
+// The send core speaks in internal field names; the public API's are different.
+function publicSendMessage(message: string): string {
+  return message
+    .replace(/\bmessage_type\b/g, "'type'")
+    .replace(/\bcontent_text\b/g, "'text'")
+    .replace(/\btemplate_name\b/g, "'template.name'");
+}
 
 export async function POST(request: Request) {
   try {
@@ -90,6 +100,14 @@ export async function POST(request: Request) {
         ? (body.interactive_payload as InteractiveMessagePayload)
         : null;
 
+    const whatsappConfigId =
+      typeof body.whatsapp_config_id === 'string' && body.whatsapp_config_id
+        ? body.whatsapp_config_id
+        : null;
+    if (body.whatsapp_config_id != null && (!whatsappConfigId || !isUuid(whatsappConfigId))) {
+      return fail('bad_request', "'whatsapp_config_id' must be a valid id", 400);
+    }
+
     validateSendMessageParams({
       messageType: type,
       contentText: typeof body.text === 'string' ? body.text : null,
@@ -105,7 +123,8 @@ export async function POST(request: Request) {
       ctx.supabase,
       ctx.accountId,
       to,
-      typeof body.name === 'string' ? body.name : null
+      typeof body.name === 'string' ? body.name : null,
+      { whatsappConfigId }
     );
 
     if (resolved.conversationCreated) {
@@ -132,6 +151,7 @@ export async function POST(request: Request) {
         templateParams,
         templateMessageParams,
         interactivePayload,
+        whatsappConfigId,
         replyToMessageId:
           typeof body.reply_to_message_id === 'string'
             ? body.reply_to_message_id
@@ -143,6 +163,7 @@ export async function POST(request: Request) {
       {
         message_id: result.messageId,
         whatsapp_message_id: result.whatsappMessageId,
+        status: 'sent',
         conversation_id: resolved.conversationId,
         contact_id: resolved.contactId,
         contact_created: resolved.contactCreated,
@@ -151,7 +172,7 @@ export async function POST(request: Request) {
     );
   } catch (err) {
     if (err instanceof SendMessageError) {
-      return fail(err.code, err.message, err.status);
+      return fail(err.code, publicSendMessage(err.message), err.status);
     }
     return toApiErrorResponse(err);
   }

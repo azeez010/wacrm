@@ -3011,7 +3011,12 @@
       "headerTextValueRequired": "La variable {var} del encabezado de texto requiere un valor; envía headerText.",
       "mediaHeaderSendSource": "El encabezado {type} requiere un enlace o id de medio al enviar; define header_media_url en la plantilla o envía headerMediaUrl/headerMediaId.",
       "bodyValuesMissing": "El cuerpo tiene {count} variable(s), pero solo se proporcionaron {got} valor(es).",
-      "urlButtonParamRequired": "El botón URL #{n} usa {var}; requiere un valor en buttonParams[{index}]."
+      "urlButtonParamRequired": "El botón URL #{n} usa {var}; requiere un valor en buttonParams[{index}].",
+      "authOptionsInvalid": "Las opciones de autenticación no son válidas: add_security_recommendation debe ser true o false.",
+      "authExpiryRange": "code_expiration_minutes debe ser un número entero de {min} a {max}.",
+      "authOtpTypeUnsupported": "Solo se admite otp_type \"COPY_CODE\" en las plantillas de autenticación.",
+      "authNoCustomContent": "Las plantillas de autenticación tienen texto fijo: no envíes encabezado, pie, botones ni cuerpo. Usa auth_options.",
+      "otpCodeRequired": "Una plantilla de autenticación necesita el código de verificación para enviarse."
     },
     "interactive": {
       "buttonCount": "El mensaje interactivo con botones requiere de 1 a {max} botones (tiene {got}).",

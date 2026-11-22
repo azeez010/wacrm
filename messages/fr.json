@@ -3011,7 +3011,12 @@
       "headerTextValueRequired": "La variable de texte d'en-tête {var} nécessite une valeur : transmettez headerText.",
       "mediaHeaderSendSource": "Un en-tête {type} nécessite un lien ou un identifiant de média à l'envoi : définissez header_media_url sur le modèle ou transmettez headerMediaUrl/headerMediaId.",
       "bodyValuesMissing": "Le corps contient {count} variable(s), mais seulement {got} valeur(s) ont été fournies.",
-      "urlButtonParamRequired": "Le bouton URL n° {n} utilise {var} : une valeur buttonParams[{index}] est requise."
+      "urlButtonParamRequired": "Le bouton URL n° {n} utilise {var} : une valeur buttonParams[{index}] est requise.",
+      "authOptionsInvalid": "Les options d’authentification sont invalides : add_security_recommendation doit valoir true ou false.",
+      "authExpiryRange": "code_expiration_minutes doit être un nombre entier de {min} à {max}.",
+      "authOtpTypeUnsupported": "Seul otp_type « COPY_CODE » est pris en charge pour les modèles d’authentification.",
+      "authNoCustomContent": "Les modèles d’authentification ont un texte fixe : n’envoyez ni en-tête, ni pied de page, ni boutons, ni corps. Utilisez auth_options.",
+      "otpCodeRequired": "Un modèle d’authentification a besoin du code de vérification à envoyer."
     },
     "interactive": {
       "buttonCount": "Un message interactif à boutons nécessite de 1 à {max} boutons (reçu {got}).",

@@ -35,6 +35,8 @@ export const API_SCOPES = [
   'tables:write',
   'segments:read',
   'segments:write',
+  'otp:send',
+  'otp:verify',
 ] as const;
 
 export type ApiScope = (typeof API_SCOPES)[number];
@@ -62,6 +64,8 @@ export const SCOPE_DESCRIPTIONS: Record<ApiScope, string> = {
   'tables:write': 'Create and edit custom tables and add, edit or delete their rows',
   'segments:read': 'Read segments and the contacts that match them',
   'segments:write': 'Create, edit and delete segments',
+  'otp:send': 'Send verification codes over WhatsApp',
+  'otp:verify': 'Check verification codes and read verification status',
 };
 
 /** Type-narrow an unknown value into a valid `ApiScope`. */

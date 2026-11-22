@@ -172,6 +172,9 @@ function buttonNeedsSendParam(
   switch (button.type) {
     case 'URL':
       return extractVariableIndices(button.url).length > 0;
+    case 'OTP':
+      // The code is mandatory for an authentication button.
+      return true;
     case 'COPY_CODE':
       // We always emit a button param for COPY_CODE so the customer
       // gets a real code (either the caller's override or the
@@ -198,6 +201,19 @@ function buildButtonComponent(
         throw new Error(
           t('urlButtonParamRequired', { n: index + 1, var: '{{1}}', index }),
         );
+      }
+      return {
+        type: 'button',
+        sub_type: 'url',
+        index: String(index),
+        parameters: [{ type: 'text', text: override }],
+      };
+    }
+    case 'OTP': {
+      // Authentication templates: the same code goes in the body and in the
+      // button, which Meta sends as a url-type button with the code as text.
+      if (!override || !override.trim()) {
+        throw new Error(t('otpCodeRequired'));
       }
       return {
         type: 'button',
@@ -248,7 +264,9 @@ export function buildSendComponents(
   if (body) out.push(body);
   if (template.buttons?.length) {
     template.buttons.forEach((btn, i) => {
-      const override = params.buttonParams?.[i];
+      // An OTP button defaults to the body code (`params.body[0]`).
+      const override =
+        params.buttonParams?.[i] ?? (btn.type === 'OTP' ? params.body?.[0] : undefined);
       const component = buildButtonComponent(btn, i, override);
       if (component) out.push(component);
     });

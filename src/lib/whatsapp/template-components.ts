@@ -15,6 +15,10 @@ import type { TemplateButton } from '@/types';
 
 export interface MetaComponent {
   type: 'HEADER' | 'BODY' | 'FOOTER' | 'BUTTONS';
+  /** AUTHENTICATION BODY: Meta writes the text, we only choose this flag. */
+  add_security_recommendation?: boolean;
+  /** AUTHENTICATION FOOTER: minutes until the code expires. */
+  code_expiration_minutes?: number;
   format?: 'TEXT' | 'IMAGE' | 'VIDEO' | 'DOCUMENT';
   text?: string;
   buttons?: MetaButtonPayload[];
@@ -27,8 +31,9 @@ export interface MetaComponent {
 }
 
 interface MetaButtonPayload {
-  type: 'QUICK_REPLY' | 'URL' | 'PHONE_NUMBER' | 'COPY_CODE';
+  type: 'QUICK_REPLY' | 'URL' | 'PHONE_NUMBER' | 'COPY_CODE' | 'OTP';
   text: string;
+  otp_type?: 'COPY_CODE';
   url?: string;
   phone_number?: string;
   example?: string[];
@@ -103,6 +108,8 @@ function buildButtonPayload(b: TemplateButton): MetaButtonPayload {
       return { type: 'PHONE_NUMBER', text: b.text, phone_number: b.phone_number };
     case 'COPY_CODE':
       return { type: 'COPY_CODE', text: b.text, example: [b.example] };
+    case 'OTP':
+      return { type: 'OTP', otp_type: b.otp_type, text: b.text };
   }
 }
 
@@ -137,6 +144,20 @@ const CATEGORY_TO_META: Record<
 export function buildMetaTemplatePayload(
   payload: TemplatePayload,
 ): MetaTemplateSubmitPayload {
+  if (payload.category === 'Authentication') {
+    // Meta writes the wording; we only send the options (no text, no samples).
+    const auth = payload.auth_options ?? {};
+    return {
+      name: payload.name,
+      category: 'AUTHENTICATION',
+      language: payload.language,
+      components: [
+        { type: 'BODY', add_security_recommendation: auth.add_security_recommendation ?? true },
+        { type: 'FOOTER', code_expiration_minutes: auth.code_expiration_minutes ?? 10 },
+        { type: 'BUTTONS', buttons: [{ type: 'OTP', otp_type: auth.otp_type ?? 'COPY_CODE', text: 'Copy code' }] },
+      ],
+    };
+  }
   const components: MetaComponent[] = [];
   const header = buildHeaderComponent(payload);
   if (header) components.push(header);

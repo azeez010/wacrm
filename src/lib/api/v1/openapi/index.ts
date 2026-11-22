@@ -37,6 +37,7 @@ export function buildOpenApiSpec(baseUrl: string): OpenApiObject {
     security: [{ bearerAuth: [] }],
     tags: [
       { name: 'Account', description: 'Check that your key works.' },
+      { name: 'Verifications', description: 'Send one-time codes over WhatsApp and check them (OTP).' },
       { name: 'Messages', description: 'Send WhatsApp messages and read their delivery status.' },
       { name: 'Templates', description: 'Message templates (required for business-initiated messages).' },
       { name: 'Webhooks', description: 'Be notified about messages and delivery changes.' },

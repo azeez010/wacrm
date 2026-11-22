@@ -43,6 +43,8 @@ export interface ApiMessage {
   status: string;
   reply_to_message_id: string | null;
   interactive_reply_id: string | null;
+  /** Why WhatsApp could not deliver the message (only when `status` is `failed`). */
+  error: { code: number | null; title: string | null; details: string | null } | null;
   created_at: string;
 }
 
@@ -95,6 +97,14 @@ export function serializeMessage(m: Message): ApiMessage {
     status: m.status,
     reply_to_message_id: m.reply_to_message_id ?? null,
     interactive_reply_id: m.interactive_reply_id ?? null,
+    error:
+      m.error_code != null || m.error_title != null || m.error_details != null
+        ? {
+            code: m.error_code ?? null,
+            title: m.error_title ?? null,
+            details: m.error_details ?? null,
+          }
+        : null,
     created_at: m.created_at,
   };
 }

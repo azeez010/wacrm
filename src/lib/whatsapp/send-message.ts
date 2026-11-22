@@ -36,6 +36,7 @@ import {
 } from '@/lib/whatsapp/interactive';
 import { encrypt, isLegacyFormat } from '@/lib/whatsapp/encryption';
 import {
+  AmbiguousConnectionError,
   resolveWhatsAppConfig,
   resolveWhatsAppCredentials,
 } from '@/lib/whatsapp/resolve-config';
@@ -94,6 +95,18 @@ export interface SendMessageParams {
   interactivePayload?: InteractiveMessagePayload | null;
   replyToMessageId?: string | null;
   senderId?: string | null;
+  /**
+   * Send through this specific connection (a `whatsapp_config.id`) instead of
+   * the conversation's own. Required on accounts with several numbers when the
+   * conversation isn't already tied to one.
+   */
+  whatsappConfigId?: string | null;
+  /**
+   * OTP mode: the verification code is never persisted (the stored body shows
+   * ••••••), `contacts.phone` is not auto-corrected from a retry variant, and
+   * active flow runs are left alone.
+   */
+  otp?: boolean;
 }
 
 export interface SendMessageResult {
@@ -213,6 +226,8 @@ export async function sendMessageToConversation(
     templateMessageParams,
     interactivePayload,
     replyToMessageId,
+    whatsappConfigId,
+    otp,
   } = params;
 
   if (!conversationId) {
@@ -274,14 +289,14 @@ export async function sendMessageToConversation(
   // conversations that predate multi-connection support.
   let config;
   try {
-    config = conversation.whatsapp_config_id
-      ? await resolveWhatsAppConfig(
-          db,
-          accountId,
-          conversation.whatsapp_config_id
-        )
+    const pinnedConfigId = whatsappConfigId || conversation.whatsapp_config_id;
+    config = pinnedConfigId
+      ? await resolveWhatsAppConfig(db, accountId, pinnedConfigId)
       : await resolveWhatsAppConfig(db, accountId);
-  } catch {
+  } catch (err) {
+    if (err instanceof AmbiguousConnectionError) {
+      throw new SendMessageError('ambiguous_connection', err.message, 400);
+    }
     throw new SendMessageError(
       'whatsapp_not_configured',
       'WhatsApp not configured. Please set up your WhatsApp integration first.',
@@ -479,7 +494,7 @@ export async function sendMessageToConversation(
     throw new SendMessageError('meta_error', `Meta API error: ${message}`, 502);
   }
 
-  if (hasValidPhone && workingPhone !== sanitizedPhone) {
+  if (!otp && hasValidPhone && workingPhone !== sanitizedPhone) {
     console.log(
       `[send-message] Auto-corrected contact phone: ${sanitizedPhone} → ${workingPhone}`
     );
@@ -505,7 +520,12 @@ export async function sendMessageToConversation(
       : messageType === 'template'
         ? templateContentText(
             templateRow,
-            templateBodyParams(templateParams, templateMessageParams),
+            // OTP codes are never stored: mask every body value.
+            otp
+              ? templateBodyParams(templateParams, templateMessageParams).map(
+                  () => '••••••'
+                )
+              : templateBodyParams(templateParams, templateMessageParams),
             contentText
           )
         : (contentText ?? null);
@@ -558,8 +578,10 @@ export async function sendMessageToConversation(
     .eq('id', conversationId);
 
   // Pause any active Flow run for this contact - the agent stepping in
-  // is the strongest "yield, human is here" signal. Best-effort.
+  // is the strongest "yield, human is here" signal. Best-effort. An OTP is
+  // automated, not a human stepping in, so it leaves flows alone.
   try {
+    if (otp) return { messageId: messageRecord.id, whatsappMessageId: waMessageId };
     const { error: pauseErr } = await supabaseAdmin()
       .from('flow_runs')
       .update({

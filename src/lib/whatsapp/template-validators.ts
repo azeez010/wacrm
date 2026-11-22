@@ -16,6 +16,7 @@
  */
 
 import type {
+  AuthTemplateOptions,
   MessageTemplate,
   TemplateButton,
   TemplateSampleValues,
@@ -33,6 +34,9 @@ export const TEMPLATE_LIMITS = {
   maxUrlButtons: 2,
   maxPhoneButtons: 1,
   maxCopyCodeButtons: 1,
+  /** AUTHENTICATION templates: footer "expires in N minutes" (Meta: 1-90). */
+  authExpiryMinMinutes: 1,
+  authExpiryMaxMinutes: 90,
   /** Meta: lowercase a-z, digits, underscore. Up to 512 chars. */
   nameRegex: /^[a-z0-9_]{1,512}$/,
 } as const;
@@ -49,6 +53,8 @@ export interface TemplatePayload {
   footer_text?: string;
   buttons?: TemplateButton[];
   sample_values?: TemplateSampleValues;
+  /** AUTHENTICATION templates only; defaults applied by `normalizeAuthPayload`. */
+  auth_options?: Partial<AuthTemplateOptions>;
 }
 
 export function validateTemplateName(name: string): void {
@@ -206,6 +212,7 @@ function countButtonsByType(
     URL: 0,
     PHONE_NUMBER: 0,
     COPY_CODE: 0,
+    OTP: 0,
   };
   for (const b of buttons) counts[b.type]++;
   return counts;
@@ -351,6 +358,67 @@ export function validateSampleValues(
   }
 }
 
+/** Wording shown locally for an AUTHENTICATION template (Meta writes the real text). */
+export const AUTH_BODY_TEXT =
+  '{{1}} is your verification code. For your security, do not share this code.';
+export const AUTH_DEFAULTS: AuthTemplateOptions = {
+  add_security_recommendation: true,
+  code_expiration_minutes: 10,
+  otp_type: 'COPY_CODE',
+};
+
+export function validateAuthOptions(options: Partial<AuthTemplateOptions> | undefined): AuthTemplateOptions {
+  const merged = { ...AUTH_DEFAULTS, ...(options ?? {}) };
+  if (typeof merged.add_security_recommendation !== 'boolean') {
+    throw new Error(t('authOptionsInvalid'));
+  }
+  const m = merged.code_expiration_minutes;
+  if (
+    !Number.isInteger(m) ||
+    m < TEMPLATE_LIMITS.authExpiryMinMinutes ||
+    m > TEMPLATE_LIMITS.authExpiryMaxMinutes
+  ) {
+    throw new Error(
+      t('authExpiryRange', {
+        min: TEMPLATE_LIMITS.authExpiryMinMinutes,
+        max: TEMPLATE_LIMITS.authExpiryMaxMinutes,
+      }),
+    );
+  }
+  if (merged.otp_type !== 'COPY_CODE') throw new Error(t('authOtpTypeUnsupported'));
+  return merged;
+}
+
+/**
+ * AUTHENTICATION (OTP) templates have fixed, Meta-generated wording, so the
+ * caller supplies no content: header, footer, buttons and body are rejected /
+ * replaced. Fills the local row with display text, the OTP copy-code button
+ * and a sample code. Throws a field-level Error for invalid options.
+ * Non-authentication payloads are returned untouched.
+ */
+export function normalizeAuthPayload(payload: TemplatePayload): TemplatePayload {
+  if (payload.category !== 'Authentication') return payload;
+  if (
+    payload.header_type ||
+    payload.header_content ||
+    payload.header_media_url ||
+    payload.header_handle ||
+    payload.footer_text?.trim() ||
+    (payload.buttons && payload.buttons.length > 0)
+  ) {
+    throw new Error(t('authNoCustomContent'));
+  }
+  const auth = validateAuthOptions(payload.auth_options);
+  return {
+    ...payload,
+    body_text: AUTH_BODY_TEXT,
+    footer_text: `This code expires in ${auth.code_expiration_minutes} minutes.`,
+    buttons: [{ type: 'OTP', text: 'Copy code', otp_type: 'COPY_CODE' }],
+    sample_values: { body: ['123456'] },
+    auth_options: auth,
+  };
+}
+
 /**
  * Run every validator. Throws on the first failure with a specific,
  * field-level message. Returns the variable counts so callers can
@@ -364,6 +432,7 @@ export function validateTemplatePayload(payload: TemplatePayload): {
   if (!payload.language?.trim()) {
     throw new Error(t('languageRequired'));
   }
+  if (payload.category === 'Authentication') validateAuthOptions(payload.auth_options);
   const bodyVars = validateBody(payload.body_text);
   validateFooter(payload.footer_text);
   const headerResult = validateHeader(payload);

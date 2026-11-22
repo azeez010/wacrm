@@ -3,6 +3,7 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import { resolveWhatsAppConfig, resolveWhatsAppCredentials, AmbiguousConnectionError, NoConnectionError } from '@/lib/whatsapp/resolve-config'
 import { submitMessageTemplate } from '@/lib/whatsapp/meta-api'
 import {
+  normalizeAuthPayload,
   validateTemplatePayload,
   type TemplatePayload,
 } from '@/lib/whatsapp/template-validators'
@@ -43,6 +44,8 @@ function buildTemplateRow(
     footer_text: payload.footer_text ?? null,
     buttons: payload.buttons ?? null,
     sample_values: payload.sample_values ?? null,
+    // AUTHENTICATION templates only (migration 072); null for the rest.
+    auth_config: payload.category === 'Authentication' ? (payload.auth_options ?? null) : null,
     status: extras.status,
     meta_template_id: extras.metaTemplateId,
     submission_error: extras.submissionError,
@@ -121,17 +124,10 @@ export async function submitTemplateForAccount(
   userId: string,
   payload: TemplatePayload,
 ): Promise<Response> {
-  if (payload.category === 'Authentication') {
-    return NextResponse.json(
-      {
-        error:
-          t('templates.authNotSupported'),
-      },
-      { status: 400 },
-    )
-  }
-
   try {
+    // AUTHENTICATION (OTP) templates have Meta-generated wording: fill in the
+    // local display text, the OTP button and defaults (rejects custom content).
+    payload = normalizeAuthPayload(payload)
     validateTemplatePayload(payload)
   } catch (e) {
     return NextResponse.json(

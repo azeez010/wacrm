@@ -39,11 +39,22 @@ export interface ResolvedConversation {
  * so the route maps one error family) on a bad phone, a missing
  * WhatsApp config, or a DB failure.
  */
+export interface ResolveConversationOptions {
+  /** Pin to one connection (`whatsapp_config.id`); validated against the account. */
+  whatsappConfigId?: string | null;
+  /**
+   * Automated sends (OTP): a conversation created here starts `closed` so it
+   * doesn't land in the team's open inbox.
+   */
+  quiet?: boolean;
+}
+
 export async function resolveConversationByPhone(
   db: SupabaseClient,
   accountId: string,
   phone: string,
-  name?: string | null
+  name?: string | null,
+  options: ResolveConversationOptions = {}
 ): Promise<ResolvedConversation> {
   // Raw integrator input: the leading `+` is required so the country
   // code is explicit - "4155551212" would otherwise be delivered to
@@ -59,11 +70,23 @@ export async function resolveConversationByPhone(
 
   // Fail fast (and create nothing) when the account has no WhatsApp
   // connected - the same error the send would raise anyway.
-  const { data: config } = await db
+  // (limit(1), not maybeSingle(): an account may have several connections.)
+  let configQuery = db
     .from('whatsapp_config')
     .select('id')
-    .eq('account_id', accountId)
-    .maybeSingle();
+    .eq('account_id', accountId);
+  if (options.whatsappConfigId) {
+    configQuery = configQuery.eq('id', options.whatsappConfigId);
+  }
+  const { data: configRows } = await configQuery.limit(1);
+  const config = configRows?.[0];
+  if (!config && options.whatsappConfigId) {
+    throw new SendMessageError(
+      'bad_request',
+      'whatsapp_config_id does not match a WhatsApp number on this account',
+      400
+    );
+  }
   if (!config) {
     throw new SendMessageError(
       'whatsapp_not_configured',
@@ -144,7 +167,8 @@ export async function resolveConversationByPhone(
     db,
     accountId,
     contactId,
-    ownerUserId
+    ownerUserId,
+    options
   );
 
   return {
@@ -165,7 +189,8 @@ async function findOrCreateConversationRow(
   db: SupabaseClient,
   accountId: string,
   contactId: string,
-  ownerUserId: string
+  ownerUserId: string,
+  options: ResolveConversationOptions = {}
 ): Promise<{ id: string; created: boolean }> {
   const { data: existing, error: findErr } = await db
     .from('conversations')
@@ -190,6 +215,8 @@ async function findOrCreateConversationRow(
       account_id: accountId,
       user_id: ownerUserId,
       contact_id: contactId,
+      ...(options.whatsappConfigId ? { whatsapp_config_id: options.whatsappConfigId } : {}),
+      ...(options.quiet ? { status: 'closed' } : {}),
     })
     .select('id')
     .single();

@@ -1455,14 +1455,16 @@ function ContactsPageInner() {
                     />
                   </TableCell>
                   <TableCell className="text-foreground font-medium">
-                    {contact.blocked_at && (
-                      <Ban className="mr-1 inline size-3.5 text-destructive" aria-label={t('blockedBadge')} />
-                    )}
-                    {contact.name ? (
-                      <ExpandableText text={contact.name} className="max-w-[160px]" />
-                    ) : (
-                      <span className="text-muted-foreground italic">{t('unnamed')}</span>
-                    )}
+                    <div className="flex items-center gap-1.5">
+                      {contact.name ? (
+                        <ExpandableText text={contact.name} className="min-w-0 max-w-[160px]" />
+                      ) : (
+                        <span className="text-muted-foreground italic">{t('unnamed')}</span>
+                      )}
+                      {contact.blocked_at && (
+                        <Ban className="size-3.5 shrink-0 text-destructive" aria-label={t('blockedBadge')} />
+                      )}
+                    </div>
                   </TableCell>
                   <TableCell className="text-muted-foreground font-mono text-xs">
                     <ExpandableText text={contact.phone} className="max-w-[150px]" />

@@ -180,7 +180,7 @@ export default async function LandingPage({
           <a href="#pricing" className={cn(buttonVariants({ variant: 'ghost' }), 'hidden sm:inline-flex')}>
             {t('nav.pricing')}
           </a>
-          <LanguageSwitcher mode="path" />
+          <LanguageSwitcher mode="path" iconOnly />
           <Link href="/login" className={buttonVariants({ variant: 'ghost' })}>
             {t('nav.login')}
           </Link>

@@ -29,9 +29,12 @@ import { cn } from '@/lib/utils'
 export function LanguageSwitcher({
   className,
   mode = 'cookie',
+  iconOnly = false,
 }: {
   className?: string
   mode?: 'cookie' | 'path'
+  /** On small screens show just the flag (and chevron) on the trigger; from `sm` up the name shows too. The menu always lists names. */
+  iconOnly?: boolean
 }) {
   const raw = useLocale()
   const locale = isLocale(raw) ? raw : 'en'
@@ -58,11 +61,12 @@ export function LanguageSwitcher({
         aria-label={t('label')}
         className={cn(
           'inline-flex h-9 items-center gap-2 whitespace-nowrap rounded-lg border bg-background px-3 text-sm text-foreground outline-none transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring data-popup-open:bg-muted',
+          iconOnly && 'gap-1.5 px-2.5 sm:gap-2 sm:px-3',
           className,
         )}
       >
         <LocaleFlag locale={locale} />
-        <span>{LOCALE_NAMES[locale]}</span>
+        <span className={iconOnly ? 'hidden sm:inline' : undefined}>{LOCALE_NAMES[locale]}</span>
         <ChevronDown aria-hidden className="size-3.5 text-muted-foreground" />
       </DropdownMenuTrigger>
       <DropdownMenuContent

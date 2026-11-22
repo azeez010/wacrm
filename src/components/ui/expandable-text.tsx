@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { Check, Copy } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 import { createExpandController } from '@/lib/expand-controller';
 
@@ -24,6 +26,10 @@ export function ExpandableText({ text, children, className }: Props) {
   const anchorRef = useRef<HTMLSpanElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const panelId = useId();
+  const tCopy = useTranslations('Settings.invite');
+  const tCopied = useTranslations('Inbox.actions');
+  const [copied, setCopied] = useState(false);
+  const copiedTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [open, setOpen] = useState(false);
   const [pos, setPos] = useState<{ left: number; top: number; minWidth: number } | null>(null);
 
@@ -41,6 +47,26 @@ export function ExpandableText({ text, children, className }: Props) {
   );
 
   useEffect(() => () => controller.close(), [controller]);
+  useEffect(() => () => { if (copiedTimer.current) clearTimeout(copiedTimer.current); }, []);
+
+  const copy = useCallback(async () => {
+    controller.hold();
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      // Clipboard API unavailable (insecure context): fall back to a hidden textarea.
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); } finally { document.body.removeChild(ta); }
+    }
+    setCopied(true);
+    if (copiedTimer.current) clearTimeout(copiedTimer.current);
+    copiedTimer.current = setTimeout(() => setCopied(false), 1500);
+  }, [controller, text]);
 
   // Place the panel over the cell, kept inside the window.
   useLayoutEffect(() => {
@@ -103,9 +129,21 @@ export function ExpandableText({ text, children, className }: Props) {
             onMouseEnter={() => controller.hold()}
             onMouseLeave={() => controller.leave()}
             style={{ position: 'fixed', left: pos.left, top: pos.top, minWidth: pos.minWidth, maxWidth: 448 }}
-            className="z-[100] cursor-text select-text break-words rounded-md border border-border bg-popover px-2.5 py-1.5 text-sm text-popover-foreground shadow-lg"
+            // The panel is portaled, but React events still bubble to the table row
+            // (which opens the contact), so keep clicks here from reaching it.
+            onClick={(e) => e.stopPropagation()}
+            className="z-[100] flex cursor-text select-text items-start gap-2 rounded-md border border-border bg-popover py-1.5 pl-2.5 pr-1.5 text-sm text-popover-foreground shadow-lg"
           >
-            {children ?? text}
+            <span className="min-w-0 flex-1 break-words">{children ?? text}</span>
+            <button
+              type="button"
+              onClick={copy}
+              aria-label={copied ? tCopied('copied') : tCopy('copy')}
+              title={copied ? tCopied('copied') : tCopy('copy')}
+              className="mt-px inline-flex size-6 shrink-0 cursor-pointer items-center justify-center rounded text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            >
+              {copied ? <Check aria-hidden className="size-3.5 text-primary" /> : <Copy aria-hidden className="size-3.5" />}
+            </button>
           </div>,
           document.body
         )}

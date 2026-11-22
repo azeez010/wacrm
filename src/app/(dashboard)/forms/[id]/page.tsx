@@ -1,12 +1,12 @@
 "use client";
 
 import { use, useCallback, useEffect, useMemo, useReducer, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { ArrowLeft, Loader2, Settings2, Share2 } from "lucide-react";
 
-import { PublicForm } from "@/components/public-form/public-form";
+import { PreviewFrame } from "@/components/forms/preview-frame";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
@@ -44,6 +44,26 @@ export default function FormEditorPage({ params }: { params: Promise<{ id: strin
   const [shareOpen, setShareOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [device, setDevice] = useState<"desktop" | "mobile">("desktop");
+  const [advanced, setAdvanced] = useState(false);
+  const [playTick, setPlayTick] = useState(0);
+  const searchParams = useSearchParams();
+
+  // Plan: only forms_advanced plans may hide the OgaDesk badge.
+  useEffect(() => {
+    void fetch("/api/forms/usage")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((u: { advanced?: boolean } | null) => setAdvanced(!!u?.advanced))
+      .catch(() => undefined);
+  }, []);
+
+  // ?settings=1 (from the list's row menu) opens the Settings sheet once.
+  useEffect(() => {
+    if (searchParams.get("settings") === "1") {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setSettingsOpen(true);
+      router.replace(`/forms/${id}`);
+    }
+  }, [searchParams, router, id]);
 
   useEffect(() => {
     void (async () => {
@@ -85,8 +105,8 @@ export default function FormEditorPage({ params }: { params: Promise<{ id: strin
   );
 
   const config = useMemo(
-    () => (meta ? buildPreviewConfig(meta.public_id, meta.kind, state.name, state.fields, state.settings, data) : null),
-    [meta, state.name, state.fields, state.settings, data],
+    () => (meta ? buildPreviewConfig(meta.public_id, meta.kind, state.name, state.fields, state.settings, data, advanced) : null),
+    [meta, state.name, state.fields, state.settings, data, advanced],
   );
 
   if (!meta || !config) {
@@ -148,7 +168,7 @@ export default function FormEditorPage({ params }: { params: Promise<{ id: strin
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
           <div>
             {isSupport ? (
-              <SupportEditor fields={state.fields} settings={state.settings} canEdit={canEdit} dispatch={dispatch} />
+              <SupportEditor fields={state.fields} settings={state.settings} canEdit={canEdit} dispatch={dispatch} onPlaySound={() => setPlayTick((n) => n + 1)} />
             ) : (
               <FieldList fields={state.fields} data={data} qualifyOn={state.settings.qualification.enabled} canEdit={canEdit} dispatch={dispatch} />
             )}
@@ -163,17 +183,13 @@ export default function FormEditorPage({ params }: { params: Promise<{ id: strin
                 ))}
               </div>
             )}
-            <div className="rounded-xl border border-dashed border-border bg-muted/40 p-4">
-              <div className={device === "mobile" || isSupport ? "mx-auto max-w-[22rem]" : ""}>
-                <PublicForm key={meta.id} config={config} embedded={isSupport} preview />
-              </div>
-            </div>
-            <p className="mt-2 text-center text-xs text-muted-foreground">{t("previewHint")}</p>
+            <PreviewFrame kind={meta.kind} publicId={meta.public_id} config={config} device={device} playTick={playTick} />
+            <p className="mt-2 text-center text-xs text-muted-foreground">{isSupport ? t("previewHintSupport") : t("previewHint")}</p>
           </div>
         </div>
       )}
 
-      <ShareDialog open={shareOpen} onOpenChange={setShareOpen} kind={meta.kind} publicId={meta.public_id} />
+      <ShareDialog open={shareOpen} onOpenChange={setShareOpen} kind={meta.kind} publicId={meta.public_id} published={active} />
       <SettingsSheet
         open={settingsOpen}
         onOpenChange={setSettingsOpen}
@@ -181,6 +197,7 @@ export default function FormEditorPage({ params }: { params: Promise<{ id: strin
         settings={state.settings}
         data={data}
         canEdit={canEdit}
+        advanced={advanced}
         patch={(p) => dispatch({ type: "settings", patch: p })}
       />
     </div>

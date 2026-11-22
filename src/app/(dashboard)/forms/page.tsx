@@ -4,11 +4,11 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
-import { ClipboardList, Copy, Loader2, MessageCircle, MoreHorizontal, Plus } from "lucide-react";
+import { ChevronDown, ClipboardList, Copy, Loader2, MessageCircle, MoreHorizontal, Plus } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,6 +24,8 @@ import { useCan } from "@/hooks/use-can";
 import { createClient } from "@/lib/supabase/client";
 import { monthStartUtc } from "@/lib/billing/usage";
 import { TEMPLATE_SLUGS } from "@/lib/forms/template-slugs";
+import { ShareDialog } from "@/components/forms/share-dialog";
+import { rowActions, type RowAction } from "@/components/forms/row-actions";
 
 interface FormListRow {
   id: string;
@@ -56,11 +58,17 @@ export default function FormsPage() {
   const [month, setMonth] = useState<MonthRow[]>([]);
   const [usage, setUsage] = useState<Usage | null>(null);
   const [newOpen, setNewOpen] = useState(false);
+  const [archivedRows, setArchivedRows] = useState<FormListRow[]>([]);
+  const [showArchived, setShowArchived] = useState(false);
+  const [shareFor, setShareFor] = useState<FormListRow | null>(null);
+  // One confirmation dialog for every destructive row action.
+  const [confirm, setConfirm] = useState<{ action: "archive" | "unpublish" | "delete"; form: FormListRow } | null>(null);
+  const [working, setWorking] = useState(false);
 
   const load = useCallback(async () => {
     if (!accountId) return;
     const supabase = createClient();
-    const [f, m, u] = await Promise.all([
+    const [f, m, u, a] = await Promise.all([
       supabase
         .from("forms")
         .select("id, public_id, kind, name, status")
@@ -75,7 +83,14 @@ export default function FormsPage() {
         .gte("created_at", monthStartUtc().toISOString())
         .limit(5000),
       fetch("/api/forms/usage").then((r) => (r.ok ? (r.json() as Promise<Usage>) : null)).catch(() => null),
+      supabase
+        .from("forms")
+        .select("id, public_id, kind, name, status")
+        .eq("account_id", accountId)
+        .not("archived_at", "is", null)
+        .order("archived_at", { ascending: false }),
     ]);
+    setArchivedRows((a.data as FormListRow[] | null) ?? []);
     setForms((f.data as FormListRow[] | null) ?? []);
     setMonth((m.data as MonthRow[] | null) ?? []);
     setUsage(u);
@@ -106,11 +121,79 @@ export default function FormsPage() {
     router.push(`/forms/${json.form.id}`);
   }
 
-  async function archive(f: FormListRow) {
-    const res = await fetch(`/api/forms/${f.id}`, { method: "DELETE" });
-    if (!res.ok) return toast.error(((await res.json().catch(() => ({}))) as { error?: string }).error ?? t("archiveFailed"));
-    toast.success(t("archived"));
-    void load();
+  async function call(url: string, init: RequestInit, okKey: string) {
+    setWorking(true);
+    const res = await fetch(url, init);
+    setWorking(false);
+    if (!res.ok) {
+      const j = (await res.json().catch(() => ({}))) as { error?: string };
+      toast.error(j.error ?? t("actionFailed"));
+      return false;
+    }
+    toast.success(t(okKey));
+    await load();
+    return true;
+  }
+
+  const setStatus = (f: FormListRow, status: "active" | "paused") =>
+    call(`/api/forms/${f.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status }) }, status === "active" ? "published" : "unpublished");
+
+  async function runRowAction(action: RowAction, f: FormListRow) {
+    switch (action) {
+      case "edit":
+        return router.push(`/forms/${f.id}`);
+      case "settings":
+        return router.push(`/forms/${f.id}?settings=1`);
+      case "share":
+        return setShareFor(f);
+      case "duplicate":
+        return void duplicate(f);
+      case "publish":
+        // A first publish opens Share, like in the editor.
+        if (await setStatus(f, "active")) setShareFor(f);
+        return;
+      case "unpublish":
+        return setConfirm({ action: "unpublish", form: f });
+      case "archive":
+        return setConfirm({ action: "archive", form: f });
+      case "delete":
+        return setConfirm({ action: "delete", form: f });
+      case "restore":
+        return void call(`/api/forms/${f.id}/restore`, { method: "POST" }, "restored");
+    }
+  }
+
+  async function runConfirmed() {
+    if (!confirm) return;
+    const { action, form } = confirm;
+    const ok =
+      action === "unpublish"
+        ? await setStatus(form, "paused")
+        : action === "archive"
+          ? await call(`/api/forms/${form.id}`, { method: "DELETE" }, "archived")
+          : await call(`/api/forms/${form.id}?permanent=1`, { method: "DELETE" }, "deleted");
+    if (ok) setConfirm(null);
+  }
+
+  function RowMenu({ form, archived }: { form: FormListRow; archived: boolean }) {
+    const items = rowActions({ status: form.status, archived, canManage, canDelete });
+    return (
+      <DropdownMenu>
+        <DropdownMenuTrigger render={<Button variant="ghost" size="icon-sm" aria-label={t("more")} />}>
+          <MoreHorizontal className="size-4" />
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          {items.map((i) => (
+            <div key={i.action}>
+              {i.separatorBefore ? <DropdownMenuSeparator /> : null}
+              <DropdownMenuItem variant={i.destructive ? "destructive" : undefined} disabled={!i.enabled} onClick={() => void runRowAction(i.action, form)}>
+                {t(`action.${i.action}`)}
+              </DropdownMenuItem>
+            </div>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    );
   }
 
   if (forms === null) {
@@ -182,27 +265,61 @@ export default function FormsPage() {
                 >
                   <Copy className="size-4" />
                 </Button>
-                <DropdownMenu>
-                  <DropdownMenuTrigger render={<Button variant="ghost" size="icon-sm" aria-label={t("more")} />}>
-                    <MoreHorizontal className="size-4" />
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem disabled={!canManage} onClick={() => void duplicate(f)}>
-                      {t("duplicate")}
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem variant="destructive" disabled={!canDelete} onClick={() => void archive(f)}>
-                      {t("archive")}
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                <RowMenu form={f} archived={false} />
               </li>
             );
           })}
         </ul>
       )}
 
+      {archivedRows.length > 0 && (
+        <div className="rounded-xl border border-border">
+          <button type="button" onClick={() => setShowArchived(!showArchived)} className="flex w-full items-center justify-between px-4 py-3 text-sm text-muted-foreground" aria-expanded={showArchived}>
+            {t("archivedTitle", { count: archivedRows.length })}
+            <ChevronDown className={`size-4 transition-transform ${showArchived ? "rotate-180" : ""}`} />
+          </button>
+          {showArchived && (
+            <ul className="divide-y divide-border border-t border-border">
+              {archivedRows.map((f) => (
+                <li key={f.id} className="flex items-center gap-3 px-4 py-2.5">
+                  <span className="min-w-0 flex-1 truncate text-sm text-muted-foreground">{f.name}</span>
+                  <RowMenu form={f} archived />
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
+
       <NewFormDialog open={newOpen} onOpenChange={setNewOpen} onCreated={(id) => router.push(`/forms/${id}`)} />
+
+      {shareFor && (
+        <ShareDialog
+          open
+          onOpenChange={(o) => !o && setShareFor(null)}
+          kind={shareFor.kind}
+          publicId={shareFor.public_id}
+          published={shareFor.status === "active"}
+        />
+      )}
+
+      <Dialog open={!!confirm} onOpenChange={(o) => !o && !working && setConfirm(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{confirm ? t(`confirm.${confirm.action}.title`, { name: confirm.form.name }) : ""}</DialogTitle>
+            <DialogDescription>{confirm ? t(`confirm.${confirm.action}.body`) : ""}</DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" disabled={working} onClick={() => setConfirm(null)}>
+              {t("cancel")}
+            </Button>
+            <Button variant={confirm?.action === "unpublish" ? "default" : "destructive"} disabled={working} onClick={() => void runConfirmed()}>
+              {working ? <Loader2 className="size-4 animate-spin" /> : null}
+              {confirm ? t(`confirm.${confirm.action}.cta`) : ""}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

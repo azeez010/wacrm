@@ -72,7 +72,20 @@ document.getElementById('lead-form').addEventListener('submit', async function (
 }
 
 /** Share: copy link + QR for a lead form, the one script line for a support button. */
-export function ShareDialog({ open, onOpenChange, kind, publicId }: { open: boolean; onOpenChange: (o: boolean) => void; kind: FormKind; publicId: string }) {
+export function ShareDialog({
+  open,
+  onOpenChange,
+  kind,
+  publicId,
+  published = true,
+}: {
+  open: boolean;
+  onOpenChange: (o: boolean) => void;
+  kind: FormKind;
+  publicId: string;
+  /** False for a draft/paused form: the link will not work yet. */
+  published?: boolean;
+}) {
   const t = useTranslations('Forms.share');
   const origin = typeof window === 'undefined' ? '' : window.location.origin;
   const [utm, setUtm] = useState({ source: '', medium: '', campaign: '' });
@@ -121,6 +134,10 @@ export function ShareDialog({ open, onOpenChange, kind, publicId }: { open: bool
           <DialogTitle>{t('title')}</DialogTitle>
           <DialogDescription>{kind === 'support' ? t('supportHint') : t('leadHint')}</DialogDescription>
         </DialogHeader>
+
+        {!published ? (
+          <p className="rounded-lg bg-amber-500/10 p-2 text-xs text-amber-700 dark:text-amber-300">{t('notPublished')}</p>
+        ) : null}
 
         {kind === 'support' ? (
           <div className="space-y-2">

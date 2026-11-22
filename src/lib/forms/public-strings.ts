@@ -25,6 +25,7 @@ export interface PublicStrings {
   message: string
   select: string
   powered: string
+  poweredBy: string
   offline: string
 }
 
@@ -51,6 +52,7 @@ export const PUBLIC_STRINGS: Record<PublicLang, PublicStrings> = {
     message: 'Message',
     select: 'Select...',
     powered: 'Powered by OgaDesk',
+    poweredBy: 'Powered by',
     offline: 'We are offline right now. Leave your number and we will reply.',
   },
   es: {
@@ -75,6 +77,7 @@ export const PUBLIC_STRINGS: Record<PublicLang, PublicStrings> = {
     message: 'Mensaje',
     select: 'Selecciona...',
     powered: 'Con tecnología de OgaDesk',
+    poweredBy: 'Con tecnología de',
     offline: 'Estamos fuera de línea. Deja tu número y te responderemos.',
   },
   fr: {
@@ -99,6 +102,7 @@ export const PUBLIC_STRINGS: Record<PublicLang, PublicStrings> = {
     message: 'Message',
     select: 'Sélectionner...',
     powered: 'Propulsé par OgaDesk',
+    poweredBy: 'Propulsé par',
     offline: 'Nous sommes hors ligne. Laissez votre numéro, nous répondrons.',
   },
   pt: {
@@ -123,6 +127,7 @@ export const PUBLIC_STRINGS: Record<PublicLang, PublicStrings> = {
     message: 'Mensagem',
     select: 'Selecione...',
     powered: 'Feito com OgaDesk',
+    poweredBy: 'Feito com',
     offline: 'Estamos offline. Deixe seu número e responderemos.',
   },
   ko: {
@@ -147,6 +152,7 @@ export const PUBLIC_STRINGS: Record<PublicLang, PublicStrings> = {
     message: '메시지',
     select: '선택...',
     powered: 'OgaDesk 제공',
+    poweredBy: '제공',
     offline: '현재 오프라인입니다. 번호를 남겨주시면 답변드리겠습니다.',
   },
 }

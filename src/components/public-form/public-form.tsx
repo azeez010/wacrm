@@ -3,7 +3,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { renderSVG } from 'uqr';
 
-import { COUNTRIES, callingCode } from '@/lib/forms/countries';
+import { COUNTRIES, composeFormPhone, resolveDefaultCountry } from '@/lib/forms/countries';
+import { themeVars } from '@/lib/forms/theme';
+import { PoweredBy } from './powered-by';
 import type { PublicField, PublicFormConfig } from '@/lib/forms/public-config';
 import { stringsFor } from '@/lib/forms/public-strings';
 
@@ -53,16 +55,22 @@ export function PublicForm({
   config,
   embedded = false,
   preview = false,
+  detectedCountry,
+  fullPage = false,
 }: {
   config: PublicFormConfig;
   embedded?: boolean;
+  /** The visitor's country (Cloudflare), used when the form's default country is automatic. */
+  detectedCountry?: string | null;
+  /** The hosted page: paints the themed page background around the card. */
+  fullPage?: boolean;
   /** Editor preview: no beacons, no submit. */
   preview?: boolean;
 }) {
   const t = stringsFor(config.language);
   const accent = config.accent;
   const [values, setValues] = useState<Record<string, unknown>>({});
-  const [country, setCountry] = useState(config.defaultCountry);
+  const [country, setCountry] = useState(() => resolveDefaultCountry(config.defaultCountry, detectedCountry));
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -178,12 +186,7 @@ export function PublicForm({
     [t],
   );
 
-  function composePhone(raw: unknown): string {
-    const s = String(raw ?? '').trim();
-    if (!s || s.startsWith('+') || s.startsWith('00')) return s;
-    if (country === config.defaultCountry) return s;
-    return `+${callingCode(country)}${s.replace(/\D/g, '').replace(/^0+/, '')}`;
-  }
+  const composePhone = (raw: unknown) => composeFormPhone(raw, country);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -249,18 +252,30 @@ export function PublicForm({
     }
   }
 
-  const wrapper = embedded ? 'w-full' : 'mx-auto w-full max-w-md rounded-2xl border border-black/10 bg-white p-6 shadow-sm sm:p-8';
+  const rootStyle = { ...themeVars(config.theme), color: 'var(--og-fg)' };
+  const wrapper = embedded
+    ? 'w-full bg-[var(--og-card)] p-3'
+    : 'mx-auto w-full max-w-md rounded-2xl border border-[color:var(--og-border)] bg-[var(--og-card)] p-6 shadow-sm sm:p-8';
+  const page = (node: React.ReactNode) =>
+    fullPage ? (
+      <div style={{ ...themeVars(config.theme), color: 'var(--og-fg)' }} className="min-h-screen bg-[var(--og-page)] px-4 py-8 sm:py-14">
+        {node}
+      </div>
+    ) : (
+      node
+    );
 
   if (done) {
-    return (
-      <div ref={root} className={wrapper} style={{ color: '#111827' }}>
+    return page(
+      <div ref={root} className={wrapper} style={rootStyle}>
         <SuccessView done={done} t={t} accent={accent} config={config} />
-      </div>
+        {config.showBranding ? <PoweredBy lang={config.language} /> : null}
+      </div>,
     );
   }
 
-  return (
-    <div ref={root} className={wrapper} style={{ color: '#111827' }}>
+  return page(
+    <div ref={root} className={wrapper} style={rootStyle}>
       <form onSubmit={submit} noValidate className="space-y-4" aria-describedby={formError ? 'og-form-error' : undefined}>
         {config.logoUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -269,10 +284,10 @@ export function PublicForm({
         {!embedded || config.kind === 'lead' ? (
           <div>
             <h1 className="text-xl font-semibold leading-tight">{config.title}</h1>
-            {config.description ? <p className="mt-1 text-sm text-gray-600">{config.description}</p> : null}
+            {config.description ? <p className="mt-1 text-sm text-[color:var(--og-muted)]">{config.description}</p> : null}
           </div>
         ) : config.description ? (
-          <p className="text-sm text-gray-600">{config.description}</p>
+          <p className="text-sm text-[color:var(--og-muted)]">{config.description}</p>
         ) : null}
 
         {/* Honeypot: invisible to people, tempting to bots. */}
@@ -284,7 +299,7 @@ export function PublicForm({
         </div>
 
         {gated ? (
-          <p role="alert" className="rounded-lg bg-amber-50 p-3 text-sm text-amber-900">
+          <p role="alert" className="rounded-lg bg-[var(--og-warn-bg)] p-3 text-sm text-[color:var(--og-warn-fg)]">
             {gated}
           </p>
         ) : null}
@@ -307,7 +322,7 @@ export function PublicForm({
         {config.turnstile ? <div id="ogadesk-turnstile" /> : null}
 
         {formError ? (
-          <p id="og-form-error" role="alert" className="text-sm text-red-600">
+          <p id="og-form-error" role="alert" className="text-sm text-red-500">
             {formError}
           </p>
         ) : null}
@@ -320,15 +335,15 @@ export function PublicForm({
         >
           {busy ? t.sending : config.buttonText || t.submit}
         </button>
-        {!embedded && config.showBranding ? <p className="pt-1 text-center text-[11px] text-gray-400">{t.powered}</p> : null}
+        {config.showBranding ? <PoweredBy lang={config.language} /> : null}
       </form>
-    </div>
+    </div>,
   );
 }
 
 function Label({ htmlFor, children, required }: { htmlFor?: string; children: React.ReactNode; required?: boolean }) {
   return (
-    <label htmlFor={htmlFor} className="mb-1 block text-sm font-medium text-gray-800">
+    <label htmlFor={htmlFor} className="mb-1 block text-sm font-medium text-[color:var(--og-label)]">
       {children}
       {required ? <span className="text-red-500"> *</span> : null}
     </label>
@@ -336,7 +351,8 @@ function Label({ htmlFor, children, required }: { htmlFor?: string; children: Re
 }
 
 const inputCls =
-  'w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-gray-500 focus:outline-none focus:ring-2 focus:ring-black/10';
+  'rounded-lg border border-[color:var(--og-border)] bg-[var(--og-input)] px-3 py-2.5 text-sm text-[color:var(--og-fg)] placeholder:text-[color:var(--og-muted)] focus:border-[color:var(--og-muted)] focus:outline-none focus:ring-2 focus:ring-[color:var(--og-ring)]';
+const inputFull = `w-full ${inputCls}`;
 
 function FieldInput({
   f,
@@ -361,24 +377,24 @@ function FieldInput({
 }) {
   const id = `og-${f.id}`;
   const err = error ? (
-    <p id={`${id}-err`} role="alert" className="mt-1 text-xs text-red-600">
+    <p id={`${id}-err`} role="alert" className="mt-1 text-xs text-red-500">
       {error}
     </p>
   ) : null;
   const aria = { 'aria-invalid': !!error, 'aria-describedby': error ? `${id}-err` : undefined } as const;
 
-  if (f.kind === 'heading') return <p className="text-sm text-gray-700">{f.text}</p>;
+  if (f.kind === 'heading') return <p className="text-sm text-[color:var(--og-label)]">{f.text}</p>;
   if (f.kind === 'hidden') return null;
 
   if (f.kind === 'consent') {
     return (
       <div>
-        <label className="flex items-start gap-2 text-sm text-gray-800">
+        <label className="flex items-start gap-2 text-sm text-[color:var(--og-label)]">
           <input
             type="checkbox"
             checked={value === true}
             onChange={(e) => onChange(e.target.checked)}
-            className="mt-0.5 size-4 rounded border-gray-300"
+            className="mt-0.5 size-4 rounded border-[color:var(--og-border)]"
             style={{ accentColor: accent }}
             {...aria}
           />
@@ -413,7 +429,7 @@ function FieldInput({
             aria-label="Country"
             value={country}
             onChange={(e) => onCountry(e.target.value)}
-            className={`${inputCls} w-[6.5rem] shrink-0 px-2`}
+            className={`${inputCls} w-[7rem] shrink-0 px-2`}
           >
             {COUNTRIES.map((c) => (
               <option key={`${c.iso}-${c.cc}`} value={c.iso}>
@@ -429,11 +445,11 @@ function FieldInput({
             value={String(value ?? '')}
             placeholder={f.placeholder || (country === defaultCountry && defaultCountry === 'NG' ? '0803 123 4567' : '')}
             onChange={(e) => onChange(e.target.value)}
-            className={inputCls}
+            className={`${inputCls} min-w-0 flex-1`}
             {...aria}
           />
         </div>
-        {f.help ? <p className="mt-1 text-xs text-gray-500">{f.help}</p> : null}
+        {f.help ? <p className="mt-1 text-xs text-[color:var(--og-muted)]">{f.help}</p> : null}
         {err}
       </div>
     );
@@ -454,7 +470,7 @@ function FieldInput({
                 aria-pressed={on}
                 onClick={() => onChange(on ? picked.filter((x) => x !== tg.id) : [...picked, tg.id])}
                 className="rounded-full border px-3 py-1.5 text-sm"
-                style={on ? { backgroundColor: accent, borderColor: accent, color: '#fff' } : { borderColor: '#d1d5db' }}
+                style={on ? { backgroundColor: accent, borderColor: accent, color: '#fff' } : { borderColor: 'var(--og-border)' }}
               >
                 {tg.name}
               </button>
@@ -477,7 +493,7 @@ function FieldInput({
           {label}
         </Label>
         {display === 'select' && !multi ? (
-          <select id={id} value={String(value ?? '')} onChange={(e) => onChange(e.target.value)} className={inputCls} {...aria}>
+          <select id={id} value={String(value ?? '')} onChange={(e) => onChange(e.target.value)} className={inputFull} {...aria}>
             <option value="">{t.select}</option>
             {f.options.map((o) => (
               <option key={o} value={o}>
@@ -496,7 +512,7 @@ function FieldInput({
                   aria-pressed={on}
                   onClick={() => onChange(multi ? (on ? picked.filter((x) => x !== o) : [...picked, o]) : on ? '' : o)}
                   className="rounded-full border px-3 py-1.5 text-sm"
-                  style={on ? { backgroundColor: accent, borderColor: accent, color: '#fff' } : { borderColor: '#d1d5db' }}
+                  style={on ? { backgroundColor: accent, borderColor: accent, color: '#fff' } : { borderColor: 'var(--og-border)' }}
                 >
                   {o}
                 </button>
@@ -504,7 +520,7 @@ function FieldInput({
             })}
           </div>
         )}
-        {f.help ? <p className="mt-1 text-xs text-gray-500">{f.help}</p> : null}
+        {f.help ? <p className="mt-1 text-xs text-[color:var(--og-muted)]">{f.help}</p> : null}
         {err}
       </div>
     );
@@ -513,7 +529,7 @@ function FieldInput({
   if (f.type === 'bool') {
     return (
       <div>
-        <label className="flex items-center gap-2 text-sm text-gray-800">
+        <label className="flex items-center gap-2 text-sm text-[color:var(--og-label)]">
           <input type="checkbox" checked={value === true} onChange={(e) => onChange(e.target.checked)} className="size-4" style={{ accentColor: accent }} />
           {label}
           {f.required ? <span className="text-red-500"> *</span> : null}
@@ -550,7 +566,7 @@ function FieldInput({
           value={String(value ?? '')}
           placeholder={f.placeholder}
           onChange={(e) => onChange(e.target.value)}
-          className={inputCls}
+          className={inputFull}
           {...aria}
         />
       ) : (
@@ -560,12 +576,12 @@ function FieldInput({
           value={String(value ?? '')}
           placeholder={f.placeholder}
           onChange={(e) => onChange(e.target.value)}
-          className={inputCls}
+          className={inputFull}
           autoComplete={f.kind === 'name' ? 'name' : f.kind === 'email' ? 'email' : f.kind === 'company' ? 'organization' : undefined}
           {...aria}
         />
       )}
-      {f.help ? <p className="mt-1 text-xs text-gray-500">{f.help}</p> : null}
+      {f.help ? <p className="mt-1 text-xs text-[color:var(--og-muted)]">{f.help}</p> : null}
       {err}
     </div>
   );
@@ -638,12 +654,12 @@ function SuccessView({
           </a>
           {desktop && qr ? (
             <div>
-              <p className="mb-1 text-xs text-gray-500">{t.scanQr}</p>
+              <p className="mb-1 text-xs text-[color:var(--og-muted)]">{t.scanQr}</p>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={qr} alt="" className="mx-auto size-36" />
             </div>
           ) : null}
-          {done.followUpLine !== false ? <p className="text-xs text-gray-500">{t.followUp}</p> : null}
+          {done.followUpLine !== false ? <p className="text-xs text-[color:var(--og-muted)]">{t.followUp}</p> : null}
         </div>
       ) : null}
     </div>

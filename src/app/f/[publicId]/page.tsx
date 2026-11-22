@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { headers } from 'next/headers';
 import { notFound } from 'next/navigation';
 
 import { ClosedNotice } from '@/components/public-form/closed-notice';
@@ -6,6 +7,7 @@ import { PublicForm } from '@/components/public-form/public-form';
 import { supabaseAdmin } from '@/lib/automations/admin-client';
 import { buildPublicConfig, loadFormByPublicId } from '@/lib/forms/public-config';
 import { openState } from '@/lib/forms/submit';
+import { themeVars } from '@/lib/forms/theme';
 import { parseFormSettings } from '@/lib/forms/types';
 
 // Public, anonymous lead form. Always rendered on request (config can change any
@@ -39,19 +41,13 @@ export default async function PublicFormPage({ params }: Props) {
   if (!state.open) {
     if (state.reason === 'not_found') notFound();
     return (
-      <Shell>
+      <main style={{ ...themeVars(settings.theme), color: 'var(--og-fg)' }} className="min-h-screen bg-[var(--og-page)] px-4 py-8 sm:py-14">
         <ClosedNotice reason={state.reason} message={settings.rules.closedMessage} lang={settings.language} />
-      </Shell>
+      </main>
     );
   }
   const config = await buildPublicConfig(db, form);
-  return (
-    <Shell>
-      <PublicForm config={config} />
-    </Shell>
-  );
-}
-
-function Shell({ children }: { children: React.ReactNode }) {
-  return <main className="min-h-screen bg-gray-50 px-4 py-8 text-gray-900 sm:py-14">{children}</main>;
+  // Cloudflare tells us the visitor's country; used when the form's default country is "automatic".
+  const detected = (await headers()).get('cf-ipcountry');
+  return <PublicForm config={config} detectedCountry={detected} fullPage />;
 }

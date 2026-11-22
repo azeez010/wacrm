@@ -39,6 +39,8 @@ export interface PublicFormConfig {
   accent: string
   logoUrl?: string
   language: string
+  theme: 'auto' | 'light' | 'dark'
+  /** ISO code, or 'auto' = use the visitor's country. */
   defaultCountry: string
   noindex: boolean
   og: { title?: string; description?: string; image?: string }
@@ -61,6 +63,10 @@ export interface PublicFormConfig {
     color?: string
     icon: 'whatsapp' | 'chat' | 'headset'
     greeting?: string
+    animation: 'none' | 'pulse' | 'bounce' | 'wiggle' | 'ring'
+    sound: 'none' | 'chime' | 'pop'
+    preMessage?: string
+    preMessageDelay: number
     showOn: 'all' | 'contains'
     urlContains?: string
     devices: 'all' | 'mobile' | 'desktop'
@@ -132,10 +138,12 @@ export async function buildPublicConfig(db: SupabaseClient, form: FormRow): Prom
   }
 
   const { data: acct } = await db.from('accounts').select('timezone').eq('id', form.account_id).maybeSingle()
-  const branded = await assertFeature(db, form.account_id, 'forms_advanced').then(
-    () => false,
+  // The badge is on by default; only plans with forms_advanced may switch it off.
+  const advanced = await assertFeature(db, form.account_id, 'forms_advanced').then(
     () => true,
+    () => false,
   )
+  const branded = !(settings.hideBranding === true && advanced)
   const w = settings.widget
   return {
     publicId: form.public_id,
@@ -147,7 +155,8 @@ export async function buildPublicConfig(db: SupabaseClient, form: FormRow): Prom
     accent: settings.accent ?? '#10b981',
     logoUrl: settings.logoUrl,
     language: settings.language ?? 'en',
-    defaultCountry: (settings.defaultCountry ?? 'NG').toUpperCase(),
+    theme: settings.theme ?? 'auto',
+    defaultCountry: (settings.defaultCountry ?? 'auto').toLowerCase() === 'auto' ? 'auto' : (settings.defaultCountry as string).toUpperCase(),
     noindex: settings.noindex !== false,
     og: { title: settings.ogTitle, description: settings.ogDescription, image: settings.ogImage },
     success: {
@@ -169,13 +178,17 @@ export async function buildPublicConfig(db: SupabaseClient, form: FormRow): Prom
             color: w.color ?? settings.accent,
             icon: w.icon,
             greeting: w.greeting,
+            animation: w.animation,
+            sound: w.sound,
+            preMessage: w.preMessage,
+            preMessageDelay: w.preMessageDelay,
             showOn: w.showOn,
             urlContains: w.urlContains,
             devices: w.devices,
             hours: w.hours,
           }
         : form.kind === 'support'
-          ? { corner: 'bottom-left', offsetX: 20, offsetY: 20, icon: 'whatsapp', showOn: 'all', devices: 'all', color: settings.accent }
+          ? { corner: 'bottom-left', offsetX: 20, offsetY: 20, icon: 'whatsapp', animation: 'pulse', sound: 'none', preMessageDelay: 4, showOn: 'all', devices: 'all', color: settings.accent }
           : undefined,
     fields: pub,
   }

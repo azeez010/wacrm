@@ -10,6 +10,7 @@ export function buildPreviewConfig(
   fields: FormField[],
   settings: FormSettings,
   data: FormEditorData,
+  advanced = false,
 ): PublicFormConfig {
   const out: PublicField[] = [];
   for (const f of fields) {
@@ -62,13 +63,15 @@ export function buildPreviewConfig(
     accent: settings.accent ?? '#10b981',
     logoUrl: settings.logoUrl,
     language: settings.language ?? 'en',
-    defaultCountry: (settings.defaultCountry ?? 'NG').toUpperCase(),
+    theme: settings.theme ?? 'auto',
+    defaultCountry: (settings.defaultCountry ?? 'auto').toLowerCase() === 'auto' ? 'auto' : (settings.defaultCountry as string).toUpperCase(),
     noindex: settings.noindex !== false,
     og: {},
     success: { action: settings.success.action, message: settings.success.message, redirectUrl: settings.success.redirectUrl, followUpLine: settings.success.followUpLine },
     turnstile: false,
-    showBranding: true,
-    widget: kind === 'support' ? { corner: w?.corner ?? 'bottom-left', offsetX: w?.offsetX ?? 20, offsetY: w?.offsetY ?? 20, icon: w?.icon ?? 'whatsapp', label: w?.label, color: w?.color ?? settings.accent, greeting: w?.greeting, showOn: w?.showOn ?? 'all', devices: w?.devices ?? 'all', hours: w?.hours } : undefined,
+    // Mirrors the server rule; the editor passes the plan in.
+    showBranding: !(settings.hideBranding === true && advanced),
+    widget: kind === 'support' ? { corner: w?.corner ?? 'bottom-left', offsetX: w?.offsetX ?? 20, offsetY: w?.offsetY ?? 20, icon: w?.icon ?? 'whatsapp', label: w?.label, color: w?.color ?? settings.accent, greeting: w?.greeting, animation: w?.animation ?? 'pulse', sound: w?.sound ?? 'none', preMessage: w?.preMessage, preMessageDelay: w?.preMessageDelay ?? 4, showOn: w?.showOn ?? 'all', devices: w?.devices ?? 'all', hours: w?.hours } : undefined,
     fields: out,
   };
 }

@@ -40,12 +40,21 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   }
 }
 
-/** Archive a form (its leads stay). Admins and above. */
-export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
+/**
+ * Archive a form (its leads stay). Admins and above.
+ * `?permanent=1` deletes an ALREADY ARCHIVED form for good, with its submissions.
+ */
+export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const ctx = await requireRole('admin')
     const { id } = await params
-    await loadOwned(ctx, id)
+    const current = await loadOwned(ctx, id)
+    if (new URL(request.url).searchParams.get('permanent') === '1') {
+      if (!current.archived_at) throw new FormError('Archive the form first', 400)
+      const { error: delErr } = await ctx.supabase.from('forms').delete().eq('id', id).eq('account_id', ctx.accountId)
+      if (delErr) throw new FormError(delErr.message, 500)
+      return NextResponse.json({ ok: true, deleted: true })
+    }
     const { error } = await ctx.supabase
       .from('forms')
       .update({ archived_at: new Date().toISOString(), status: 'paused' })

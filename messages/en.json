@@ -3607,7 +3607,42 @@
       "archive": "Archive",
       "duplicateFailed": "Could not duplicate the form",
       "archiveFailed": "Could not archive the form",
-      "archived": "Form archived"
+      "archived": "Form archived",
+      "action": {
+        "edit": "Edit",
+        "share": "Share",
+        "publish": "Publish",
+        "unpublish": "Unpublish",
+        "settings": "Settings",
+        "duplicate": "Duplicate",
+        "archive": "Archive",
+        "restore": "Restore",
+        "delete": "Delete permanently"
+      },
+      "published": "Published",
+      "unpublished": "Unpublished",
+      "restored": "Form restored (paused)",
+      "deleted": "Form deleted",
+      "actionFailed": "That did not work",
+      "cancel": "Cancel",
+      "archivedTitle": "Archived ({count})",
+      "confirm": {
+        "archive": {
+          "title": "Archive \"{name}\"?",
+          "body": "It stops accepting leads and leaves your list. Leads and contacts already collected are kept. You can restore it from Archived.",
+          "cta": "Archive"
+        },
+        "unpublish": {
+          "title": "Unpublish \"{name}\"?",
+          "body": "Visitors will see that the form is not available until you publish it again. Leads already collected are kept.",
+          "cta": "Unpublish"
+        },
+        "delete": {
+          "title": "Delete \"{name}\" permanently?",
+          "body": "This deletes the form and all of its submissions. Contacts already created stay in Contacts. This cannot be undone.",
+          "cta": "Delete permanently"
+        }
+      }
     },
     "new": {
       "title": "New form",
@@ -3666,7 +3701,8 @@
       "tabResults": "Results",
       "desktop": "Desktop",
       "mobile": "Mobile",
-      "previewHint": "Live preview. Nothing is sent from here."
+      "previewHint": "Live preview. Nothing is sent from here.",
+      "previewHintSupport": "Live preview on a sample site. Click the button, nothing is sent from here."
     },
     "edit": {
       "addField": "Add field",
@@ -3743,7 +3779,7 @@
       "language": "Language",
       "logoUrl": "Logo address",
       "defaultCountry": "Default country",
-      "defaultCountryHint": "So people can type 0803... without the country code.",
+      "defaultCountryHint": "Automatic picks each visitor's country; they can still change it.",
       "onePerPhone": "One entry per phone number",
       "repeatWindow": "Repeat window (hours)",
       "repeatHint": "A repeat from the same number inside this time does not notify or re-run anything.",
@@ -3763,7 +3799,16 @@
       "welcome": "Welcome message",
       "welcomeHint": "Sends this approved template to new leads who ticked the consent box.",
       "welcomeNone": "No welcome message",
-      "welcomeParams": "Template values, separated by | (use {name})"
+      "welcomeParams": "Template values, separated by | (use {name})",
+      "theme": "Colour theme",
+      "themeHint": "Automatic follows each visitor's light or dark setting.",
+      "themeAuto": "Automatic",
+      "themeLight": "Always light",
+      "themeDark": "Always dark",
+      "hideBranding": "Hide the OgaDesk badge",
+      "hideBrandingHint": "The \"Powered by OgaDesk\" line will not be shown.",
+      "hideBrandingLocked": "Available on Starter and higher plans.",
+      "countryAuto": "Automatic (visitor's location)"
     },
     "support": {
       "askName": "Ask for their name",
@@ -3794,7 +3839,27 @@
       "day3": "Wed",
       "day4": "Thu",
       "day5": "Fri",
-      "day6": "Sat"
+      "day6": "Sat",
+      "attention": "Get attention",
+      "animation": "Button animation",
+      "anim": {
+        "none": "None",
+        "pulse": "Pulse",
+        "bounce": "Bounce",
+        "wiggle": "Wiggle",
+        "ring": "Ring"
+      },
+      "sound": "Sound",
+      "sounds": {
+        "none": "No sound",
+        "chime": "Chime",
+        "pop": "Pop"
+      },
+      "playSound": "Play sound",
+      "preMessage": "Message bubble",
+      "preMessagePlaceholder": "e.g. Hi, need help?",
+      "preMessageDelay": "Show after (seconds)",
+      "soundNote": "The bubble shows once per visit. Browsers may block sound until the visitor has interacted with the page."
     },
     "share": {
       "title": "Share",
@@ -3809,7 +3874,8 @@
       "embed": "Embed on a website",
       "embedScript": "Easiest: a div and one script.",
       "embedIframe": "Or a plain iframe:",
-      "embedHtml": "Or your own HTML form posting to the form:"
+      "embedHtml": "Or your own HTML form posting to the form:",
+      "notPublished": "This form is not published yet, so the link will not work until you publish it."
     },
     "results": {
       "lastDays": "Last {days} days",

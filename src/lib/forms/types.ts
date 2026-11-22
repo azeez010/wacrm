@@ -75,7 +75,11 @@ export const formSettingsSchema = z
     accent: z.string().regex(/^#[0-9a-fA-F]{6}$/).optional(),
     logoUrl: z.string().url().max(500).optional(),
     language: z.enum(['en', 'es', 'fr', 'pt', 'ko']).optional(),
-    defaultCountry: z.string().length(2).optional(),
+    /** 'auto' = the visitor's country from Cloudflare; otherwise a fixed ISO code. */
+    defaultCountry: z.union([z.literal('auto'), z.string().length(2)]).optional(),
+    theme: z.enum(['auto', 'light', 'dark']).optional(),
+    /** Hide the "Powered by OgaDesk" badge. Only honoured on plans with forms_advanced. */
+    hideBranding: z.boolean().optional(),
     noindex: z.boolean().optional(),
     ogTitle: shortText.optional(),
     ogDescription: longText.optional(),
@@ -144,6 +148,11 @@ export const formSettingsSchema = z
         color: z.string().regex(/^#[0-9a-fA-F]{6}$/).optional(),
         icon: z.enum(['whatsapp', 'chat', 'headset']).default('whatsapp'),
         greeting: shortText.optional(),
+        animation: z.enum(['none', 'pulse', 'bounce', 'wiggle', 'ring']).default('pulse'),
+        sound: z.enum(['none', 'chime', 'pop']).default('none'),
+        /** Teaser bubble above the button, and how long to wait before showing it. */
+        preMessage: shortText.optional(),
+        preMessageDelay: z.number().int().min(0).max(120).default(4),
         showOn: z.enum(['all', 'contains']).default('all'),
         urlContains: shortText.optional(),
         devices: z.enum(['all', 'mobile', 'desktop']).default('all'),

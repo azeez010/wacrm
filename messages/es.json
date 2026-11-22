@@ -3607,7 +3607,42 @@
       "archive": "Archivar",
       "duplicateFailed": "No se pudo duplicar el formulario",
       "archiveFailed": "No se pudo archivar el formulario",
-      "archived": "Formulario archivado"
+      "archived": "Formulario archivado",
+      "action": {
+        "edit": "Editar",
+        "share": "Compartir",
+        "publish": "Publicar",
+        "unpublish": "Despublicar",
+        "settings": "Ajustes",
+        "duplicate": "Duplicar",
+        "archive": "Archivar",
+        "restore": "Restaurar",
+        "delete": "Eliminar definitivamente"
+      },
+      "published": "Publicado",
+      "unpublished": "Despublicado",
+      "restored": "Formulario restaurado (en pausa)",
+      "deleted": "Formulario eliminado",
+      "actionFailed": "No funcionó",
+      "cancel": "Cancelar",
+      "archivedTitle": "Archivados ({count})",
+      "confirm": {
+        "archive": {
+          "title": "¿Archivar «{name}»?",
+          "body": "Deja de aceptar leads y sale de tu lista. Los leads y contactos ya recogidos se conservan. Puedes restaurarlo desde Archivados.",
+          "cta": "Archivar"
+        },
+        "unpublish": {
+          "title": "¿Despublicar «{name}»?",
+          "body": "Los visitantes verán que el formulario no está disponible hasta que lo publiques de nuevo. Los leads ya recogidos se conservan.",
+          "cta": "Despublicar"
+        },
+        "delete": {
+          "title": "¿Eliminar «{name}» definitivamente?",
+          "body": "Se elimina el formulario y todos sus envíos. Los contactos ya creados siguen en Contactos. No se puede deshacer.",
+          "cta": "Eliminar definitivamente"
+        }
+      }
     },
     "new": {
       "title": "Nuevo formulario",
@@ -3666,7 +3701,8 @@
       "tabResults": "Resultados",
       "desktop": "Escritorio",
       "mobile": "Móvil",
-      "previewHint": "Vista previa en vivo. Aquí no se envía nada."
+      "previewHint": "Vista previa en vivo. Aquí no se envía nada.",
+      "previewHintSupport": "Vista previa en vivo en un sitio de ejemplo. Haz clic en el botón; aquí no se envía nada."
     },
     "edit": {
       "addField": "Agregar campo",
@@ -3743,7 +3779,7 @@
       "language": "Idioma",
       "logoUrl": "Dirección del logo",
       "defaultCountry": "País predeterminado",
-      "defaultCountryHint": "Para que escriban 0803... sin el código de país.",
+      "defaultCountryHint": "Automático elige el país de cada visitante; aun así puede cambiarlo.",
       "onePerPhone": "Una entrada por número",
       "repeatWindow": "Ventana de repetición (horas)",
       "repeatHint": "Una repetición del mismo número en este tiempo no notifica ni vuelve a ejecutar nada.",
@@ -3763,7 +3799,16 @@
       "welcome": "Mensaje de bienvenida",
       "welcomeHint": "Envía esta plantilla aprobada a los nuevos leads que marcaron el consentimiento.",
       "welcomeNone": "Sin mensaje de bienvenida",
-      "welcomeParams": "Valores de la plantilla, separados por | (usa {name})"
+      "welcomeParams": "Valores de la plantilla, separados por | (usa {name})",
+      "theme": "Tema de color",
+      "themeHint": "Automático sigue el modo claro u oscuro de cada visitante.",
+      "themeAuto": "Automático",
+      "themeLight": "Siempre claro",
+      "themeDark": "Siempre oscuro",
+      "hideBranding": "Ocultar la insignia de OgaDesk",
+      "hideBrandingHint": "No se mostrará la línea «Con tecnología de OgaDesk».",
+      "hideBrandingLocked": "Disponible en planes Starter y superiores.",
+      "countryAuto": "Automático (ubicación del visitante)"
     },
     "support": {
       "askName": "Pedir su nombre",
@@ -3794,7 +3839,27 @@
       "day3": "Mié",
       "day4": "Jue",
       "day5": "Vie",
-      "day6": "Sáb"
+      "day6": "Sáb",
+      "attention": "Llamar la atención",
+      "animation": "Animación del botón",
+      "anim": {
+        "none": "Ninguna",
+        "pulse": "Pulso",
+        "bounce": "Rebote",
+        "wiggle": "Sacudida",
+        "ring": "Timbre"
+      },
+      "sound": "Sonido",
+      "sounds": {
+        "none": "Sin sonido",
+        "chime": "Campanilla",
+        "pop": "Pop"
+      },
+      "playSound": "Reproducir sonido",
+      "preMessage": "Burbuja de mensaje",
+      "preMessagePlaceholder": "p. ej. Hola, ¿necesitas ayuda?",
+      "preMessageDelay": "Mostrar después de (segundos)",
+      "soundNote": "La burbuja se muestra una vez por visita. Los navegadores pueden bloquear el sonido hasta que el visitante interactúe con la página."
     },
     "share": {
       "title": "Compartir",
@@ -3809,7 +3874,8 @@
       "embed": "Insertar en un sitio web",
       "embedScript": "Lo más fácil: un div y un script.",
       "embedIframe": "O un iframe simple:",
-      "embedHtml": "O tu propio formulario HTML que envía al formulario:"
+      "embedHtml": "O tu propio formulario HTML que envía al formulario:",
+      "notPublished": "Este formulario aún no está publicado, así que el enlace no funcionará hasta que lo publiques."
     },
     "results": {
       "lastDays": "Últimos {days} días",

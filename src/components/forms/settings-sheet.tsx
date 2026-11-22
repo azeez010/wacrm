@@ -23,6 +23,8 @@ interface Props {
   settings: FormSettings;
   data: FormEditorData;
   canEdit: boolean;
+  /** Plan has forms_advanced: may hide the OgaDesk badge. */
+  advanced: boolean;
   patch: (p: Record<string, unknown>) => void;
 }
 
@@ -37,7 +39,7 @@ function Row({ label, hint, children }: { label: string; hint?: string; children
 }
 
 /** One side sheet. Four things up front; everything else under "More options". */
-export function SettingsSheet({ open, onOpenChange, kind, settings, data, canEdit, patch }: Props) {
+export function SettingsSheet({ open, onOpenChange, kind, settings, data, canEdit, advanced, patch }: Props) {
   const t = useTranslations('Forms.settings');
   const [more, setMore] = useState(false);
   const s = settings;
@@ -196,8 +198,23 @@ export function SettingsSheet({ open, onOpenChange, kind, settings, data, canEdi
                 <Row label={t('logoUrl')}>
                   <Input disabled={!canEdit} value={s.logoUrl ?? ''} placeholder="https://" onChange={(e) => patch({ logoUrl: e.target.value || undefined })} />
                 </Row>
+                <Row label={t('theme')} hint={t('themeHint')}>
+                  <select className={selectCls} disabled={!canEdit} value={s.theme ?? 'auto'} onChange={(e) => patch({ theme: e.target.value })}>
+                    <option value="auto">{t('themeAuto')}</option>
+                    <option value="light">{t('themeLight')}</option>
+                    <option value="dark">{t('themeDark')}</option>
+                  </select>
+                </Row>
+                <div className="space-y-1">
+                  <label className="flex items-center gap-2 text-sm">
+                    <Switch disabled={!canEdit || !advanced} checked={advanced && s.hideBranding === true} onCheckedChange={(on) => patch({ hideBranding: on })} />
+                    {t('hideBranding')}
+                  </label>
+                  <p className="text-xs text-muted-foreground">{advanced ? t('hideBrandingHint') : t('hideBrandingLocked')}</p>
+                </div>
                 <Row label={t('defaultCountry')} hint={t('defaultCountryHint')}>
-                  <select className={selectCls} disabled={!canEdit} value={(s.defaultCountry ?? 'NG').toUpperCase()} onChange={(e) => patch({ defaultCountry: e.target.value })}>
+                  <select className={selectCls} disabled={!canEdit} value={(s.defaultCountry ?? 'auto') === 'auto' ? 'auto' : (s.defaultCountry as string).toUpperCase()} onChange={(e) => patch({ defaultCountry: e.target.value })}>
+                    <option value="auto">{t('countryAuto')}</option>
                     {COUNTRIES.filter((c, i, arr) => arr.findIndex((x) => x.iso === c.iso) === i).map((c) => (
                       <option key={c.iso} value={c.iso}>
                         {c.name} (+{c.cc})

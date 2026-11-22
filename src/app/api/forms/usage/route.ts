@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 
 import { requireRole } from '@/lib/auth/account'
 import { supabaseAdmin } from '@/lib/automations/admin-client'
-import { getLimit } from '@/lib/billing/entitlements'
+import { assertFeature, getLimit } from '@/lib/billing/entitlements'
 import { monthStartUtc } from '@/lib/billing/usage'
 import { formErrorResponse } from '@/lib/forms/route-helpers'
 
@@ -17,7 +17,12 @@ export async function GET() {
       supabaseAdmin().rpc('count_form_submissions', { p_account: ctx.accountId, p_since: monthStartUtc().toISOString() }),
     ])
     const counts = (rpc.data ?? {}) as { accepted?: number; held?: number }
+    const advanced = await assertFeature(ctx.supabase, ctx.accountId, 'forms_advanced').then(
+      () => true,
+      () => false,
+    )
     return NextResponse.json({
+      advanced,
       planName: formsLimit.planName,
       forms: { used: count ?? 0, limit: formsLimit.limit },
       leads: { used: Number(counts.accepted ?? 0), held: Number(counts.held ?? 0), limit: leadsLimit.limit },

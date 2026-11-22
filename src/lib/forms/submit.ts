@@ -193,7 +193,8 @@ export async function submitForm(
   const defs = await loadFormDefinitions(db, form.account_id, fields)
   const v = validateAnswers(fields, payload.answers, {
     accountId: form.account_id,
-    defaultCountry: settings.defaultCountry,
+    // 'auto' (or unset): the country of the request (Cloudflare), else Nigeria.
+    defaultCountry: !settings.defaultCountry || settings.defaultCountry === 'auto' ? (meta.country ?? 'NG') : settings.defaultCountry,
     customFields: defs.customFields,
     tableColumns: defs.tableColumns,
     now,
@@ -749,7 +750,7 @@ export async function reprocessSubmission(
   const answers = Object.fromEntries(Object.entries(submission.answers ?? {}).map(([k, a]) => [k, a?.value]))
   const v = validateAnswers(fields, answers, {
     accountId: form.account_id,
-    defaultCountry: settings.defaultCountry,
+    defaultCountry: !settings.defaultCountry || settings.defaultCountry === 'auto' ? 'NG' : settings.defaultCountry,
     customFields: defs.customFields,
     tableColumns: defs.tableColumns,
   })

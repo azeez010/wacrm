@@ -3607,7 +3607,42 @@
       "archive": "Archiver",
       "duplicateFailed": "Impossible de dupliquer le formulaire",
       "archiveFailed": "Impossible d'archiver le formulaire",
-      "archived": "Formulaire archivé"
+      "archived": "Formulaire archivé",
+      "action": {
+        "edit": "Modifier",
+        "share": "Partager",
+        "publish": "Publier",
+        "unpublish": "Dépublier",
+        "settings": "Réglages",
+        "duplicate": "Dupliquer",
+        "archive": "Archiver",
+        "restore": "Restaurer",
+        "delete": "Supprimer définitivement"
+      },
+      "published": "Publié",
+      "unpublished": "Dépublié",
+      "restored": "Formulaire restauré (en pause)",
+      "deleted": "Formulaire supprimé",
+      "actionFailed": "Cela n'a pas fonctionné",
+      "cancel": "Annuler",
+      "archivedTitle": "Archivés ({count})",
+      "confirm": {
+        "archive": {
+          "title": "Archiver « {name} » ?",
+          "body": "Il n'accepte plus de leads et quitte votre liste. Les leads et contacts déjà collectés sont conservés. Vous pouvez le restaurer depuis Archivés.",
+          "cta": "Archiver"
+        },
+        "unpublish": {
+          "title": "Dépublier « {name} » ?",
+          "body": "Les visiteurs verront que le formulaire n'est pas disponible jusqu'à sa republication. Les leads déjà collectés sont conservés.",
+          "cta": "Dépublier"
+        },
+        "delete": {
+          "title": "Supprimer « {name} » définitivement ?",
+          "body": "Cela supprime le formulaire et tous ses envois. Les contacts déjà créés restent dans Contacts. Action irréversible.",
+          "cta": "Supprimer définitivement"
+        }
+      }
     },
     "new": {
       "title": "Nouveau formulaire",
@@ -3666,7 +3701,8 @@
       "tabResults": "Résultats",
       "desktop": "Ordinateur",
       "mobile": "Mobile",
-      "previewHint": "Aperçu en direct. Rien n'est envoyé d'ici."
+      "previewHint": "Aperçu en direct. Rien n'est envoyé d'ici.",
+      "previewHintSupport": "Aperçu en direct sur un site d'exemple. Cliquez sur le bouton ; rien n'est envoyé d'ici."
     },
     "edit": {
       "addField": "Ajouter un champ",
@@ -3743,7 +3779,7 @@
       "language": "Langue",
       "logoUrl": "Adresse du logo",
       "defaultCountry": "Pays par défaut",
-      "defaultCountryHint": "Pour qu'on puisse saisir 0803... sans l'indicatif.",
+      "defaultCountryHint": "Automatique choisit le pays de chaque visiteur ; il peut le modifier.",
       "onePerPhone": "Une entrée par numéro",
       "repeatWindow": "Fenêtre de répétition (heures)",
       "repeatHint": "Une répétition du même numéro dans ce délai ne notifie rien et ne relance rien.",
@@ -3763,7 +3799,16 @@
       "welcome": "Message de bienvenue",
       "welcomeHint": "Envoie ce modèle approuvé aux nouveaux leads ayant coché le consentement.",
       "welcomeNone": "Aucun message de bienvenue",
-      "welcomeParams": "Valeurs du modèle, séparées par | (utilisez {name})"
+      "welcomeParams": "Valeurs du modèle, séparées par | (utilisez {name})",
+      "theme": "Thème de couleur",
+      "themeHint": "Automatique suit le mode clair ou sombre de chaque visiteur.",
+      "themeAuto": "Automatique",
+      "themeLight": "Toujours clair",
+      "themeDark": "Toujours sombre",
+      "hideBranding": "Masquer le badge OgaDesk",
+      "hideBrandingHint": "La mention « Propulsé par OgaDesk » ne sera pas affichée.",
+      "hideBrandingLocked": "Disponible à partir du plan Starter.",
+      "countryAuto": "Automatique (position du visiteur)"
     },
     "support": {
       "askName": "Demander leur nom",
@@ -3794,7 +3839,27 @@
       "day3": "Mer",
       "day4": "Jeu",
       "day5": "Ven",
-      "day6": "Sam"
+      "day6": "Sam",
+      "attention": "Attirer l'attention",
+      "animation": "Animation du bouton",
+      "anim": {
+        "none": "Aucune",
+        "pulse": "Pulsation",
+        "bounce": "Rebond",
+        "wiggle": "Secousse",
+        "ring": "Sonnerie"
+      },
+      "sound": "Son",
+      "sounds": {
+        "none": "Aucun son",
+        "chime": "Carillon",
+        "pop": "Pop"
+      },
+      "playSound": "Lire le son",
+      "preMessage": "Bulle de message",
+      "preMessagePlaceholder": "p. ex. Bonjour, besoin d'aide ?",
+      "preMessageDelay": "Afficher après (secondes)",
+      "soundNote": "La bulle s'affiche une fois par visite. Les navigateurs peuvent bloquer le son tant que le visiteur n'a pas interagi avec la page."
     },
     "share": {
       "title": "Partager",
@@ -3809,7 +3874,8 @@
       "embed": "Intégrer sur un site web",
       "embedScript": "Le plus simple : un div et un script.",
       "embedIframe": "Ou un simple iframe :",
-      "embedHtml": "Ou votre propre formulaire HTML qui envoie au formulaire :"
+      "embedHtml": "Ou votre propre formulaire HTML qui envoie au formulaire :",
+      "notPublished": "Ce formulaire n'est pas encore publié : le lien ne fonctionnera qu'après publication."
     },
     "results": {
       "lastDays": "{days} derniers jours",

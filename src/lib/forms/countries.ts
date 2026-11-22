@@ -76,3 +76,15 @@ export function normalizeFormPhone(raw: unknown, defaultIso?: string | null): st
   if (s.length < 8 || s.length > 15) return null
   return '+' + s
 }
+
+/** Client-side: what the visitor typed + the country picked, as +digits (or the raw text if it cannot be one). */
+export function composeFormPhone(raw: unknown, iso: string): string {
+  return normalizeFormPhone(raw, iso) ?? String(raw ?? '').trim()
+}
+
+/** Country the picker starts on: the fixed one, or the visitor's (Cloudflare), or Nigeria. */
+export function resolveDefaultCountry(setting: string | undefined | null, detected: string | undefined | null): string {
+  const known = (iso?: string | null) => (iso && COUNTRIES.some((c) => c.iso === iso.toUpperCase()) ? iso.toUpperCase() : null)
+  if (!setting || setting === 'auto') return known(detected) ?? DEFAULT_COUNTRY
+  return known(setting) ?? DEFAULT_COUNTRY
+}

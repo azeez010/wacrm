@@ -7,7 +7,9 @@ import { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import type { FormField, FormSettings } from '@/lib/forms/types';
+import { formSettingsSchema, type FormField, type FormSettings } from '@/lib/forms/types';
+import { Volume2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import type { EditorAction } from './editor-state';
 
@@ -20,16 +22,20 @@ export function SupportEditor({
   settings,
   canEdit,
   dispatch,
+  onPlaySound,
 }: {
   fields: FormField[];
   settings: FormSettings;
   canEdit: boolean;
   dispatch: (a: EditorAction) => void;
+  /** Plays the chosen sound in the live preview. */
+  onPlaySound?: () => void;
 }) {
   const t = useTranslations('Forms.support');
   const td = useTranslations('Forms.edit');
   const [more, setMore] = useState(false);
-  const w = settings.widget ?? { corner: 'bottom-left' as const, offsetX: 20, offsetY: 20, icon: 'whatsapp' as const, showOn: 'all' as const, devices: 'all' as const };
+  // Defaults come from the schema so the editor and the saved form agree.
+  const w = settings.widget ?? formSettingsSchema.shape.widget.unwrap().parse({});
   const patchW = (p: Record<string, unknown>) => dispatch({ type: 'settings', patch: { widget: p } });
   const has = (kind: FormField['kind']) => fields.some((f) => f.kind === kind);
   const toggle = (kind: 'name' | 'message', on: boolean) => {
@@ -79,6 +85,46 @@ export function SupportEditor({
       <div className="space-y-1.5">
         <Label className="text-xs text-muted-foreground">{t('greeting')}</Label>
         <Input disabled={!canEdit} value={w.greeting ?? ''} onChange={(e) => patchW({ greeting: e.target.value })} />
+      </div>
+
+      <div className="space-y-3 rounded-lg border border-border p-3">
+        <div className="text-sm font-medium">{t('attention')}</div>
+        <div className="grid grid-cols-2 gap-3">
+          <div className="space-y-1.5">
+            <Label className="text-xs text-muted-foreground">{t('animation')}</Label>
+            <select className={selectCls} disabled={!canEdit} value={w.animation} onChange={(e) => patchW({ animation: e.target.value })}>
+              {['none', 'pulse', 'bounce', 'wiggle', 'ring'].map((a) => (
+                <option key={a} value={a}>
+                  {t(`anim.${a}`)}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs text-muted-foreground">{t('sound')}</Label>
+            <div className="flex gap-1.5">
+              <select className={selectCls} disabled={!canEdit} value={w.sound} onChange={(e) => patchW({ sound: e.target.value })}>
+                <option value="none">{t('sounds.none')}</option>
+                <option value="chime">{t('sounds.chime')}</option>
+                <option value="pop">{t('sounds.pop')}</option>
+              </select>
+              <Button type="button" variant="outline" size="icon" aria-label={t('playSound')} title={t('playSound')} onClick={() => onPlaySound?.()}>
+                <Volume2 className="size-4" />
+              </Button>
+            </div>
+          </div>
+        </div>
+        <div className="space-y-1.5">
+          <Label className="text-xs text-muted-foreground">{t('preMessage')}</Label>
+          <Input disabled={!canEdit} value={w.preMessage ?? ''} placeholder={t('preMessagePlaceholder')} onChange={(e) => patchW({ preMessage: e.target.value })} />
+        </div>
+        {w.preMessage ? (
+          <div className="space-y-1.5">
+            <Label className="text-xs text-muted-foreground">{t('preMessageDelay')}</Label>
+            <Input type="number" min={0} max={120} disabled={!canEdit} value={w.preMessageDelay} onChange={(e) => patchW({ preMessageDelay: Math.min(120, Math.max(0, Number(e.target.value) || 0)) })} />
+          </div>
+        ) : null}
+        <p className="text-xs text-muted-foreground">{t('soundNote')}</p>
       </div>
 
       <div className="rounded-lg border border-border">

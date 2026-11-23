@@ -25,6 +25,7 @@ export interface PartnerRow {
   show_on_leaderboard: boolean
   payout_details: Record<string, unknown>
   status: 'active' | 'suspended'
+  clicks?: number | string
   created_at: string
 }
 

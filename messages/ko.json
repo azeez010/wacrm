@@ -4247,8 +4247,6 @@
   },
   "Partner": {
     "title": "파트너 프로그램",
-    "heroTitle": "지인을 추천하고 수익을 얻으세요",
-    "heroBody": "OgaDesk를 쓸 만한 분을 알고 계신가요? 링크를 공유하면 적격한 추천에 대해 {percent}% 수수료를 받습니다.",
     "linkLabel": "내 추천 링크",
     "copy": "복사",
     "copied": "복사됨",
@@ -4270,9 +4268,12 @@
     "stats": {
       "earnings": "총 수익",
       "earningsNote": "수수료는 결제 시작과 함께 적용됩니다",
-      "referrals": "총 추천 수",
-      "commission": "수수료",
-      "commissionNote": "각 추천의 처음 {months}개월 동안"
+      "clicks": "클릭",
+      "clicksNote": "내 링크 방문 수",
+      "signups": "가입",
+      "signupsNote": "가입한 사람",
+      "customers": "고객",
+      "customersNote": "결제한 추천 대상"
     },
     "tabs": {
       "history": "추천 내역",
@@ -4326,6 +4327,9 @@
       "step3Title": "수익 얻기",
       "step3Body": "적격한 추천에 대해 {percent}% 수수료를 받습니다. 유료 요금제가 시작되면 정산이 열립니다.",
       "note": "수수료율, 자격 요건 및 정산 조건은 정산이 열리기 전에 변경될 수 있습니다."
-    }
+    },
+    "shareTitle": "링크를 공유해 OgaDesk를 추천하세요",
+    "commissionLine": "수수료는 판매당 {percent}%이며 {months}개월간 적용됩니다",
+    "active": "활성"
   }
 }

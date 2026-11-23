@@ -12,7 +12,7 @@ export interface PartnerOverview {
   showOnLeaderboard: boolean
   payoutDetails: Record<string, unknown>
   settings: { enabled: boolean; commissionPercent: number; recurringMonths: number; minPayout: number; currency: string }
-  stats: { referrals: number; byPlan: Record<string, number> }
+  stats: { clicks: number; signups: number; customers: number; byPlan: Record<string, number> }
   referrals: Array<{ id: string; who: string; plan: string; at: string }>
   report: Array<{ month: string; count: number }>
   materials: Array<{ id: string; title: string; kind: string; description: string | null; url: string; imageUrl: string | null; sizeLabel: string | null }>
@@ -85,7 +85,13 @@ export async function buildPartnerOverview(db: Db, userId: string): Promise<Part
       minPayout: Number(s?.min_payout ?? 50),
       currency: s?.currency ?? 'USD',
     },
-    stats: { referrals: referrals.length, byPlan },
+    stats: {
+      clicks: Number(partner.clicks ?? 0),
+      signups: refs.length,
+      // Referrals on a paid plan (stays 0 until payments exist).
+      customers: referrals.filter((r) => r.plan !== 'free').length,
+      byPlan,
+    },
     referrals: referrals.slice(0, 100),
     report: Object.entries(byMonth).sort(([a], [b]) => (a < b ? 1 : -1)).slice(0, 12).map(([month, count]) => ({ month, count })),
     materials: ((matsRes.data ?? []) as Array<{ id: string; title: string; kind: string; description: string | null; url: string; image_url: string | null; size_label: string | null }>).map((m) => ({

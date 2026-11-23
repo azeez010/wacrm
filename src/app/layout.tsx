@@ -8,6 +8,7 @@ import { ThemeProvider } from "@/hooks/use-theme";
 import { BRAND_NAME } from "@/lib/brand";
 import { SITE_URL } from "@/lib/seo";
 import { ThemedToaster } from "@/components/themed-toaster";
+import { ReferralClickBeacon } from "@/components/partner/referral-click-beacon";
 import {
   DEFAULT_MODE,
   DEFAULT_THEME,
@@ -128,6 +129,7 @@ export default async function RootLayout({
           <ThemeProvider>
             {children}
             <ThemedToaster />
+            <ReferralClickBeacon />
           </ThemeProvider>
         </NextIntlClientProvider>
       </body>

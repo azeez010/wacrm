@@ -4247,8 +4247,6 @@
   },
   "Partner": {
     "title": "Partner program",
-    "heroTitle": "Refer your network and earn",
-    "heroBody": "Know someone who could use OgaDesk? Share your link and earn {percent}% commission on eligible referrals.",
     "linkLabel": "Your referral link",
     "copy": "Copy",
     "copied": "Copied",
@@ -4270,9 +4268,12 @@
     "stats": {
       "earnings": "Total earnings",
       "earningsNote": "Commissions start with payments",
-      "referrals": "Total referrals",
-      "commission": "Commission",
-      "commissionNote": "For the first {months} months of each referral"
+      "clicks": "Clicks",
+      "clicksNote": "Visits from your link",
+      "signups": "Signups",
+      "signupsNote": "People who signed up",
+      "customers": "Customers",
+      "customersNote": "Referrals who paid"
     },
     "tabs": {
       "history": "Referrals",
@@ -4326,6 +4327,9 @@
       "step3Title": "Earn",
       "step3Body": "Earn {percent}% commission on eligible referrals. Payouts open when paid plans launch.",
       "note": "Commission rates, eligibility and payout terms may change before payouts open."
-    }
+    },
+    "shareTitle": "Share your link to refer people to OgaDesk",
+    "commissionLine": "Your commission is {percent}% per sale for {months} months",
+    "active": "Active"
   }
 }

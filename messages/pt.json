@@ -4247,8 +4247,6 @@
   },
   "Partner": {
     "title": "Programa de parceiros",
-    "heroTitle": "Indique a sua rede e ganhe",
-    "heroBody": "Conhece alguém que poderia usar o OgaDesk? Partilhe o seu link e ganhe {percent}% de comissão nas indicações elegíveis.",
     "linkLabel": "O seu link de indicação",
     "copy": "Copiar",
     "copied": "Copiado",
@@ -4270,9 +4268,12 @@
     "stats": {
       "earnings": "Ganhos totais",
       "earningsNote": "As comissões começam com os pagamentos",
-      "referrals": "Total de indicações",
-      "commission": "Comissão",
-      "commissionNote": "Durante os primeiros {months} meses de cada indicação"
+      "clicks": "Cliques",
+      "clicksNote": "Visitas pelo seu link",
+      "signups": "Registos",
+      "signupsNote": "Pessoas registadas",
+      "customers": "Clientes",
+      "customersNote": "Indicados que pagaram"
     },
     "tabs": {
       "history": "Indicações",
@@ -4326,6 +4327,9 @@
       "step3Title": "Ganhe",
       "step3Body": "Ganhe {percent}% de comissão nas indicações elegíveis. Os pagamentos abrem quando os planos pagos forem lançados.",
       "note": "As taxas, a elegibilidade e as condições de pagamento podem mudar antes da abertura dos pagamentos."
-    }
+    },
+    "shareTitle": "Partilhe o seu link para indicar o OgaDesk",
+    "commissionLine": "A sua comissão é de {percent}% por venda durante {months} meses",
+    "active": "Ativo"
   }
 }

@@ -83,46 +83,45 @@ export function PartnerPage() {
   const hasPayout = Boolean((data.payoutDetails as { account_number?: string }).account_number)
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6">
-      {/* Hero: the link */}
-      <Card className="gap-4 bg-primary/5 p-6 sm:p-8">
-        <div className="flex items-center gap-2 text-sm font-medium text-primary">
-          <Gift className="size-4" /> {t('title')}
-        </div>
-        <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">{t('heroTitle')}</h2>
-        <p className="max-w-2xl text-muted-foreground">{t('heroBody', { percent: data.settings.commissionPercent })}</p>
-        <div className="flex flex-col gap-2 sm:flex-row">
-          <Input readOnly value={data.link} aria-label={t('linkLabel')} className="bg-background font-mono text-sm" onFocus={(e) => e.currentTarget.select()} />
-          <Button onClick={copy} className="shrink-0">
-            {copied ? <Check className="size-4" /> : <Copy className="size-4" />}
-            {copied ? t('copied') : t('copy')}
-          </Button>
-        </div>
-      </Card>
-
-      {/* Payout card */}
-      <Card className="flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-4">
-          <div className="rounded-lg bg-muted p-3"><Wallet className="size-5 text-muted-foreground" /></div>
-          <div>
-            <p className="text-sm text-muted-foreground">{t('pendingWithdrawal')}</p>
-            <p className="text-2xl font-semibold">{formatPlanPrice(0, data.settings.currency, locale)}</p>
+    <div className="mx-auto max-w-5xl space-y-4">
+      {/* One compact header: link, commission + payout, then the four stats. */}
+      <Card className="gap-3 p-4">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex items-center gap-2 text-sm font-semibold sm:text-base">
+            <Gift className="size-4 shrink-0 text-primary" /> {t('shareTitle')}
+          </div>
+          <div className="flex w-full gap-2 lg:max-w-xl">
+            <Input readOnly value={data.link} aria-label={t('linkLabel')} className="h-9 bg-background font-mono text-sm" onFocus={(e) => e.currentTarget.select()} />
+            <Button size="sm" onClick={copy} className="h-9 shrink-0">
+              {copied ? <Check className="size-4" /> : <Copy className="size-4" />}
+              {copied ? t('copied') : t('copy')}
+            </Button>
           </div>
         </div>
-        <div className="flex flex-col gap-2 sm:max-w-sm sm:items-end sm:text-right">
-          <p className="text-sm text-muted-foreground">{hasPayout ? t('payoutSaved') : t('payoutNote')}</p>
-          <Button variant={hasPayout ? 'outline' : 'default'} onClick={() => setPayoutOpen(true)}>
-            {hasPayout ? t('editPayout') : t('setupPayout')}
-          </Button>
+
+        <div className="flex flex-col gap-2 rounded-lg bg-muted/60 px-3 py-2 text-sm sm:flex-row sm:items-center sm:justify-between">
+          <p>
+            {t('commissionLine', { percent: data.settings.commissionPercent, months: data.settings.recurringMonths })}{' '}
+            <Badge variant="secondary" className="ml-1 align-middle">{t('active')}</Badge>
+          </p>
+          <div className="flex items-center gap-3">
+            <span className="flex items-center gap-1.5 text-muted-foreground" title={hasPayout ? t('payoutSaved') : t('payoutNote')}>
+              <Wallet className="size-4" /> {t('pendingWithdrawal')}:{' '}
+              <span className="font-semibold text-foreground">{formatPlanPrice(0, data.settings.currency, locale)}</span>
+            </span>
+            <Button size="sm" variant={hasPayout ? 'outline' : 'default'} className="h-7" onClick={() => setPayoutOpen(true)}>
+              {hasPayout ? t('editPayout') : t('setupPayout')}
+            </Button>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
+          <Stat label={t('stats.earnings')} value={formatPlanPrice(0, data.settings.currency, locale)} note={t('stats.earningsNote')} />
+          <Stat label={t('stats.clicks')} value={String(data.stats.clicks)} note={t('stats.clicksNote')} />
+          <Stat label={t('stats.signups')} value={String(data.stats.signups)} note={t('stats.signupsNote')} rate={pct(data.stats.signups, data.stats.clicks)} />
+          <Stat label={t('stats.customers')} value={String(data.stats.customers)} note={t('stats.customersNote')} rate={pct(data.stats.customers, data.stats.signups)} />
         </div>
       </Card>
-
-      {/* Stats */}
-      <div className="grid gap-4 sm:grid-cols-3">
-        <Stat label={t('stats.earnings')} value={`${formatPlanPrice(0, data.settings.currency, locale)}`} note={t('stats.earningsNote')} />
-        <Stat label={t('stats.referrals')} value={String(data.stats.referrals)} />
-        <Stat label={t('stats.commission')} value={`${data.settings.commissionPercent}%`} note={t('stats.commissionNote', { months: data.settings.recurringMonths })} />
-      </div>
 
       <Tabs defaultValue="history">
         <TabsList className="h-auto flex-wrap">
@@ -132,7 +131,7 @@ export function PartnerPage() {
           <TabsTrigger value="leaderboard">{t('tabs.leaderboard')}</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="history" className="pt-4">
+        <TabsContent value="history" className="pt-2">
           {data.referrals.length === 0 ? (
             <EmptyState icon={Users} title={t('history.empty')} hint={t('history.emptyHint')} />
           ) : (
@@ -248,13 +247,20 @@ export function PartnerPage() {
   )
 }
 
-function Stat({ label, value, note }: { label: string; value: string; note?: string }) {
+function pct(part: number, whole: number): string {
+  return `${whole > 0 ? Math.round((part / whole) * 100) : 0}%`
+}
+
+function Stat({ label, value, note, rate }: { label: string; value: string; note?: string; rate?: string }) {
   return (
-    <Card className="gap-1 p-5">
-      <p className="text-sm text-muted-foreground">{label}</p>
-      <p className="text-3xl font-semibold tabular-nums">{value}</p>
-      {note && <p className="text-xs text-muted-foreground">{note}</p>}
-    </Card>
+    <div className="rounded-lg border bg-card px-3 py-2">
+      <div className="flex items-center justify-between gap-2">
+        <p className="text-xs text-muted-foreground">{label}</p>
+        {rate && <span className="rounded bg-muted px-1.5 text-[11px] tabular-nums text-muted-foreground">{rate}</span>}
+      </div>
+      <p className="text-xl font-semibold leading-tight tabular-nums">{value}</p>
+      {note && <p className="truncate text-[11px] text-muted-foreground" title={note}>{note}</p>}
+    </div>
   )
 }
 

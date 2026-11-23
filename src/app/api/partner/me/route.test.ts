@@ -43,7 +43,7 @@ describe('GET /api/partner/me', () => {
     const body = await (await GET()).json()
     expect(body.code).toBe('ADA1')
     expect(body.link).toContain('/signup?ref=ADA1')
-    expect(body.stats).toEqual({ referrals: 1, byPlan: { pro: 1 } })
+    expect(body.stats).toEqual({ clicks: 0, signups: 1, customers: 1, byPlan: { pro: 1 } })
     expect(body.referrals).toEqual([{ id: 'x1', who: 'bo***@gmail.com', plan: 'pro', at: '2026-11-02T00:00:00Z' }])
     expect(body.report).toEqual([{ month: '2026-11', count: 1 }])
     expect(body.materials).toHaveLength(1)

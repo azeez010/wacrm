@@ -31,6 +31,8 @@ const JOB_TIMEOUT_MS = 50_000
 export const CRON_JOBS: readonly CronJob[] = [
   // Drain the CRM / email outbox (retries after a provider outage).
   { name: 'crm-flush', path: '/api/crm/flush', method: 'POST', secret: 'AUTOMATION_CRON_SECRET' },
+  // Exchange rates for price display (one free-API call a day; the endpoint is a no-op otherwise).
+  { name: 'fx-refresh', path: '/api/currency/refresh', method: 'POST', secret: 'AUTOMATION_CRON_SECRET' },
   // Time-based automations and "wait" steps.
   { name: 'automations', path: '/api/automations/cron', method: 'GET', secret: 'AUTOMATION_CRON_SECRET' },
   // Time out abandoned chatbot flow runs.

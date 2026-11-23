@@ -36,7 +36,9 @@ export class FakeDb {
 
 class Builder {
   private filters: Array<(r: Row) => boolean> = []
-  private op: 'select' | 'insert' | 'update' | 'delete' = 'select'
+  private op: 'select' | 'insert' | 'update' | 'delete' | 'upsert' = 'select'
+  private upsertRows: Row[] = []
+  private conflictKeys: string[] = []
   private payload: Row = {}
   private wantOne = false
   private headCount = false
@@ -52,6 +54,12 @@ class Builder {
     return this
   }
   insert(p: Row) { this.op = 'insert'; this.payload = p; return this }
+  upsert(p: Row | Row[], o?: { onConflict?: string }) {
+    this.op = 'upsert'
+    this.upsertRows = Array.isArray(p) ? p : [p]
+    this.conflictKeys = (o?.onConflict ?? 'id').split(',').map((k) => k.trim())
+    return this
+  }
   update(p: Row) { this.op = 'update'; this.payload = p; return this }
   delete() { this.op = 'delete'; return this }
   eq(k: string, v: unknown) { this.filters.push((r) => r[k] === v); return this }
@@ -81,6 +89,14 @@ class Builder {
       const row = { id: crypto.randomUUID(), created_at: new Date().toISOString(), ...this.payload }
       rows.push(row)
       return { data: this.wantOne ? row : [row], error: null }
+    }
+    if (this.op === 'upsert') {
+      for (const row of this.upsertRows) {
+        const hit = rows.find((r) => this.conflictKeys.every((k) => r[k] === row[k]))
+        if (hit) Object.assign(hit, row)
+        else rows.push({ ...row })
+      }
+      return { data: null, error: null }
     }
     let matched = rows.filter((r) => this.filters.every((f) => f(r)))
     if (this.op === 'update') {

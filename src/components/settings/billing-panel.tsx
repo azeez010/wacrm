@@ -20,7 +20,7 @@ import type { FeatureKey, LimitKey, PlanRow } from '@/lib/billing/plans';
 import { FEATURE_DEFS } from '@/lib/billing/plans';
 import { SettingsPanelHead } from './settings-panel-head';
 import { UpgradeDialog } from '@/components/billing/upgrade-dialog';
-import { formatPlanPrice } from '@/lib/billing/format';
+import { useMoney } from '@/hooks/use-money';
 
 interface Billing {
   can_view_history: boolean;
@@ -80,7 +80,7 @@ export function BillingPanel() {
   }, [reloadKey]);
 
   // Always the amount ("NGN 0"), never the word "Free": the plan name already says it.
-  const money = (amount: number | string, currency: string) => formatPlanPrice(amount, currency, locale);
+  const money = useMoney();
   const date = (iso: string) =>
     new Intl.DateTimeFormat(locale, { dateStyle: 'medium' }).format(new Date(iso));
 

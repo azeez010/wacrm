@@ -13,6 +13,8 @@ import { cn } from '@/lib/utils'
 import { BRAND_NAME } from '@/lib/brand'
 import { getPublicPlans } from '@/lib/billing/public-plans'
 import { createClient } from '@/lib/supabase/server'
+import { CurrencySwitcher } from '@/components/currency-switcher'
+import { getDisplayCurrency, toDisplay, type DisplayCurrency } from '@/lib/currency/server'
 import { FEATURE_DEFS, type FeatureKey, type LimitKey, type PlanRow } from '@/lib/billing/plans'
 
 export async function generateMetadata({
@@ -56,13 +58,16 @@ const HEADLINE_LIMITS: LimitKey[] = [
 
 type Translate = (key: string, values?: Record<string, string | number>) => string
 
-function money(amount: number, currency: string, locale: string, free: string) {
+function money(amount: number, currency: string, locale: string, free: string, fx: DisplayCurrency) {
   if (amount === 0) return free
-  return new Intl.NumberFormat(locale, {
+  const shown = toDisplay(fx, amount, currency)
+  const text = new Intl.NumberFormat(locale, {
     style: 'currency',
-    currency,
-    maximumFractionDigits: 0,
-  }).format(amount)
+    currency: shown.currency,
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  }).format(shown.amount)
+  return shown.converted ? `≈ ${text}` : text
 }
 
 function limitText(v: number | null | undefined, locale: string, unlimited: string) {
@@ -77,14 +82,16 @@ function PlanCard({
   t,
   tb,
   signedIn,
+  fx,
 }: {
   plan: PlanRow
+  fx: DisplayCurrency
   locale: string
   t: Translate
   tb: Translate
   signedIn: boolean
 }) {
-  const price = (amount: number) => money(amount, plan.currency, locale, t('pricing.free'))
+  const price = (amount: number) => money(amount, plan.currency, locale, t('pricing.free'), fx)
   return (
     <div
       className={cn(
@@ -174,11 +181,12 @@ export default async function LandingPage({
     .then(({ data }) => !!data.user)
     .catch(() => false)
 
-  const [plans, locale, t, tb] = await Promise.all([
+  const [plans, locale, t, tb, fx] = await Promise.all([
     getPublicPlans(),
     getLocale(),
     getTranslations('Landing'),
     getTranslations('Settings.billing'),
+    getDisplayCurrency(),
   ])
 
   return (
@@ -190,6 +198,7 @@ export default async function LandingPage({
             {t('nav.pricing')}
           </a>
           <LanguageSwitcher mode="path" iconOnly />
+          <CurrencySwitcher current={fx.current} options={fx.options} />
           {signedIn ? (
             <Link href="/dashboard" className={buttonVariants()}>
               {t('nav.dashboard')}
@@ -244,7 +253,7 @@ export default async function LandingPage({
           ) : (
             <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {plans.map((p) => (
-                <PlanCard key={p.id} plan={p} locale={locale} t={t} tb={tb} signedIn={signedIn} />
+                <PlanCard key={p.id} plan={p} locale={locale} t={t} tb={tb} signedIn={signedIn} fx={fx} />
               ))}
             </div>
           )}

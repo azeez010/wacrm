@@ -15,6 +15,7 @@ import { Switch } from '@/components/ui/switch'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { EmptyState } from '@/components/dashboard/empty-state'
+import { formatPlanPrice } from '@/lib/billing/format'
 import type { PartnerOverview } from '@/lib/partner/overview'
 
 export function PartnerPage() {
@@ -105,7 +106,7 @@ export function PartnerPage() {
           <div className="rounded-lg bg-muted p-3"><Wallet className="size-5 text-muted-foreground" /></div>
           <div>
             <p className="text-sm text-muted-foreground">{t('pendingWithdrawal')}</p>
-            <p className="text-2xl font-semibold">{data.settings.currency === 'USD' ? '$' : ''}0</p>
+            <p className="text-2xl font-semibold">{formatPlanPrice(0, data.settings.currency, locale)}</p>
           </div>
         </div>
         <div className="flex flex-col gap-2 sm:max-w-sm sm:items-end sm:text-right">
@@ -118,7 +119,7 @@ export function PartnerPage() {
 
       {/* Stats */}
       <div className="grid gap-4 sm:grid-cols-3">
-        <Stat label={t('stats.earnings')} value={`${data.settings.currency === 'USD' ? '$' : ''}0`} note={t('stats.earningsNote')} />
+        <Stat label={t('stats.earnings')} value={`${formatPlanPrice(0, data.settings.currency, locale)}`} note={t('stats.earningsNote')} />
         <Stat label={t('stats.referrals')} value={String(data.stats.referrals)} />
         <Stat label={t('stats.commission')} value={`${data.settings.commissionPercent}%`} note={t('stats.commissionNote', { months: data.settings.recurringMonths })} />
       </div>

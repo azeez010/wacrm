@@ -2,7 +2,7 @@
 export function formatPlanPrice(amount: number | string, currency: string, locale: string): string {
   const n = Number(amount)
   try {
-    return new Intl.NumberFormat(locale, { style: 'currency', currency, maximumFractionDigits: 0 }).format(n)
+    return new Intl.NumberFormat(locale, { style: 'currency', currency, minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(n)
   } catch {
     return `${currency} ${n}`
   }

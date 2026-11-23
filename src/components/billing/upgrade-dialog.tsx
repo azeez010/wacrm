@@ -1,14 +1,14 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import { Check, Loader2, X } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useBillingPlans } from '@/hooks/use-billing-plans';
-import { formatPlanPrice } from '@/lib/billing/format';
+import { useMoney } from '@/hooks/use-money';
 import { cheapestPlanWith, planHasFeature } from '@/lib/billing/plan-helpers';
 import type { FeatureKey } from '@/lib/billing/plans';
 import { cn } from '@/lib/utils';
@@ -32,7 +32,7 @@ export function UpgradeDialog({
   onChanged?: () => void;
 }) {
   const t = useTranslations('Settings.billing');
-  const locale = useLocale();
+  const money = useMoney();
   const { data, error } = useBillingPlans(open);
   const [picked, setPicked] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -118,7 +118,7 @@ export function UpgradeDialog({
                       ) : null}
                     </span>
                     <span className="shrink-0 text-right">
-                      <span className="text-base font-bold">{formatPlanPrice(p.price_monthly, p.currency, locale)}</span>
+                      <span className="text-base font-bold">{money(p.price_monthly, p.currency)}</span>
                       <span className="text-muted-foreground block text-xs">{t('perMonth')}</span>
                     </span>
                   </button>

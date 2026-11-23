@@ -1,5 +1,6 @@
 // GET  /api/v1/forms  - the account's lead forms and support buttons (forms:read)
 // POST /api/v1/forms  - create one from a template                   (forms:manage)
+import { publicOrigin } from '@/lib/seo';
 import { resolveAuditUserId } from '@/lib/api/v1/contacts';
 import { ok, fail, toApiErrorResponse } from '@/lib/api/v1/respond';
 import { requireApiKey } from '@/lib/auth/api-context';
@@ -16,7 +17,7 @@ export async function GET(request: Request) {
       .is('archived_at', null)
       .order('created_at', { ascending: false });
     if (error) return fail('internal', 'Failed to list forms', 500);
-    const origin = new URL(request.url).origin;
+    const origin = publicOrigin(request);
     return ok((data ?? []).map((f) => serializeForm(f, origin)));
   } catch (err) {
     return toApiErrorResponse(err);
@@ -31,7 +32,7 @@ export async function POST(request: Request) {
     const name = typeof b?.name === 'string' ? b.name : undefined;
     const userId = await resolveAuditUserId(ctx.supabase, ctx.accountId);
     const form = await createFormFromTemplate(ctx.supabase, ctx.accountId, userId, { template, name });
-    return ok(serializeForm(form, new URL(request.url).origin, true), 201);
+    return ok(serializeForm(form, publicOrigin(request), true), 201);
   } catch (err) {
     if (err instanceof FormError) return fail(err.status === 400 ? 'bad_request' : 'internal', err.message, err.status);
     return toApiErrorResponse(err);

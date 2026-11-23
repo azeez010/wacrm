@@ -22,7 +22,9 @@ async function connect(scopes: string[], opts: { hasWhatsAppConnection?: boolean
   await Promise.all([server.connect(a), client.connect(b)])
   return client
 }
-const names = async (c: Client) => (await c.listTools()).tools.map((t) => t.name).sort()
+// Guidance tools that every key gets (no scope needed); tested on their own below.
+const ALWAYS = new Set(['get_usage', 'get_playbook'])
+const names = async (c: Client) => (await c.listTools()).tools.map((t) => t.name).filter((n) => !ALWAYS.has(n)).sort()
 
 describe('hosted MCP server', () => {
   it('exposes only whoami for a key with no scopes', async () => {
@@ -32,7 +34,7 @@ describe('hosted MCP server', () => {
   it('exposes read tools for read scopes and hides every write tool', async () => {
     const t = await names(await connect(['contacts:read', 'conversations:read', 'messages:read']))
     expect(t).toEqual(
-      ['filter_contacts', 'get_contact', 'get_conversation', 'list_contacts', 'list_conversations', 'list_messages', 'list_tags', 'whoami'].sort(),
+      ['filter_contacts', 'get_contact', 'get_conversation', 'get_message', 'list_contacts', 'list_conversations', 'list_messages', 'list_tags', 'whoami'].sort(),
     )
   })
 
@@ -186,5 +188,19 @@ describe('hosted MCP server', () => {
     expect(submit).toEqual(['submit_form_lead', 'whoami'])
     // A key with read + manage sees both, and a write-only automation key sees none of them.
     expect((await names(await connect(['automations:write']))).some((n) => n.includes('form'))).toBe(false)
+  })
+
+  it('every key gets get_usage and get_playbook, plus instructions and prompts', async () => {
+    const c = await connect([])
+    const all = (await c.listTools()).tools.map((t) => t.name)
+    expect(all).toEqual(expect.arrayContaining(['whoami', 'get_usage', 'get_playbook']))
+    expect(c.getInstructions()).toContain('get_playbook')
+    const prompts = (await c.listPrompts()).prompts.map((p) => p.name)
+    expect(prompts).toEqual(expect.arrayContaining(['marketing_project', 'launch_lead_gen']))
+    const got = await c.getPrompt({ name: 'launch_lead_gen', arguments: { goal: 'spring promo' } })
+    expect(JSON.stringify(got.messages)).toContain('spring promo')
+    const pb = await c.callTool({ name: 'get_playbook', arguments: { topic: 'developer_api' } })
+    expect(JSON.stringify(pb)).toContain('/api/v1')
+    expect(JSON.stringify(pb)).not.toContain('mcp.internal')
   })
 })

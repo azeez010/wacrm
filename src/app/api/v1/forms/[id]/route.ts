@@ -1,6 +1,7 @@
 // GET    /api/v1/forms/{id}  - the full definition        (forms:read)
 // PATCH  /api/v1/forms/{id}  - name, status, fields, settings (forms:manage)
 // DELETE /api/v1/forms/{id}  - archive (leads are kept)  (forms:manage)
+import { publicOrigin } from '@/lib/seo';
 import { ok, fail, toApiErrorResponse } from '@/lib/api/v1/respond';
 import { requireApiKey } from '@/lib/auth/api-context';
 import { assertFeature } from '@/lib/billing/entitlements';
@@ -23,7 +24,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     const { id } = await params;
     const form = await load(ctx, id);
     if (!form) return fail('not_found', 'Form not found', 404);
-    return ok(serializeForm(form, new URL(request.url).origin, true));
+    return ok(serializeForm(form, publicOrigin(request), true));
   } catch (err) {
     return toApiErrorResponse(err);
   }
@@ -41,7 +42,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     if (update.settings && usesAdvancedFeatures(update.settings as never)) {
       await assertFeature(ctx.supabase, ctx.accountId, 'forms_advanced');
     }
-    if (Object.keys(update).length === 0) return ok(serializeForm(current, new URL(request.url).origin, true));
+    if (Object.keys(update).length === 0) return ok(serializeForm(current, publicOrigin(request), true));
     const { data, error } = await ctx.supabase
       .from('forms')
       .update(update)
@@ -50,7 +51,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       .select(FORM_COLUMNS)
       .single();
     if (error || !data) return fail('internal', 'Failed to save the form', 500);
-    return ok(serializeForm(data as FormRow, new URL(request.url).origin, true));
+    return ok(serializeForm(data as FormRow, publicOrigin(request), true));
   } catch (err) {
     if (err instanceof FormError) return fail('bad_request', err.message, err.status);
     return toApiErrorResponse(err);

@@ -2425,7 +2425,8 @@
         "read": "Look things up: contacts, conversations, pipelines, automations and more. Cannot change anything.",
         "builder": "Read-only, plus build pipelines, automations, flows, templates, fields, tables, segments and forms. Cannot message customers.",
         "full": "Everything above, plus edit contacts, send WhatsApp messages and launch broadcasts.",
-        "custom": "Choose exactly what this key may do."
+        "custom": "Choose exactly what this key may do.",
+        "developer": "Campaign builder, plus outbound webhooks and verification codes (OTP) for connecting your own app. Cannot message customers directly."
       },
       "cancel": "Cancel",
       "save": "Save",
@@ -2460,7 +2461,8 @@
       "pwCta": "Continue",
       "urlNote": "Paste this where the app asks for the server URL. That's it, no sign-in needed.",
       "moreClients": "Claude Code, Desktop or REST API",
-      "mcpLockedNote": "Your plan doesn't include connecting AI assistants. This key still works with the REST API."
+      "mcpLockedNote": "Your plan doesn't include connecting AI assistants. This key still works with the REST API.",
+      "accessDeveloper": "Developer"
     },
     "deals": {
       "title": "Deals & currency",

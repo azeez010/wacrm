@@ -92,6 +92,7 @@ export function KeyDialog({
             <select id="api-key-access" className={selectCls} value={access} onChange={(e) => setAccess(e.target.value as Access)}>
               <option value="read">{t('accessRead')}</option>
               <option value="builder">{t('accessBuilder')}</option>
+              <option value="developer">{t('accessDeveloper')}</option>
               <option value="full">{t('accessFull')}</option>
               <option value="custom">{t('accessCustomOption')}</option>
             </select>

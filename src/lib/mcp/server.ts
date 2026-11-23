@@ -10,6 +10,9 @@ import { READ, WRITE, cursor, errorResult, has, limit, run } from './helpers'
 import { registerBuilderTools } from './builder-tools'
 import { registerCustomTools } from './custom-tools'
 import { registerFormsTools } from './forms-tools'
+import { registerDevTools } from './dev-tools'
+import { registerGuidance } from './guidance'
+import { SERVER_INSTRUCTIONS } from './playbooks'
 
 export function createWacrmMcpServer(
   authorization: string,
@@ -17,7 +20,7 @@ export function createWacrmMcpServer(
   opts: { hasWhatsAppConnection?: boolean } = {},
 ) {
   const api: ApiClient = createApiClient(authorization)
-  const server = new McpServer({ name: 'wacrm', version: '1.0.0' })
+  const server = new McpServer({ name: 'wacrm', version: '1.0.0' }, { instructions: SERVER_INSTRUCTIONS })
 
   server.registerTool(
     'whoami',
@@ -295,6 +298,8 @@ export function createWacrmMcpServer(
   registerBuilderTools(server, api, scopes)
   registerCustomTools(server, api, scopes)
   registerFormsTools(server, api, scopes)
+  registerDevTools(server, api, scopes)
+  registerGuidance(server)
 
   return server
 }

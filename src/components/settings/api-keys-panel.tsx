@@ -110,6 +110,7 @@ export function ApiKeysPanel() {
     const p = presetFor(k.scopes);
     if (p === 'read') return t('accessRead');
     if (p === 'builder') return t('accessBuilder');
+    if (p === 'developer') return t('accessDeveloper');
     if (p === 'full') return t('accessFull');
     return k.scopes.length === 0 ? t('noScopes') : t('accessCustom', { count: k.scopes.length });
   };

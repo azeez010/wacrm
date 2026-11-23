@@ -2425,7 +2425,8 @@
         "read": "Consulter contacts, conversations, pipelines, automatisations et plus. Ne peut rien modifier.",
         "builder": "Lecture seule, plus création de pipelines, automatisations, flux, modèles, champs, tables, segments et formulaires. Ne peut pas écrire aux clients.",
         "full": "Tout ce qui précède, plus modifier les contacts, envoyer des messages WhatsApp et lancer des diffusions.",
-        "custom": "Choisissez précisément ce que cette clé peut faire."
+        "custom": "Choisissez précisément ce que cette clé peut faire.",
+        "developer": "Créateur de campagnes, plus webhooks sortants et codes de vérification (OTP) pour connecter votre propre application. Ne peut pas écrire directement aux clients."
       },
       "cancel": "Annuler",
       "save": "Enregistrer",
@@ -2460,7 +2461,8 @@
       "pwCta": "Continuer",
       "urlNote": "Collez-la là où l'application demande l'URL du serveur. C'est tout, sans connexion.",
       "moreClients": "Claude Code, Desktop ou API REST",
-      "mcpLockedNote": "Votre formule n'inclut pas la connexion d'assistants IA. Cette clé fonctionne toujours avec l'API REST."
+      "mcpLockedNote": "Votre formule n'inclut pas la connexion d'assistants IA. Cette clé fonctionne toujours avec l'API REST.",
+      "accessDeveloper": "Développeur"
     },
     "deals": {
       "title": "Affaires et devise",

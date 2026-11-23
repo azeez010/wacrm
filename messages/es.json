@@ -2425,7 +2425,8 @@
         "read": "Consultar contactos, conversaciones, pipelines, automatizaciones y más. No puede cambiar nada.",
         "builder": "Solo lectura, más crear pipelines, automatizaciones, flujos, plantillas, campos, tablas, segmentos y formularios. No puede escribir a clientes.",
         "full": "Todo lo anterior, más editar contactos, enviar mensajes de WhatsApp y lanzar difusiones.",
-        "custom": "Elige exactamente qué puede hacer esta clave."
+        "custom": "Elige exactamente qué puede hacer esta clave.",
+        "developer": "Creador de campañas, más webhooks de salida y códigos de verificación (OTP) para conectar tu propia app. No puede escribir directamente a los clientes."
       },
       "cancel": "Cancelar",
       "save": "Guardar",
@@ -2460,7 +2461,8 @@
       "pwCta": "Continuar",
       "urlNote": "Pégala donde la app pida la URL del servidor. Eso es todo, sin iniciar sesión.",
       "moreClients": "Claude Code, Desktop o API REST",
-      "mcpLockedNote": "Tu plan no incluye conectar asistentes de IA. Esta clave sigue funcionando con la API REST."
+      "mcpLockedNote": "Tu plan no incluye conectar asistentes de IA. Esta clave sigue funcionando con la API REST.",
+      "accessDeveloper": "Desarrollador"
     },
     "deals": {
       "title": "Negocios y moneda",

@@ -5,6 +5,28 @@ import { routing } from '@/i18n/routing'
 /** Public origin used for canonical URLs, hreflang and the sitemap. */
 export const SITE_URL = (process.env.NEXT_PUBLIC_APP_URL || 'https://ogadesk.com').replace(/\/+$/, '')
 
+/** Hosts that are only the in-process stand-in for the MCP -> REST hop; never a real address to give people. */
+const INTERNAL_HOSTS = new Set(['mcp.internal'])
+
+/**
+ * The origin to put in links we hand out (form links, embed snippets).
+ * A configured domain beats the request's Host header: Host differs between our domains
+ * and workers.dev, can be spoofed, and is a fake internal name when a call comes through MCP.
+ */
+export function publicOrigin(request?: Request, env: Record<string, string | undefined> = process.env): string {
+  const configured = env.NEXT_PUBLIC_APP_URL?.trim()
+  if (configured) return configured.replace(/\/+$/, '')
+  if (request) {
+    try {
+      const u = new URL(request.url)
+      if (!INTERNAL_HOSTS.has(u.hostname)) return u.origin
+    } catch {
+      // fall through
+    }
+  }
+  return SITE_URL
+}
+
 /** Path of a localized public page: the default language is unprefixed. */
 export function localizedPath(locale: Locale, path = '/'): string {
   if (locale === routing.defaultLocale) return path

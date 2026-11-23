@@ -56,6 +56,15 @@ import {
 } from '@/app/api/v1/segments/[id]/route'
 import { GET as segmentContactsGet } from '@/app/api/v1/segments/[id]/contacts/route'
 import { POST as contactsFilterPost } from '@/app/api/v1/contacts/filter/route'
+import { GET as webhooksGet, POST as webhooksPost } from '@/app/api/v1/webhooks/route'
+import { GET as webhookGet, PATCH as webhookPatch, DELETE as webhookDelete } from '@/app/api/v1/webhooks/[id]/route'
+import { POST as verificationsPost } from '@/app/api/v1/verifications/route'
+import { GET as verificationGet } from '@/app/api/v1/verifications/[id]/route'
+import { POST as verificationCheck } from '@/app/api/v1/verifications/[id]/check/route'
+import { GET as messageGet } from '@/app/api/v1/messages/[id]/route'
+import { GET as usageGet } from '@/app/api/v1/usage/route'
+import { GET as pipelineGet } from '@/app/api/v1/pipelines/[id]/route'
+import { GET as dealGet } from '@/app/api/v1/deals/[id]/route'
 import { GET as formsGet, POST as formsPost } from '@/app/api/v1/forms/route'
 import { GET as formGet, PATCH as formPatch, DELETE as formDelete } from '@/app/api/v1/forms/[id]/route'
 import { GET as formSubmissionsGet, POST as formSubmissionsPost } from '@/app/api/v1/forms/[id]/submissions/route'
@@ -230,6 +239,24 @@ export function createApiClient(authorization: string) {
       call(authorization, segmentContactsGet as Handler, 'GET', `/segments/${enc(id)}/contacts`, { id, query: q }),
     filterContacts: (body: unknown) =>
       call(authorization, contactsFilterPost as Handler, 'POST', '/contacts/filter', { body }),
+    listWebhooks: () => call(authorization, webhooksGet as Handler, 'GET', '/webhooks'),
+    getWebhook: (id: string) => call(authorization, webhookGet as Handler, 'GET', `/webhooks/${enc(id)}`, { id }),
+    createWebhook: (body: unknown) => call(authorization, webhooksPost as Handler, 'POST', '/webhooks', { body }),
+    updateWebhook: (id: string, body: unknown) =>
+      call(authorization, webhookPatch as Handler, 'PATCH', `/webhooks/${enc(id)}`, { id, body }),
+    deleteWebhook: (id: string) =>
+      call(authorization, webhookDelete as Handler, 'DELETE', `/webhooks/${enc(id)}`, { id }),
+    sendVerification: (body: unknown) =>
+      call(authorization, verificationsPost as Handler, 'POST', '/verifications', { body }),
+    getVerification: (id: string) =>
+      call(authorization, verificationGet as Handler, 'GET', `/verifications/${enc(id)}`, { id }),
+    checkVerification: (id: string, code: string) =>
+      call(authorization, verificationCheck as Handler, 'POST', `/verifications/${enc(id)}/check`, { id, body: { code } }),
+    getMessage: (id: string) => call(authorization, messageGet as Handler, 'GET', `/messages/${enc(id)}`, { id }),
+    getUsage: () => call(authorization, usageGet as Handler, 'GET', '/usage'),
+    getPipeline: (id: string) =>
+      call(authorization, pipelineGet as Handler, 'GET', `/pipelines/${enc(id)}`, { id }),
+    getDeal: (id: string) => call(authorization, dealGet as Handler, 'GET', `/deals/${enc(id)}`, { id }),
     getBroadcast: (id: string) =>
       call(authorization, broadcastGet as Handler, 'GET', `/broadcasts/${enc(id)}`, { id }),
   }

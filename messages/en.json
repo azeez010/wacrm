@@ -2776,6 +2776,13 @@
       "save": "Save",
       "saved": "Saved",
       "error": "Could not save"
+    },
+    "marketing": {
+      "title": "Product tips, news and offers",
+      "hint": "Emails about new features and offers. Account, billing and security emails always reach you.",
+      "on": "Marketing emails turned on",
+      "off": "Marketing emails turned off",
+      "error": "Could not save your choice"
     }
   },
   "SignupPage": {

@@ -2776,6 +2776,13 @@
       "save": "Guardar",
       "saved": "Guardado",
       "error": "No se pudo guardar"
+    },
+    "marketing": {
+      "title": "Consejos, novedades y ofertas",
+      "hint": "Correos sobre nuevas funciones y ofertas. Los correos de cuenta, facturación y seguridad siempre te llegarán.",
+      "on": "Correos de marketing activados",
+      "off": "Correos de marketing desactivados",
+      "error": "No se pudo guardar tu elección"
     }
   },
   "SignupPage": {

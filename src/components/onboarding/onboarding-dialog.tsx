@@ -7,7 +7,7 @@ import { toast } from 'sonner'
 
 import { useAuth } from '@/hooks/use-auth'
 import { Button } from '@/components/ui/button'
-import { Checkbox } from '@/components/ui/checkbox'
+import { Switch } from '@/components/ui/switch'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { DETAIL_MAX, HEARD_FROM, USE_CASES, type HeardFrom, type UseCase } from '@/lib/onboarding/options'
@@ -35,16 +35,20 @@ export function OnboardingDialog() {
   const [useCases, setUseCases] = useState<UseCase[]>([])
   const [heardFrom, setHeardFrom] = useState<HeardFrom | null>(null)
   const [detail, setDetail] = useState('')
-  const [optIn, setOptIn] = useState(false)
+  const [optIn, setOptIn] = useState(true)
   const [saving, setSaving] = useState(false)
+  // Arrived through a partner link: skip the "where did you hear" step.
+  const [referred, setReferred] = useState(false)
 
   useEffect(() => {
     if (!accountId || accountStatus !== 'ready' || !isOwner) return
     let cancelled = false
     void fetch('/api/onboarding')
       .then((r) => (r.ok ? r.json() : null))
-      .then((d: { needsOnboarding?: boolean } | null) => {
-        if (!cancelled && d?.needsOnboarding) setNeeded(true)
+      .then((d: { needsOnboarding?: boolean; referred?: boolean } | null) => {
+        if (cancelled) return
+        if (d?.referred) setReferred(true)
+        if (d?.needsOnboarding) setNeeded(true)
       })
       .catch(() => undefined)
     return () => {
@@ -60,9 +64,9 @@ export function OnboardingDialog() {
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({
           use_cases: useCases,
-          heard_from: skipSource ? null : heardFrom,
+          heard_from: referred ? 'partner' : skipSource ? null : heardFrom,
           heard_from_detail: skipSource ? null : detail || null,
-          marketing_opt_in: skipSource ? false : optIn,
+          marketing_opt_in: optIn,
         }),
       })
       if (!res.ok) throw new Error('save failed')
@@ -117,9 +121,16 @@ export function OnboardingDialog() {
                 )
               })}
             </div>
+            <div className="flex items-start justify-between gap-4">
+              <div className="text-sm">
+                <p id="onboarding-marketing-label">{t('marketingLabel')}</p>
+                <p className="text-xs text-muted-foreground">{t('marketingHint')}</p>
+              </div>
+              <Switch checked={optIn} onCheckedChange={(v) => setOptIn(Boolean(v))} aria-labelledby="onboarding-marketing-label" />
+            </div>
             <div className="flex justify-end">
-              <Button disabled={useCases.length === 0} onClick={() => setStep(2)}>
-                {t('next')}
+              <Button disabled={useCases.length === 0 || saving} onClick={() => (referred ? void submit(true) : setStep(2))}>
+                {referred ? (saving ? t('saving') : t('finish')) : t('next')}
               </Button>
             </div>
           </>
@@ -160,13 +171,6 @@ export function OnboardingDialog() {
                 />
               </div>
             )}
-            <label className="flex cursor-pointer items-start gap-2.5">
-              <Checkbox checked={optIn} onCheckedChange={(c) => setOptIn(c === true)} className="mt-0.5" />
-              <span className="text-sm">
-                {t('marketingLabel')}
-                <span className="block text-xs text-muted-foreground">{t('marketingHint')}</span>
-              </span>
-            </label>
             <div className="flex items-center justify-between gap-2">
               <Button variant="ghost" onClick={() => setStep(1)} disabled={saving}>
                 {t('back')}

@@ -15,6 +15,7 @@ import { supabaseAdmin } from '@/lib/flows/admin-client'
 import { crmSyncUser, crmTrack } from '@/lib/crm'
 import { isLocale, LOCALE_COOKIE } from '@/i18n/locales'
 import { isValidReferralCode, REFERRAL_COOKIE } from '@/lib/referral'
+import { normalizeCode } from '@/lib/partner/code'
 import { parseOnboardingInput, parseUseCasesOnly } from '@/lib/onboarding/options'
 import { queueWelcomeEmail } from '@/lib/email/queue'
 
@@ -23,10 +24,21 @@ export async function GET() {
     const ctx = await getCurrentAccount()
     const { data } = await ctx.supabase
       .from('accounts')
-      .select('use_cases, heard_from, onboarded_at')
+      .select('use_cases, heard_from, onboarded_at, referral_code')
       .eq('id', ctx.accountId)
       .maybeSingle()
+    // Came through a partner's link: we already know where they heard of us.
+    const jar = await cookies()
+    const { data: referral } = await supabaseAdmin().from('referrals').select('id').eq('referred_user_id', ctx.userId).maybeSingle()
+    let referred = Boolean(referral)
+    const cookieCode = normalizeCode(jar.get(REFERRAL_COOKIE)?.value)
+    if (!referred && cookieCode) {
+      // Only a real partner's code counts, not any ?ref= value.
+      const { data: partner } = await supabaseAdmin().from('partners').select('user_id').eq('code', cookieCode).maybeSingle()
+      referred = Boolean(partner)
+    }
     return NextResponse.json({
+      referred,
       // Only the workspace owner is asked; invited teammates never see the dialog.
       needsOnboarding: ctx.role === 'owner' && !data?.onboarded_at,
       answers: { use_cases: data?.use_cases ?? [], heard_from: data?.heard_from ?? null },
@@ -59,7 +71,9 @@ export async function POST(request: Request) {
     // Referral: remembered from a ?ref= link; the first code wins.
     const ref = jar.get(REFERRAL_COOKIE)?.value
     const referral = isValidReferralCode(ref) ? ref : null
-    const heardFrom = input.heardFrom ?? (referral && !account?.referral_code ? 'partner' : null)
+    const { data: referralRow } = await admin.from('referrals').select('code').eq('referred_user_id', ctx.userId).maybeSingle()
+    const referredByPartner = Boolean(referralRow) || Boolean(referral && !account?.referral_code)
+    const heardFrom = input.heardFrom ?? (referredByPartner ? 'partner' : null)
 
     const { error: accErr } = await admin
       .from('accounts')
@@ -67,7 +81,7 @@ export async function POST(request: Request) {
         use_cases: input.useCases,
         heard_from: heardFrom,
         heard_from_detail: input.heardFromDetail,
-        referral_code: account?.referral_code ?? referral,
+        referral_code: account?.referral_code ?? referral ?? (referralRow?.code as string | undefined) ?? null,
         onboarded_at: account?.onboarded_at ?? new Date().toISOString(),
       })
       .eq('id', ctx.accountId)

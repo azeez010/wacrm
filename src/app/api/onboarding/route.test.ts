@@ -52,6 +52,20 @@ describe('GET /api/onboarding', () => {
   })
 })
 
+describe('GET /api/onboarding referred flag', () => {
+  it('is true for a recorded referral or a real partner cookie, false for a random ref', async () => {
+    expect(await (await GET()).json()).toMatchObject({ referred: false })
+    cookieJar = { ogadesk_ref: 'NOBODY1' }
+    expect(await (await GET()).json()).toMatchObject({ referred: false })
+    admin.rows('partners').push({ user_id: 'p1', code: 'AMAKA1', status: 'active' })
+    cookieJar = { ogadesk_ref: 'amaka1' }
+    expect(await (await GET()).json()).toMatchObject({ referred: true })
+    cookieJar = {}
+    admin.rows('referrals').push({ referred_user_id: 'u1', partner_user_id: 'p1', code: 'AMAKA1' })
+    expect(await (await GET()).json()).toMatchObject({ referred: true })
+  })
+})
+
 describe('POST /api/onboarding', () => {
   it('saves the answers, profile facts and queues the CRM event (first time)', async () => {
     cookieJar = { NEXT_LOCALE: 'fr' }

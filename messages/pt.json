@@ -2776,6 +2776,13 @@
       "save": "Salvar",
       "saved": "Salvo",
       "error": "Não foi possível salvar"
+    },
+    "marketing": {
+      "title": "Dicas, novidades e ofertas",
+      "hint": "E-mails sobre novas funcionalidades e ofertas. Os e-mails de conta, faturação e segurança chegam-lhe sempre.",
+      "on": "E-mails de marketing ativados",
+      "off": "E-mails de marketing desativados",
+      "error": "Não foi possível guardar a sua escolha"
     }
   },
   "SignupPage": {

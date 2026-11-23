@@ -2776,6 +2776,13 @@
       "save": "Enregistrer",
       "saved": "Enregistré",
       "error": "Impossible d'enregistrer"
+    },
+    "marketing": {
+      "title": "Conseils, nouveautés et offres",
+      "hint": "E-mails sur les nouvelles fonctionnalités et les offres. Les e-mails de compte, de facturation et de sécurité vous parviennent toujours.",
+      "on": "E-mails marketing activés",
+      "off": "E-mails marketing désactivés",
+      "error": "Impossible d’enregistrer votre choix"
     }
   },
   "SignupPage": {

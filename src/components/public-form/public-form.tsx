@@ -265,8 +265,15 @@ export function PublicForm({
   const page = (node: React.ReactNode) => (
     <EditContext.Provider value={editFn}>
       {fullPage ? (
-        <div style={{ ...themeVars(config.theme), color: 'var(--og-fg)' }} className="min-h-screen bg-[var(--og-page)] px-4 py-8 sm:py-14">
-          {node}
+        <div style={{ ...themeVars(config.theme), color: 'var(--og-fg)' }} className="relative min-h-screen bg-[var(--og-page)] px-4 py-8 sm:py-14">
+          {config.backgroundImage ? (
+            <>
+              <div aria-hidden className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url("${config.backgroundImage.replace(/"/g, '%22')}")` }} />
+              {/* A veil in the page colour keeps the form readable on any picture, light or dark. */}
+              <div aria-hidden className="absolute inset-0" style={{ background: 'color-mix(in srgb, var(--og-page) 72%, transparent)' }} />
+            </>
+          ) : null}
+          <div className="relative">{node}</div>
         </div>
       ) : (
         node

@@ -7,7 +7,7 @@ import { getCurrentAccount, toErrorResponse } from '@/lib/auth/account';
 import { hasMinRole } from '@/lib/auth/roles';
 import { getEntitlements } from '@/lib/billing/entitlements';
 import type { LimitKey, PlanRow } from '@/lib/billing/plans';
-import { countBillableMessages } from '@/lib/billing/usage';
+import { countBillableMessages, monthStartUtc } from '@/lib/billing/usage';
 import { supabaseAdmin } from '@/lib/flows/admin-client';
 
 type Db = Awaited<ReturnType<typeof getCurrentAccount>>['supabase'];
@@ -80,6 +80,11 @@ export async function GET() {
         count(db, 'webhook_endpoints', accountId),
         count(db, 'profiles', accountId),
         countPendingInvites(db, accountId),
+        // Forms (not archived) and this month's leads (accepted vs held over the quota).
+        db.from('forms').select('id', { count: 'exact', head: true }).eq('account_id', accountId).is('archived_at', null).then((r) => r.count ?? 0),
+        Promise.resolve(
+          supabaseAdmin().rpc('count_form_submissions', { p_account: accountId, p_since: monthStartUtc().toISOString() })
+        ).then((r) => (r.data ?? {}) as { accepted?: number; held?: number }),
       ]),
     ]);
 
@@ -87,7 +92,7 @@ export async function GET() {
     // service-role only); `getCurrentAccount` already proved membership.
     const messagesThisMonth = await countBillableMessages(supabaseAdmin(), accountId);
 
-    const [contacts, connections, automations, flows, pipelines, templates, quickReplies, apiKeys, webhooks, members, pending] =
+    const [contacts, connections, automations, flows, pipelines, templates, quickReplies, apiKeys, webhooks, members, pending, formCount, leadCounts] =
       counts;
     const used: Partial<Record<LimitKey, number>> = {
       contacts,
@@ -101,11 +106,19 @@ export async function GET() {
       webhook_endpoints: webhooks,
       seats: members + pending,
       messages_per_month: messagesThisMonth,
+      forms_max: formCount,
+      form_submissions_per_month: Number(leadCounts.accepted ?? 0),
     };
 
     const usage = (Object.keys(used) as LimitKey[]).map((key) => {
       const l = ents.limits[key];
-      return { key, used: used[key] ?? 0, limit: typeof l === 'number' ? l : null };
+      return {
+        key,
+        used: used[key] ?? 0,
+        limit: typeof l === 'number' ? l : null,
+        // Leads over the quota are kept but not processed until released or the plan grows.
+        ...(key === 'form_submissions_per_month' ? { held: Number(leadCounts.held ?? 0) } : {}),
+      };
     });
 
     const plans = (plansRes.data ?? []) as unknown as PlanRow[];

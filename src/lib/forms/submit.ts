@@ -190,7 +190,7 @@ export async function submitForm(
     }
   }
 
-  const defs = await loadFormDefinitions(db, form.account_id, fields)
+  const defs = await loadFormDefinitions(db, form.account_id, fields, settings)
   const v = validateAnswers(fields, payload.answers, {
     accountId: form.account_id,
     // 'auto' (or unset): the country of the request (Cloudflare), else Nigeria.
@@ -273,6 +273,7 @@ export async function submitForm(
         defs,
         v,
         qualified: settings.qualification.enabled ? score.qualified : null,
+        score: score.score,
         payload,
         pre,
         now,
@@ -382,6 +383,8 @@ interface FinishCtx {
   defs: FormDefinitions
   v: ValidatedAnswers
   qualified: boolean | null
+  /** The lead's score (for the score custom field). */
+  score?: number
   payload: SubmitPayload
   pre: Prechecked
   now: Date
@@ -430,7 +433,7 @@ export async function runSideEffects(db: Db, c: FinishCtx): Promise<void> {
       name: v.name,
       email: v.email,
       company: v.company,
-      leadSource: `Form: ${form.name}`,
+      leadSource: v.leadSource ?? `Form: ${form.name}`,
     })
     contactId = r.id
     created = r.created
@@ -462,7 +465,7 @@ export async function runSideEffects(db: Db, c: FinishCtx): Promise<void> {
         row,
         {
           ...utmToColumns(c.payload.utm),
-          lead_source: `Form: ${form.name}`,
+          lead_source: v.leadSource ?? `Form: ${form.name}`,
           source_referrer: c.payload.referrer,
           source_form_id: form.id,
         },
@@ -493,6 +496,24 @@ export async function runSideEffects(db: Db, c: FinishCtx): Promise<void> {
     const toWrite = Object.fromEntries(entries.filter(([k]) => !filled.has(idByKey.get(k) ?? '')))
     if (Object.keys(toWrite).length === 0) return
     const r = await writeContactCustomFields(db, accountId, cid, toWrite)
+    if (!r.ok) throw new Error(r.error)
+  })
+
+  // The lead's score into a number custom field (only ever raises it, so a later low-scoring form never lowers a good lead).
+  await step('score_field', async () => {
+    const fieldId = settings.scoreFieldId
+    if (!fieldId || c.score === undefined) return 'off'
+    const def = c.defs.customFields.get(fieldId)
+    if (!def || def.field_type !== 'number') return 'score field missing'
+    const { data: have } = await db
+      .from('contact_custom_values')
+      .select('value')
+      .eq('contact_id', cid)
+      .eq('custom_field_id', fieldId)
+      .maybeSingle()
+    const current = Number((have as { value?: string | null } | null)?.value)
+    if (Number.isFinite(current) && current >= c.score) return 'kept the higher score'
+    const r = await writeContactCustomFields(db, accountId, cid, { [def.key]: c.score })
     if (!r.ok) throw new Error(r.error)
   })
 
@@ -750,6 +771,7 @@ export async function reprocessSubmission(
     id: string
     answers: Record<string, { label: string; value: unknown }>
     qualified: boolean | null
+    score?: number
     utm: Record<string, string>
     referrer: string | null
     processing: { steps?: Record<string, StepResult> } | null
@@ -758,7 +780,7 @@ export async function reprocessSubmission(
 ): Promise<void> {
   const settings = parseFormSettings(form.settings)
   const fields = parseFormFields(form.fields)
-  const defs = await loadFormDefinitions(db, form.account_id, fields)
+  const defs = await loadFormDefinitions(db, form.account_id, fields, settings)
   const answers = Object.fromEntries(Object.entries(submission.answers ?? {}).map(([k, a]) => [k, a?.value]))
   const v = validateAnswers(fields, answers, {
     accountId: form.account_id,
@@ -780,6 +802,7 @@ export async function reprocessSubmission(
     defs,
     v,
     qualified: submission.qualified,
+    score: submission.score,
     payload: { answers: {}, utm: submission.utm ?? {}, clickIds: {}, referrer: submission.referrer ?? undefined } as SubmitPayload,
     pre: { existingContact: existing },
     now: opts.now ?? new Date(),

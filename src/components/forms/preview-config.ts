@@ -62,6 +62,7 @@ export function buildPreviewConfig(
     buttonText: settings.buttonText,
     accent: settings.accent ?? '#10b981',
     logoUrl: settings.logoUrl,
+    backgroundImage: settings.backgroundImage,
     language: settings.language ?? 'en',
     theme: settings.theme ?? 'auto',
     defaultCountry: (settings.defaultCountry ?? 'auto').toLowerCase() === 'auto' ? 'auto' : (settings.defaultCountry as string).toUpperCase(),

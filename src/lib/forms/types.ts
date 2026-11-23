@@ -55,6 +55,8 @@ export const formFieldSchema = z
     tagIds: z.array(z.string().uuid()).max(50).optional(),
     /** hidden: filled from a URL parameter (or a fixed value). */
     param: z.string().trim().regex(/^[a-zA-Z0-9_-]{1,40}$/).optional(),
+    /** hidden: also save the value on the contact: 'company', 'lead_source' or 'cf:<custom field id>'. */
+    targetField: z.string().trim().max(60).regex(/^(company|lead_source|cf:[0-9a-fA-F-]{36})$/).optional(),
     fixedValue: shortText.optional(),
     /** consent */
     consentText: longText.optional(),
@@ -74,6 +76,8 @@ export const formSettingsSchema = z
     buttonText: shortText.optional(),
     accent: z.string().regex(/^#[0-9a-fA-F]{6}$/).optional(),
     logoUrl: z.string().url().max(500).optional(),
+    /** Picture behind the hosted page (a theme-aware veil keeps the form readable). */
+    backgroundImage: z.string().url().max(500).optional(),
     language: z.enum(['en', 'es', 'fr', 'pt', 'ko']).optional(),
     /** 'auto' = the visitor's country from Cloudflare; otherwise a fixed ISO code. */
     defaultCountry: z.union([z.literal('auto'), z.string().length(2)]).optional(),

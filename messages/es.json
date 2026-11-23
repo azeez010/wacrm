@@ -42,7 +42,8 @@
     "menuProfile": "Perfil",
     "menuSettings": "Configuración",
     "menuSignOut": "Cerrar sesión",
-    "forms": "Formularios"
+    "forms": "Formularios",
+    "partner": "Programa de socios"
   },
   "Header": {
     "dashboard": "Panel",
@@ -64,7 +65,8 @@
       "label": "Notificaciones",
       "viewAll": "Ver todas"
     },
-    "forms": "Formularios"
+    "forms": "Formularios",
+    "partner": "Programa de socios"
   },
   "ModeToggle": {
     "switchMode": "Cambiar al modo {mode}"
@@ -2679,7 +2681,8 @@
       "switchToGeneric": "Cambiar de plan",
       "switched": "Ahora estás en {plan}",
       "switchFailed": "No se pudo cambiar el plan",
-      "cancel": "Cancelar"
+      "cancel": "Cancelar",
+      "heldLeads": "{count, plural, one {# lead en espera} other {# leads en espera}}: se guardaron pero no se procesaron porque alcanzaste el límite de tu plan. Mejora el plan o libéralos en Formularios."
     },
     "language": {
       "title": "Idioma",
@@ -3554,7 +3557,8 @@
       "privacy": "Privacidad",
       "terms": "Términos",
       "dataDeletion": "Eliminación de datos",
-      "apiDocs": "Documentación de la API"
+      "apiDocs": "Documentación de la API",
+      "partner": "Hazte socio"
     }
   },
   "CustomFields": {
@@ -3820,7 +3824,12 @@
       "privacyUrl": "Enlace de política de privacidad",
       "defaultConsent": "Acepto que me contacten por WhatsApp.",
       "defaultHeading": "Una nota breve sobre los siguientes campos",
-      "moreOptions": "Más opciones"
+      "moreOptions": "Más opciones",
+      "hiddenTarget": "Guardar en el contacto como",
+      "hiddenTargetNone": "Conservar solo con el envío",
+      "hiddenTargetCompany": "Empresa",
+      "hiddenTargetSource": "Origen del lead",
+      "hiddenTargetHint": "Rellena el contacto solo si ese campo está vacío."
     },
     "settings": {
       "title": "Ajustes",
@@ -3892,7 +3901,18 @@
       "notify": "Notificar",
       "notifyAll": "Todo el equipo",
       "notifySelected": "Solo personas seleccionadas",
-      "notifyHint": "Propietarios, administradores y agentes. Quien reciba el lead siempre es notificado."
+      "notifyHint": "Propietarios, administradores y agentes. Quien reciba el lead siempre es notificado.",
+      "retention": "Eliminar envíos después de (días)",
+      "retentionHint": "Los contactos nunca se eliminan, solo las respuestas guardadas del formulario.",
+      "retentionForever": "Conservar siempre",
+      "connection": "Enviar desde el número de WhatsApp",
+      "connectionHint": "Cuál de tus números escribe a los leads de este formulario.",
+      "connectionDefault": "Número predeterminado",
+      "scoreField": "Guardar la puntuación en",
+      "scoreFieldHint": "Un campo personalizado numérico del contacto. Solo sube.",
+      "scoreFieldNone": "No guardar",
+      "backgroundImage": "Imagen de fondo",
+      "backgroundImageHint": "Una imagen detrás de la página alojada. Un velo suave mantiene legible el formulario."
     },
     "support": {
       "askName": "Pedir su nombre",
@@ -4193,6 +4213,89 @@
       "body": "Hola {name}, tu plan {plan} incluye {limit} mensajes al mes y has usado {used}.",
       "advice": "Los mensajes de plantilla y los códigos de verificación no se enviarán hasta que tu cupo se renueve el mes que viene o mejores tu plan.",
       "cta": "Mejorar tu plan"
+    }
+  },
+  "Partner": {
+    "title": "Programa de socios",
+    "heroTitle": "Recomienda a tu red y gana",
+    "heroBody": "¿Conoces a alguien que podría usar OgaDesk? Comparte tu enlace y gana un {percent} % de comisión por las referencias elegibles.",
+    "linkLabel": "Tu enlace de referido",
+    "copy": "Copiar",
+    "copied": "Copiado",
+    "pendingWithdrawal": "Retiro pendiente",
+    "payoutNote": "Los pagos se abren cuando se lancen los pagos. Guarda ya tus datos bancarios para estar listo.",
+    "payoutSaved": "Tus datos de pago están guardados. Los pagos se abren cuando se lancen los pagos.",
+    "setupPayout": "Configurar pago",
+    "editPayout": "Editar datos de pago",
+    "payoutTitle": "Datos de pago",
+    "payoutDesc": "Dónde enviaremos tus ganancias cuando se abran los pagos. Solo tú puedes verlos.",
+    "bankName": "Nombre del banco",
+    "accountName": "Nombre de la cuenta",
+    "accountNumber": "Número de cuenta",
+    "save": "Guardar",
+    "saved": "Guardado",
+    "saveFailed": "No se pudo guardar. Inténtalo de nuevo.",
+    "loadFailed": "No se pudo cargar tu página de socio.",
+    "retry": "Reintentar",
+    "stats": {
+      "earnings": "Ganancias totales",
+      "earningsNote": "Las comisiones empiezan con los pagos",
+      "referrals": "Referidos totales",
+      "commission": "Comisión",
+      "commissionNote": "Durante los primeros {months} meses de cada referido"
+    },
+    "tabs": {
+      "history": "Referidos",
+      "report": "Informe",
+      "materials": "Material de marketing",
+      "leaderboard": "Clasificación"
+    },
+    "history": {
+      "empty": "Aún no hay referidos",
+      "emptyHint": "Las personas que se registren con tu enlace aparecerán aquí.",
+      "colWho": "Persona",
+      "colPlan": "Plan",
+      "colDate": "Registro"
+    },
+    "report": {
+      "empty": "Aún no hay informe",
+      "emptyHint": "Tu informe de referidos aparecerá aquí.",
+      "byMonth": "Referidos por mes",
+      "byPlan": "Referidos por plan"
+    },
+    "materials": {
+      "empty": "Aún no hay material",
+      "emptyHint": "Aquí aparecerán banners, textos y guías.",
+      "open": "Abrir"
+    },
+    "leaderboard": {
+      "optIn": "Mostrarme en la clasificación",
+      "optInHint": "Los demás solo ven tu nombre visible y tu número de referidos.",
+      "displayName": "Nombre visible",
+      "saveName": "Guardar nombre",
+      "empty": "La clasificación está vacía",
+      "emptyHint": "Activa la opción de arriba para aparecer aquí.",
+      "rank": "Puesto",
+      "name": "Nombre",
+      "referrals": "Referidos",
+      "you": "Tú"
+    },
+    "public": {
+      "metaTitle": "Programa de socios de {brand}",
+      "metaDescription": "Recomienda {brand} a empresas y gana una comisión por cada referido elegible.",
+      "heading": "Hazte socio de OgaDesk",
+      "sub": "Cada cliente de OgaDesk es un socio. Comparte tu enlace y gana un {percent} % de comisión por las referencias elegibles.",
+      "cta": "Obtener mi enlace de referido",
+      "login": "Iniciar sesión",
+      "openDashboard": "Abrir mi página de socio",
+      "howTitle": "Cómo funciona",
+      "step1Title": "Consigue tu enlace",
+      "step1Body": "Crea una cuenta gratis. Tu enlace personal está listo en tu panel.",
+      "step2Title": "Compártelo",
+      "step2Body": "Envíalo a negocios que venden y atienden clientes por WhatsApp.",
+      "step3Title": "Gana",
+      "step3Body": "Gana un {percent} % de comisión por las referencias elegibles. Los pagos se abren cuando se lancen los planes de pago.",
+      "note": "Las tarifas, requisitos y condiciones de pago pueden cambiar antes de que se abran los pagos."
     }
   }
 }

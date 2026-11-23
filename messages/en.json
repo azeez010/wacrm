@@ -42,7 +42,8 @@
     "menuProfile": "Profile",
     "menuSettings": "Settings",
     "menuSignOut": "Sign out",
-    "forms": "Forms"
+    "forms": "Forms",
+    "partner": "Partner program"
   },
   "Header": {
     "dashboard": "Dashboard",
@@ -64,7 +65,8 @@
       "label": "Notifications",
       "viewAll": "View all"
     },
-    "forms": "Forms"
+    "forms": "Forms",
+    "partner": "Partner program"
   },
   "ModeToggle": {
     "switchMode": "Switch to {mode} mode"
@@ -2679,7 +2681,8 @@
       "switchToGeneric": "Switch plan",
       "switched": "You are now on {plan}",
       "switchFailed": "Could not change the plan",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "heldLeads": "{count, plural, one {# lead is waiting} other {# leads are waiting}}: they were kept but not processed because you reached your plan limit. Upgrade or release them in Forms."
     },
     "language": {
       "title": "Language",
@@ -3554,7 +3557,8 @@
       "privacy": "Privacy",
       "terms": "Terms",
       "dataDeletion": "Data deletion",
-      "apiDocs": "API docs"
+      "apiDocs": "API docs",
+      "partner": "Become a partner"
     }
   },
   "CustomFields": {
@@ -3820,7 +3824,12 @@
       "privacyUrl": "Privacy policy link",
       "defaultConsent": "I agree to be contacted on WhatsApp.",
       "defaultHeading": "A short note above the next fields",
-      "moreOptions": "More options"
+      "moreOptions": "More options",
+      "hiddenTarget": "Save on the contact as",
+      "hiddenTargetNone": "Keep with the submission only",
+      "hiddenTargetCompany": "Company",
+      "hiddenTargetSource": "Lead source",
+      "hiddenTargetHint": "Fills the contact only if that field is empty."
     },
     "settings": {
       "title": "Settings",
@@ -3892,7 +3901,18 @@
       "notify": "Notify",
       "notifyAll": "Everyone on the team",
       "notifySelected": "Only selected people",
-      "notifyHint": "Admins, owners and agents. Whoever the lead is assigned to is always notified."
+      "notifyHint": "Admins, owners and agents. Whoever the lead is assigned to is always notified.",
+      "retention": "Delete submissions after (days)",
+      "retentionHint": "Contacts are never deleted, only the stored form answers.",
+      "retentionForever": "Keep forever",
+      "connection": "Send from WhatsApp number",
+      "connectionHint": "Which of your numbers messages this form’s leads.",
+      "connectionDefault": "Default number",
+      "scoreField": "Save the score to",
+      "scoreFieldHint": "A number custom field on the contact. It only ever goes up.",
+      "scoreFieldNone": "Do not save",
+      "backgroundImage": "Background image",
+      "backgroundImageHint": "A picture behind the hosted page. A soft veil keeps the form readable."
     },
     "support": {
       "askName": "Ask for their name",
@@ -4193,6 +4213,89 @@
       "body": "Hi {name}, your {plan} plan includes {limit} messages a month and you've used {used}.",
       "advice": "Template messages and verification codes won't send until your allowance renews next month or you upgrade.",
       "cta": "Upgrade your plan"
+    }
+  },
+  "Partner": {
+    "title": "Partner program",
+    "heroTitle": "Refer your network and earn",
+    "heroBody": "Know someone who could use OgaDesk? Share your link and earn {percent}% commission on eligible referrals.",
+    "linkLabel": "Your referral link",
+    "copy": "Copy",
+    "copied": "Copied",
+    "pendingWithdrawal": "Pending withdrawal",
+    "payoutNote": "Payouts open when payments launch. Save your bank details now so you are ready.",
+    "payoutSaved": "Your payout details are saved. Payouts open when payments launch.",
+    "setupPayout": "Set up payout",
+    "editPayout": "Edit payout details",
+    "payoutTitle": "Payout details",
+    "payoutDesc": "Where we send your earnings once payouts open. Only you can see this.",
+    "bankName": "Bank name",
+    "accountName": "Account name",
+    "accountNumber": "Account number",
+    "save": "Save",
+    "saved": "Saved",
+    "saveFailed": "Could not save. Try again.",
+    "loadFailed": "Could not load your partner page.",
+    "retry": "Try again",
+    "stats": {
+      "earnings": "Total earnings",
+      "earningsNote": "Commissions start with payments",
+      "referrals": "Total referrals",
+      "commission": "Commission",
+      "commissionNote": "For the first {months} months of each referral"
+    },
+    "tabs": {
+      "history": "Referrals",
+      "report": "Report",
+      "materials": "Marketing materials",
+      "leaderboard": "Leaderboard"
+    },
+    "history": {
+      "empty": "No referrals yet",
+      "emptyHint": "People who sign up with your link will appear here.",
+      "colWho": "Person",
+      "colPlan": "Plan",
+      "colDate": "Joined"
+    },
+    "report": {
+      "empty": "No report yet",
+      "emptyHint": "Your referral report will appear here.",
+      "byMonth": "Referrals by month",
+      "byPlan": "Referrals by plan"
+    },
+    "materials": {
+      "empty": "No materials yet",
+      "emptyHint": "Banners, copy and guides will appear here.",
+      "open": "Open"
+    },
+    "leaderboard": {
+      "optIn": "Show me on the leaderboard",
+      "optInHint": "Others see only your display name and referral count.",
+      "displayName": "Display name",
+      "saveName": "Save name",
+      "empty": "The leaderboard is empty",
+      "emptyHint": "Turn on the option above to appear here.",
+      "rank": "Rank",
+      "name": "Name",
+      "referrals": "Referrals",
+      "you": "You"
+    },
+    "public": {
+      "metaTitle": "{brand} partner program",
+      "metaDescription": "Refer businesses to {brand} and earn commission on every eligible referral.",
+      "heading": "Become an OgaDesk partner",
+      "sub": "Every OgaDesk customer is a partner. Share your link and earn {percent}% commission on eligible referrals.",
+      "cta": "Get my referral link",
+      "login": "Log in",
+      "openDashboard": "Open my partner page",
+      "howTitle": "How it works",
+      "step1Title": "Get your link",
+      "step1Body": "Create a free account. Your personal referral link is ready in your dashboard.",
+      "step2Title": "Share it",
+      "step2Body": "Send it to businesses that sell and support customers on WhatsApp.",
+      "step3Title": "Earn",
+      "step3Body": "Earn {percent}% commission on eligible referrals. Payouts open when paid plans launch.",
+      "note": "Commission rates, eligibility and payout terms may change before payouts open."
     }
   }
 }

@@ -32,6 +32,13 @@ export interface ApiContact {
   utm_campaign: string | null;
   utm_term: string | null;
   utm_content: string | null;
+  /** Where the contact first came from: the page they were on, the form they used, and when we first saw them. */
+  source_referrer: string | null;
+  source_form_id: string | null;
+  first_seen_at: string | null;
+  /** Consent captured by a form (when, where, and the text they agreed to). */
+  opt_in_at: string | null;
+  opt_in_source: string | null;
   /** True when the contact is blocked: no message of any kind is sent to them. */
   blocked: boolean;
   blocked_reason: 'manual' | 'opt_out' | 'import' | 'api' | null;
@@ -71,6 +78,11 @@ export function serializeContact(row: Record<string, unknown>): ApiContact {
     utm_campaign: (row.utm_campaign as string | null) ?? null,
     utm_term: (row.utm_term as string | null) ?? null,
     utm_content: (row.utm_content as string | null) ?? null,
+    source_referrer: (row.source_referrer as string | null) ?? null,
+    source_form_id: (row.source_form_id as string | null) ?? null,
+    first_seen_at: (row.first_seen_at as string | null) ?? null,
+    opt_in_at: (row.opt_in_at as string | null) ?? null,
+    opt_in_source: (row.opt_in_source as string | null) ?? null,
     blocked: Boolean(row.blocked_at),
     blocked_reason: (row.blocked_reason as ApiContact['blocked_reason']) ?? null,
     blocked_at: (row.blocked_at as string | null) ?? null,

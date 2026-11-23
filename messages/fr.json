@@ -42,7 +42,8 @@
     "menuProfile": "Profil",
     "menuSettings": "Paramètres",
     "menuSignOut": "Se déconnecter",
-    "forms": "Formulaires"
+    "forms": "Formulaires",
+    "partner": "Programme partenaire"
   },
   "Header": {
     "dashboard": "Tableau de bord",
@@ -64,7 +65,8 @@
       "label": "Notifications",
       "viewAll": "Tout voir"
     },
-    "forms": "Formulaires"
+    "forms": "Formulaires",
+    "partner": "Programme partenaire"
   },
   "ModeToggle": {
     "switchMode": "Passer en mode {mode}"
@@ -2679,7 +2681,8 @@
       "switchToGeneric": "Changer de formule",
       "switched": "Vous êtes maintenant sur {plan}",
       "switchFailed": "Impossible de changer de formule",
-      "cancel": "Annuler"
+      "cancel": "Annuler",
+      "heldLeads": "{count, plural, one {# lead en attente} other {# leads en attente}} : conservés mais non traités car vous avez atteint la limite de votre formule. Passez à une formule supérieure ou libérez-les dans Formulaires."
     },
     "language": {
       "title": "Langue",
@@ -3540,7 +3543,8 @@
       "privacy": "Confidentialité",
       "terms": "Conditions",
       "dataDeletion": "Suppression des données",
-      "apiDocs": "Documentation API"
+      "apiDocs": "Documentation API",
+      "partner": "Devenir partenaire"
     }
   },
   "CustomFields": {
@@ -3820,7 +3824,12 @@
       "privacyUrl": "Lien vers la politique de confidentialité",
       "defaultConsent": "J'accepte d'être contacté sur WhatsApp.",
       "defaultHeading": "Une courte note avant les champs suivants",
-      "moreOptions": "Plus d'options"
+      "moreOptions": "Plus d'options",
+      "hiddenTarget": "Enregistrer sur le contact comme",
+      "hiddenTargetNone": "Garder avec l'envoi seulement",
+      "hiddenTargetCompany": "Entreprise",
+      "hiddenTargetSource": "Source du lead",
+      "hiddenTargetHint": "Remplit le contact seulement si ce champ est vide."
     },
     "settings": {
       "title": "Réglages",
@@ -3892,7 +3901,18 @@
       "notify": "Notifier",
       "notifyAll": "Toute l'équipe",
       "notifySelected": "Seulement des personnes choisies",
-      "notifyHint": "Propriétaires, admins et agents. La personne à qui le lead est assigné est toujours notifiée."
+      "notifyHint": "Propriétaires, admins et agents. La personne à qui le lead est assigné est toujours notifiée.",
+      "retention": "Supprimer les envois après (jours)",
+      "retentionHint": "Les contacts ne sont jamais supprimés, seulement les réponses enregistrées du formulaire.",
+      "retentionForever": "Conserver indéfiniment",
+      "connection": "Envoyer depuis le numéro WhatsApp",
+      "connectionHint": "Lequel de vos numéros écrit aux leads de ce formulaire.",
+      "connectionDefault": "Numéro par défaut",
+      "scoreField": "Enregistrer le score dans",
+      "scoreFieldHint": "Un champ personnalisé numérique du contact. Il ne fait qu'augmenter.",
+      "scoreFieldNone": "Ne pas enregistrer",
+      "backgroundImage": "Image de fond",
+      "backgroundImageHint": "Une image derrière la page hébergée. Un voile léger garde le formulaire lisible."
     },
     "support": {
       "askName": "Demander leur nom",
@@ -4193,6 +4213,89 @@
       "body": "Bonjour {name}, votre forfait {plan} inclut {limit} messages par mois et vous en avez utilisé {used}.",
       "advice": "Les messages modèles et les codes de vérification ne partiront plus tant que votre quota n'est pas renouvelé le mois prochain ou que vous ne changez pas de forfait.",
       "cta": "Changer de forfait"
+    }
+  },
+  "Partner": {
+    "title": "Programme partenaire",
+    "heroTitle": "Parrainez votre réseau et gagnez",
+    "heroBody": "Vous connaissez quelqu’un qui pourrait utiliser OgaDesk ? Partagez votre lien et gagnez {percent} % de commission sur les parrainages éligibles.",
+    "linkLabel": "Votre lien de parrainage",
+    "copy": "Copier",
+    "copied": "Copié",
+    "pendingWithdrawal": "Retrait en attente",
+    "payoutNote": "Les paiements ouvrent au lancement des paiements. Enregistrez dès maintenant vos coordonnées bancaires.",
+    "payoutSaved": "Vos coordonnées de paiement sont enregistrées. Les paiements ouvrent au lancement des paiements.",
+    "setupPayout": "Configurer le paiement",
+    "editPayout": "Modifier les coordonnées",
+    "payoutTitle": "Coordonnées de paiement",
+    "payoutDesc": "Où nous enverrons vos gains à l’ouverture des paiements. Vous seul pouvez les voir.",
+    "bankName": "Nom de la banque",
+    "accountName": "Nom du compte",
+    "accountNumber": "Numéro de compte",
+    "save": "Enregistrer",
+    "saved": "Enregistré",
+    "saveFailed": "Échec de l’enregistrement. Réessayez.",
+    "loadFailed": "Impossible de charger votre page partenaire.",
+    "retry": "Réessayer",
+    "stats": {
+      "earnings": "Gains totaux",
+      "earningsNote": "Les commissions commencent avec les paiements",
+      "referrals": "Parrainages",
+      "commission": "Commission",
+      "commissionNote": "Pendant les {months} premiers mois de chaque parrainage"
+    },
+    "tabs": {
+      "history": "Parrainages",
+      "report": "Rapport",
+      "materials": "Supports marketing",
+      "leaderboard": "Classement"
+    },
+    "history": {
+      "empty": "Aucun parrainage pour l’instant",
+      "emptyHint": "Les personnes inscrites avec votre lien apparaîtront ici.",
+      "colWho": "Personne",
+      "colPlan": "Forfait",
+      "colDate": "Inscription"
+    },
+    "report": {
+      "empty": "Pas encore de rapport",
+      "emptyHint": "Votre rapport de parrainage apparaîtra ici.",
+      "byMonth": "Parrainages par mois",
+      "byPlan": "Parrainages par forfait"
+    },
+    "materials": {
+      "empty": "Aucun support pour l’instant",
+      "emptyHint": "Bannières, textes et guides apparaîtront ici.",
+      "open": "Ouvrir"
+    },
+    "leaderboard": {
+      "optIn": "M’afficher dans le classement",
+      "optInHint": "Les autres ne voient que votre nom affiché et votre nombre de parrainages.",
+      "displayName": "Nom affiché",
+      "saveName": "Enregistrer le nom",
+      "empty": "Le classement est vide",
+      "emptyHint": "Activez l’option ci-dessus pour y apparaître.",
+      "rank": "Rang",
+      "name": "Nom",
+      "referrals": "Parrainages",
+      "you": "Vous"
+    },
+    "public": {
+      "metaTitle": "Programme partenaire {brand}",
+      "metaDescription": "Recommandez {brand} à des entreprises et gagnez une commission sur chaque parrainage éligible.",
+      "heading": "Devenez partenaire OgaDesk",
+      "sub": "Chaque client OgaDesk est un partenaire. Partagez votre lien et gagnez {percent} % de commission sur les parrainages éligibles.",
+      "cta": "Obtenir mon lien de parrainage",
+      "login": "Se connecter",
+      "openDashboard": "Ouvrir ma page partenaire",
+      "howTitle": "Comment ça marche",
+      "step1Title": "Obtenez votre lien",
+      "step1Body": "Créez un compte gratuit. Votre lien personnel est prêt dans votre tableau de bord.",
+      "step2Title": "Partagez-le",
+      "step2Body": "Envoyez-le aux entreprises qui vendent et assurent le support client sur WhatsApp.",
+      "step3Title": "Gagnez",
+      "step3Body": "Gagnez {percent} % de commission sur les parrainages éligibles. Les paiements ouvrent au lancement des forfaits payants.",
+      "note": "Les taux, conditions d’éligibilité et modalités de paiement peuvent changer avant l’ouverture des paiements."
     }
   }
 }

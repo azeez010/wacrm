@@ -20,10 +20,12 @@ export interface FormEditorData {
   agents: { id: string; name: string }[];
   pipelines: { id: string; name: string; stages: { id: string; name: string }[] }[];
   templates: { name: string; language: string }[];
+  /** The account's WhatsApp numbers (a form can send from a specific one). */
+  connections: { id: string; name: string }[];
   loading: boolean;
 }
 
-const EMPTY: FormEditorData = { customFields: [], tableColumns: [], tags: [], agents: [], pipelines: [], templates: [], loading: true };
+const EMPTY: FormEditorData = { customFields: [], tableColumns: [], tags: [], agents: [], pipelines: [], templates: [], connections: [], loading: true };
 
 /** Everything the form editor needs to offer: the account's fields, tables, tags, agents, pipelines. */
 export function useFormEditorData(accountId: string | null): FormEditorData {
@@ -34,7 +36,7 @@ export function useFormEditorData(accountId: string | null): FormEditorData {
     let cancelled = false;
     void (async () => {
       const db = createClient();
-      const [fields, tags, agents, pipelines, templates] = await Promise.all([
+      const [fields, tags, agents, pipelines, templates, connections] = await Promise.all([
         db
           .from('custom_fields')
           .select('id, key, field_name, field_type, field_options, required, table_id')
@@ -45,6 +47,7 @@ export function useFormEditorData(accountId: string | null): FormEditorData {
         db.from('profiles').select('user_id, full_name, account_role').eq('account_id', accountId),
         db.from('pipelines').select('id, name, pipeline_stages(id, name, position)').eq('account_id', accountId),
         db.from('message_templates').select('name, language, status').eq('account_id', accountId).eq('status', 'APPROVED'),
+        db.from('whatsapp_config').select('id, label, display_phone_number, verified_name').eq('account_id', accountId),
       ]);
       const all = (fields.data ?? []) as (FieldDef & { table_id: string | null })[];
       const contactFields = all.filter((f) => !f.table_id && f.field_type !== 'media');
@@ -76,6 +79,10 @@ export function useFormEditorData(accountId: string | null): FormEditorData {
           stages: [...(p.pipeline_stages ?? [])].sort((a, b) => a.position - b.position),
         })),
         templates: ((templates.data ?? []) as { name: string; language: string }[]).map((x) => ({ name: x.name, language: x.language })),
+        connections: ((connections.data ?? []) as { id: string; label: string | null; display_phone_number: string | null; verified_name: string | null }[]).map((c) => ({
+          id: c.id,
+          name: [c.label || c.verified_name, c.display_phone_number].filter(Boolean).join(' · ') || c.id.slice(0, 8),
+        })),
         loading: false,
       });
     })();

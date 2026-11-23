@@ -51,6 +51,11 @@ describe('serializeContact', () => {
       utm_campaign: null,
       utm_term: null,
       utm_content: null,
+      source_referrer: null,
+      source_form_id: null,
+      first_seen_at: null,
+      opt_in_at: null,
+      opt_in_source: null,
       blocked: false,
       blocked_reason: null,
       blocked_at: null,
@@ -235,3 +240,12 @@ describe('contactSearchFilter', () => {
     expect(contactSearchFilter('jane_doe')).toBe('name.ilike.*jane\\_doe*');
   });
 });
+
+describe('serializeContact source fields', () => {
+  it('exposes where the contact came from and their consent', async () => {
+    const { serializeContact } = await import('./contacts')
+    const c = serializeContact({ id: 'c', phone: '+1', created_at: 'a', updated_at: 'b', lead_source: 'Form: Spring', utm_campaign: 'spring', source_referrer: 'https://x.test', source_form_id: 'f1', first_seen_at: '2026-01-01', opt_in_at: '2026-01-01', opt_in_source: 'Form: Spring' })
+    expect(c).toMatchObject({ lead_source: 'Form: Spring', utm_campaign: 'spring', source_referrer: 'https://x.test', source_form_id: 'f1', first_seen_at: '2026-01-01', opt_in_at: '2026-01-01', opt_in_source: 'Form: Spring' })
+    expect(serializeContact({ id: 'c', phone: '+1', created_at: 'a', updated_at: 'b' })).toMatchObject({ source_form_id: null, first_seen_at: null, opt_in_at: null })
+  })
+})

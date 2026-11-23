@@ -34,7 +34,7 @@ interface Billing {
   effective_plan_name: string;
   downgraded: boolean;
   features: Partial<Record<FeatureKey, boolean>>;
-  usage: { key: LimitKey; used: number; limit: number | null }[];
+  usage: { key: LimitKey; used: number; limit: number | null; held?: number }[];
   plans: PlanRow[];
   history: {
     id: string;
@@ -187,6 +187,9 @@ function Usage({ data, t }: { data: Billing; t: T }) {
                     {atLimit ? t('atLimit') : t('nearLimit')}
                   </p>
                 )}
+                {u.held ? (
+                  <p className="mt-1 text-xs text-amber-600 dark:text-amber-400">{t('heldLeads', { count: u.held })}</p>
+                ) : null}
               </li>
             );
           })}

@@ -38,6 +38,7 @@ export interface PublicFormConfig {
   buttonText?: string
   accent: string
   logoUrl?: string
+  backgroundImage?: string
   language: string
   theme: 'auto' | 'light' | 'dark'
   /** ISO code, or 'auto' = use the visitor's country. */
@@ -155,6 +156,7 @@ export async function buildPublicConfig(db: SupabaseClient, form: FormRow): Prom
     buttonText: settings.buttonText,
     accent: settings.accent ?? '#10b981',
     logoUrl: settings.logoUrl,
+    backgroundImage: settings.backgroundImage,
     language: settings.language ?? 'en',
     theme: settings.theme ?? 'auto',
     defaultCountry: (settings.defaultCountry ?? 'auto').toLowerCase() === 'auto' ? 'auto' : (settings.defaultCountry as string).toUpperCase(),

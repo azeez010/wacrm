@@ -30,7 +30,7 @@ export function PreviewBridge() {
   return (
     <>
       <style>{pageCss(config.theme)}</style>
-      <PublicForm key={config.publicId} config={config} embedded={config.kind === 'support'} preview onEdit={onEdit} fullPage={false} />
+      <PublicForm key={config.publicId} config={config} embedded={config.kind === 'support'} preview onEdit={onEdit} fullPage={config.kind === 'lead' && !!config.backgroundImage} />
     </>
   );
 }

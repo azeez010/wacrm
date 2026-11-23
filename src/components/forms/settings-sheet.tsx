@@ -226,6 +226,11 @@ export function SettingsSheet({ open, onOpenChange, kind, settings, data, canEdi
                 <Row label={t('logoUrl')}>
                   <Input disabled={!canEdit} value={s.logoUrl ?? ''} placeholder="https://" onChange={(e) => patch({ logoUrl: e.target.value || undefined })} />
                 </Row>
+                {kind === 'lead' && (
+                  <Row label={t('backgroundImage')} hint={t('backgroundImageHint')}>
+                    <Input disabled={!canEdit} value={s.backgroundImage ?? ''} placeholder="https://" onChange={(e) => patch({ backgroundImage: e.target.value || undefined })} />
+                  </Row>
+                )}
                 <Row label={t('theme')} hint={t('themeHint')}>
                   <select className={selectCls} disabled={!canEdit} value={s.theme ?? 'auto'} onChange={(e) => patch({ theme: e.target.value })}>
                     <option value="auto">{t('themeAuto')}</option>
@@ -281,6 +286,21 @@ export function SettingsSheet({ open, onOpenChange, kind, settings, data, canEdi
                     <Switch disabled={!canEdit} checked={!!s.rules.turnstile} onCheckedChange={(on) => patch({ rules: { turnstile: on } })} />
                     {t('turnstile')}
                   </label>
+                  <Row label={t('retention')} hint={t('retentionHint')}>
+                    <Input type="number" min={1} max={3650} disabled={!canEdit} value={s.rules.retentionDays ?? ''} placeholder={t('retentionForever')} onChange={(e) => patch({ rules: { retentionDays: e.target.value ? Math.min(3650, Math.max(1, Number(e.target.value))) : undefined } })} />
+                  </Row>
+                  {data.connections.length > 1 && (
+                    <Row label={t('connection')} hint={t('connectionHint')}>
+                      <select className={selectCls} disabled={!canEdit} value={s.whatsappConfigId ?? ''} onChange={(e) => patch({ whatsappConfigId: e.target.value || undefined })}>
+                        <option value="">{t('connectionDefault')}</option>
+                        {data.connections.map((c) => (
+                          <option key={c.id} value={c.id}>
+                            {c.name}
+                          </option>
+                        ))}
+                      </select>
+                    </Row>
+                  )}
                 </div>
 
                 {kind === 'lead' && (
@@ -303,6 +323,18 @@ export function SettingsSheet({ open, onOpenChange, kind, settings, data, canEdi
                             </option>
                           )),
                         )}
+                      </select>
+                    </Row>
+                    <Row label={t('scoreField')} hint={t('scoreFieldHint')}>
+                      <select className={selectCls} disabled={!canEdit} value={s.scoreFieldId ?? ''} onChange={(e) => patch({ scoreFieldId: e.target.value || undefined })}>
+                        <option value="">{t('scoreFieldNone')}</option>
+                        {data.customFields
+                          .filter((f) => f.field_type === 'number')
+                          .map((f) => (
+                            <option key={f.id} value={f.id}>
+                              {f.field_name}
+                            </option>
+                          ))}
                       </select>
                     </Row>
                     <Row label={t('welcome')} hint={t('welcomeHint')}>

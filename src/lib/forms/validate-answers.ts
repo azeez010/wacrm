@@ -24,6 +24,8 @@ export interface ValidatedAnswers {
   name?: string
   email?: string
   company?: string
+  /** A hidden field mapped to the contact's lead source. */
+  leadSource?: string
   message?: string
   /** custom field key -> raw answer, ready for `writeContactCustomFields`. */
   customByKey: Record<string, unknown>
@@ -211,14 +213,24 @@ export function validateAnswers(
       case 'hidden': {
         // Value comes from the URL parameter the page prefilled, or a fixed value.
         const v = f.fixedValue ?? (typeof raw === 'string' ? raw.trim().slice(0, 300) : '')
-        if (v) out.snapshot[f.id] = { label: f.param || label, value: v }
+        if (v) {
+          out.snapshot[f.id] = { label: f.param || label, value: v }
+          const target = f.targetField
+          if (target === 'company') {
+            if (!out.company) out.company = v.slice(0, 120)
+          } else if (target === 'lead_source') {
+            out.leadSource = v.slice(0, 100)
+          } else if (target?.startsWith('cf:')) {
+            const def = ctx.customFields.get(target.slice(3))
+            if (def && !(def.key in out.customByKey)) out.customByKey[def.key] = v
+          }
+        }
         break
       }
     }
   }
 
-  // A hidden field can map onto a custom field of the same id only through
-  // custom_field kind, so hidden values stay in the snapshot, never on contacts.
+  // Hidden values stay in the snapshot unless the field maps them onto the contact (targetField).
   out.tagIds = [...new Set(out.tagIds)]
   return out
 }

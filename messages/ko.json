@@ -42,7 +42,8 @@
     "menuProfile": "프로필",
     "menuSettings": "설정",
     "menuSignOut": "로그아웃",
-    "forms": "양식"
+    "forms": "양식",
+    "partner": "파트너 프로그램"
   },
   "Header": {
     "dashboard": "대시보드",
@@ -64,7 +65,8 @@
       "label": "알림",
       "viewAll": "모두 보기"
     },
-    "forms": "양식"
+    "forms": "양식",
+    "partner": "파트너 프로그램"
   },
   "ModeToggle": {
     "switchMode": "{mode} 모드로 전환"
@@ -2679,7 +2681,8 @@
       "switchToGeneric": "요금제 변경",
       "switched": "이제 {plan} 요금제입니다",
       "switchFailed": "요금제를 변경하지 못했습니다",
-      "cancel": "취소"
+      "cancel": "취소",
+      "heldLeads": "{count, plural, other {리드 #개가 대기 중입니다}}: 요금제 한도에 도달해 보관만 되고 처리되지 않았습니다. 업그레이드하거나 양식에서 해제하세요."
     },
     "language": {
       "title": "언어",
@@ -3554,7 +3557,8 @@
       "privacy": "개인정보",
       "terms": "약관",
       "dataDeletion": "데이터 삭제",
-      "apiDocs": "API 문서"
+      "apiDocs": "API 문서",
+      "partner": "파트너 되기"
     }
   },
   "CustomFields": {
@@ -3820,7 +3824,12 @@
       "privacyUrl": "개인정보 처리방침 링크",
       "defaultConsent": "WhatsApp으로 연락받는 데 동의합니다.",
       "defaultHeading": "다음 필드 위에 표시할 짧은 안내",
-      "moreOptions": "추가 옵션"
+      "moreOptions": "추가 옵션",
+      "hiddenTarget": "연락처에 저장할 항목",
+      "hiddenTargetNone": "제출 내역에만 보관",
+      "hiddenTargetCompany": "회사",
+      "hiddenTargetSource": "리드 출처",
+      "hiddenTargetHint": "해당 필드가 비어 있을 때만 연락처에 채웁니다."
     },
     "settings": {
       "title": "설정",
@@ -3892,7 +3901,18 @@
       "notify": "알림",
       "notifyAll": "팀 전체",
       "notifySelected": "선택한 사람만",
-      "notifyHint": "소유자, 관리자, 상담원에게 알립니다. 리드가 배정된 사람은 항상 알림을 받습니다."
+      "notifyHint": "소유자, 관리자, 상담원에게 알립니다. 리드가 배정된 사람은 항상 알림을 받습니다.",
+      "retention": "제출 내역 삭제 기간 (일)",
+      "retentionHint": "연락처는 삭제되지 않으며, 저장된 양식 응답만 삭제됩니다.",
+      "retentionForever": "영구 보관",
+      "connection": "발신 WhatsApp 번호",
+      "connectionHint": "이 양식의 리드에게 메시지를 보낼 번호입니다.",
+      "connectionDefault": "기본 번호",
+      "scoreField": "점수 저장 위치",
+      "scoreFieldHint": "연락처의 숫자형 사용자 지정 필드입니다. 점수는 올라가기만 합니다.",
+      "scoreFieldNone": "저장 안 함",
+      "backgroundImage": "배경 이미지",
+      "backgroundImageHint": "호스팅 페이지 뒤에 표시되는 이미지입니다. 은은한 막으로 양식이 잘 보이게 합니다."
     },
     "support": {
       "askName": "이름 묻기",
@@ -4193,6 +4213,89 @@
       "body": "{name}님, {plan} 요금제는 월 {limit}건의 메시지를 포함하며 {used}건을 사용했습니다.",
       "advice": "다음 달 한도가 갱신되거나 업그레이드하기 전까지 템플릿 메시지와 인증 코드가 발송되지 않습니다.",
       "cta": "요금제 업그레이드"
+    }
+  },
+  "Partner": {
+    "title": "파트너 프로그램",
+    "heroTitle": "지인을 추천하고 수익을 얻으세요",
+    "heroBody": "OgaDesk를 쓸 만한 분을 알고 계신가요? 링크를 공유하면 적격한 추천에 대해 {percent}% 수수료를 받습니다.",
+    "linkLabel": "내 추천 링크",
+    "copy": "복사",
+    "copied": "복사됨",
+    "pendingWithdrawal": "출금 대기",
+    "payoutNote": "결제가 시작되면 정산이 열립니다. 지금 은행 정보를 미리 저장해 두세요.",
+    "payoutSaved": "정산 정보가 저장되었습니다. 결제가 시작되면 정산이 열립니다.",
+    "setupPayout": "정산 설정",
+    "editPayout": "정산 정보 수정",
+    "payoutTitle": "정산 정보",
+    "payoutDesc": "정산이 열리면 수익을 보낼 계좌입니다. 본인만 볼 수 있습니다.",
+    "bankName": "은행명",
+    "accountName": "예금주",
+    "accountNumber": "계좌번호",
+    "save": "저장",
+    "saved": "저장됨",
+    "saveFailed": "저장하지 못했습니다. 다시 시도하세요.",
+    "loadFailed": "파트너 페이지를 불러오지 못했습니다.",
+    "retry": "다시 시도",
+    "stats": {
+      "earnings": "총 수익",
+      "earningsNote": "수수료는 결제 시작과 함께 적용됩니다",
+      "referrals": "총 추천 수",
+      "commission": "수수료",
+      "commissionNote": "각 추천의 처음 {months}개월 동안"
+    },
+    "tabs": {
+      "history": "추천 내역",
+      "report": "리포트",
+      "materials": "마케팅 자료",
+      "leaderboard": "리더보드"
+    },
+    "history": {
+      "empty": "아직 추천이 없습니다",
+      "emptyHint": "내 링크로 가입한 사람이 여기에 표시됩니다.",
+      "colWho": "사용자",
+      "colPlan": "요금제",
+      "colDate": "가입일"
+    },
+    "report": {
+      "empty": "아직 리포트가 없습니다",
+      "emptyHint": "추천 리포트가 여기에 표시됩니다.",
+      "byMonth": "월별 추천",
+      "byPlan": "요금제별 추천"
+    },
+    "materials": {
+      "empty": "아직 자료가 없습니다",
+      "emptyHint": "배너, 문구, 가이드가 여기에 표시됩니다.",
+      "open": "열기"
+    },
+    "leaderboard": {
+      "optIn": "리더보드에 표시",
+      "optInHint": "다른 사람에게는 표시 이름과 추천 수만 보입니다.",
+      "displayName": "표시 이름",
+      "saveName": "이름 저장",
+      "empty": "리더보드가 비어 있습니다",
+      "emptyHint": "위 옵션을 켜면 여기에 표시됩니다.",
+      "rank": "순위",
+      "name": "이름",
+      "referrals": "추천 수",
+      "you": "나"
+    },
+    "public": {
+      "metaTitle": "{brand} 파트너 프로그램",
+      "metaDescription": "기업에 {brand}를 추천하고 적격한 추천마다 수수료를 받으세요.",
+      "heading": "OgaDesk 파트너 되기",
+      "sub": "모든 OgaDesk 고객이 파트너입니다. 링크를 공유하고 적격한 추천에 대해 {percent}% 수수료를 받으세요.",
+      "cta": "내 추천 링크 받기",
+      "login": "로그인",
+      "openDashboard": "내 파트너 페이지 열기",
+      "howTitle": "이용 방법",
+      "step1Title": "링크 받기",
+      "step1Body": "무료 계정을 만드세요. 대시보드에 개인 추천 링크가 준비됩니다.",
+      "step2Title": "공유하기",
+      "step2Body": "WhatsApp으로 판매하고 고객을 지원하는 기업에 보내세요.",
+      "step3Title": "수익 얻기",
+      "step3Body": "적격한 추천에 대해 {percent}% 수수료를 받습니다. 유료 요금제가 시작되면 정산이 열립니다.",
+      "note": "수수료율, 자격 요건 및 정산 조건은 정산이 열리기 전에 변경될 수 있습니다."
     }
   }
 }

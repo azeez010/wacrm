@@ -40,6 +40,7 @@ vi.mock('@/lib/webhooks/deliver', () => ({ dispatchWebhookEvent: h.dispatchWebho
 vi.mock('./definitions', () => ({ loadFormDefinitions: vi.fn(async () => h.defs) }))
 
 import { answerVars, buildWhatsappUrl, openState, purgeExpired, renderWhatsappText, runSideEffects, slugTag, submitForm } from './submit'
+import { parseFormSettings } from './types'
 import type { FormRow } from './types'
 
 type Call = { table: string; op: string; payload?: unknown; filters: [string, unknown][] }
@@ -473,5 +474,71 @@ describe('notificationBody', () => {
     expect(notificationBody('F', undefined, false)).toBe('F')
     expect(notificationBody('F', '  hi \n there ', true)).toBe('\u201Chi there\u201D\nF (not qualified)')
     expect(notificationBody('F', 'x'.repeat(300), false).split('\n')[0].length).toBeLessThanOrEqual(142)
+  })
+})
+
+describe('score field and hidden-field mapping', () => {
+  const SCORE_FIELD = '22222222-2222-4222-8222-222222222222'
+  const ctx = (score: number, settings: Record<string, unknown>) => ({
+    submissionId: 'sub-1',
+    form: form({}, settings),
+    settings: parseFormSettings(settings),
+    defs: h.defs,
+    v: { ok: true, errors: {}, phone: '+2348031234567', customByKey: {}, tableRows: {}, tagIds: [], consent: null, snapshot: {} } as never,
+    qualified: null,
+    score,
+    payload: { answers: {}, utm: {}, clickIds: {} } as never,
+    pre: { existingContact: { id: 'c-old', phone: '+2348031234567', name: 'Ada' } },
+    now: new Date('2026-01-01T00:00:00Z'),
+  })
+
+  it('writes the lead score to the chosen number field, and only ever raises it', async () => {
+    h.defs.customFields = new Map([[SCORE_FIELD, { id: SCORE_FIELD, key: 'lead_score', field_name: 'Lead score', field_type: 'number' }]])
+    h.writeContactCustomFields.mockClear()
+    // No score yet: written.
+    await runSideEffects(makeDb(handlersOk).db, ctx(42, { scoreFieldId: SCORE_FIELD }) as never)
+    expect(h.writeContactCustomFields).toHaveBeenCalledWith(expect.anything(), 'acc-1', 'c-old', { lead_score: 42 })
+    // Existing 60 beats a new 42: kept.
+    h.writeContactCustomFields.mockClear()
+    const keep = { ...handlersOk, 'contact_custom_values.select': () => ({ data: { value: '60' } }) }
+    await runSideEffects(makeDb(keep).db, ctx(42, { scoreFieldId: SCORE_FIELD }) as never)
+    expect(h.writeContactCustomFields).not.toHaveBeenCalledWith(expect.anything(), 'acc-1', 'c-old', { lead_score: 42 })
+    // Existing 10 is raised to 42.
+    h.writeContactCustomFields.mockClear()
+    const raise = { ...handlersOk, 'contact_custom_values.select': () => ({ data: { value: '10' } }) }
+    await runSideEffects(makeDb(raise).db, ctx(42, { scoreFieldId: SCORE_FIELD }) as never)
+    expect(h.writeContactCustomFields).toHaveBeenCalledWith(expect.anything(), 'acc-1', 'c-old', { lead_score: 42 })
+    h.defs.customFields = new Map()
+  })
+
+  it('does nothing without a score field, or when it is not a number field', async () => {
+    h.writeContactCustomFields.mockClear()
+    await runSideEffects(makeDb(handlersOk).db, ctx(42, {}) as never)
+    h.defs.customFields = new Map([[SCORE_FIELD, { id: SCORE_FIELD, key: 'lead_score', field_name: 'Lead score', field_type: 'text' }]])
+    await runSideEffects(makeDb(handlersOk).db, ctx(42, { scoreFieldId: SCORE_FIELD }) as never)
+    expect(h.writeContactCustomFields).not.toHaveBeenCalled()
+    h.defs.customFields = new Map()
+  })
+
+  it('a hidden field can fill company, lead source or a custom field', async () => {
+    const { validateAnswers } = await import('./validate-answers')
+    const cfDef = { id: SCORE_FIELD, key: 'campaign_id', field_name: 'Campaign', field_type: 'text' }
+    const fields = [
+      { id: 'phone', kind: 'phone' as const },
+      { id: 'h1', kind: 'hidden' as const, param: 'co', targetField: 'company' },
+      { id: 'h2', kind: 'hidden' as const, param: 'src', targetField: 'lead_source' },
+      { id: 'h3', kind: 'hidden' as const, param: 'cid', targetField: `cf:${SCORE_FIELD}` },
+    ]
+    const out = validateAnswers(fields, { phone: '08031234567', h1: 'Acme', h2: 'Instagram ad', h3: 'spring' }, {
+      accountId: 'acc-1',
+      customFields: new Map([[SCORE_FIELD, cfDef]]) as never,
+      tableColumns: new Map(),
+    })
+    expect(out.company).toBe('Acme')
+    expect(out.leadSource).toBe('Instagram ad')
+    expect(out.customByKey).toEqual({ campaign_id: 'spring' })
+    // An unknown or removed target is ignored, never an error.
+    const bad = validateAnswers([{ id: 'phone', kind: 'phone' as const }, { id: 'h', kind: 'hidden' as const, targetField: `cf:${SCORE_FIELD}` }], { phone: '08031234567', h: 'x' }, { accountId: 'acc-1', customFields: new Map(), tableColumns: new Map() })
+    expect(bad.customByKey).toEqual({})
   })
 })

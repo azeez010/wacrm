@@ -208,6 +208,25 @@ function FieldCard({
                 <Label className="text-xs text-muted-foreground">{t('hiddenFixed')}</Label>
                 <Input value={field.fixedValue ?? ''} disabled={!canEdit} onChange={(e) => patch({ fixedValue: e.target.value })} className="h-8" />
               </div>
+              <div className="space-y-1">
+                <Label className="text-xs text-muted-foreground">{t('hiddenTarget')}</Label>
+                <select
+                  value={field.targetField ?? ''}
+                  disabled={!canEdit}
+                  onChange={(e) => patch({ targetField: e.target.value || undefined })}
+                  className="h-8 w-full rounded-lg border border-border bg-muted px-2 text-sm text-foreground disabled:opacity-60"
+                >
+                  <option value="">{t('hiddenTargetNone')}</option>
+                  <option value="company">{t('hiddenTargetCompany')}</option>
+                  <option value="lead_source">{t('hiddenTargetSource')}</option>
+                  {data.customFields.map((cf) => (
+                    <option key={cf.id} value={`cf:${cf.id}`}>
+                      {cf.field_name}
+                    </option>
+                  ))}
+                </select>
+                <p className="text-xs text-muted-foreground">{t('hiddenTargetHint')}</p>
+              </div>
             </div>
           )}
           {field.kind === 'consent' && (

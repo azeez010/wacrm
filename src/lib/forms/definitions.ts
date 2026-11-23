@@ -23,10 +23,18 @@ export async function loadFormDefinitions(
   db: SupabaseClient,
   accountId: string,
   fields: FormField[],
+  settings?: { scoreFieldId?: string },
 ): Promise<FormDefinitions> {
   const defs: FormDefinitions = { customFields: new Map(), tableColumns: new Map(), refFields: new Map() }
 
-  const customIds = [...new Set(fields.flatMap((f) => (f.kind === 'custom_field' && f.customFieldId ? [f.customFieldId] : [])))]
+  const customIds = [
+    ...new Set([
+      ...fields.flatMap((f) => (f.kind === 'custom_field' && f.customFieldId ? [f.customFieldId] : [])),
+      // A hidden field can save its value to a custom field; the lead score can land in one too.
+      ...fields.flatMap((f) => (f.kind === 'hidden' && f.targetField?.startsWith('cf:') ? [f.targetField.slice(3)] : [])),
+      ...(settings?.scoreFieldId ? [settings.scoreFieldId] : []),
+    ]),
+  ]
   if (customIds.length > 0) {
     const { data } = await db
       .from('custom_fields')

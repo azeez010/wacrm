@@ -2464,7 +2464,20 @@
       "urlNote": "Paste this where the app asks for the server URL. That's it, no sign-in needed.",
       "moreClients": "Claude Code, Desktop or REST API",
       "mcpLockedNote": "Your plan doesn't include connecting AI assistants. This key still works with the REST API.",
-      "accessDeveloper": "Developer"
+      "accessDeveloper": "Developer",
+      "expiryLabel": "Expiry",
+      "expiryKeep": "Keep the current expiry",
+      "expiryHint": "After this date the key stops working. You can change it later.",
+      "expires": "expires {date}",
+      "expiry": {
+        "d7": "7 days ({date})",
+        "d14": "14 days ({date})",
+        "d30": "1 month ({date})",
+        "d90": "3 months ({date})",
+        "d180": "6 months ({date})",
+        "d365": "1 year ({date})",
+        "none": "No expiration"
+      }
     },
     "deals": {
       "title": "Deals & currency",
@@ -3338,7 +3351,8 @@
         "nothingToChange": "Nothing to change",
         "updateFailed": "Failed to update the API key",
         "deleteFailed": "Failed to delete the API key",
-        "deleteOnlyRevoked": "Only a revoked key can be deleted"
+        "deleteOnlyRevoked": "Only a revoked key can be deleted",
+        "expiryInvalid": "Expiry must be a number of days, or null for no expiry"
       },
       "invitations": {
         "revokeFailed": "Failed to revoke invitation",

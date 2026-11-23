@@ -172,6 +172,7 @@ export function ApiKeysPanel() {
                         {k.last_used_at ? t('lastUsed', { date: fmtDate(k.last_used_at) }) : t('neverUsed')}
                         {' · '}
                         {t('created', { date: fmtDate(k.created_at) })}
+                        {k.expires_at && status === 'active' ? ` · ${t('expires', { date: fmtDate(k.expires_at) })}` : ''}
                       </p>
                     </button>
 

@@ -116,6 +116,23 @@ describe('PATCH (edit access)', () => {
   })
 })
 
+describe('PATCH expiry', () => {
+  it('sets a new expiry in days (capped at a year) or removes it with null', async () => {
+    await PATCH(json('/x', 'PATCH', { expiresInDays: 30 }), params)
+    const set = h.calls.find((c) => c.op === 'update')!.payload as { expires_at: string }
+    const days = (new Date(set.expires_at).getTime() - Date.now()) / 86_400_000
+    expect(days).toBeGreaterThan(29.9)
+    expect(days).toBeLessThan(30.1)
+    h.calls = []
+    await PATCH(json('/x', 'PATCH', { expiresInDays: 9999 }), params)
+    expect((new Date((h.calls.find((c) => c.op === 'update')!.payload as { expires_at: string }).expires_at).getTime() - Date.now()) / 86_400_000).toBeLessThan(366)
+    h.calls = []
+    await PATCH(json('/x', 'PATCH', { expiresInDays: null }), params)
+    expect(h.calls.find((c) => c.op === 'update')!.payload).toEqual({ expires_at: null })
+    expect((await PATCH(json('/x', 'PATCH', { expiresInDays: 'soon' }), params)).status).toBe(400)
+  })
+})
+
 describe('DELETE', () => {
   it('?permanent=1 deletes only a revoked key', async () => {
     const res = await DELETE(json('/x?permanent=1', 'DELETE'), params)

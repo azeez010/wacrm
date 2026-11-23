@@ -2464,7 +2464,20 @@
       "urlNote": "Cole onde o app pedir a URL do servidor. Só isso, sem login.",
       "moreClients": "Claude Code, Desktop ou API REST",
       "mcpLockedNote": "Seu plano não inclui conectar assistentes de IA. Esta chave continua funcionando com a API REST.",
-      "accessDeveloper": "Desenvolvedor"
+      "accessDeveloper": "Desenvolvedor",
+      "expiryLabel": "Validade",
+      "expiryKeep": "Manter a validade atual",
+      "expiryHint": "Depois desta data a chave deixa de funcionar. Você pode alterá-la depois.",
+      "expires": "expira em {date}",
+      "expiry": {
+        "d7": "7 dias ({date})",
+        "d14": "14 dias ({date})",
+        "d30": "1 mês ({date})",
+        "d90": "3 meses ({date})",
+        "d180": "6 meses ({date})",
+        "d365": "1 ano ({date})",
+        "none": "Sem validade"
+      }
     },
     "deals": {
       "title": "Negócios e moeda",
@@ -3338,7 +3351,8 @@
         "nothingToChange": "Nada para alterar",
         "updateFailed": "Não foi possível atualizar a chave de API",
         "deleteFailed": "Não foi possível excluir a chave de API",
-        "deleteOnlyRevoked": "Só uma chave revogada pode ser excluída"
+        "deleteOnlyRevoked": "Só uma chave revogada pode ser excluída",
+        "expiryInvalid": "A validade deve ser um número de dias, ou null para nenhuma"
       },
       "invitations": {
         "revokeFailed": "Falha ao revogar o convite",

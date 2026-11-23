@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
 
@@ -17,6 +17,11 @@ import type { ApiKey } from './types';
 const selectCls = 'h-9 w-full rounded-lg border border-border bg-muted px-2 text-sm text-foreground';
 
 type Access = PresetId | 'custom';
+
+/** Same choices as most providers: a week to a year, or never. */
+const EXPIRY_DAYS = [7, 14, 30, 90, 180, 365] as const;
+const dateIn = (days: number, locale: string) =>
+  new Intl.DateTimeFormat(locale, { dateStyle: 'medium' }).format(new Date(Date.now() + days * 86_400_000));
 
 /** Create a key, or edit an existing key's name and access. */
 export function KeyDialog({
@@ -35,10 +40,13 @@ export function KeyDialog({
 }) {
   // The parent remounts this (key prop) whenever it opens, so initial state is always fresh.
   const t = useTranslations('Settings.apiKeys');
+  const locale = useLocale();
   const [name, setName] = useState(editing?.name ?? '');
   const [access, setAccess] = useState<Access>(editing ? presetFor(editing.scopes) : 'read');
   const [custom, setCustom] = useState<ApiScope[]>(editing ? (editing.scopes as ApiScope[]) : []);
   const [busy, setBusy] = useState(false);
+  // Create: how long the key lives. Edit: keep what it has, or set a new expiry.
+  const [expiry, setExpiry] = useState<string>(editing ? 'keep' : 'none');
 
   const scopes = access === 'custom' ? custom : PRESET_SCOPES[access];
 
@@ -53,7 +61,11 @@ export function KeyDialog({
       const res = await fetch(editing ? `/api/account/api-keys/${editing.id}` : '/api/account/api-keys', {
         method: editing ? 'PATCH' : 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: trimmed, scopes }),
+        body: JSON.stringify({
+          name: trimmed,
+          scopes,
+          ...(expiry === 'keep' ? {} : { expiresInDays: expiry === 'none' ? (editing ? null : undefined) : Number(expiry) }),
+        }),
       });
       const payload = await res.json().catch(() => ({}));
       if (!res.ok) {
@@ -97,6 +109,20 @@ export function KeyDialog({
               <option value="custom">{t('accessCustomOption')}</option>
             </select>
             <p className="text-muted-foreground text-xs">{t(`hint.${access}`)}</p>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="api-key-expiry" className="text-muted-foreground">{t('expiryLabel')}</Label>
+            <select id="api-key-expiry" className={selectCls} value={expiry} onChange={(e) => setExpiry(e.target.value)}>
+              {editing ? <option value="keep">{t('expiryKeep')}</option> : null}
+              {EXPIRY_DAYS.map((d) => (
+                <option key={d} value={String(d)}>
+                  {t(`expiry.d${d}`, { date: dateIn(d, locale) })}
+                </option>
+              ))}
+              <option value="none">{t('expiry.none')}</option>
+            </select>
+            <p className="text-muted-foreground text-xs">{t('expiryHint')}</p>
           </div>
 
           {access === 'custom' ? (

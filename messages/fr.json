@@ -2464,7 +2464,20 @@
       "urlNote": "Collez-la là où l'application demande l'URL du serveur. C'est tout, sans connexion.",
       "moreClients": "Claude Code, Desktop ou API REST",
       "mcpLockedNote": "Votre formule n'inclut pas la connexion d'assistants IA. Cette clé fonctionne toujours avec l'API REST.",
-      "accessDeveloper": "Développeur"
+      "accessDeveloper": "Développeur",
+      "expiryLabel": "Expiration",
+      "expiryKeep": "Conserver l'expiration actuelle",
+      "expiryHint": "Après cette date, la clé cesse de fonctionner. Vous pourrez la modifier plus tard.",
+      "expires": "expire le {date}",
+      "expiry": {
+        "d7": "7 jours ({date})",
+        "d14": "14 jours ({date})",
+        "d30": "1 mois ({date})",
+        "d90": "3 mois ({date})",
+        "d180": "6 mois ({date})",
+        "d365": "1 an ({date})",
+        "none": "Sans expiration"
+      }
     },
     "deals": {
       "title": "Affaires et devise",
@@ -3324,7 +3337,8 @@
         "nothingToChange": "Rien à modifier",
         "updateFailed": "Impossible de mettre à jour la clé API",
         "deleteFailed": "Impossible de supprimer la clé API",
-        "deleteOnlyRevoked": "Seule une clé révoquée peut être supprimée"
+        "deleteOnlyRevoked": "Seule une clé révoquée peut être supprimée",
+        "expiryInvalid": "L'expiration doit être un nombre de jours, ou null pour aucune"
       },
       "invitations": {
         "revokeFailed": "Échec de la révocation de l'invitation",

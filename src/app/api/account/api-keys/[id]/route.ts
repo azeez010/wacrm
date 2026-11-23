@@ -33,7 +33,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     const limit = checkRateLimit(`admin:apiKeyEdit:${ctx.userId}`, RATE_LIMITS.adminAction);
     if (!limit.success) return rateLimitResponse(limit);
 
-    const body = (await request.json().catch(() => null)) as { name?: unknown; scopes?: unknown } | null;
+    const body = (await request.json().catch(() => null)) as { name?: unknown; scopes?: unknown; expiresInDays?: unknown } | null;
     const patch: Record<string, unknown> = {};
     if (body?.name !== undefined) {
       const name = typeof body.name === 'string' ? body.name.trim() : '';
@@ -45,6 +45,13 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       const scopes = normalizeScopes(body.scopes);
       if (scopes === null) return NextResponse.json({ error: t('account.apiKeys.scopesInvalid') }, { status: 400 });
       patch.scopes = scopes;
+    }
+    // expiresInDays: a number sets a new expiry from today (max 1 year); null removes it.
+    if (body?.expiresInDays !== undefined) {
+      if (body.expiresInDays === null) patch.expires_at = null;
+      else if (typeof body.expiresInDays === 'number' && Number.isFinite(body.expiresInDays) && body.expiresInDays > 0) {
+        patch.expires_at = new Date(Date.now() + Math.min(Math.floor(body.expiresInDays), 365) * 86_400_000).toISOString();
+      } else return NextResponse.json({ error: t('account.apiKeys.expiryInvalid') }, { status: 400 });
     }
     if (Object.keys(patch).length === 0) return NextResponse.json({ error: t('account.apiKeys.nothingToChange') }, { status: 400 });
 

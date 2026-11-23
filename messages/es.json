@@ -2464,7 +2464,20 @@
       "urlNote": "Pégala donde la app pida la URL del servidor. Eso es todo, sin iniciar sesión.",
       "moreClients": "Claude Code, Desktop o API REST",
       "mcpLockedNote": "Tu plan no incluye conectar asistentes de IA. Esta clave sigue funcionando con la API REST.",
-      "accessDeveloper": "Desarrollador"
+      "accessDeveloper": "Desarrollador",
+      "expiryLabel": "Caducidad",
+      "expiryKeep": "Mantener la caducidad actual",
+      "expiryHint": "Después de esta fecha la clave deja de funcionar. Puedes cambiarla más tarde.",
+      "expires": "caduca el {date}",
+      "expiry": {
+        "d7": "7 días ({date})",
+        "d14": "14 días ({date})",
+        "d30": "1 mes ({date})",
+        "d90": "3 meses ({date})",
+        "d180": "6 meses ({date})",
+        "d365": "1 año ({date})",
+        "none": "Sin caducidad"
+      }
     },
     "deals": {
       "title": "Negocios y moneda",
@@ -3338,7 +3351,8 @@
         "nothingToChange": "No hay nada que cambiar",
         "updateFailed": "No se pudo actualizar la clave de API",
         "deleteFailed": "No se pudo eliminar la clave de API",
-        "deleteOnlyRevoked": "Solo se puede eliminar una clave revocada"
+        "deleteOnlyRevoked": "Solo se puede eliminar una clave revocada",
+        "expiryInvalid": "La caducidad debe ser un número de días, o null para ninguna"
       },
       "invitations": {
         "revokeFailed": "Error al revocar la invitación",

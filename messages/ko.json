@@ -2464,7 +2464,20 @@
       "urlNote": "앱이 서버 URL을 요청하는 곳에 붙여넣으세요. 로그인 없이 끝입니다.",
       "moreClients": "Claude Code, Desktop 또는 REST API",
       "mcpLockedNote": "현재 요금제에는 AI 어시스턴트 연결이 포함되어 있지 않습니다. 이 키는 REST API에서는 계속 사용할 수 있습니다.",
-      "accessDeveloper": "개발자"
+      "accessDeveloper": "개발자",
+      "expiryLabel": "만료",
+      "expiryKeep": "현재 만료일 유지",
+      "expiryHint": "이 날짜 이후에는 키가 작동하지 않습니다. 나중에 변경할 수 있습니다.",
+      "expires": "{date} 만료",
+      "expiry": {
+        "d7": "7일 ({date})",
+        "d14": "14일 ({date})",
+        "d30": "1개월 ({date})",
+        "d90": "3개월 ({date})",
+        "d180": "6개월 ({date})",
+        "d365": "1년 ({date})",
+        "none": "만료 없음"
+      }
     },
     "deals": {
       "title": "딜 & 통화",
@@ -3338,7 +3351,8 @@
         "nothingToChange": "변경할 내용이 없습니다",
         "updateFailed": "API 키를 업데이트하지 못했습니다",
         "deleteFailed": "API 키를 삭제하지 못했습니다",
-        "deleteOnlyRevoked": "폐기된 키만 삭제할 수 있습니다"
+        "deleteOnlyRevoked": "폐기된 키만 삭제할 수 있습니다",
+        "expiryInvalid": "만료는 일수여야 하며, 만료 없음은 null입니다"
       },
       "invitations": {
         "revokeFailed": "초대를 취소하지 못했습니다",

@@ -6,14 +6,14 @@ const names = (i: ReturnType<typeof rowActions>) => i.map((x) => x.action)
 
 describe('forms list row actions', () => {
   it('a live form offers Unpublish, a draft or paused one Publish', () => {
-    expect(names(rowActions({ status: 'active', archived: false, canManage: true, canDelete: true }))).toEqual(['edit', 'share', 'unpublish', 'settings', 'duplicate', 'archive'])
+    expect(names(rowActions({ status: 'active', archived: false, canManage: true, canDelete: true }))).toEqual(['edit', 'share', 'unpublish', 'settings', 'duplicate', 'export', 'archive'])
     expect(names(rowActions({ status: 'draft', archived: false, canManage: true, canDelete: true }))).toContain('publish')
     expect(names(rowActions({ status: 'paused', archived: false, canManage: true, canDelete: true }))).toContain('publish')
   })
   it('a viewer can open and share but not change anything', () => {
     const items = rowActions({ status: 'active', archived: false, canManage: false, canDelete: false })
     const enabled = Object.fromEntries(items.map((i) => [i.action, i.enabled]))
-    expect(enabled).toMatchObject({ edit: true, share: true, unpublish: false, settings: false, duplicate: false, archive: false })
+    expect(enabled).toMatchObject({ edit: true, share: true, unpublish: false, settings: false, duplicate: false, export: true, archive: false })
   })
   it('an agent can manage but not archive; an admin can', () => {
     const agent = rowActions({ status: 'active', archived: false, canManage: true, canDelete: false })

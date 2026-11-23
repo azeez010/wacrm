@@ -1,6 +1,7 @@
 'use client';
 
 import { Download, Loader2 } from 'lucide-react';
+import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
@@ -22,6 +23,9 @@ interface Stats {
   by_source: { key: string; count: number }[];
   by_campaign: { key: string; count: number }[];
   by_country: { key: string; count: number }[];
+  by_device: { key: string; count: number }[];
+  rejected: { key: string; count: number }[];
+  daily: { day: string; views: number; submissions: number }[];
 }
 
 interface Submission {
@@ -54,7 +58,8 @@ export function Results({ formId, fields }: { formId: string; fields: FormField[
   const canManage = useCan('manage-forms');
   const canDelete = useCan('delete-forms');
   const [days, setDays] = useState<(typeof RANGES)[number]>(30);
-  const [group, setGroup] = useState<'by_source' | 'by_campaign' | 'by_country'>('by_source');
+  const [group, setGroup] = useState<'by_source' | 'by_campaign' | 'by_country' | 'by_device' | 'rejected'>('by_source');
+  const [held, setHeld] = useState(0);
   const [stats, setStats] = useState<Stats | null>(null);
   const [rows, setRows] = useState<Submission[] | null>(null);
   const [selected, setSelected] = useState<Submission | null>(null);
@@ -66,7 +71,7 @@ export function Results({ formId, fields }: { formId: string; fields: FormField[
     const db = createClient();
     const to = new Date(Date.now() + 86_400_000);
     const from = new Date(Date.now() - days * 86_400_000);
-    const [s, r] = await Promise.all([
+    const [s, r, b, h] = await Promise.all([
       db.rpc('form_stats', { p_form_id: formId, p_from: from.toISOString(), p_to: to.toISOString() }),
       db
         .from('form_submissions')
@@ -76,8 +81,12 @@ export function Results({ formId, fields }: { formId: string; fields: FormField[
         .gte('created_at', from.toISOString())
         .order('created_at', { ascending: false })
         .limit(500),
+      db.rpc('form_breakdown', { p_form_id: formId, p_from: from.toISOString(), p_to: to.toISOString() }),
+      db.from('form_submissions').select('id', { count: 'exact', head: true }).eq('form_id', formId).eq('outcome', 'held').eq('is_test', false),
     ]);
-    setStats((s.data as Stats | null) ?? null);
+    setHeld(h.count ?? 0);
+    const extra = (b.data as { by_device?: Stats['by_device']; rejected?: Stats['rejected'] } | null) ?? {};
+    setStats(s.data ? ({ ...(s.data as Stats), by_device: extra.by_device ?? [], rejected: extra.rejected ?? [], daily: (s.data as Stats).daily ?? [] }) : null);
     setRows((r.data as Submission[] | null) ?? []);
   }, [formId, days]);
 
@@ -103,6 +112,17 @@ export function Results({ formId, fields }: { formId: string; fields: FormField[
     if (!res.ok) return toast.error(((await res.json().catch(() => ({}))) as { error?: string }).error ?? t('actionFailed'));
     toast.success(t(`done.${action}`));
     setSelected(null);
+    setTimeout(() => void load(), 1500);
+  }
+
+  async function releaseAll() {
+    setBusy(true);
+    const res = await fetch(`/api/forms/${formId}/release-all`, { method: 'POST' });
+    setBusy(false);
+    const json = (await res.json().catch(() => ({}))) as { released?: number; still_held?: number; error?: string };
+    if (!res.ok) return toast.error(json.error ?? t('actionFailed'));
+    if (!json.released) toast.message(t('releasedNone'));
+    else toast.success(t('released', { count: json.released }));
     setTimeout(() => void load(), 1500);
   }
 
@@ -150,6 +170,11 @@ export function Results({ formId, fields }: { formId: string; fields: FormField[
     [t('qualified'), stats.qualified],
   ];
   const grouped = stats[group] ?? [];
+  const groupLabel = (key: string) => {
+    if (group === 'rejected') return t.has(`reason.${key.replace(/[()]/g, '')}`) ? t(`reason.${key.replace(/[()]/g, '')}`) : key;
+    if (group === 'by_device') return t.has(`device.${key.replace(/[()]/g, '')}`) ? t(`device.${key.replace(/[()]/g, '')}`) : key;
+    return key;
+  };
   const max = Math.max(1, ...grouped.map((g) => g.count));
   const failed = selected ? Object.entries(selected.processing?.steps ?? {}).filter(([, s]) => s.ok === false) : [];
 
@@ -169,6 +194,20 @@ export function Results({ formId, fields }: { formId: string; fields: FormField[
         </Button>
       </div>
 
+      {held > 0 ? (
+        <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-amber-500/40 bg-amber-500/5 px-3 py-2 text-sm">
+          <span className="text-amber-700 dark:text-amber-400">{t('heldBanner', { count: held })}</span>
+          <div className="flex gap-2">
+            <Button size="sm" variant="outline" render={<Link href="/settings?tab=billing" />}>
+              {t('seePlans')}
+            </Button>
+            <Button size="sm" disabled={!canManage || busy} onClick={() => void releaseAll()}>
+              {t('releaseAll')}
+            </Button>
+          </div>
+        </div>
+      ) : null}
+
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {tiles.map(([label, value]) => (
           <div key={label} className="rounded-xl border border-border bg-card p-4">
@@ -179,12 +218,22 @@ export function Results({ formId, fields }: { formId: string; fields: FormField[
       </div>
 
       <div className="rounded-xl border border-border bg-card p-4">
+        <div className="mb-2 flex items-baseline justify-between">
+          <span className="text-sm font-medium">{t('dailyTitle')}</span>
+          <span className="text-xs text-muted-foreground">{t('dailyTotal', { count: stats.daily.reduce((n, d) => n + d.submissions, 0) })}</span>
+        </div>
+        <DailyBars daily={stats.daily} />
+      </div>
+
+      <div className="rounded-xl border border-border bg-card p-4">
         <div className="mb-3 flex items-center justify-between">
           <span className="text-sm font-medium">{t('whereFrom')}</span>
           <select className="h-8 rounded-md border border-border bg-muted px-2 text-sm" value={group} onChange={(e) => setGroup(e.target.value as typeof group)}>
             <option value="by_source">{t('bySource')}</option>
             <option value="by_campaign">{t('byCampaign')}</option>
             <option value="by_country">{t('byCountry')}</option>
+            <option value="by_device">{t('byDevice')}</option>
+            <option value="rejected">{t('byRejected')}</option>
           </select>
         </div>
         {grouped.length === 0 ? (
@@ -194,7 +243,7 @@ export function Results({ formId, fields }: { formId: string; fields: FormField[
             {grouped.map((g) => (
               <li key={g.key} className="text-sm">
                 <div className="flex justify-between">
-                  <span className="truncate">{g.key}</span>
+                  <span className="truncate">{groupLabel(g.key)}</span>
                   <span className="text-muted-foreground">{g.count}</span>
                 </div>
                 <div className="mt-1 h-1.5 rounded-full bg-muted">
@@ -319,5 +368,28 @@ export function Results({ formId, fields }: { formId: string; fields: FormField[
         </SheetContent>
       </Sheet>
     </div>
+  );
+}
+
+/** Leads per day as plain SVG bars (no chart library). Hover a bar for the day's numbers. */
+function DailyBars({ daily }: { daily: Stats['daily'] }) {
+  if (daily.length === 0) return null;
+  const W = 600;
+  const H = 90;
+  const max = Math.max(1, ...daily.map((d) => d.submissions));
+  const step = W / daily.length;
+  const bar = Math.max(2, step * 0.7);
+  return (
+    <svg viewBox={`0 0 ${W} ${H + 4}`} className="h-24 w-full" role="img" aria-label="Leads per day" preserveAspectRatio="none">
+      <line x1="0" y1={H} x2={W} y2={H} className="stroke-border" strokeWidth="1" />
+      {daily.map((d, i) => {
+        const h = d.submissions === 0 ? 1 : Math.max(3, (d.submissions / max) * (H - 6));
+        return (
+          <rect key={d.day} x={i * step + (step - bar) / 2} y={H - h} width={bar} height={h} rx="1.5" className={d.submissions === 0 ? 'fill-muted' : 'fill-primary'}>
+            <title>{`${d.day}: ${d.submissions}`}</title>
+          </rect>
+        );
+      })}
+    </svg>
   );
 }

@@ -2,9 +2,10 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
-import { ChevronDown, ClipboardList, Copy, Loader2, MessageCircle, MoreHorizontal, Plus } from "lucide-react";
+import { ChevronDown, ClipboardList, Copy, Loader2, MessageCircle, MoreHorizontal, Plus, Upload } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -121,6 +122,24 @@ export default function FormsPage() {
     router.push(`/forms/${json.form.id}`);
   }
 
+  async function importFile(file: File | undefined) {
+    if (!file) return;
+    setWorking(true);
+    try {
+      const doc = JSON.parse(await file.text());
+      const res = await fetch("/api/forms/import", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(doc) });
+      const json = (await res.json().catch(() => ({}))) as { form?: { id: string }; warnings?: string[]; error?: string };
+      if (!res.ok || !json.form) return void toast.error(json.error ?? t("importFailed"));
+      toast.success(t("importOk"));
+      if ((json.warnings ?? []).length > 0) toast.warning(t("importWarnings", { count: json.warnings!.length }), { description: json.warnings!.join(" ") });
+      router.push(`/forms/${json.form.id}`);
+    } catch {
+      toast.error(t("importFailed"));
+    } finally {
+      setWorking(false);
+    }
+  }
+
   async function call(url: string, init: RequestInit, okKey: string) {
     setWorking(true);
     const res = await fetch(url, init);
@@ -148,6 +167,12 @@ export default function FormsPage() {
         return setShareFor(f);
       case "duplicate":
         return void duplicate(f);
+      case "export": {
+        const a = document.createElement("a");
+        a.href = `/api/forms/${f.id}/export`;
+        a.click();
+        return;
+      }
       case "publish":
         // A first publish opens Share, like in the editor.
         if (await setStatus(f, "active")) setShareFor(f);
@@ -210,10 +235,17 @@ export default function FormsPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
-        <GatedButton canAct={canManage} gateReason={tGate("reasons.manageForms")} onClick={() => setNewOpen(true)}>
-          <Plus className="h-4 w-4" />
-          {t("new")}
-        </GatedButton>
+        <div className="flex items-center gap-2">
+          <label className={`inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-lg border border-border px-3 text-sm ${canManage ? "hover:bg-muted" : "pointer-events-none opacity-60"}`}>
+            <Upload className="h-4 w-4" />
+            {t("import")}
+            <input type="file" accept="application/json,.json" className="sr-only" disabled={!canManage || working} onChange={(e) => { void importFile(e.target.files?.[0]); e.target.value = ""; }} />
+          </label>
+          <GatedButton canAct={canManage} gateReason={tGate("reasons.manageForms")} onClick={() => setNewOpen(true)}>
+            <Plus className="h-4 w-4" />
+            {t("new")}
+          </GatedButton>
+        </div>
       </div>
 
       {usage ? (
@@ -226,6 +258,15 @@ export default function FormsPage() {
           })}
           {usage.leads.held > 0 ? ` ${t("held", { count: usage.leads.held })}` : ""}
         </p>
+      ) : null}
+
+      {usage && usage.leads.held > 0 ? (
+        <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-amber-500/40 bg-amber-500/5 px-3 py-2 text-sm">
+          <span className="text-amber-700 dark:text-amber-400">{t("heldBanner", { count: usage.leads.held })}</span>
+          <Button size="sm" variant="outline" render={<Link href="/settings?tab=billing" />}>
+            {t("seePlans")}
+          </Button>
+        </div>
       ) : null}
 
       {forms.length === 0 ? (

@@ -3701,7 +3701,8 @@
         "duplicate": "Duplicate",
         "archive": "Archive",
         "restore": "Restore",
-        "delete": "Delete permanently"
+        "delete": "Delete permanently",
+        "export": "Export"
       },
       "published": "Published",
       "unpublished": "Unpublished",
@@ -3726,7 +3727,13 @@
           "body": "This deletes the form and all of its submissions. Contacts already created stay in Contacts. This cannot be undone.",
           "cta": "Delete permanently"
         }
-      }
+      },
+      "importOk": "Form imported as a draft",
+      "importWarnings": "{count, plural, one {# thing was} other {# things were}} skipped",
+      "importFailed": "That file could not be imported",
+      "heldBanner": "{count, plural, one {# lead is waiting} other {# leads are waiting}} because you reached your plan limit. Open a form’s Results to release them, or upgrade.",
+      "seePlans": "See plans",
+      "import": "Import"
     },
     "new": {
       "title": "New form",
@@ -4026,6 +4033,29 @@
         "retry": "Retrying",
         "release": "Releasing the lead",
         "spam": "Marked as spam"
+      },
+      "dailyTitle": "Leads per day",
+      "dailyTotal": "{count} in total",
+      "byDevice": "By device",
+      "byRejected": "Why leads were rejected",
+      "heldBanner": "{count, plural, one {# lead is waiting} other {# leads are waiting}} because you reached your plan limit.",
+      "seePlans": "See plans",
+      "releaseAll": "Release all",
+      "released": "{count, plural, one {# lead released} other {# leads released}}",
+      "releasedNone": "No room left on your plan this month. Upgrade to release them.",
+      "reason": {
+        "honeypot": "Spam trap",
+        "too_fast": "Submitted too fast",
+        "not_qualified": "Not qualified",
+        "duplicate_phone": "Already submitted",
+        "marked_spam": "Marked as spam",
+        "other": "Other"
+      },
+      "device": {
+        "mobile": "Mobile",
+        "desktop": "Desktop",
+        "tablet": "Tablet",
+        "unknown": "Unknown"
       }
     }
   },

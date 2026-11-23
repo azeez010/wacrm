@@ -181,9 +181,9 @@ describe('hosted MCP server', () => {
 
   it('exposes form tools by scope: read, manage (build) and write (submit) are separate', async () => {
     const read = await names(await connect(['forms:read']))
-    expect(read).toEqual(['get_form', 'get_forms_reference', 'list_form_submissions', 'list_forms', 'whoami'].sort())
+    expect(read).toEqual(['export_form', 'get_form', 'get_forms_reference', 'list_form_submissions', 'list_forms', 'whoami'].sort())
     const manage = await names(await connect(['forms:manage']))
-    expect(manage).toEqual(['archive_form', 'create_form', 'update_form', 'whoami'].sort())
+    expect(manage).toEqual(['archive_form', 'create_form', 'import_form', 'release_held_leads', 'update_form', 'whoami'].sort())
     const submit = await names(await connect(['forms:write']))
     expect(submit).toEqual(['submit_form_lead', 'whoami'])
     // A key with read + manage sees both, and a write-only automation key sees none of them.

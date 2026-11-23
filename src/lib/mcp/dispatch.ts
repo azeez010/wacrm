@@ -71,6 +71,9 @@ import { GET as pipelineGet } from '@/app/api/v1/pipelines/[id]/route'
 import { GET as dealGet } from '@/app/api/v1/deals/[id]/route'
 import { GET as formsGet, POST as formsPost } from '@/app/api/v1/forms/route'
 import { GET as formGet, PATCH as formPatch, DELETE as formDelete } from '@/app/api/v1/forms/[id]/route'
+import { GET as formExportGet } from '@/app/api/v1/forms/[id]/export/route'
+import { POST as formsImportPost } from '@/app/api/v1/forms/import/route'
+import { POST as formReleasePost } from '@/app/api/v1/forms/[id]/submissions/release/route'
 import { GET as formSubmissionsGet, POST as formSubmissionsPost } from '@/app/api/v1/forms/[id]/submissions/route'
 
 type Handler = (req: Request, ctx: { params: Promise<{ id: string; recordId?: string }> }) => Promise<Response>
@@ -156,6 +159,10 @@ export function createApiClient(authorization: string) {
     createForm: (body: unknown) => call(authorization, formsPost as Handler, 'POST', '/forms', { body }),
     updateForm: (id: string, body: unknown) =>
       call(authorization, formPatch as Handler, 'PATCH', `/forms/${enc(id)}`, { id, body }),
+    exportForm: (id: string) => call(authorization, formExportGet as Handler, 'GET', `/forms/${enc(id)}/export`, { id }),
+    importForm: (body: unknown) => call(authorization, formsImportPost as Handler, 'POST', '/forms/import', { body }),
+    releaseHeldLeads: (id: string) =>
+      call(authorization, formReleasePost as Handler, 'POST', `/forms/${enc(id)}/submissions/release`, { id }),
     archiveForm: (id: string) => call(authorization, formDelete as Handler, 'DELETE', `/forms/${enc(id)}`, { id }),
     submitFormLead: (id: string, body: unknown) =>
       call(authorization, formSubmissionsPost as Handler, 'POST', `/forms/${enc(id)}/submissions`, { id, body }),

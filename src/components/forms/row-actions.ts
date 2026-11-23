@@ -9,6 +9,7 @@ export type RowAction =
   | 'unpublish'
   | 'settings'
   | 'duplicate'
+  | 'export'
   | 'archive'
   | 'restore'
   | 'delete'
@@ -36,6 +37,8 @@ export function rowActions(input: { status: FormStatus; archived: boolean; canMa
     { action: status === 'active' ? 'unpublish' : 'publish', enabled: canManage },
     { action: 'settings', enabled: canManage },
     { action: 'duplicate', enabled: canManage, separatorBefore: true },
+    // Reading is enough to download the file.
+    { action: 'export', enabled: true },
     { action: 'archive', enabled: canDelete, separatorBefore: true, destructive: true },
   ]
 }

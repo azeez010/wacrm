@@ -3701,7 +3701,8 @@
         "duplicate": "Duplicar",
         "archive": "Archivar",
         "restore": "Restaurar",
-        "delete": "Eliminar definitivamente"
+        "delete": "Eliminar definitivamente",
+        "export": "Exportar"
       },
       "published": "Publicado",
       "unpublished": "Despublicado",
@@ -3726,7 +3727,13 @@
           "body": "Se elimina el formulario y todos sus envíos. Los contactos ya creados siguen en Contactos. No se puede deshacer.",
           "cta": "Eliminar definitivamente"
         }
-      }
+      },
+      "importOk": "Formulario importado como borrador",
+      "importWarnings": "{count, plural, one {# elemento omitido} other {# elementos omitidos}}",
+      "importFailed": "No se pudo importar ese archivo",
+      "heldBanner": "{count, plural, one {# lead en espera} other {# leads en espera}} porque alcanzaste el límite de tu plan. Abre los Resultados de un formulario para liberarlos, o mejora el plan.",
+      "seePlans": "Ver planes",
+      "import": "Importar"
     },
     "new": {
       "title": "Nuevo formulario",
@@ -4026,6 +4033,29 @@
         "retry": "Reintentando",
         "release": "Liberando el lead",
         "spam": "Marcado como spam"
+      },
+      "dailyTitle": "Leads por día",
+      "dailyTotal": "{count} en total",
+      "byDevice": "Por dispositivo",
+      "byRejected": "Por qué se rechazaron",
+      "heldBanner": "{count, plural, one {# lead en espera} other {# leads en espera}} porque alcanzaste el límite de tu plan.",
+      "seePlans": "Ver planes",
+      "releaseAll": "Liberar todos",
+      "released": "{count, plural, one {# lead liberado} other {# leads liberados}}",
+      "releasedNone": "No queda margen en tu plan este mes. Mejora el plan para liberarlos.",
+      "reason": {
+        "honeypot": "Trampa de spam",
+        "too_fast": "Enviado demasiado rápido",
+        "not_qualified": "No calificado",
+        "duplicate_phone": "Ya enviado",
+        "marked_spam": "Marcado como spam",
+        "other": "Otro"
+      },
+      "device": {
+        "mobile": "Móvil",
+        "desktop": "Escritorio",
+        "tablet": "Tableta",
+        "unknown": "Desconocido"
       }
     }
   },

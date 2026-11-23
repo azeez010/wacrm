@@ -3701,7 +3701,8 @@
         "duplicate": "Duplicar",
         "archive": "Arquivar",
         "restore": "Restaurar",
-        "delete": "Excluir permanentemente"
+        "delete": "Excluir permanentemente",
+        "export": "Exportar"
       },
       "published": "Publicado",
       "unpublished": "Despublicado",
@@ -3726,7 +3727,13 @@
           "body": "Isso exclui o formulário e todos os seus envios. Os contatos já criados permanecem em Contatos. Não é possível desfazer.",
           "cta": "Excluir permanentemente"
         }
-      }
+      },
+      "importOk": "Formulário importado como rascunho",
+      "importWarnings": "{count, plural, one {# item ignorado} other {# itens ignorados}}",
+      "importFailed": "Não foi possível importar esse arquivo",
+      "heldBanner": "{count, plural, one {# lead em espera} other {# leads em espera}} porque você atingiu o limite do plano. Abra os Resultados de um formulário para liberá-los, ou faça upgrade.",
+      "seePlans": "Ver planos",
+      "import": "Importar"
     },
     "new": {
       "title": "Novo formulário",
@@ -4026,6 +4033,29 @@
         "retry": "Tentando novamente",
         "release": "Liberando o lead",
         "spam": "Marcado como spam"
+      },
+      "dailyTitle": "Leads por dia",
+      "dailyTotal": "{count} no total",
+      "byDevice": "Por dispositivo",
+      "byRejected": "Por que os leads foram rejeitados",
+      "heldBanner": "{count, plural, one {# lead em espera} other {# leads em espera}} porque você atingiu o limite do plano.",
+      "seePlans": "Ver planos",
+      "releaseAll": "Liberar todos",
+      "released": "{count, plural, one {# lead liberado} other {# leads liberados}}",
+      "releasedNone": "Não há mais espaço no plano este mês. Faça upgrade para liberá-los.",
+      "reason": {
+        "honeypot": "Armadilha de spam",
+        "too_fast": "Enviado rápido demais",
+        "not_qualified": "Não qualificado",
+        "duplicate_phone": "Já enviado",
+        "marked_spam": "Marcado como spam",
+        "other": "Outro"
+      },
+      "device": {
+        "mobile": "Celular",
+        "desktop": "Computador",
+        "tablet": "Tablet",
+        "unknown": "Desconhecido"
       }
     }
   },

@@ -3701,7 +3701,8 @@
         "duplicate": "Dupliquer",
         "archive": "Archiver",
         "restore": "Restaurer",
-        "delete": "Supprimer définitivement"
+        "delete": "Supprimer définitivement",
+        "export": "Exporter"
       },
       "published": "Publié",
       "unpublished": "Dépublié",
@@ -3726,7 +3727,13 @@
           "body": "Cela supprime le formulaire et tous ses envois. Les contacts déjà créés restent dans Contacts. Action irréversible.",
           "cta": "Supprimer définitivement"
         }
-      }
+      },
+      "importOk": "Formulaire importé en brouillon",
+      "importWarnings": "{count, plural, one {# élément ignoré} other {# éléments ignorés}}",
+      "importFailed": "Ce fichier n'a pas pu être importé",
+      "heldBanner": "{count, plural, one {# lead en attente} other {# leads en attente}} car vous avez atteint la limite de votre formule. Ouvrez les Résultats d'un formulaire pour les libérer, ou passez à une formule supérieure.",
+      "seePlans": "Voir les formules",
+      "import": "Importer"
     },
     "new": {
       "title": "Nouveau formulaire",
@@ -4026,6 +4033,29 @@
         "retry": "Nouvel essai",
         "release": "Libération du lead",
         "spam": "Marqué comme spam"
+      },
+      "dailyTitle": "Leads par jour",
+      "dailyTotal": "{count} au total",
+      "byDevice": "Par appareil",
+      "byRejected": "Pourquoi les leads ont été rejetés",
+      "heldBanner": "{count, plural, one {# lead en attente} other {# leads en attente}} car vous avez atteint la limite de votre formule.",
+      "seePlans": "Voir les formules",
+      "releaseAll": "Tout libérer",
+      "released": "{count, plural, one {# lead libéré} other {# leads libérés}}",
+      "releasedNone": "Plus de place dans votre formule ce mois-ci. Passez à une formule supérieure pour les libérer.",
+      "reason": {
+        "honeypot": "Piège anti-spam",
+        "too_fast": "Envoyé trop vite",
+        "not_qualified": "Non qualifié",
+        "duplicate_phone": "Déjà envoyé",
+        "marked_spam": "Marqué comme spam",
+        "other": "Autre"
+      },
+      "device": {
+        "mobile": "Mobile",
+        "desktop": "Ordinateur",
+        "tablet": "Tablette",
+        "unknown": "Inconnu"
       }
     }
   },

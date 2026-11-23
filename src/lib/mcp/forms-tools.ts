@@ -7,7 +7,7 @@ import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 
 import type { ApiClient } from './dispatch'
-import { DESTRUCTIVE, READ, WRITE, cursor, has, limit, run, text } from './helpers'
+import { DESTRUCTIVE, READ, WRITE, cursor, errorResult, has, limit, run, text } from './helpers'
 
 export const FORMS_REFERENCE = {
   overview:
@@ -93,6 +93,46 @@ export function registerFormsTools(server: McpServer, api: ApiClient, scopes: st
         annotations: { ...READ, title: 'List form submissions' },
       },
       run(async ({ form_id, limit: l, cursor: c }) => api.listFormSubmissions(form_id, { limit: l, cursor: c })),
+    )
+  }
+
+  if (has(scopes, 'forms:read')) {
+    server.registerTool(
+      'export_form',
+      {
+        title: 'Export form',
+        description: 'The form as a portable JSON document (fields + settings, with names for the tags, custom fields and pipeline it uses). Pass it to import_form, here or in another account.',
+        inputSchema: { form_id: z.string() },
+        annotations: { ...READ, title: 'Export form' },
+      },
+      run(async ({ form_id }) => api.exportForm(form_id)),
+    )
+  }
+
+  if (has(scopes, 'forms:manage')) {
+    server.registerTool(
+      'import_form',
+      {
+        title: 'Import form',
+        description:
+          'Create a DRAFT form from a document made by export_form. Tags, custom fields and the pipeline are matched by name; anything missing is skipped and listed in `warnings`. Team members and WhatsApp numbers are not carried over. Show the warnings to the user.',
+        inputSchema: { document: z.record(z.string(), z.unknown()).describe('The exact JSON returned by export_form.') },
+        annotations: { ...WRITE, title: 'Import form' },
+      },
+      run(async ({ document }) => api.importForm(document)),
+    )
+    server.registerTool(
+      'release_held_leads',
+      {
+        title: 'Release held leads',
+        description:
+          'Leads that arrived over the plan’s monthly quota are kept but not processed. This accepts as many as the plan has room for (oldest first) and runs the normal follow-up for each: contact, tags, notification, deal and welcome message, which can message the lead. You MUST set confirm=true, only after the user agreed. The response says how many were released and how many are still held.',
+        inputSchema: { form_id: z.string(), confirm: z.boolean() },
+        annotations: { ...WRITE, title: 'Release held leads' },
+      },
+      run(async ({ form_id, confirm }) =>
+        confirm === true ? api.releaseHeldLeads(form_id) : errorResult('Refusing to release: confirm must be true. Tell the user how many leads are held and that releasing may message them, then ask.'),
+      ),
     )
   }
 

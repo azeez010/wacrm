@@ -43,7 +43,8 @@ import { scheduleQuotaCheck } from '@/lib/billing/quota-alerts';
 // still exceed 60s, so very large sends should be split across
 // requests. A durable queue/cron drain is the complete fix (follow-up).
 export const maxDuration = 60;
-import { ok, fail, toApiErrorResponse } from '@/lib/api/v1/respond';
+import { ok, okList, fail, toApiErrorResponse } from '@/lib/api/v1/respond';
+import { parseListParams, keysetFilter, buildPage } from '@/lib/api/v1/pagination';
 import { resolveAuditUserId, ContactError } from '@/lib/api/v1/contacts';
 import { loadSegmentFilter } from '@/lib/broadcast-audience';
 import { filterContacts, segCtxFromKey } from '@/lib/segments/server';
@@ -52,6 +53,37 @@ import {
   deliverBroadcast,
   BroadcastError,
 } from '@/lib/whatsapp/broadcast-core';
+
+/** GET /api/v1/broadcasts - list broadcasts, newest first (scope: broadcasts:send, like the single read). */
+export async function GET(request: Request) {
+  try {
+    const ctx = await requireApiKey(request, 'broadcasts:send');
+    const { limit, cursor } = parseListParams(request);
+    let query = ctx.supabase
+      .from('broadcasts')
+      .select(
+        'id, name, template_name, template_language, status, total_recipients, sent_count, delivered_count, read_count, replied_count, failed_count, created_at, updated_at'
+      )
+      .eq('account_id', ctx.accountId)
+      .order('created_at', { ascending: false })
+      .order('id', { ascending: false })
+      .limit(limit + 1);
+    const kf = keysetFilter(cursor);
+    if (kf) query = query.or(kf);
+    const { data, error } = await query;
+    if (error) {
+      console.error('[api/v1/broadcasts] list error:', error);
+      return fail('internal', 'Failed to list broadcasts', 500);
+    }
+    const { items, nextCursor } = buildPage(
+      (data ?? []) as unknown as Array<{ created_at: string; id: string }>,
+      limit
+    );
+    return okList(items, nextCursor);
+  } catch (err) {
+    return toApiErrorResponse(err);
+  }
+}
 
 export async function POST(request: Request) {
   try {

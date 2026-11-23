@@ -19,6 +19,7 @@ export const API_SCOPES = [
   'contacts:read',
   'contacts:write',
   'conversations:read',
+  'conversations:write',
   'broadcasts:send',
   'webhooks:manage',
   'templates:read',
@@ -40,6 +41,7 @@ export const API_SCOPES = [
   'forms:manage',
   'otp:send',
   'otp:verify',
+  'keys:manage',
 ] as const;
 
 export type ApiScope = (typeof API_SCOPES)[number];
@@ -51,6 +53,7 @@ export const SCOPE_DESCRIPTIONS: Record<ApiScope, string> = {
   'contacts:read': 'List and read contacts',
   'contacts:write': 'Create and update contacts',
   'conversations:read': 'List and read conversations',
+  'conversations:write': 'Assign, close and reopen conversations',
   'broadcasts:send': 'Launch broadcast campaigns',
   'webhooks:manage': 'Register and manage outbound event webhooks',
   'templates:read': 'List message templates and their approval status',
@@ -72,6 +75,7 @@ export const SCOPE_DESCRIPTIONS: Record<ApiScope, string> = {
   'forms:manage': 'Create, edit, publish and archive forms and support buttons',
   'otp:send': 'Send verification codes over WhatsApp',
   'otp:verify': 'Check verification codes and read verification status',
+  'keys:manage': 'Create and revoke API keys (a key can never grant more than it has itself)',
 };
 
 /** Type-narrow an unknown value into a valid `ApiScope`. */

@@ -79,22 +79,22 @@ describe('hosted MCP server', () => {
   it('adds write tools only with their scope', async () => {
     const t = await names(await connect(['contacts:write', 'messages:send', 'broadcasts:send']))
     expect(t).toEqual(
-      ['create_contact', 'create_tag', 'get_broadcast', 'list_tags', 'send_broadcast', 'send_message', 'update_contact', 'whoami'].sort(),
+      ['create_contact', 'create_tag', 'get_broadcast', 'import_contacts', 'list_broadcasts', 'list_tags', 'send_broadcast', 'send_message', 'update_contact', 'whoami'].sort(),
     )
   })
 
   it('offers create_template only with the scope AND a WhatsApp connection', async () => {
     const scopes = ['templates:read', 'templates:write']
     expect(await names(await connect(scopes, { hasWhatsAppConnection: true }))).toEqual(
-      ['create_template', 'list_templates', 'whoami'].sort(),
+      ['create_template', 'delete_template', 'get_template', 'list_templates', 'whoami'].sort(),
     )
-    // Scope but no connection → can list, cannot create.
+    // Scope but no connection → can list, read and delete, cannot create.
     expect(await names(await connect(scopes, { hasWhatsAppConnection: false }))).toEqual(
-      ['list_templates', 'whoami'].sort(),
+      ['delete_template', 'get_template', 'list_templates', 'whoami'].sort(),
     )
     // Connection but no write scope → cannot create.
     expect(await names(await connect(['templates:read'], { hasWhatsAppConnection: true }))).toEqual(
-      ['list_templates', 'whoami'].sort(),
+      ['get_template', 'list_templates', 'whoami'].sort(),
     )
   })
 
@@ -202,5 +202,16 @@ describe('hosted MCP server', () => {
     const pb = await c.callTool({ name: 'get_playbook', arguments: { topic: 'developer_api' } })
     expect(JSON.stringify(pb)).toContain('/api/v1')
     expect(JSON.stringify(pb)).not.toContain('mcp.internal')
+  })
+
+  it('key management and conversation actions need their own scopes, and destructive ones need confirm', async () => {
+    expect(await names(await connect(['contacts:read']))).not.toContain('create_api_key')
+    const t = await names(await connect(['keys:manage', 'conversations:write']))
+    expect(t).toEqual(['create_api_key', 'list_api_keys', 'revoke_api_key', 'update_conversation', 'whoami'].sort())
+    const c = await connect(['keys:manage', 'templates:write'])
+    const r1 = await c.callTool({ name: 'create_api_key', arguments: { name: 'x', scopes: ['contacts:read'], confirm: false } })
+    expect(r1.isError).toBe(true)
+    const r2 = await c.callTool({ name: 'delete_template', arguments: { template_id: 't', confirm: false } })
+    expect(r2.isError).toBe(true)
   })
 })

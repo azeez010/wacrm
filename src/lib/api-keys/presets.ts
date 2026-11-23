@@ -33,6 +33,7 @@ export const DEVELOPER_SCOPES: ApiScope[] = [...BUILDER_SCOPES, 'webhooks:manage
 export const FULL_SCOPES: ApiScope[] = [
   ...DEVELOPER_SCOPES,
   'contacts:write',
+  'conversations:write',
   'messages:send',
   'broadcasts:send',
   'forms:write',

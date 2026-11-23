@@ -55,6 +55,8 @@ const NOT_DOCUMENTED_YET = [
   /^\/tables/,
   /^\/segments/,
   /^\/forms/, // documented in docs/forms.md
+  /^\/api-keys/, // key management for MCP/automation; documented in Settings > API & MCP
+  /^\/templates\/\{id\}$/,
 ]
 
 describe('OpenAPI spec', () => {

@@ -12,10 +12,10 @@ import { GET as meGet } from '@/app/api/v1/me/route'
 import { GET as contactsGet, POST as contactsPost } from '@/app/api/v1/contacts/route'
 import { GET as contactGet, PATCH as contactPatch } from '@/app/api/v1/contacts/[id]/route'
 import { GET as conversationsGet } from '@/app/api/v1/conversations/route'
-import { GET as conversationGet } from '@/app/api/v1/conversations/[id]/route'
+import { GET as conversationGet, PATCH as conversationPatch } from '@/app/api/v1/conversations/[id]/route'
 import { GET as messagesGet } from '@/app/api/v1/conversations/[id]/messages/route'
 import { POST as messagesPost } from '@/app/api/v1/messages/route'
-import { POST as broadcastsPost } from '@/app/api/v1/broadcasts/route'
+import { GET as broadcastsGet, POST as broadcastsPost } from '@/app/api/v1/broadcasts/route'
 import { GET as broadcastGet } from '@/app/api/v1/broadcasts/[id]/route'
 import { GET as templatesGet, POST as templatesPost } from '@/app/api/v1/templates/route'
 import { GET as tagsGet, POST as tagsPost } from '@/app/api/v1/tags/route'
@@ -56,6 +56,10 @@ import {
 } from '@/app/api/v1/segments/[id]/route'
 import { GET as segmentContactsGet } from '@/app/api/v1/segments/[id]/contacts/route'
 import { POST as contactsFilterPost } from '@/app/api/v1/contacts/filter/route'
+import { GET as templateGet, DELETE as templateDelete } from '@/app/api/v1/templates/[id]/route'
+import { POST as contactsImportPost } from '@/app/api/v1/contacts/import/route'
+import { GET as apiKeysGet, POST as apiKeysPost } from '@/app/api/v1/api-keys/route'
+import { DELETE as apiKeyDelete } from '@/app/api/v1/api-keys/[id]/route'
 import { GET as webhooksGet, POST as webhooksPost } from '@/app/api/v1/webhooks/route'
 import { GET as webhookGet, PATCH as webhookPatch, DELETE as webhookDelete } from '@/app/api/v1/webhooks/[id]/route'
 import { POST as verificationsPost } from '@/app/api/v1/verifications/route'
@@ -239,6 +243,19 @@ export function createApiClient(authorization: string) {
       call(authorization, segmentContactsGet as Handler, 'GET', `/segments/${enc(id)}/contacts`, { id, query: q }),
     filterContacts: (body: unknown) =>
       call(authorization, contactsFilterPost as Handler, 'POST', '/contacts/filter', { body }),
+    updateConversation: (id: string, body: unknown) =>
+      call(authorization, conversationPatch as Handler, 'PATCH', `/conversations/${enc(id)}`, { id, body }),
+    listBroadcasts: (q: Record<string, string | number | undefined>) =>
+      call(authorization, broadcastsGet as Handler, 'GET', '/broadcasts', { query: q }),
+    getTemplate: (id: string) => call(authorization, templateGet as Handler, 'GET', `/templates/${enc(id)}`, { id }),
+    deleteTemplate: (id: string) =>
+      call(authorization, templateDelete as Handler, 'DELETE', `/templates/${enc(id)}`, { id }),
+    importContacts: (body: unknown) =>
+      call(authorization, contactsImportPost as Handler, 'POST', '/contacts/import', { body }),
+    listApiKeys: () => call(authorization, apiKeysGet as Handler, 'GET', '/api-keys'),
+    createApiKey: (body: unknown) => call(authorization, apiKeysPost as Handler, 'POST', '/api-keys', { body }),
+    revokeApiKey: (id: string) =>
+      call(authorization, apiKeyDelete as Handler, 'DELETE', `/api-keys/${enc(id)}`, { id }),
     listWebhooks: () => call(authorization, webhooksGet as Handler, 'GET', '/webhooks'),
     getWebhook: (id: string) => call(authorization, webhookGet as Handler, 'GET', `/webhooks/${enc(id)}`, { id }),
     createWebhook: (body: unknown) => call(authorization, webhooksPost as Handler, 'POST', '/webhooks', { body }),

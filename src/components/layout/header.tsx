@@ -28,6 +28,7 @@ const pageTitles: Record<string, string> = {
   "/pipelines": "pipelines",
   "/broadcasts": "broadcasts",
   "/automations": "automations",
+  "/affiliate": "partner",
   "/settings": "settings",
 };
 

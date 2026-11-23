@@ -39,6 +39,16 @@ export async function buildContactSnapshot(db: SupabaseClient, userId: string): 
     SIGNED_UP_AT: ymd(profile.created_at as string),
     MARKETING_OPT_IN: Boolean(profile.marketing_opt_in),
   }
+  const [{ data: partner }, { count: referred }, { data: referral }] = await Promise.all([
+    db.from('partners').select('code').eq('user_id', userId).maybeSingle(),
+    db.from('referrals').select('id', { count: 'exact', head: true }).eq('partner_user_id', userId),
+    db.from('referrals').select('code').eq('referred_user_id', userId).maybeSingle(),
+  ])
+  Object.assign(attrs, {
+    PARTNER_CODE: (partner?.code as string | null) ?? null,
+    REFERRALS_COUNT: referred ?? 0,
+    REFERRED_BY: (referral?.code as string | null) ?? null,
+  })
   const lists: string[] = [CRM_LISTS.all]
   if (profile.marketing_opt_in) lists.push(CRM_LISTS.marketing)
 

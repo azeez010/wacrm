@@ -11,6 +11,7 @@ import {
   Bot,
   ClipboardList,
   Crown,
+  Gift,
   GitBranch,
   LayoutDashboard,
   LogOut,
@@ -102,6 +103,7 @@ const navItems: NavItem[] = [
 ];
 
 const bottomNavItems = [
+  { href: "/affiliate", labelKey: "partner", icon: Gift },
   { href: "/settings", labelKey: "settings", icon: Settings },
 ];
 

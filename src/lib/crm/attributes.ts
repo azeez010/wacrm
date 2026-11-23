@@ -2,7 +2,7 @@ import type { CrmAttributes } from './types'
 
 // The single catalogue of contact attributes we keep in the CRM. Adding one =
 // add it here and set it in snapshot.ts; the provider creates it on first sync.
-// (Brevo allows 200 custom attributes per account; we use ~28.)
+// (Brevo allows 200 custom attributes per account; we use ~31.)
 
 export type AttributeType = 'text' | 'float' | 'date' | 'boolean'
 
@@ -37,6 +37,10 @@ export const CRM_ATTRIBUTES = {
   MESSAGES_THIS_MONTH: 'float',
   MESSAGE_LIMIT: 'float',
   QUOTA_PERCENT: 'float',
+  // partner program
+  PARTNER_CODE: 'text',
+  REFERRALS_COUNT: 'float',
+  REFERRED_BY: 'text', // partner code that brought this user
   // consent
   MARKETING_OPT_IN: 'boolean',
 } as const satisfies Record<string, AttributeType>

@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 
 import { requireRole, toErrorResponse } from '@/lib/auth/account'
 import { supabaseAdmin } from '@/lib/automations/admin-client'
-import { chatSecret } from '@/lib/chat/http'
+import { chatSecret } from '@/lib/chat/secret'
 import { AGENT_TOKEN_TTL_S, signChatToken } from '@/lib/chat/token'
 
 /**
@@ -28,7 +28,7 @@ export async function POST(request: Request) {
 
     const token = await signChatToken(
       { cid: conversationId, aid: ctx.accountId, sub: ctx.userId, role: 'agent', exp: Math.floor(Date.now() / 1000) + AGENT_TOKEN_TTL_S },
-      chatSecret(),
+      await chatSecret(),
     )
     return NextResponse.json({ token, path: `/ws/chat/${conversationId}` })
   } catch (error) {

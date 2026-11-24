@@ -6,6 +6,7 @@ import { CORS_HEADERS } from '@/lib/forms/public-http'
 import { loadFormByPublicId } from '@/lib/forms/public-config'
 import { openState } from '@/lib/forms/submit'
 import { parseFormSettings, type FormRow, type FormSettings } from '@/lib/forms/types'
+import { chatSecret } from './secret'
 import { verifyChatToken, type ChatTokenPayload } from './token'
 
 // ============================================================
@@ -23,10 +24,6 @@ export function chatJson(body: unknown, status = 200, extra: Record<string, stri
 
 export function chatPreflight(): NextResponse {
   return new NextResponse(null, { status: 204, headers: CHAT_CORS })
-}
-
-export function chatSecret(): string {
-  return process.env.ENCRYPTION_KEY ?? ''
 }
 
 /** A support-button form that is switched to live chat. */
@@ -60,7 +57,7 @@ export interface ChatSession extends LoadedChatForm {
 
 /** Verify the visitor's token and that it still points at their own web-chat thread of this widget. */
 export async function authorizeVisitor(request: Request, publicId: string): Promise<{ ok: true; value: ChatSession } | { ok: false; res: NextResponse }> {
-  const token = await verifyChatToken(request.headers.get('x-chat-token'), chatSecret())
+  const token = await verifyChatToken(request.headers.get('x-chat-token'), await chatSecret())
   if (!token || token.role !== 'visitor') return { ok: false, res: chatJson({ ok: false, error: 'unauthorized' }, 401) }
 
   const loaded = await loadChatForm(publicId)

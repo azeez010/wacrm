@@ -1,6 +1,7 @@
 import { z } from 'zod'
 
-import { chatJson, chatPreflight, chatSecret, loadChatForm } from '@/lib/chat/http'
+import { chatJson, chatPreflight, loadChatForm } from '@/lib/chat/http'
+import { chatSecret } from '@/lib/chat/secret'
 import { CHAT_MESSAGE_COLUMNS, loadSenderNames, toChatMessageView, type ChatMessageRow } from '@/lib/chat/message-view'
 import { signChatToken, VISITOR_TOKEN_TTL_S } from '@/lib/chat/token'
 import { getLimit } from '@/lib/billing/entitlements'
@@ -95,7 +96,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ pub
 
     const token = await signChatToken(
       { cid: thread.conversationId, aid: form.account_id, sub: body.visitorId, role: 'visitor', exp: Math.floor(Date.now() / 1000) + VISITOR_TOKEN_TTL_S },
-      chatSecret(),
+      await chatSecret(),
     )
     const { data: rows } = await db.from('messages').select(CHAT_MESSAGE_COLUMNS).eq('conversation_id', thread.conversationId).order('created_at', { ascending: false }).limit(50)
     const history = ((rows as ChatMessageRow[] | null) ?? []).reverse()

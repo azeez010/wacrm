@@ -2,14 +2,14 @@ import { describe, expect, it, vi } from 'vitest'
 import { isChatSocketRequest, routeChatSocket, type ChatSocketEnv } from './socket-route'
 import { signChatToken } from './token'
 
-const SECRET = 'k'
+const SECRET = 'a-long-enough-chat-secret'
 const CID = '11111111-2222-3333-4444-555555555555'
 const exp = () => Math.floor(Date.now() / 1000) + 60
 
 function setup() {
   const forwarded: Request[] = []
   const env: ChatSocketEnv = {
-    ENCRYPTION_KEY: SECRET,
+    CHAT_TOKEN_SECRET: SECRET,
     CHAT_ROOM: {
       idFromName: (n: string) => `id:${n}`,
       get: () => ({ fetch: vi.fn(async (r: Request) => { forwarded.push(r); return new Response('ok') }) }),
@@ -56,7 +56,7 @@ describe('routeChatSocket', () => {
     }
   })
   it('answers 503 when chat is not configured', async () => {
-    const res = await routeChatSocket(req(`/ws/chat/${CID}?t=x`), { ENCRYPTION_KEY: SECRET })
+    const res = await routeChatSocket(req(`/ws/chat/${CID}?t=x`), { CHAT_TOKEN_SECRET: SECRET })
     expect(res.status).toBe(503)
   })
 })

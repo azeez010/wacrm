@@ -5,7 +5,7 @@
 // teammate join a room's WebSocket.
 //
 // Web Crypto only, so it runs in the Worker entry, in Next route handlers and
-// in tests. The secret is passed in (ENCRYPTION_KEY) rather than read here.
+// in tests. The secret is passed in (see ./secret.ts) rather than read here.
 // ============================================================
 
 export type ChatRole = 'visitor' | 'agent'

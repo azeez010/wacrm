@@ -4,6 +4,7 @@
 // conversation's ChatRoom Durable Object. Anything else is left to Next.
 // ============================================================
 
+import { pickChatSecret } from './secret'
 import { verifyChatToken } from './token'
 
 interface DurableObjectStubLike {
@@ -16,7 +17,9 @@ interface DurableObjectNamespaceLike {
 
 export interface ChatSocketEnv {
   CHAT_ROOM?: DurableObjectNamespaceLike
-  ENCRYPTION_KEY?: string
+  /** The token secret (see ./secret.ts): CHAT_TOKEN_SECRET, else SUPABASE_SERVICE_ROLE_KEY. */
+  CHAT_TOKEN_SECRET?: string
+  SUPABASE_SERVICE_ROLE_KEY?: string
 }
 
 const PATH = /^\/ws\/chat\/([0-9a-fA-F-]{36})$/
@@ -30,10 +33,11 @@ export async function routeChatSocket(request: Request, env: ChatSocketEnv): Pro
   const url = new URL(request.url)
   const match = PATH.exec(url.pathname)
   if (!match || request.method !== 'GET') return new Response('not found', { status: 404 })
-  if (!env.CHAT_ROOM || !env.ENCRYPTION_KEY) return new Response('chat unavailable', { status: 503 })
+  const secret = pickChatSecret(env as unknown as Record<string, unknown>)
+  if (!env.CHAT_ROOM || !secret) return new Response('chat unavailable', { status: 503 })
 
   const conversationId = match[1].toLowerCase()
-  const payload = await verifyChatToken(url.searchParams.get('t'), env.ENCRYPTION_KEY)
+  const payload = await verifyChatToken(url.searchParams.get('t'), secret)
   if (!payload || payload.cid.toLowerCase() !== conversationId) return new Response('unauthorized', { status: 401 })
 
   const headers = new Headers({

@@ -1075,7 +1075,7 @@ export function MessageThread({
               channel={channel}
               label={tChannels(channel)}
               size={14}
-              className="absolute -bottom-0.5 -left-0.5"
+              className="absolute -bottom-0.5 -right-0.5"
             />
           </div>
           <div className="min-w-0">

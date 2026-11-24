@@ -547,7 +547,7 @@ function ConversationItem({
           channel={channelOf(conversation)}
           label={tChannels(channelOf(conversation))}
           size={16}
-          className="absolute -bottom-0.5 -left-0.5"
+          className="absolute -bottom-0.5 -right-0.5"
         />
       </div>
 

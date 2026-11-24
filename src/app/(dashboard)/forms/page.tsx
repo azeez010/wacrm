@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { ChevronDown, ClipboardList, Copy, Loader2, MessageCircle, MoreHorizontal, Plus, Upload } from "lucide-react";
 
@@ -28,7 +28,7 @@ import { TEMPLATE_SLUGS } from "@/lib/forms/template-slugs";
 import { ShareDialog } from "@/components/forms/share-dialog";
 import { rowActions, type RowAction } from "@/components/forms/row-actions";
 import { FormStatsCell } from "@/components/forms/form-stats";
-import { compactNumber, parseFormStats, summarizeStats, timeAgo } from "@/lib/forms/stats";
+import { parseFormStats } from "@/lib/forms/stats";
 
 interface FormListRow {
   id: string;
@@ -48,7 +48,6 @@ interface Usage {
 
 export default function FormsPage() {
   const t = useTranslations("Forms.list");
-  const locale = useLocale();
   const tGate = useTranslations("GatedButton");
   const router = useRouter();
   const { accountId } = useAuth();
@@ -96,7 +95,6 @@ export default function FormsPage() {
 
   // Stats come pre-computed on each form row (refreshed every few minutes by a cron job).
   const stats = useMemo(() => new Map((forms ?? []).map((f) => [f.id, parseFormStats(f.stats_cache)] as const)), [forms]);
-  const summary = useMemo(() => summarizeStats([...stats.values()]), [stats]);
 
   const linkFor = (f: FormListRow) => `${window.location.origin}/f/${f.public_id}`;
 
@@ -221,11 +219,6 @@ export default function FormsPage() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
         <div className="flex items-center gap-2">
-          <label className={`inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-lg border border-border px-3 text-sm ${canManage ? "hover:bg-muted" : "pointer-events-none opacity-60"}`}>
-            <Upload className="h-4 w-4" />
-            {t("import")}
-            <input type="file" accept="application/json,.json" className="sr-only" disabled={!canManage || working} onChange={(e) => { void importFile(e.target.files?.[0]); e.target.value = ""; }} />
-          </label>
           <GatedButton canAct={canManage} gateReason={tGate("reasons.manageForms")} onClick={() => setNewOpen(true)}>
             <Plus className="h-4 w-4" />
             {t("new")}
@@ -254,13 +247,6 @@ export default function FormsPage() {
         </div>
       ) : null}
 
-      {summary && forms.length > 0 ? (
-        <p className="text-xs text-muted-foreground">
-          {t("summary", { leads: compactNumber(summary.leads, locale), views: compactNumber(summary.views, locale) })}
-          {summary.conversion === null ? "" : ` · ${t("summaryConversion", { value: summary.conversion })}`}
-        </p>
-      ) : null}
-
       {forms.length === 0 ? (
         <EmptyState title={t("emptyTitle")} hint={t("emptyHint")} icon={ClipboardList} />
       ) : (
@@ -270,17 +256,13 @@ export default function FormsPage() {
             return (
               <li key={f.id} className="flex items-center gap-3 px-4 py-3 hover:bg-muted/50">
                 <button type="button" onClick={() => router.push(`/forms/${f.id}`)} className="flex min-w-0 flex-1 items-center gap-3 text-left">
-                  <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <span title={f.kind === "support" ? t("kindSupport") : t("kindLead")} className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
                     {f.kind === "support" ? <MessageCircle className="size-4" /> : <ClipboardList className="size-4" />}
                   </span>
                   <span className="min-w-0">
                     <span className="block truncate text-sm font-medium text-foreground">{f.name}</span>
-                    <span className="block text-xs text-muted-foreground">
-                      {f.kind === "support" ? t("kindSupport") : t("kindLead")} ·{" "}
-                      {/* Small screens: the numbers inline. From sm up they sit in the stats cluster on the right. */}
-                      <span className="sm:hidden">{s ? [t("leadsShort", { count: s.leads }), s.conversion === null ? null : `${s.conversion}%`].filter(Boolean).join(" · ") : t("noStatsYet")}</span>
-                      <span className="hidden sm:inline">{s?.last_lead_at ? t("lastLeadAgo", { when: timeAgo(s.last_lead_at, locale) }) : t("noLeadsYet")}</span>
-                    </span>
+                    {/* Phones: the headline numbers under the name (the stats cluster is hidden there). */}
+                    {s ? <span className="block text-xs text-muted-foreground sm:hidden">{[t("leadsShort", { count: s.leads }), s.conversion === null ? null : `${s.conversion}%`].filter(Boolean).join(" · ")}</span> : null}
                   </span>
                 </button>
                 <FormStatsCell stats={s} />
@@ -328,7 +310,7 @@ export default function FormsPage() {
         </div>
       )}
 
-      <NewFormDialog open={newOpen} onOpenChange={setNewOpen} onCreated={(id) => router.push(`/forms/${id}`)} />
+      <NewFormDialog open={newOpen} onOpenChange={setNewOpen} onCreated={(id) => router.push(`/forms/${id}`)} onImport={(file) => { setNewOpen(false); void importFile(file); }} importDisabled={!canManage || working} />
 
       {shareFor && (
         <ShareDialog
@@ -361,7 +343,7 @@ export default function FormsPage() {
   );
 }
 
-function NewFormDialog({ open, onOpenChange, onCreated }: { open: boolean; onOpenChange: (o: boolean) => void; onCreated: (id: string) => void }) {
+function NewFormDialog({ open, onOpenChange, onCreated, onImport, importDisabled }: { open: boolean; onOpenChange: (o: boolean) => void; onCreated: (id: string) => void; onImport: (file: File | undefined) => void; importDisabled: boolean }) {
   const t = useTranslations("Forms.new");
   const ts = useTranslations("Forms.templates");
   const [kind, setKind] = useState<"lead" | "support" | null>(null);
@@ -411,6 +393,11 @@ function NewFormDialog({ open, onOpenChange, onCreated }: { open: boolean; onOpe
               <div className="text-sm font-medium">{t("supportTitle")}</div>
               <div className="mt-1 text-xs text-muted-foreground">{t("supportHint")}</div>
             </button>
+            <label className={`flex items-center justify-center gap-1.5 text-xs text-muted-foreground sm:col-span-2 ${importDisabled ? "pointer-events-none opacity-60" : "cursor-pointer hover:text-foreground"}`}>
+              <Upload className="size-3.5" />
+              {t("importFromFile")}
+              <input type="file" accept="application/json,.json" className="sr-only" disabled={importDisabled} onChange={(e) => { onImport(e.target.files?.[0]); e.target.value = ""; }} />
+            </label>
           </div>
         ) : (
           <div className="space-y-3">

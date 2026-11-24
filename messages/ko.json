@@ -3847,7 +3847,8 @@
       "nameHint": "지금 이름을 정하거나 나중에 바꿀 수 있습니다.",
       "namePlaceholder": "양식 이름",
       "failed": "양식을 만들지 못했습니다",
-      "back": "뒤로"
+      "back": "뒤로",
+      "importFromFile": "또는 파일에서 양식 가져오기"
     },
     "templates": {
       "blank": {

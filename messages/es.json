@@ -3847,7 +3847,8 @@
       "nameHint": "Puedes ponerle nombre ahora o cambiarlo después.",
       "namePlaceholder": "Nombre del formulario",
       "failed": "No se pudo crear el formulario",
-      "back": "Atrás"
+      "back": "Atrás",
+      "importFromFile": "O importar un formulario desde un archivo"
     },
     "templates": {
       "blank": {

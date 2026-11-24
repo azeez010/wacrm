@@ -3847,7 +3847,8 @@
       "nameHint": "Optionally name it first; you can rename it later.",
       "namePlaceholder": "Form name",
       "failed": "Could not create the form",
-      "back": "Back"
+      "back": "Back",
+      "importFromFile": "Or import a form from a file"
     },
     "templates": {
       "blank": {

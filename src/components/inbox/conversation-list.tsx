@@ -113,7 +113,7 @@ export function ConversationList({
       const { data, error } = await supabase
         .from("conversations")
         .select(CONVERSATION_SELECT)
-        .order("last_message_at", { ascending: false });
+        .order("last_message_at", { ascending: false, nullsFirst: false });
 
       if (cancelled) return;
 
@@ -174,7 +174,12 @@ export function ConversationList({
   }, [tags]);
 
   const filtered = useMemo(() => {
-    let result = applyInboxFilter(conversations, filter, now);
+    // Newest activity first (nulls last). Realtime patches update
+    // last_message_at in place, so keep the order here, not just in the query.
+    const stamp = (c: (typeof conversations)[number]) =>
+      c.last_message_at ? new Date(c.last_message_at).getTime() : 0;
+    const ordered = [...conversations].sort((a, b) => stamp(b) - stamp(a));
+    let result = applyInboxFilter(ordered, filter, now);
 
     // Contact-based filters (tags via OR logic, exact company match).
     if (selectedTagIds.length > 0 || selectedCompany !== null) {
@@ -398,6 +403,7 @@ export function ConversationList({
                   key={id}
                   checked={selectedChannels.includes(id)}
                   onCheckedChange={() => toggleChannel(id)}
+                  closeOnClick
                   className="text-sm text-popover-foreground"
                 >
                   <span className="flex items-center gap-2">

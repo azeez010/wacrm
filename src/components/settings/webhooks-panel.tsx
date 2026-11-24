@@ -146,7 +146,7 @@ export function WebhooksPanel() {
         description={t('description')}
         action={
           <div className="flex flex-wrap items-center gap-2">
-            <a href="/docs" target="_blank" rel="noopener noreferrer" className={buttonVariants({ variant: 'outline' })}>
+            <a href="/docs#tag/webhooks" target="_blank" rel="noopener noreferrer" className={buttonVariants({ variant: 'outline' })}>
               <BookOpen className="size-4" />
               {t('viewDocs')}
             </a>

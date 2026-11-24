@@ -11,15 +11,15 @@ import { DESTRUCTIVE, READ, WRITE, cursor, errorResult, has, limit, run, text } 
 
 export const FORMS_REFERENCE = {
   overview:
-    'A form collects leads into Contacts. Two kinds: "lead" (hosted page / QR / embed) and "support" (a floating WhatsApp button for a website). Every lead is matched to a contact by phone number and tagged; lead source and UTM are stored once.',
+    'A form collects leads into Contacts. Two kinds: "lead" (hosted page / QR / embed) and "support" (a floating button for a website: it opens WhatsApp, or with settings.widget.mode "live_chat" starts a real-time website chat that lands in the Inbox on the web_chat channel). Every lead is matched to a contact by phone number and tagged; lead source and UTM are stored once.',
   build_order: [
-    '1. create_form from a template (blank, contact, newsletter, webinar, quote, event, support). It starts as a draft.',
+    '1. create_form from a template (blank, contact, newsletter, webinar, quote, event, support, support_chat). It starts as a draft.',
     '2. get_form to read the editable definition, then update_form with the changes (fields and/or settings), and status "active" to publish.',
     '3. Share the returned url (lead form) or embed_script (support button).',
   ],
-  templates: ['blank', 'contact', 'newsletter', 'webinar', 'quote', 'event', 'support'],
+  templates: ['blank', 'contact', 'newsletter', 'webinar', 'quote', 'event', 'support', 'support_chat'],
   field_kinds: {
-    phone: 'Always present and required. Cannot be removed.',
+    phone: 'Present and required, except on a live-chat support button (settings.widget.mode "live_chat"), where it is optional and can be removed.',
     name: 'Short text.',
     email: 'Email address.',
     company: 'Short text.',
@@ -172,7 +172,7 @@ export function registerFormsTools(server: McpServer, api: ApiClient, scopes: st
         title: 'Create form',
         description: 'Create a form or support button from a template, as a DRAFT (not public). Read get_forms_reference first.',
         inputSchema: {
-          template: z.enum(['blank', 'contact', 'newsletter', 'webinar', 'quote', 'event', 'support']).default('blank'),
+          template: z.enum(['blank', 'contact', 'newsletter', 'webinar', 'quote', 'event', 'support', 'support_chat']).default('blank'),
           name: z.string().optional(),
         },
         annotations: { ...WRITE, title: 'Create form' },

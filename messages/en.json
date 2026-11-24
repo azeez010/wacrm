@@ -3842,7 +3842,7 @@
       "leadTitle": "Lead form",
       "leadHint": "A page, QR code or embed that collects leads.",
       "supportTitle": "Support button",
-      "supportHint": "A floating chat button for your website that opens WhatsApp.",
+      "supportHint": "A floating button for your website: it opens WhatsApp or starts a live chat.",
       "pickTemplate": "Pick a starting point",
       "nameHint": "Optionally name it first; you can rename it later.",
       "namePlaceholder": "Form name",
@@ -3875,8 +3875,12 @@
         "description": "Name and consent, quick to fill."
       },
       "support": {
-        "name": "Support button",
+        "name": "WhatsApp",
         "description": "Phone, name and message, then opens WhatsApp."
+      },
+      "support_chat": {
+        "name": "Live chat",
+        "description": "Real-time chat on your website, with an Online badge."
       }
     },
     "editor": {
@@ -4148,7 +4152,18 @@
       "askEmail": "Ask for their email",
       "preMessageRepeat": "How often to show it",
       "repeatSession": "Once per visit",
-      "repeatAlways": "Every page load"
+      "repeatAlways": "Every page load",
+      "mode": "Type",
+      "modeWhatsapp": "Opens WhatsApp",
+      "modeLiveChat": "Live chat",
+      "modeWhatsappHint": "The visitor leaves their details and continues in WhatsApp.",
+      "modeLiveChatHint": "A real-time chat on your site. Messages land in your Inbox on the Website chat channel.",
+      "chatGreeting": "Chat greeting",
+      "chatGreetingPlaceholder": "Hello, how can I help you?",
+      "chatOffline": "Message when nobody is available",
+      "showOnlineBadge": "Show the Online badge",
+      "onlineRule": "Shows Online during your business hours when a teammate is active in OgaDesk or an AI agent can reply.",
+      "askPhone": "Ask for a phone number (optional for the visitor)"
     },
     "share": {
       "title": "Share",
@@ -4280,6 +4295,15 @@
       "name": "Blank",
       "description": "Phone and name, nothing else.",
       "title": "Sign up"
+    },
+    "support_chat": {
+      "name": "Live chat",
+      "description": "Real-time chat on your website, with an Online badge.",
+      "title": "Chat with us",
+      "label": "Chat with us",
+      "greeting": "Chat with us",
+      "chatGreeting": "Hello, how can I help you?",
+      "chatOffline": "We're offline right now. Leave a message and we'll reply as soon as we can."
     }
   },
   "Onboarding": {

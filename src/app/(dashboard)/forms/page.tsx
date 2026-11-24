@@ -390,7 +390,7 @@ function NewFormDialog({ open, onOpenChange, onCreated }: { open: boolean; onOpe
     onCreated(json.form.id);
   }
 
-  const templates = TEMPLATE_SLUGS.filter((s) => (kind === "support" ? s === "support" : s !== "support"));
+  const templates = TEMPLATE_SLUGS.filter((s) => (kind === "support" ? s.startsWith("support") : !s.startsWith("support")));
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

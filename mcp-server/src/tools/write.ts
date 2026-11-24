@@ -99,9 +99,9 @@ export function registerWriteTools(server: McpServer, client: WacrmClient): void
     {
       title: 'Create form',
       description:
-        'Create a lead form or support button from a template (blank, contact, newsletter, webinar, quote, event, support) as a DRAFT. It is not public until update_form sets status "active".',
+        'Create a lead form or support button from a template (blank, contact, newsletter, webinar, quote, event, support, support_chat) as a DRAFT. support_chat is a live website chat (settings.widget.mode "live_chat"); support opens WhatsApp. It is not public until update_form sets status "active".',
       inputSchema: {
-        template: z.enum(['blank', 'contact', 'newsletter', 'webinar', 'quote', 'event', 'support']).default('blank'),
+        template: z.enum(['blank', 'contact', 'newsletter', 'webinar', 'quote', 'event', 'support', 'support_chat']).default('blank'),
         name: z.string().optional(),
       },
       annotations: { readOnlyHint: false, openWorldHint: true, title: 'Create form' },

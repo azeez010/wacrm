@@ -68,3 +68,18 @@ describe('public http helpers', () => {
     expect(a).not.toContain('1.2.3.4')
   })
 })
+
+describe('buildFormUpdate for a live-chat widget', () => {
+  const noPhone = [{ id: 'name', kind: 'name' }, { id: 'message', kind: 'message', required: true }]
+  const chatSettings = { widget: { mode: 'live_chat' } }
+
+  it('lets a live-chat widget drop the phone field, whether the mode arrives in the same edit or is already saved', () => {
+    expect(() => buildFormUpdate(current, { fields: noPhone, settings: chatSettings })).not.toThrow()
+    expect(() => buildFormUpdate({ ...current, settings: chatSettings }, { fields: noPhone })).not.toThrow()
+  })
+  it('still requires a phone for the WhatsApp mode and for lead forms', () => {
+    expect(() => buildFormUpdate(current, { fields: noPhone })).toThrow('phone')
+    expect(() => buildFormUpdate({ ...current, settings: { widget: { mode: 'whatsapp' } } }, { fields: noPhone })).toThrow('phone')
+    expect(() => buildFormUpdate({ ...current, settings: chatSettings }, { fields: noPhone, settings: { widget: { mode: 'whatsapp' } } })).toThrow('phone')
+  })
+})

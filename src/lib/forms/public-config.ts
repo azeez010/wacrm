@@ -65,6 +65,8 @@ export interface PublicFormConfig {
   showBranding: boolean
   /** Account time zone, for the support button's business hours. */
   timezone?: string
+  /** Live-chat wording (only meaningful when widget.mode is 'live_chat'). */
+  chat?: { greeting?: string; offlineText?: string; showOnlineBadge: boolean }
   widget?: {
     corner: 'bottom-left' | 'bottom-right'
     offsetX: number
@@ -72,6 +74,8 @@ export interface PublicFormConfig {
     label?: string
     color?: string
     icon: 'whatsapp' | 'chat' | 'headset'
+    /** 'whatsapp' opens WhatsApp after the pre-chat form; 'live_chat' starts a real-time chat. */
+    mode: 'whatsapp' | 'live_chat'
     greeting?: string
     animation: 'none' | 'pulse' | 'bounce' | 'wiggle' | 'ring'
     sound: 'none' | 'chime' | 'pop'
@@ -195,6 +199,7 @@ export async function buildPublicConfig(db: SupabaseClient, form: FormRow): Prom
             label: w.label,
             color: w.color ?? settings.accent,
             icon: w.icon,
+            mode: w.mode,
             greeting: w.greeting,
             animation: w.animation,
             sound: w.sound,
@@ -207,8 +212,12 @@ export async function buildPublicConfig(db: SupabaseClient, form: FormRow): Prom
             hours: w.hours,
           }
         : form.kind === 'support'
-          ? { corner: 'bottom-left', offsetX: 20, offsetY: 20, icon: 'whatsapp', animation: 'pulse', sound: 'none', preMessageDelay: 4, preMessageRepeat: 'session', showOn: 'all', devices: 'all', color: settings.accent }
+          ? { corner: 'bottom-left', offsetX: 20, offsetY: 20, icon: 'whatsapp', mode: 'whatsapp', animation: 'pulse', sound: 'none', preMessageDelay: 4, preMessageRepeat: 'session', showOn: 'all', devices: 'all', color: settings.accent }
           : undefined,
+    chat:
+      form.kind === 'support' && w?.mode === 'live_chat'
+        ? { greeting: settings.chat?.greeting, offlineText: settings.chat?.offlineText, showOnlineBadge: settings.chat?.showOnlineBadge !== false }
+        : undefined,
     fields: pub,
   }
 }

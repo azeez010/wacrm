@@ -3842,7 +3842,7 @@
       "leadTitle": "Formulario de leads",
       "leadHint": "Una página, código QR o inserción que capta leads.",
       "supportTitle": "Botón de soporte",
-      "supportHint": "Un botón de chat flotante para tu sitio que abre WhatsApp.",
+      "supportHint": "Un botón flotante para tu sitio: abre WhatsApp o inicia un chat en vivo.",
       "pickTemplate": "Elige un punto de partida",
       "nameHint": "Puedes ponerle nombre ahora o cambiarlo después.",
       "namePlaceholder": "Nombre del formulario",
@@ -3875,8 +3875,12 @@
         "description": "Nombre y consentimiento, rápido de llenar."
       },
       "support": {
-        "name": "Botón de soporte",
-        "description": "Teléfono, nombre y mensaje, luego abre WhatsApp."
+        "name": "WhatsApp",
+        "description": "Teléfono, nombre y mensaje, y luego abre WhatsApp."
+      },
+      "support_chat": {
+        "name": "Chat en vivo",
+        "description": "Chat en tiempo real en tu sitio web, con insignia En línea."
       }
     },
     "editor": {
@@ -4148,7 +4152,18 @@
       "askEmail": "Pedir su correo",
       "preMessageRepeat": "Con qué frecuencia mostrarla",
       "repeatSession": "Una vez por visita",
-      "repeatAlways": "En cada carga de página"
+      "repeatAlways": "En cada carga de página",
+      "mode": "Tipo",
+      "modeWhatsapp": "Abre WhatsApp",
+      "modeLiveChat": "Chat en vivo",
+      "modeWhatsappHint": "El visitante deja sus datos y continúa en WhatsApp.",
+      "modeLiveChatHint": "Un chat en tiempo real en tu sitio. Los mensajes llegan a tu bandeja en el canal Chat web.",
+      "chatGreeting": "Saludo del chat",
+      "chatGreetingPlaceholder": "Hola, ¿en qué puedo ayudarte?",
+      "chatOffline": "Mensaje cuando nadie está disponible",
+      "showOnlineBadge": "Mostrar la insignia En línea",
+      "onlineRule": "Muestra En línea en tu horario de atención cuando un compañero está activo en OgaDesk o un agente de IA puede responder.",
+      "askPhone": "Pedir un teléfono (opcional para el visitante)"
     },
     "share": {
       "title": "Compartir",
@@ -4280,6 +4295,15 @@
       "name": "En blanco",
       "description": "Teléfono y nombre, nada más.",
       "title": "Regístrate"
+    },
+    "support_chat": {
+      "name": "Chat en vivo",
+      "description": "Chat en tiempo real en tu sitio web, con insignia En línea.",
+      "title": "Chatea con nosotros",
+      "label": "Chatea con nosotros",
+      "greeting": "Chatea con nosotros",
+      "chatGreeting": "Hola, ¿en qué puedo ayudarte?",
+      "chatOffline": "Ahora estamos fuera de línea. Déjanos un mensaje y te responderemos en cuanto podamos."
     }
   },
   "Onboarding": {

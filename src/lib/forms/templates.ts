@@ -8,7 +8,7 @@ import { formSettingsSchema } from './types'
 
 const t = getT('StarterForms')
 
-export type FormTemplateSlug = 'blank' | 'support' | 'contact' | 'newsletter' | 'webinar' | 'quote' | 'event'
+export type FormTemplateSlug = 'blank' | 'support' | 'support_chat' | 'contact' | 'newsletter' | 'webinar' | 'quote' | 'event'
 
 export interface FormTemplate {
   slug: FormTemplateSlug
@@ -55,6 +55,20 @@ export function getFormTemplate(slug: string): FormTemplate | null {
             followUpLine: true,
           },
           widget: { corner: 'bottom-left', offsetX: 20, offsetY: 20, icon: 'whatsapp', label: t('support.label'), greeting: t('support.greeting'), showOn: 'all', devices: 'all' },
+        }),
+      }
+    case 'support_chat':
+      return {
+        slug: 'support_chat',
+        kind: 'support',
+        name: t('support_chat.name'),
+        description: t('support_chat.description'),
+        // The first message is the point of a chat; name and phone are optional extras.
+        fields: [name(true), { id: 'phone', kind: 'phone', required: false }, message(true)],
+        settings: settings({
+          title: t('support_chat.title'),
+          widget: { mode: 'live_chat', corner: 'bottom-right', offsetX: 20, offsetY: 20, icon: 'chat', label: t('support_chat.label'), greeting: t('support_chat.greeting'), showOn: 'all', devices: 'all' },
+          chat: { greeting: t('support_chat.chatGreeting'), offlineText: t('support_chat.chatOffline'), showOnlineBadge: true },
         }),
       }
     case 'contact':

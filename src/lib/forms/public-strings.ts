@@ -27,6 +27,23 @@ export interface PublicStrings {
   powered: string
   poweredBy: string
   offline: string
+  chatHello: string
+  chatOnline: string
+  chatOffline: string
+  chatOfflineNotice: string
+  chatStart: string
+  chatPlaceholder: string
+  chatSend: string
+  chatAttach: string
+  chatTyping: string
+  chatFailed: string
+  chatReconnecting: string
+  chatImageTooBig: string
+  chatImageType: string
+  chatUploadLimit: string
+  chatAi: string
+  optional: string
+  chatUnavailable: string
 }
 
 export const PUBLIC_STRINGS: Record<PublicLang, PublicStrings> = {
@@ -54,6 +71,23 @@ export const PUBLIC_STRINGS: Record<PublicLang, PublicStrings> = {
     powered: 'Powered by OgaDesk',
     poweredBy: 'Powered by',
     offline: 'We are offline right now. Leave your number and we will reply.',
+    chatHello: 'Hello, how can I help you?',
+    chatOnline: 'Online',
+    chatOffline: 'Offline',
+    chatOfflineNotice: 'We\'re offline right now. Leave a message and we\'ll reply as soon as we can.',
+    chatStart: 'Start chat',
+    chatPlaceholder: 'Type a message...',
+    chatSend: 'Send',
+    chatAttach: 'Attach an image',
+    chatTyping: 'Typing...',
+    chatFailed: 'Not sent. Tap to retry.',
+    chatReconnecting: 'Reconnecting...',
+    chatImageTooBig: 'That image is too large (5 MB max).',
+    chatImageType: 'Use a PNG, JPG, WebP or GIF image.',
+    chatUploadLimit: 'This chat has reached its image limit.',
+    chatAi: 'AI assistant',
+    optional: 'optional',
+    chatUnavailable: 'Chat is not available right now. Please try again later.',
   },
   es: {
     submit: 'Enviar',
@@ -79,6 +113,23 @@ export const PUBLIC_STRINGS: Record<PublicLang, PublicStrings> = {
     powered: 'Con tecnología de OgaDesk',
     poweredBy: 'Con tecnología de',
     offline: 'Estamos fuera de línea. Deja tu número y te responderemos.',
+    chatHello: 'Hola, ¿en qué puedo ayudarte?',
+    chatOnline: 'En línea',
+    chatOffline: 'Fuera de línea',
+    chatOfflineNotice: 'Ahora estamos fuera de línea. Déjanos un mensaje y te responderemos en cuanto podamos.',
+    chatStart: 'Iniciar chat',
+    chatPlaceholder: 'Escribe un mensaje...',
+    chatSend: 'Enviar',
+    chatAttach: 'Adjuntar una imagen',
+    chatTyping: 'Escribiendo...',
+    chatFailed: 'No enviado. Toca para reintentar.',
+    chatReconnecting: 'Reconectando...',
+    chatImageTooBig: 'La imagen es demasiado grande (máx. 5 MB).',
+    chatImageType: 'Usa una imagen PNG, JPG, WebP o GIF.',
+    chatUploadLimit: 'Este chat alcanzó su límite de imágenes.',
+    chatAi: 'Asistente de IA',
+    optional: 'opcional',
+    chatUnavailable: 'El chat no está disponible ahora. Inténtalo más tarde.',
   },
   fr: {
     submit: 'Envoyer',
@@ -104,6 +155,23 @@ export const PUBLIC_STRINGS: Record<PublicLang, PublicStrings> = {
     powered: 'Propulsé par OgaDesk',
     poweredBy: 'Propulsé par',
     offline: 'Nous sommes hors ligne. Laissez votre numéro, nous répondrons.',
+    chatHello: 'Bonjour, comment puis-je vous aider ?',
+    chatOnline: 'En ligne',
+    chatOffline: 'Hors ligne',
+    chatOfflineNotice: 'Nous sommes hors ligne. Laissez un message, nous répondrons dès que possible.',
+    chatStart: 'Démarrer le chat',
+    chatPlaceholder: 'Écrivez un message...',
+    chatSend: 'Envoyer',
+    chatAttach: 'Joindre une image',
+    chatTyping: 'Écrit...',
+    chatFailed: 'Non envoyé. Touchez pour réessayer.',
+    chatReconnecting: 'Reconnexion...',
+    chatImageTooBig: 'Cette image est trop volumineuse (5 Mo max).',
+    chatImageType: 'Utilisez une image PNG, JPG, WebP ou GIF.',
+    chatUploadLimit: 'Ce chat a atteint sa limite d\'images.',
+    chatAi: 'Assistant IA',
+    optional: 'facultatif',
+    chatUnavailable: 'Le chat n\'est pas disponible pour le moment. Réessayez plus tard.',
   },
   pt: {
     submit: 'Enviar',
@@ -129,6 +197,23 @@ export const PUBLIC_STRINGS: Record<PublicLang, PublicStrings> = {
     powered: 'Feito com OgaDesk',
     poweredBy: 'Feito com',
     offline: 'Estamos offline. Deixe seu número e responderemos.',
+    chatHello: 'Olá, como posso ajudar?',
+    chatOnline: 'Online',
+    chatOffline: 'Offline',
+    chatOfflineNotice: 'Estamos offline no momento. Deixe uma mensagem e responderemos assim que possível.',
+    chatStart: 'Iniciar chat',
+    chatPlaceholder: 'Digite uma mensagem...',
+    chatSend: 'Enviar',
+    chatAttach: 'Anexar uma imagem',
+    chatTyping: 'Digitando...',
+    chatFailed: 'Não enviado. Toque para tentar de novo.',
+    chatReconnecting: 'Reconectando...',
+    chatImageTooBig: 'A imagem é grande demais (máx. 5 MB).',
+    chatImageType: 'Use uma imagem PNG, JPG, WebP ou GIF.',
+    chatUploadLimit: 'Este chat atingiu o limite de imagens.',
+    chatAi: 'Assistente de IA',
+    optional: 'opcional',
+    chatUnavailable: 'O chat não está disponível agora. Tente novamente mais tarde.',
   },
   ko: {
     submit: '제출',
@@ -154,6 +239,23 @@ export const PUBLIC_STRINGS: Record<PublicLang, PublicStrings> = {
     powered: 'OgaDesk 제공',
     poweredBy: '제공',
     offline: '현재 오프라인입니다. 번호를 남겨주시면 답변드리겠습니다.',
+    chatHello: '안녕하세요, 무엇을 도와드릴까요?',
+    chatOnline: '온라인',
+    chatOffline: '오프라인',
+    chatOfflineNotice: '지금은 오프라인입니다. 메시지를 남겨주시면 가능한 한 빨리 답변드리겠습니다.',
+    chatStart: '채팅 시작',
+    chatPlaceholder: '메시지를 입력하세요...',
+    chatSend: '보내기',
+    chatAttach: '이미지 첨부',
+    chatTyping: '입력 중...',
+    chatFailed: '전송되지 않았습니다. 눌러서 다시 시도하세요.',
+    chatReconnecting: '다시 연결하는 중...',
+    chatImageTooBig: '이미지가 너무 큽니다(최대 5MB).',
+    chatImageType: 'PNG, JPG, WebP 또는 GIF 이미지를 사용하세요.',
+    chatUploadLimit: '이 채팅의 이미지 한도에 도달했습니다.',
+    chatAi: 'AI 어시스턴트',
+    optional: '선택',
+    chatUnavailable: '지금은 채팅을 이용할 수 없습니다. 나중에 다시 시도해 주세요.',
   },
 }
 

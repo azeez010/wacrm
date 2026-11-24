@@ -47,9 +47,58 @@ export function SupportEditor({
     }
   };
   const hours = w.hours ?? { enabled: false, days: [1, 2, 3, 4, 5], from: '09:00', to: '17:00' };
+  const liveChat = w.mode === 'live_chat';
+  const chat = settings.chat ?? { showOnlineBadge: true };
+  const patchChat = (p: Record<string, unknown>) => dispatch({ type: 'settings', patch: { chat: p } });
+  // Switching mode keeps the fields consistent: a chat always asks for the first message and may skip the phone;
+  // WhatsApp mode needs the phone (the handoff goes to WhatsApp) and the message stays optional.
+  const setMode = (mode: 'whatsapp' | 'live_chat') => {
+    patchW({ mode, ...(mode === 'live_chat' && w.icon === 'whatsapp' ? { icon: 'chat' } : {}), ...(mode === 'whatsapp' && w.icon === 'chat' ? { icon: 'whatsapp' } : {}) });
+    const phone = fields.find((f) => f.kind === 'phone');
+    if (mode === 'live_chat') {
+      if (phone) dispatch({ type: 'update', id: phone.id, patch: { required: false } });
+      if (!has('message')) dispatch({ type: 'add', field: { id: 'message', kind: 'message', required: true } });
+      else dispatch({ type: 'update', id: fields.find((f) => f.kind === 'message')!.id, patch: { required: true } });
+    } else if (phone) dispatch({ type: 'update', id: phone.id, patch: { required: true } });
+    else dispatch({ type: 'add', field: { id: 'phone', kind: 'phone', required: true }, at: 0 });
+  };
+  const togglePhone = (on: boolean) => {
+    const phone = fields.find((f) => f.kind === 'phone');
+    if (on && !phone) dispatch({ type: 'add', field: { id: 'phone', kind: 'phone', required: false } });
+    if (!on && phone) dispatch({ type: 'remove', id: phone.id });
+  };
 
   return (
     <div className="space-y-4">
+      <div className="space-y-1.5">
+        <Label className="text-xs text-muted-foreground">{t('mode')}</Label>
+        <select className={selectCls} disabled={!canEdit} value={w.mode} onChange={(e) => setMode(e.target.value as 'whatsapp' | 'live_chat')}>
+          <option value="whatsapp">{t('modeWhatsapp')}</option>
+          <option value="live_chat">{t('modeLiveChat')}</option>
+        </select>
+        <p className="text-xs text-muted-foreground">{liveChat ? t('modeLiveChatHint') : t('modeWhatsappHint')}</p>
+      </div>
+      {liveChat ? (
+        <div className="space-y-3 rounded-lg border border-border p-3">
+          <div className="space-y-1.5">
+            <Label className="text-xs text-muted-foreground">{t('chatGreeting')}</Label>
+            <Input disabled={!canEdit} value={chat.greeting ?? ''} placeholder={t('chatGreetingPlaceholder')} onChange={(e) => patchChat({ greeting: e.target.value })} />
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs text-muted-foreground">{t('chatOffline')}</Label>
+            <Input disabled={!canEdit} value={chat.offlineText ?? ''} onChange={(e) => patchChat({ offlineText: e.target.value })} />
+          </div>
+          <label className="flex items-center justify-between gap-2 text-sm">
+            {t('showOnlineBadge')}
+            <Switch disabled={!canEdit} checked={chat.showOnlineBadge !== false} onCheckedChange={(on) => patchChat({ showOnlineBadge: on })} />
+          </label>
+          <p className="text-xs text-muted-foreground">{t('onlineRule')}</p>
+          <label className="flex items-center justify-between gap-2 text-sm">
+            {t('askPhone')}
+            <Switch disabled={!canEdit} checked={has('phone')} onCheckedChange={togglePhone} />
+          </label>
+        </div>
+      ) : null}
       <label className="flex items-center justify-between gap-2 text-sm">
         {t('askName')}
         <Switch disabled={!canEdit} checked={has('name')} onCheckedChange={(on) => toggle('name', on)} />
@@ -58,10 +107,12 @@ export function SupportEditor({
         {t('askEmail')}
         <Switch disabled={!canEdit} checked={has('email')} onCheckedChange={(on) => toggle('email', on)} />
       </label>
-      <label className="flex items-center justify-between gap-2 text-sm">
-        {t('askMessage')}
-        <Switch disabled={!canEdit} checked={has('message')} onCheckedChange={(on) => toggle('message', on)} />
-      </label>
+      {liveChat ? null : (
+        <label className="flex items-center justify-between gap-2 text-sm">
+          {t('askMessage')}
+          <Switch disabled={!canEdit} checked={has('message')} onCheckedChange={(on) => toggle('message', on)} />
+        </label>
+      )}
       <div className="space-y-1.5">
         <Label className="text-xs text-muted-foreground">{t('label')}</Label>
         <Input disabled={!canEdit} value={w.label ?? ''} onChange={(e) => patchW({ label: e.target.value })} />

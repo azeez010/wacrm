@@ -3842,7 +3842,7 @@
       "leadTitle": "Formulário de leads",
       "leadHint": "Uma página, QR code ou incorporação que capta leads.",
       "supportTitle": "Botão de suporte",
-      "supportHint": "Um botão de chat flutuante para seu site que abre o WhatsApp.",
+      "supportHint": "Um botão flutuante para o seu site: abre o WhatsApp ou inicia um chat ao vivo.",
       "pickTemplate": "Escolha um ponto de partida",
       "nameHint": "Você pode dar um nome agora ou depois.",
       "namePlaceholder": "Nome do formulário",
@@ -3875,8 +3875,12 @@
         "description": "Nome e consentimento, rápido de preencher."
       },
       "support": {
-        "name": "Botão de suporte",
+        "name": "WhatsApp",
         "description": "Telefone, nome e mensagem, depois abre o WhatsApp."
+      },
+      "support_chat": {
+        "name": "Chat ao vivo",
+        "description": "Chat em tempo real no seu site, com selo Online."
       }
     },
     "editor": {
@@ -4148,7 +4152,18 @@
       "askEmail": "Pedir o e-mail",
       "preMessageRepeat": "Com que frequência mostrar",
       "repeatSession": "Uma vez por visita",
-      "repeatAlways": "A cada carregamento da página"
+      "repeatAlways": "A cada carregamento da página",
+      "mode": "Tipo",
+      "modeWhatsapp": "Abre o WhatsApp",
+      "modeLiveChat": "Chat ao vivo",
+      "modeWhatsappHint": "O visitante deixa seus dados e continua no WhatsApp.",
+      "modeLiveChatHint": "Um chat em tempo real no seu site. As mensagens chegam à sua caixa de entrada no canal Chat do site.",
+      "chatGreeting": "Saudação do chat",
+      "chatGreetingPlaceholder": "Olá, como posso ajudar?",
+      "chatOffline": "Mensagem quando ninguém está disponível",
+      "showOnlineBadge": "Mostrar o selo Online",
+      "onlineRule": "Mostra Online no seu horário de atendimento quando um colega está ativo no OgaDesk ou um agente de IA pode responder.",
+      "askPhone": "Pedir um telefone (opcional para o visitante)"
     },
     "share": {
       "title": "Compartilhar",
@@ -4280,6 +4295,15 @@
       "name": "Em branco",
       "description": "Telefone e nome, nada mais.",
       "title": "Cadastre-se"
+    },
+    "support_chat": {
+      "name": "Chat ao vivo",
+      "description": "Chat em tempo real no seu site, com selo Online.",
+      "title": "Fale conosco",
+      "label": "Fale conosco",
+      "greeting": "Fale conosco",
+      "chatGreeting": "Olá, como posso ajudar?",
+      "chatOffline": "Estamos offline no momento. Deixe uma mensagem e responderemos assim que possível."
     }
   },
   "Onboarding": {

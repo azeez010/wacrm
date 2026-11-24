@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import type { PublicFormConfig } from '@/lib/forms/public-config';
 import { pageCss } from '@/lib/forms/theme';
 import type { PreviewEdit } from '@/lib/forms/preview-edit';
+import { PublicChat } from '@/components/public-chat/public-chat';
 import { PublicForm } from './public-form';
 
 /**
@@ -27,6 +28,14 @@ export function PreviewBridge() {
   }, []);
   const onEdit = (edit: PreviewEdit) => window.parent.postMessage({ source: 'ogadesk-preview-edit', edit }, window.location.origin);
   if (!config) return null;
+  if (config.kind === 'support' && config.widget?.mode === 'live_chat') {
+    return (
+      <>
+        <style>{pageCss(config.theme)}</style>
+        <PublicChat key={config.publicId} config={config} preview />
+      </>
+    );
+  }
   return (
     <>
       <style>{pageCss(config.theme)}</style>

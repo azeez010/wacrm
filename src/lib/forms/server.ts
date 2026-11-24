@@ -3,7 +3,7 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import { assertFeature, assertWithinLimit } from '@/lib/billing/entitlements'
 import { FORM_COLUMNS } from './public-config'
 import { getFormTemplate } from './templates'
-import { formFieldsSchema, formSettingsSchema, type FormRow } from './types'
+import { formFieldsSchema, formSettingsSchema, parseFormSettings, type FormRow } from './types'
 
 export class FormError extends Error {
   constructor(
@@ -75,7 +75,7 @@ export interface FormPatch {
 }
 
 /** Validate an edit and build the update. Phone must stay on the form. */
-export function buildFormUpdate(current: Pick<FormRow, 'version' | 'fields'>, patch: FormPatch): Record<string, unknown> {
+export function buildFormUpdate(current: Pick<FormRow, 'version' | 'fields'> & Partial<Pick<FormRow, 'settings'>>, patch: FormPatch): Record<string, unknown> {
   const update: Record<string, unknown> = {}
   if (patch.name !== undefined) {
     const n = String(patch.name).trim()
@@ -94,7 +94,9 @@ export function buildFormUpdate(current: Pick<FormRow, 'version' | 'fields'>, pa
   if (patch.fields !== undefined) {
     const f = formFieldsSchema.safeParse(patch.fields)
     if (!f.success) throw new FormError('Invalid fields', 400)
-    if (!f.data.some((x) => x.kind === 'phone')) throw new FormError('A form needs a phone field', 400)
+    // A live-chat widget may skip the phone: the visitor is identified by the chat itself.
+    const liveChat = (patch.settings !== undefined ? parseFormSettings(patch.settings) : parseFormSettings(current.settings ?? {})).widget?.mode === 'live_chat'
+    if (!liveChat && !f.data.some((x) => x.kind === 'phone')) throw new FormError('A form needs a phone field', 400)
     const ids = new Set<string>()
     for (const x of f.data) {
       if (ids.has(x.id)) throw new FormError('Duplicate field id', 400)

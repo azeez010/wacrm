@@ -30,13 +30,14 @@ export const EMBED_SCRIPT = `(function () {
     catch (e) { return rand(); }
   }
   function store(k, v) { try { if (v === undefined) return sessionStorage.getItem(k); sessionStorage.setItem(k, v); } catch (e) {} return null; }
-  function frameSrc(id) {
+  function frameSrc(id, chat) {
     var p = new URLSearchParams(location.search);
     p.set('ogvid', vid());
     if (document.referrer) p.set('ogref', document.referrer.slice(0, 500));
     p.set('ogpage', location.href.slice(0, 800));
     if (PREVIEW) p.set('preview', '1');
-    return BASE + '/embed/f/' + encodeURIComponent(id) + '?' + p.toString();
+    // Live chat has its own page, except in the editor preview, which renders it from the draft config.
+    return BASE + (chat && !PREVIEW ? '/embed/chat/' : '/embed/f/') + encodeURIComponent(id) + '?' + p.toString();
   }
   function emit(id, detail) {
     try { window.dispatchEvent(new CustomEvent('ogadesk:submitted', { detail: Object.assign({ formId: id }, detail || {}) })); } catch (e) {}
@@ -178,7 +179,7 @@ export const EMBED_SCRIPT = `(function () {
       opened = true; hideTeaser(); btn.className = 'og-btn'; store('ogadesk:opened:' + id, '1');
       panel.style.display = 'block';
       if (!frame) {
-        frame = document.createElement('iframe'); frame.setAttribute('aria-label', (cfg && cfg.title) || 'Chat'); frame.src = frameSrc(id);
+        frame = document.createElement('iframe'); frame.setAttribute('aria-label', (cfg && cfg.title) || 'Chat'); frame.src = frameSrc(id, !!(cfg && cfg.widget && cfg.widget.mode === 'live_chat'));
         frame.style.cssText = 'display:block;width:100%;border:0;height:300px;color-scheme:normal';
         frame.addEventListener('load', postConfig);
         panel.appendChild(frame);
@@ -206,7 +207,8 @@ export const EMBED_SCRIPT = `(function () {
         (mobile ? ';left:0;right:0;bottom:0;width:100%;max-width:100%;border-radius:16px 16px 0 0' : '');
       head.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:' + color + ';color:#fff;font:600 14px system-ui,sans-serif';
       title.textContent = w.greeting || c.title || '';
-      if (w.hours && w.hours.enabled && !inHours(w.hours, c.timezone)) {
+      // Live chat shows its own offline notice inside the chat.
+      if (w.mode !== 'live_chat' && w.hours && w.hours.enabled && !inHours(w.hours, c.timezone)) {
         offline.style.cssText = 'padding:8px 14px;background:' + (dark ? '#422006' : '#fef3c7') + ';color:' + (dark ? '#fde68a' : '#78350f') + ';font:13px system-ui,sans-serif';
         offline.textContent = w.hours.offlineText || 'We are offline right now. Leave your number and we will reply.';
         if (!offline.parentNode) panel.insertBefore(offline, head.nextSibling);

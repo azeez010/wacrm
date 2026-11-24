@@ -3842,7 +3842,7 @@
       "leadTitle": "Formulaire de leads",
       "leadHint": "Une page, un QR code ou une intégration qui collecte des leads.",
       "supportTitle": "Bouton d'assistance",
-      "supportHint": "Un bouton de chat flottant pour votre site qui ouvre WhatsApp.",
+      "supportHint": "Un bouton flottant pour votre site : il ouvre WhatsApp ou lance un chat en direct.",
       "pickTemplate": "Choisissez un point de départ",
       "nameHint": "Vous pouvez le nommer maintenant ou plus tard.",
       "namePlaceholder": "Nom du formulaire",
@@ -3875,8 +3875,12 @@
         "description": "Nom et consentement, rapide à remplir."
       },
       "support": {
-        "name": "Bouton d'assistance",
+        "name": "WhatsApp",
         "description": "Téléphone, nom et message, puis ouvre WhatsApp."
+      },
+      "support_chat": {
+        "name": "Chat en direct",
+        "description": "Chat en temps réel sur votre site, avec un badge En ligne."
       }
     },
     "editor": {
@@ -4148,7 +4152,18 @@
       "askEmail": "Demander son e-mail",
       "preMessageRepeat": "Fréquence d'affichage",
       "repeatSession": "Une fois par visite",
-      "repeatAlways": "À chaque chargement de page"
+      "repeatAlways": "À chaque chargement de page",
+      "mode": "Type",
+      "modeWhatsapp": "Ouvre WhatsApp",
+      "modeLiveChat": "Chat en direct",
+      "modeWhatsappHint": "Le visiteur laisse ses coordonnées et continue sur WhatsApp.",
+      "modeLiveChatHint": "Un chat en temps réel sur votre site. Les messages arrivent dans votre boîte de réception sur le canal Chat du site.",
+      "chatGreeting": "Message d'accueil du chat",
+      "chatGreetingPlaceholder": "Bonjour, comment puis-je vous aider ?",
+      "chatOffline": "Message quand personne n'est disponible",
+      "showOnlineBadge": "Afficher le badge En ligne",
+      "onlineRule": "Affiche En ligne pendant vos horaires lorsqu'un coéquipier est actif dans OgaDesk ou qu'un agent IA peut répondre.",
+      "askPhone": "Demander un numéro de téléphone (facultatif pour le visiteur)"
     },
     "share": {
       "title": "Partager",
@@ -4280,6 +4295,15 @@
       "name": "Vierge",
       "description": "Téléphone et nom, rien d'autre.",
       "title": "Inscription"
+    },
+    "support_chat": {
+      "name": "Chat en direct",
+      "description": "Chat en temps réel sur votre site, avec un badge En ligne.",
+      "title": "Discutez avec nous",
+      "label": "Discutez avec nous",
+      "greeting": "Discutez avec nous",
+      "chatGreeting": "Bonjour, comment puis-je vous aider ?",
+      "chatOffline": "Nous sommes hors ligne. Laissez un message, nous répondrons dès que possible."
     }
   },
   "Onboarding": {

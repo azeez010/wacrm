@@ -5,7 +5,6 @@ import { CHAT_MESSAGE_COLUMNS, loadSenderNames, toChatMessageView, type ChatMess
 import { signChatToken, VISITOR_TOKEN_TTL_S } from '@/lib/chat/token'
 import { getLimit } from '@/lib/billing/entitlements'
 import { getClientIp, checkRateLimit, RATE_LIMITS } from '@/lib/rate-limit'
-import { verifyTurnstile } from '@/lib/forms/public-http'
 import { openVisitorThread, recordVisitorMessage } from '@/lib/inbound/web-chat'
 import { parseInternationalPhone } from '@/lib/whatsapp/phone-utils'
 
@@ -19,7 +18,6 @@ const bodySchema = z
     email: z.string().trim().email().max(200).optional().or(z.literal('')),
     message: z.string().trim().min(1).max(4000),
     clientId: z.string().regex(/^[A-Za-z0-9_-]{8,64}$/).optional(),
-    turnstileToken: z.string().max(4096).optional(),
     /** Honeypot: real visitors never fill it. */
     website: z.string().max(200).optional(),
   })
@@ -52,11 +50,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ pub
 
   const loaded = await loadChatForm(publicId)
   if (!loaded.ok) return loaded.res
-  const { db, form, settings } = loaded.value
-
-  if (settings.rules.turnstile && !(await verifyTurnstile(body.turnstileToken, ip === 'unknown' ? null : ip))) {
-    return chatJson({ ok: false, error: 'captcha' }, 400)
-  }
+  const { db, form } = loaded.value
 
   // Only collect what this widget asks for; honour its required flags.
   const fields = Array.isArray(form.fields) ? (form.fields as { kind?: string; required?: boolean }[]) : []

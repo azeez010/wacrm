@@ -229,8 +229,9 @@ function FieldCard({
           <span className="shrink-0 text-xs text-muted-foreground">{t(`kind.${field.kind}`)}</span>
           {missing ? <span className="shrink-0 text-xs text-amber-600">{t('fieldMissing')}</span> : null}
           {field.required || locked ? <span className="text-red-500">*</span> : null}
+          {/* Inside the button so clicking the arrow toggles the card too. */}
+          <ChevronDown className={cn('ml-auto size-4 shrink-0 text-muted-foreground transition-transform', expanded && 'rotate-180')} />
         </button>
-        <ChevronDown className={cn('size-4 shrink-0 text-muted-foreground transition-transform', expanded && 'rotate-180')} />
       </div>
       {expanded && (
         <div className="space-y-3 border-t border-border p-3">

@@ -1,5 +1,6 @@
 'use client';
 
+import { ImagePicker } from '@/components/media/image-picker';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import {
@@ -847,53 +848,57 @@ export function TemplateManager() {
 
               {headerNeedsMedia && (
                 <div className="space-y-2 mt-2">
-                  {headerMediaKind && (
-                    <div className="flex items-center gap-2">
-                      <input
-                        ref={headerFileRef}
-                        type="file"
-                        accept={MEDIA_HEADER_SPECS[headerMediaKind].mimeTypes.join(',')}
-                        className="hidden"
-                        onChange={(e) => {
-                          const f = e.target.files?.[0];
-                          if (f) void handleHeaderMediaFile(f, headerMediaKind);
-                          e.target.value = '';
-                        }}
-                      />
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        disabled={uploadingHeader}
-                        onClick={() => headerFileRef.current?.click()}
-                      >
-                        {uploadingHeader ? (
-                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                        ) : (
-                          <Upload className="h-3.5 w-3.5" />
-                        )}
-                        {t(uploadLabelKey[headerMediaKind])}
-                      </Button>
-                      <span className="text-[11px] text-muted-foreground">
-                        {t(uploadHintKey[headerMediaKind])}
-                      </span>
-                    </div>
-                  )}
-                  <Input
-                    placeholder={t('mediaUrlPlaceholder', { format: form.header_format })}
-                    value={form.header_media_url}
-                    onChange={(e) =>
-                      setForm({ ...form, header_media_url: e.target.value })
-                    }
-                    className="bg-muted border-border text-foreground placeholder:text-muted-foreground"
-                  />
-                  {form.header_format === 'image' && form.header_media_url && (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={form.header_media_url}
-                      alt={t('headerSampleAlt')}
-                      className="max-h-28 rounded-md border border-border object-contain"
+                  {form.header_format === 'image' ? (
+                    // Meta only accepts JPEG and PNG for an image header.
+                    <ImagePicker
+                      shape="wide"
+                      allowedTypes={MEDIA_HEADER_SPECS.image.mimeTypes}
+                      value={form.header_media_url || null}
+                      onChange={(url) => setForm((f) => ({ ...f, header_media_url: url ?? '' }))}
                     />
+                  ) : (
+                    <>
+                  {headerMediaKind && (
+                          <div className="flex items-center gap-2">
+                            <input
+                              ref={headerFileRef}
+                              type="file"
+                              accept={MEDIA_HEADER_SPECS[headerMediaKind].mimeTypes.join(',')}
+                              className="hidden"
+                              onChange={(e) => {
+                                const f = e.target.files?.[0];
+                                if (f) void handleHeaderMediaFile(f, headerMediaKind);
+                                e.target.value = '';
+                              }}
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              disabled={uploadingHeader}
+                              onClick={() => headerFileRef.current?.click()}
+                            >
+                              {uploadingHeader ? (
+                                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                              ) : (
+                                <Upload className="h-3.5 w-3.5" />
+                              )}
+                              {t(uploadLabelKey[headerMediaKind])}
+                            </Button>
+                            <span className="text-[11px] text-muted-foreground">
+                              {t(uploadHintKey[headerMediaKind])}
+                            </span>
+                          </div>
+                        )}
+                        <Input
+                          placeholder={t('mediaUrlPlaceholder', { format: form.header_format })}
+                          value={form.header_media_url}
+                          onChange={(e) =>
+                            setForm({ ...form, header_media_url: e.target.value })
+                          }
+                          className="bg-muted border-border text-foreground placeholder:text-muted-foreground"
+                        />
+                    </>
                   )}
                   <p className="text-[11px] text-muted-foreground leading-relaxed">
                     {form.header_format === 'image'

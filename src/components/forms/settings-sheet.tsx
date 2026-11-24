@@ -1,5 +1,6 @@
 'use client';
 
+import { ImagePicker } from '@/components/media/image-picker';
 import { ChevronDown } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
@@ -224,11 +225,11 @@ export function SettingsSheet({ open, onOpenChange, kind, settings, data, canEdi
                   </Row>
                 </div>
                 <Row label={t('logoUrl')}>
-                  <Input disabled={!canEdit} value={s.logoUrl ?? ''} placeholder="https://" onChange={(e) => patch({ logoUrl: e.target.value || undefined })} />
+                  <ImagePicker disabled={!canEdit} value={s.logoUrl} shape="wide" onChange={(url) => patch({ logoUrl: url ?? undefined })} />
                 </Row>
                 {kind === 'lead' && (
                   <Row label={t('backgroundImage')} hint={t('backgroundImageHint')}>
-                    <Input disabled={!canEdit} value={s.backgroundImage ?? ''} placeholder="https://" onChange={(e) => patch({ backgroundImage: e.target.value || undefined })} />
+                    <ImagePicker disabled={!canEdit} value={s.backgroundImage} shape="wide" onChange={(url) => patch({ backgroundImage: url ?? undefined })} />
                   </Row>
                 )}
                 <Row label={t('theme')} hint={t('themeHint')}>
@@ -373,7 +374,7 @@ export function SettingsSheet({ open, onOpenChange, kind, settings, data, canEdi
                       <Input disabled={!canEdit} value={s.ogDescription ?? ''} onChange={(e) => patch({ ogDescription: e.target.value })} />
                     </Row>
                     <Row label={t('ogImage')}>
-                      <Input disabled={!canEdit} value={s.ogImage ?? ''} placeholder="https://" onChange={(e) => patch({ ogImage: e.target.value || undefined })} />
+                      <ImagePicker disabled={!canEdit} value={s.ogImage} shape="wide" onChange={(url) => patch({ ogImage: url ?? undefined })} />
                     </Row>
                     <label className="flex items-center gap-2 text-sm">
                       <Switch disabled={!canEdit} checked={s.noindex !== false} onCheckedChange={(on) => patch({ noindex: on })} />

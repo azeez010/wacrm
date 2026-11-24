@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import { FileText, Loader2, Upload, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { ImagePicker } from '@/components/media/image-picker';
 import { deleteAccountMedia, uploadAccountMedia } from '@/lib/storage/upload-media';
 import {
   MEDIA_FIELD_BUCKET,
@@ -71,6 +72,26 @@ export function MediaInput({ value, onChange, accept, disabled, className }: Med
     } finally {
       setUploading(false);
     }
+  }
+
+  // Image fields use the shared picker (drag and drop + account image library).
+  // The stored value needs a library file's path, so pasted links are off.
+  if (accept === 'image') {
+    return (
+      <ImagePicker
+        allowLink={false}
+        shape="wide"
+        disabled={disabled}
+        className={className}
+        value={current?.url ?? null}
+        onChange={(url, asset) => {
+          if (!url) onChange('');
+          else if (asset) {
+            onChange(JSON.stringify({ url: asset.url, path: asset.path, name: asset.name, mime: asset.mime, size: asset.size_bytes }));
+          }
+        }}
+      />
+    );
   }
 
   return (

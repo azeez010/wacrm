@@ -28,6 +28,9 @@ const tablesWithoutDomainData = new Set([
   // Delivery log rows only exist for a webhook_endpoints row (ON DELETE CASCADE),
   // and webhook_endpoints is already checked, so data here implies data there.
   "webhook_deliveries",
+  // Image library: an empty personal account being discarded holds at most a
+  // just-uploaded picture; the rows cascade with the account.
+  "media_assets",
 ]);
 
 function accountScopedTables(): Set<string> {

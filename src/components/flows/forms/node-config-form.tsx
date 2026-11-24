@@ -24,6 +24,7 @@
  * renders the advanced rows.
  */
 
+import { ImagePicker } from "@/components/media/image-picker";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Loader2,
@@ -978,6 +979,16 @@ function SendMediaForm({
 
       <div>
         <label className="mb-1 block text-xs text-muted-foreground">{t("fileLabel")}</label>
+        {mediaType === "image" ? (
+          // WhatsApp image messages take JPEG or PNG.
+          <ImagePicker
+            shape="wide"
+            allowedTypes={["image/jpeg", "image/png"]}
+            value={cfg.media_url || null}
+            onChange={(url) => onUpdateConfig({ media_url: url ?? "", filename: "" })}
+          />
+        ) : (
+          <>
         {cfg.media_url ? (
           <div className="flex items-center gap-2 rounded-md border border-border bg-muted px-3 py-2 text-xs">
             <Paperclip className="h-3.5 w-3.5 shrink-0 text-cyan-400" />
@@ -1032,6 +1043,8 @@ function SendMediaForm({
             e.target.value = "";
           }}
         />
+          </>
+        )}
       </div>
 
       <TextRow

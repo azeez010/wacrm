@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { Loader2, Upload, Trash2, Mail, CircleAlert } from 'lucide-react';
 
@@ -20,15 +20,9 @@ import { SettingsPanelHead } from './settings-panel-head';
 import { BrowserNotificationsCard } from './browser-notifications-card';
 import { UseCaseCard } from './use-case-card';
 import { MarketingCard } from './marketing-card';
+import { MediaDialog } from '@/components/media/media-dialog';
 
 const MAX_AVATAR_BYTES = 2 * 1024 * 1024;
-const ALLOWED_MIME = new Set([
-  'image/png',
-  'image/jpeg',
-  'image/webp',
-  'image/gif',
-]);
-
 // Rough email shape check - the real validator is Supabase Auth, which
 // rejects anything malformed when we call updateUser({ email }). We
 // just want to stop obvious typos before making a network call.
@@ -38,13 +32,12 @@ export function ProfileForm() {
   const t = useTranslations('Settings.profile');
   const { user, profile, refreshProfile } = useAuth();
   const supabase = createClient();
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
-  const [pendingAvatar, setPendingAvatar] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [removeAvatar, setRemoveAvatar] = useState(false);
+  // undefined = leave the saved photo alone; null = remove it; string = new photo.
+  const [pickedAvatar, setPickedAvatar] = useState<string | null | undefined>(undefined);
+  const [pickerOpen, setPickerOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [emailChangePending, setEmailChangePending] = useState(false);
 
@@ -55,49 +48,29 @@ export function ProfileForm() {
     setEmail(profile.email ?? '');
   }, [profile]);
 
-  // Cleanup object URLs to avoid leaks.
-  useEffect(() => {
-    return () => {
-      if (previewUrl) URL.revokeObjectURL(previewUrl);
-    };
-  }, [previewUrl]);
-
   const currentAvatar =
-    previewUrl ?? (!removeAvatar ? profile?.avatar_url ?? null : null);
+    pickedAvatar !== undefined ? pickedAvatar : profile?.avatar_url ?? null;
 
   const initial = (fullName || profile?.full_name || profile?.email || 'U')
     .charAt(0)
     .toUpperCase();
 
-  const onPickFile = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    e.target.value = ''; // reset so the same file can be re-picked
-    if (!file) return;
-
-    if (!ALLOWED_MIME.has(file.type)) {
-      toast.error(t('unsupportedImage'), {
-        description: t('unsupportedImageDesc'),
-      });
-      return;
+  // Profile photos stay private to the person: their own folder in the
+  // `avatars` bucket (not the shared account image library).
+  const uploadAvatar = async (file: File) => {
+    if (!user) throw new Error(t('saveFailed', { message: '' }));
+    const ext = file.name.split('.').pop()?.toLowerCase() || 'png';
+    const path = `${user.id}/avatar-${Date.now()}.${ext}`;
+    const { error: uploadError } = await supabase.storage
+      .from('avatars')
+      .upload(path, file, { cacheControl: '3600', upsert: true, contentType: file.type });
+    if (uploadError) {
+      throw new Error(t('uploadFailed', { message: uploadError.message }));
     }
-    if (file.size > MAX_AVATAR_BYTES) {
-      toast.error(t('imageTooLarge'), {
-        description: t('imageTooLargeDesc'),
-      });
-      return;
-    }
-
-    if (previewUrl) URL.revokeObjectURL(previewUrl);
-    setPendingAvatar(file);
-    setPreviewUrl(URL.createObjectURL(file));
-    setRemoveAvatar(false);
-  };
-
-  const onRemoveAvatar = () => {
-    if (previewUrl) URL.revokeObjectURL(previewUrl);
-    setPendingAvatar(null);
-    setPreviewUrl(null);
-    setRemoveAvatar(true);
+    const {
+      data: { publicUrl },
+    } = supabase.storage.from('avatars').getPublicUrl(path);
+    return { url: publicUrl };
   };
 
   const onSubmit = async (e: React.FormEvent) => {
@@ -117,30 +90,8 @@ export function ProfileForm() {
 
     setSaving(true);
     try {
-      let nextAvatarUrl: string | null = profile.avatar_url ?? null;
-
-      // Upload a newly-staged image, if any.
-      if (pendingAvatar) {
-        const ext =
-          pendingAvatar.name.split('.').pop()?.toLowerCase() || 'png';
-        const path = `${user.id}/avatar-${Date.now()}.${ext}`;
-        const { error: uploadError } = await supabase.storage
-          .from('avatars')
-          .upload(path, pendingAvatar, {
-            cacheControl: '3600',
-            upsert: true,
-            contentType: pendingAvatar.type,
-          });
-        if (uploadError) {
-          throw new Error(t('uploadFailed', { message: uploadError.message }));
-        }
-        const {
-          data: { publicUrl },
-        } = supabase.storage.from('avatars').getPublicUrl(path);
-        nextAvatarUrl = publicUrl;
-      } else if (removeAvatar) {
-        nextAvatarUrl = null;
-      }
+      const nextAvatarUrl: string | null =
+        pickedAvatar !== undefined ? pickedAvatar : profile.avatar_url ?? null;
 
       // Persist name + avatar to profiles.
       const { error: updateError } = await supabase
@@ -176,9 +127,7 @@ export function ProfileForm() {
       }
 
       setEmailChangePending(emailSent);
-      setPendingAvatar(null);
-      setPreviewUrl(null);
-      setRemoveAvatar(false);
+      setPickedAvatar(undefined);
       await refreshProfile();
 
       toast.success(
@@ -198,8 +147,7 @@ export function ProfileForm() {
     !!profile &&
     (fullName.trim() !== (profile.full_name ?? '') ||
       email.trim().toLowerCase() !== (profile.email ?? '').toLowerCase() ||
-      pendingAvatar !== null ||
-      removeAvatar);
+      pickedAvatar !== undefined);
 
   const joined = user?.created_at
     ? new Date(user.created_at).toLocaleDateString(undefined, {
@@ -230,17 +178,10 @@ export function ProfileForm() {
             </Avatar>
 
             <div className="flex flex-wrap gap-2">
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/png,image/jpeg,image/webp,image/gif"
-                className="hidden"
-                onChange={onPickFile}
-              />
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => fileInputRef.current?.click()}
+                onClick={() => setPickerOpen(true)}
                 disabled={saving}
               >
                 <Upload className="size-4" />
@@ -250,7 +191,7 @@ export function ProfileForm() {
                 <Button
                   type="button"
                   variant="ghost"
-                  onClick={onRemoveAvatar}
+                  onClick={() => setPickedAvatar(null)}
                   disabled={saving}
                   className="text-muted-foreground hover:text-foreground"
                 >
@@ -263,6 +204,16 @@ export function ProfileForm() {
               </p>
             </div>
           </div>
+
+          <MediaDialog
+            open={pickerOpen}
+            onOpenChange={setPickerOpen}
+            currentUrl={currentAvatar}
+            library={false}
+            uploader={uploadAvatar}
+            maxBytes={MAX_AVATAR_BYTES}
+            onPick={(url) => setPickedAvatar(url)}
+          />
 
           {/* Name */}
           <div className="space-y-2">

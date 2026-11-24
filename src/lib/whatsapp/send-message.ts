@@ -21,6 +21,7 @@
 
 import { isBlocked } from '@/lib/contacts/block-guard';
 import { channelOf } from '@/lib/channels/registry';
+import { ChannelSendError, sendWebChatMessage } from '@/lib/channels/dispatch';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 import {
@@ -114,7 +115,7 @@ export interface SendMessageParams {
 export interface SendMessageResult {
   /** Our `messages.id` (the persisted row). */
   messageId: string;
-  /** Meta's `wamid` for the delivered message. */
+  /** Meta's `wamid` for the delivered message ('' on channels without one). */
   whatsappMessageId: string;
 }
 
@@ -274,10 +275,27 @@ export async function sendMessageToConversation(
     );
   }
 
-  // This path talks to Meta. Other channels (website chat, ...) are sent
-  // through their own sender (src/lib/channels/dispatch.ts); until a channel
-  // has one, refuse instead of messaging the contact's phone by mistake.
-  if (channelOf(conversation) !== 'whatsapp') {
+  // This path talks to Meta. Other channels have their own sender
+  // (src/lib/channels/dispatch.ts); never fall through to the contact's phone.
+  const channel = channelOf(conversation);
+  if (channel === 'web_chat') {
+    try {
+      const sent = await sendWebChatMessage(db, accountId, conversationId, {
+        messageType,
+        contentText,
+        mediaUrl,
+        interactivePayload,
+        senderId,
+      });
+      return { messageId: sent.messageId, whatsappMessageId: '' };
+    } catch (err) {
+      if (err instanceof ChannelSendError) {
+        throw new SendMessageError(err.code, err.message, err.status);
+      }
+      throw err;
+    }
+  }
+  if (channel !== 'whatsapp') {
     throw new SendMessageError(
       'channel_not_supported',
       'Sending is not available on this conversation\'s channel yet.',

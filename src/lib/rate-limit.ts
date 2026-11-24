@@ -136,6 +136,12 @@ export const RATE_LIMITS = {
    *  and retry typos, while bounding a script. (Per isolate on Workers, so the
    *  submit pipeline also caps by DB.) */
   formSubmit: { limit: 12, windowMs: 60_000 },
+  /** Website live chat. Starting a chat is per IP + widget (it creates a contact and a thread);
+   *  messages and polling are per conversation. (Per isolate on Workers, like the form limits;
+   *  the ChatRoom Durable Object bounds the real-time side durably.) */
+  chatStart: { limit: 6, windowMs: 60_000 },
+  chatMessage: { limit: 30, windowMs: 60_000 },
+  chatPoll: { limit: 120, windowMs: 60_000 },
   /** Form view/start beacons, per IP + form. */
   formEvent: { limit: 60, windowMs: 60_000 },
   /** Individual message send. 60/min per user = one per second

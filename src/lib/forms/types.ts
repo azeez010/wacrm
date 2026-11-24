@@ -179,6 +179,18 @@ export const formSettingsSchema = z
       .strict()
       .default({}),
 
+    /** Live-chat mode of the support button. */
+    chat: z
+      .object({
+        /** First line the visitor sees, e.g. "Hello, how can I help you?" */
+        greeting: shortText.optional(),
+        /** Shown instead of the greeting while nobody can answer. */
+        offlineText: shortText.optional(),
+        showOnlineBadge: z.boolean().default(true),
+      })
+      .strict()
+      .optional(),
+
     /** Support button only. */
     widget: z
       .object({
@@ -188,6 +200,8 @@ export const formSettingsSchema = z
         label: shortText.optional(),
         color: z.string().regex(/^#[0-9a-fA-F]{6}$/).optional(),
         icon: z.enum(['whatsapp', 'chat', 'headset']).default('whatsapp'),
+        /** 'whatsapp' opens WhatsApp after the pre-chat form; 'live_chat' starts a real-time website chat. */
+        mode: z.enum(['whatsapp', 'live_chat']).default('whatsapp'),
         greeting: shortText.optional(),
         animation: z.enum(['none', 'pulse', 'bounce', 'wiggle', 'ring']).default('pulse'),
         sound: z.enum(['none', 'chime', 'pop']).default('none'),

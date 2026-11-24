@@ -20,6 +20,7 @@
 // ============================================================
 
 import { isBlocked } from '@/lib/contacts/block-guard';
+import { channelOf } from '@/lib/channels/registry';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 import {
@@ -270,6 +271,17 @@ export async function sendMessageToConversation(
       'contact_blocked',
       'This contact is blocked. Unblock them to send messages.',
       403
+    );
+  }
+
+  // This path talks to Meta. Other channels (website chat, ...) are sent
+  // through their own sender (src/lib/channels/dispatch.ts); until a channel
+  // has one, refuse instead of messaging the contact's phone by mistake.
+  if (channelOf(conversation) !== 'whatsapp') {
+    throw new SendMessageError(
+      'channel_not_supported',
+      'Sending is not available on this conversation\'s channel yet.',
+      400
     );
   }
 

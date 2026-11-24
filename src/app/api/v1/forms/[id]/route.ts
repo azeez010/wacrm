@@ -13,7 +13,7 @@ import type { FormRow } from '@/lib/forms/types';
 type Ctx = Awaited<ReturnType<typeof requireApiKey>>;
 
 async function load(ctx: Ctx, id: string): Promise<FormRow | null> {
-  const { data } = await ctx.supabase.from('forms').select(FORM_COLUMNS).eq('id', id).eq('account_id', ctx.accountId).maybeSingle();
+  const { data } = await ctx.supabase.from('forms').select(`${FORM_COLUMNS}, stats_cache`).eq('id', id).eq('account_id', ctx.accountId).maybeSingle();
   const row = data as FormRow | null;
   return row && !row.archived_at ? row : null;
 }

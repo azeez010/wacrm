@@ -1,3 +1,4 @@
+import { computeVisibility } from './conditions'
 import { coerceValue } from '@/lib/custom-fields/coerce'
 import type { FieldDef } from '@/lib/custom-fields/types'
 import { normalizeFormPhone } from './countries'
@@ -84,8 +85,11 @@ export function validateAnswers(
     out.ok = false
   }
   const now = ctx.now ?? new Date()
+  // A field hidden by its condition is never required and its answer is ignored.
+  const visible = computeVisibility(fields, answers)
 
   for (const f of fields) {
+    if (visible[f.id] === false) continue
     const raw = answers[f.id]
     const empty = isEmptyAnswer(raw)
     const label = f.label || f.kind

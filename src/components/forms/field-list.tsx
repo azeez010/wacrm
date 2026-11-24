@@ -13,7 +13,7 @@ import { SortableContext, sortableKeyboardCoordinates, useSortable, verticalList
 import { CSS } from '@dnd-kit/utilities';
 import { ChevronDown, GripVertical, Plus, Trash2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -29,6 +29,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
+import { ConditionEditor } from './condition-editor';
+import { CustomInputDialog } from './custom-input-dialog';
 import type { FormField } from '@/lib/forms/types';
 import type { EditorAction } from './editor-state';
 import type { FormEditorData } from './use-form-data';
@@ -45,6 +47,7 @@ interface Props {
 export function FieldList({ fields, data, qualifyOn, canEdit, dispatch }: Props) {
   const t = useTranslations('Forms.edit');
   const [open, setOpen] = useState<string | null>(null);
+  const [customOpen, setCustomOpen] = useState(false);
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }), useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }));
 
   function onDragEnd(e: DragEndEvent) {
@@ -67,10 +70,11 @@ export function FieldList({ fields, data, qualifyOn, canEdit, dispatch }: Props)
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
         <SortableContext items={fields.map((f) => f.id)} strategy={verticalListSortingStrategy}>
           <ul className="space-y-2">
-            {fields.map((f) => (
+            {fields.map((f, i) => (
               <FieldCard
                 key={f.id}
                 field={f}
+                before={fields.slice(0, i)}
                 data={data}
                 qualifyOn={qualifyOn}
                 canEdit={canEdit}
@@ -88,9 +92,15 @@ export function FieldList({ fields, data, qualifyOn, canEdit, dispatch }: Props)
           <Plus className="size-4" />
           {t('addField')}
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" className="max-h-80 w-64 overflow-y-auto">
+        <DropdownMenuContent align="start" className="relative w-64 overflow-hidden p-0">
+          <MenuScroll>
           <DropdownMenuGroup>
-            <DropdownMenuLabel>{t('groupBasic')}</DropdownMenuLabel>
+            <DropdownMenuLabel className={stickyLabel}>{t('groupCustom')}</DropdownMenuLabel>
+            <DropdownMenuItem onClick={() => setCustomOpen(true)}>{t('customInput')}</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => add({ id: 'hidden', kind: 'hidden', label: t('kind.hidden'), param: 'ad_id' })}>{t('kind.hidden')}</DropdownMenuItem>
+          </DropdownMenuGroup>
+          <DropdownMenuGroup>
+            <DropdownMenuLabel className={stickyLabel}>{t('groupBasic')}</DropdownMenuLabel>
             {!has('name') && <DropdownMenuItem onClick={() => add({ id: 'name', kind: 'name' })}>{t('kind.name')}</DropdownMenuItem>}
             {!has('email') && <DropdownMenuItem onClick={() => add({ id: 'email', kind: 'email' })}>{t('kind.email')}</DropdownMenuItem>}
             {!has('company') && <DropdownMenuItem onClick={() => add({ id: 'company', kind: 'company' })}>{t('kind.company')}</DropdownMenuItem>}
@@ -98,7 +108,7 @@ export function FieldList({ fields, data, qualifyOn, canEdit, dispatch }: Props)
           </DropdownMenuGroup>
           {data.customFields.length > 0 && (
             <DropdownMenuGroup>
-              <DropdownMenuLabel>{t('groupYourFields')}</DropdownMenuLabel>
+              <DropdownMenuLabel className={stickyLabel}>{t('groupYourFields')}</DropdownMenuLabel>
               {data.customFields
                 .filter((c) => !usedCustom.has(c.id))
                 .map((c) => (
@@ -110,7 +120,7 @@ export function FieldList({ fields, data, qualifyOn, canEdit, dispatch }: Props)
           )}
           {data.tableColumns.length > 0 && (
             <DropdownMenuGroup>
-              <DropdownMenuLabel>{t('groupTables')}</DropdownMenuLabel>
+              <DropdownMenuLabel className={stickyLabel}>{t('groupTables')}</DropdownMenuLabel>
               {data.tableColumns
                 .filter((c) => !usedCols.has(`${c.refFieldId}:${c.column.key}`))
                 .map((c) => (
@@ -126,20 +136,54 @@ export function FieldList({ fields, data, qualifyOn, canEdit, dispatch }: Props)
             </DropdownMenuGroup>
           )}
           <DropdownMenuGroup>
-            <DropdownMenuLabel>{t('groupExtras')}</DropdownMenuLabel>
+            <DropdownMenuLabel className={stickyLabel}>{t('groupExtras')}</DropdownMenuLabel>
             <DropdownMenuItem onClick={() => add({ id: 'tags', kind: 'tag_picker', label: t('kind.tag_picker'), tagIds: [] })}>{t('kind.tag_picker')}</DropdownMenuItem>
             {!has('consent') && <DropdownMenuItem onClick={() => add({ id: 'consent', kind: 'consent', required: true, consentText: t('defaultConsent') })}>{t('kind.consent')}</DropdownMenuItem>}
-            <DropdownMenuItem onClick={() => add({ id: 'hidden', kind: 'hidden', label: t('kind.hidden'), param: 'ad_id' })}>{t('kind.hidden')}</DropdownMenuItem>
             <DropdownMenuItem onClick={() => add({ id: 'heading', kind: 'heading', text: t('defaultHeading') })}>{t('kind.heading')}</DropdownMenuItem>
           </DropdownMenuGroup>
+          </MenuScroll>
         </DropdownMenuContent>
       </DropdownMenu>
+
+      <CustomInputDialog open={customOpen} onOpenChange={setCustomOpen} data={data} used={usedCustom} onAdd={add} />
     </div>
+  );
+}
+
+const stickyLabel = 'sticky top-0 z-10 bg-popover';
+
+/**
+ * Scroll area for a long menu. Shows a thin always-visible scrollbar and a fade at
+ * the bottom while there is more to scroll to (macOS hides scrollbars otherwise).
+ */
+function MenuScroll({ children }: { children: React.ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [more, setMore] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const measure = () => setMore(el.scrollHeight - el.scrollTop - el.clientHeight > 4);
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    el.addEventListener('scroll', measure, { passive: true });
+    return () => {
+      ro.disconnect();
+      el.removeEventListener('scroll', measure);
+    };
+  }, []);
+  return (
+    <>
+      <div ref={ref} className="max-h-[min(24rem,60vh)] overflow-y-auto p-1 [scrollbar-width:thin]">
+        {children}
+      </div>
+      {more ? <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-10 rounded-b-lg bg-gradient-to-t from-popover to-transparent" /> : null}
+    </>
   );
 }
 
 function FieldCard({
   field,
+  before,
   data,
   qualifyOn,
   canEdit,
@@ -148,6 +192,8 @@ function FieldCard({
   dispatch,
 }: {
   field: FormField;
+  /** Fields above this one (what a "show only if" rule may look at). */
+  before: FormField[];
   data: FormEditorData;
   qualifyOn: boolean;
   canEdit: boolean;
@@ -311,6 +357,7 @@ function FieldCard({
               })}
             </div>
           )}
+          {!locked && <ConditionEditor field={field} before={before} data={data} canEdit={canEdit} onChange={(visibleWhen) => patch({ visibleWhen })} />}
           <div className="flex items-center justify-between">
             {!locked && field.kind !== 'heading' && field.kind !== 'hidden' ? (
               <label className="flex items-center gap-2 text-sm">

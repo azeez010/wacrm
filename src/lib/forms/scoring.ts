@@ -1,3 +1,4 @@
+import { computeVisibility } from './conditions'
 import type { FormField, FormSettings } from './types'
 
 export interface ScoreResult {
@@ -29,8 +30,10 @@ export function scoreAnswers(
   const q = settings.qualification
   let score = 0
   let disqualified = false
+  const visible = computeVisibility(fields, answers)
   for (const f of fields) {
     if (f.kind !== 'custom_field' && f.kind !== 'table_column') continue
+    if (visible[f.id] === false) continue
     const picks = chosen(answers[f.id])
     for (const p of picks) {
       score += pointsFor(f.points, p)

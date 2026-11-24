@@ -1,5 +1,6 @@
 import { BACKGROUND_FITS, BACKGROUND_OVERLAYS, BACKGROUND_POSITIONS, LOGO_ALIGNS, LOGO_SIZES } from './branding'
 import { z } from 'zod'
+import { CONDITION_OPS, MAX_CONDITION_RULES, findConditionProblem } from './conditions'
 
 // ============================================================
 // Forms (lead capture): the shape stored in forms.fields / forms.settings.
@@ -64,6 +65,25 @@ export const formFieldSchema = z
     privacyUrl: z.string().url().max(500).optional(),
     /** heading */
     text: longText.optional(),
+    /** Show this field only when the rules hold (they look at earlier fields' answers). */
+    visibleWhen: z
+      .object({
+        match: z.enum(['all', 'any']),
+        rules: z
+          .array(
+            z
+              .object({
+                fieldId: z.string().trim().min(1).max(40),
+                op: z.enum(CONDITION_OPS),
+                value: z.string().max(200).optional(),
+              })
+              .strict(),
+          )
+          .min(1)
+          .max(MAX_CONDITION_RULES),
+      })
+      .strict()
+      .optional(),
   })
   .strict()
 export type FormField = z.input<typeof formFieldSchema>
@@ -208,7 +228,14 @@ export const formSettingsSchema = z
   .strict()
 export type FormSettings = z.infer<typeof formSettingsSchema>
 
-export const formFieldsSchema = z.array(formFieldSchema).max(MAX_FORM_FIELDS)
+/** Structure only. Used to read stored rows, so an old or half-edited form never fails to load. */
+const formFieldsBaseSchema = z.array(formFieldSchema).max(MAX_FORM_FIELDS)
+
+/** For writes (API, import): also checks that conditions point at earlier, testable fields. */
+export const formFieldsSchema = formFieldsBaseSchema.superRefine((fields, ctx) => {
+  const problem = findConditionProblem(fields)
+  if (problem) ctx.addIssue({ code: 'custom', path: [problem.index, 'visibleWhen'], message: problem.message })
+})
 
 /** Parse stored JSON defensively (older rows / partial edits). */
 export function parseFormSettings(raw: unknown): FormSettings {
@@ -217,7 +244,7 @@ export function parseFormSettings(raw: unknown): FormSettings {
 }
 
 export function parseFormFields(raw: unknown): FormField[] {
-  const r = formFieldsSchema.safeParse(raw ?? [])
+  const r = formFieldsBaseSchema.safeParse(raw ?? [])
   return r.success ? r.data : []
 }
 

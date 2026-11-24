@@ -1,5 +1,7 @@
 "use client";
 
+import { channelCapabilities, channelOf } from "@/lib/channels/registry";
+import { ChannelBadge } from "@/components/inbox/channel-badge";
 import { useState, useEffect, useLayoutEffect, useCallback, useRef, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
@@ -193,6 +195,7 @@ export function MessageThread({
   const t = useTranslations("Inbox.messageThread");
   const locale = useLocale();
   const tTimer = useTranslations("Inbox.sessionTimer");
+  const tChannels = useTranslations("Channels");
   const tQuote = useTranslations("Inbox.replyQuote");
 
   const { user } = useAuth();
@@ -321,8 +324,15 @@ export function MessageThread({
     };
   }, [profilesVersion]);
 
-  // 24-hour session timer
+  // Channel of this thread; WhatsApp has the 24-hour reply window, a website
+  // chat has none (see src/lib/channels/registry.ts).
+  const channel = channelOf(conversation);
+  const channelCaps = channelCapabilities(channel);
+  const windowHours = channelCaps.replyWindowHours;
+
+  // Session timer (channels with a reply window only)
   const sessionInfo = useMemo(() => {
+    if (windowHours === null) return { expired: false, remaining: "" };
     if (!messages.length) return { expired: false, remaining: "" };
 
     // Find last customer message
@@ -333,20 +343,20 @@ export function MessageThread({
     if (!lastCustomerMsg) return { expired: true, remaining: tTimer("noCustomerMessages") };
 
     const hoursSince = differenceInHours(new Date(), new Date(lastCustomerMsg.created_at));
-    const expired = hoursSince >= 24;
+    const expired = hoursSince >= windowHours;
 
     if (expired) {
       return { expired: true, remaining: tTimer("expired") };
     }
 
-    const hoursLeft = 24 - hoursSince;
+    const hoursLeft = windowHours - hoursSince;
     const remaining =
       hoursLeft >= 1
         ? tTimer("xhRemaining", { hours: Math.floor(hoursLeft) })
         : tTimer("xmRemaining", { minutes: Math.floor(hoursLeft * 60) });
 
     return { expired, remaining };
-  }, [messages, tTimer]);
+  }, [messages, tTimer, windowHours]);
 
   // Store latest callback in a ref so fetchMessages doesn't need to
   // depend on `onMessagesLoaded` - otherwise parent re-renders cause
@@ -1057,17 +1067,29 @@ export function MessageThread({
               <ArrowLeft className="h-5 w-5" />
             </button>
           )}
-          <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-muted text-sm font-medium text-foreground">
-            {displayName.charAt(0).toUpperCase()}
+          <div className="relative h-9 w-9 flex-shrink-0">
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-muted text-sm font-medium text-foreground">
+              {displayName.charAt(0).toUpperCase()}
+            </div>
+            <ChannelBadge
+              channel={channel}
+              label={tChannels(channel)}
+              size={14}
+              className="absolute -bottom-0.5 -left-0.5"
+            />
           </div>
           <div className="min-w-0">
             <h2 className="truncate text-sm font-semibold text-foreground">{displayName}</h2>
             <p className="truncate text-xs text-muted-foreground">
-              {contactHandle(contact)}
+              {channel === "whatsapp"
+                ? contactHandle(contact)
+                : contact?.email || contact?.phone || tChannels("websiteVisitor")}
             </p>
           </div>
           {/* Session timer badge - hidden on the narrowest phones so
-              the name + back arrow keep their room. */}
+              the name + back arrow keep their room. Only for channels
+              with a reply window. */}
+          {windowHours !== null && (
           <Badge
             variant="outline"
             className={cn(
@@ -1078,6 +1100,7 @@ export function MessageThread({
             <Clock className="h-3 w-3" />
             {sessionInfo.remaining}
           </Badge>
+          )}
         </div>
 
         <div className="flex items-center gap-2">
@@ -1343,6 +1366,7 @@ export function MessageThread({
       ) : (
       <MessageComposer
         conversationId={conversation.id}
+        channel={channel}
         sessionExpired={sessionInfo.expired}
         onSend={handleSend}
         onSendMedia={handleSendMedia}

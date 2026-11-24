@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { createClient } from '@/lib/supabase/client';
 import type { FieldDef } from '@/lib/custom-fields/types';
@@ -23,13 +23,18 @@ export interface FormEditorData {
   /** The account's WhatsApp numbers (a form can send from a specific one). */
   connections: { id: string; name: string }[];
   loading: boolean;
+  /** Re-read the account's fields, tables and tags (e.g. after creating a custom field). */
+  reload: () => void;
 }
 
-const EMPTY: FormEditorData = { customFields: [], tableColumns: [], tags: [], agents: [], pipelines: [], templates: [], connections: [], loading: true };
+type LoadedData = Omit<FormEditorData, 'reload'>;
+
+const EMPTY: LoadedData = { customFields: [], tableColumns: [], tags: [], agents: [], pipelines: [], templates: [], connections: [], loading: true };
 
 /** Everything the form editor needs to offer: the account's fields, tables, tags, agents, pipelines. */
 export function useFormEditorData(accountId: string | null): FormEditorData {
-  const [data, setData] = useState<FormEditorData>(EMPTY);
+  const [data, setData] = useState<LoadedData>(EMPTY);
+  const [version, setVersion] = useState(0);
 
   useEffect(() => {
     if (!accountId) return;
@@ -89,7 +94,7 @@ export function useFormEditorData(accountId: string | null): FormEditorData {
     return () => {
       cancelled = true;
     };
-  }, [accountId]);
+  }, [accountId, version]);
 
-  return data;
+  return useMemo(() => ({ ...data, reload: () => setVersion((v) => v + 1) }), [data]);
 }

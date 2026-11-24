@@ -1,5 +1,6 @@
 'use client';
 
+import { computeVisibility } from '@/lib/forms/conditions';
 import { backgroundCss, logoImageClass, logoWrapperClass, overlayPercent } from '@/lib/forms/branding';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { renderSVG } from 'uqr';
@@ -194,6 +195,9 @@ export function PublicForm({
 
   const composePhone = (raw: unknown) => composeFormPhone(raw, country);
 
+  // Fields hidden by their "show only if" rules: not shown, not sent.
+  const visibility = computeVisibility(config.fields, values);
+
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     if (busy || preview) return;
@@ -201,7 +205,7 @@ export function PublicForm({
     setFormError(null);
     const answers: Record<string, unknown> = {};
     for (const f of config.fields) {
-      if (f.kind === 'heading') continue;
+      if (f.kind === 'heading' || visibility[f.id] === false) continue;
       if (f.kind === 'hidden') {
         const v = f.fixedValue ?? values[f.id];
         if (v) answers[f.id] = v;
@@ -323,7 +327,7 @@ export function PublicForm({
           </p>
         ) : null}
 
-        {config.fields.map((f) => (
+        {config.fields.filter((f) => visibility[f.id] !== false).map((f) => (
           <FieldInput
             key={f.id}
             f={f}

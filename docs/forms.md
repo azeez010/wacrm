@@ -43,10 +43,26 @@ Content-Type: application/json
 
 Scopes `forms:read`, `forms:write` (submit leads) and `forms:manage` (create, edit, publish, archive).
 
-- `GET /api/v1/forms`
+- `GET /api/v1/forms` (each form carries a `stats` object: last 30 days of `views`, `visitors`, `starts`, `leads`, `attention`, `conversion`, `last_lead_at` and a 14-day `spark`; pre-computed and refreshed every few minutes, `null` until the first refresh)
 - `GET /api/v1/forms/{id}/submissions` (cursor pagination)
 - `POST /api/v1/forms` (create from a template), `GET` / `PATCH` / `DELETE /api/v1/forms/{id}` (definition, edit, archive)
 - `POST /api/v1/forms/{id}/submissions` with the same body as above. Runs the full pipeline (contact, tags, automations, webhook); bot checks are skipped because the caller is trusted.
+
+## Conditional fields (show only if)
+
+Any field except the phone number can carry `visibleWhen`, so it only appears when earlier answers match. In the editor, open the field and switch on **Show only if...**; over the API or MCP send it in the field object:
+
+```json
+{ "id": "budget", "kind": "custom_field", "customFieldId": "<uuid>",
+  "visibleWhen": { "match": "all",
+    "rules": [{ "fieldId": "interest", "op": "eq", "value": "Enterprise" }] } }
+```
+
+- `match` is `all` (every rule) or `any` (at least one); 1 to 5 rules.
+- `op`: `eq`, `neq`, `contains`, `filled`, `empty`, `gt`, `lt`. `filled` and `empty` need no `value`; the others take a string (Yes/No and consent use `"true"` / `"false"`).
+- A rule must point at a field **above** the conditional one, and not at a heading, hidden field, tag picker or the phone field. The API rejects anything else.
+- A hidden field is not shown, is never required and its answer is dropped (scoring ignores it too). If the field it depends on is hidden, it counts as unanswered, so chains cascade.
+- The hosted page, embeds, the live preview and the server all use the same rules, so a headless submission is held to them too.
 
 ## Qualification and scoring
 

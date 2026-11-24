@@ -110,6 +110,8 @@ export interface Contact {
    *  account, and the only identity Meta sends for a customer who has
    *  adopted a WhatsApp username. */
   wa_user_id?: string | null;
+  /** Anonymous id of a website live-chat visitor (migration 086). */
+  web_visitor_id?: string | null;
   /** Portfolio-level BSUID. Reference only - never a lookup key. */
   wa_parent_user_id?: string | null;
   /** WhatsApp username without the leading @. Display only: usernames
@@ -205,6 +207,10 @@ export interface Conversation {
   id: string;
   user_id: string;
   contact_id: string;
+  /** Channel the thread lives on (migration 086). Rows that predate it are 'whatsapp'. */
+  channel?: 'whatsapp' | 'web_chat';
+  /** The widget (forms row) a website chat came from. */
+  form_id?: string | null;
   status: ConversationStatus;
   assigned_agent_id?: string;
   last_message_text?: string;

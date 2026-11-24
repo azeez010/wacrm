@@ -1489,6 +1489,7 @@ async function findOrCreateConversation(
     .select('*')
     .eq('account_id', accountId)
     .eq('contact_id', contactId)
+    .eq('channel', 'whatsapp')
     .order('created_at', { ascending: true })
     .limit(1)
 
@@ -1537,6 +1538,7 @@ async function findOrCreateConversation(
         .select('*')
         .eq('account_id', accountId)
         .eq('contact_id', contactId)
+        .eq('channel', 'whatsapp')
         .order('created_at', { ascending: true })
         .limit(1)
       if (raced && raced.length > 0) {

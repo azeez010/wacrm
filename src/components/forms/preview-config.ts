@@ -1,4 +1,4 @@
-import { BRANDING_DEFAULTS, type BackgroundFit, type BackgroundOverlay, type BackgroundPosition, type LogoAlign, type LogoSize } from '@/lib/forms/branding'
+import { BRANDING_DEFAULTS } from '@/lib/forms/branding';
 import type { PublicField, PublicFormConfig } from '@/lib/forms/public-config';
 import type { FormField, FormKind, FormSettings } from '@/lib/forms/types';
 import type { FormEditorData } from './use-form-data';
@@ -22,6 +22,7 @@ export function buildPreviewConfig(
       help: f.help,
       placeholder: f.placeholder,
       required: f.kind === 'phone' ? true : f.required,
+      visibleWhen: f.visibleWhen,
     };
     if (f.kind === 'custom_field') {
       const d = data.customFields.find((c) => c.id === f.customFieldId);

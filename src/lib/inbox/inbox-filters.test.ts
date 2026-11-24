@@ -93,3 +93,15 @@ describe("applyInboxFilter", () => {
     expect(list.map((c) => c.id)).toEqual(before);
   });
 });
+
+describe("expiring + channels", () => {
+  it("a web chat has no reply window, so it never expires", () => {
+    const closing = conv("w", { channel: "web_chat", last_inbound_at: ago(23 * 60 + 30) });
+    expect(isWindowClosing(closing, NOW)).toBe(false);
+    expect(applyInboxFilter([closing], "expiring", NOW)).toEqual([]);
+  });
+  it("a WhatsApp thread 23h30m after the customer still expires as before", () => {
+    const closing = conv("x", { last_inbound_at: ago(23 * 60 + 30) });
+    expect(isWindowClosing(closing, NOW)).toBe(true);
+  });
+});

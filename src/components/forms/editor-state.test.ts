@@ -52,6 +52,33 @@ describe('form editor state', () => {
   })
 })
 
+describe('conditions stay valid while editing', () => {
+  const rule = { match: 'all' as const, rules: [{ fieldId: 'company', op: 'filled' as const }] }
+  const base = () =>
+    editorReducer(initialState(), {
+      type: 'load',
+      name: 'f',
+      status: 'draft',
+      settings: parseFormSettings({}),
+      fields: [
+        { id: 'phone', kind: 'phone', label: 'Phone' },
+        { id: 'company', kind: 'company', label: 'Company' },
+        { id: 'message', kind: 'message', label: 'More', visibleWhen: rule },
+      ],
+    })
+
+  it('removing the field a rule points at drops the condition', () => {
+    const s = editorReducer(base(), { type: 'remove', id: 'company' })
+    expect(s.fields.find((f) => f.id === 'message')?.visibleWhen).toBeUndefined()
+  })
+
+  it('moving the conditional field above its source drops the condition', () => {
+    const s = editorReducer(base(), { type: 'move', from: 2, to: 1 })
+    expect(s.fields.map((f) => f.id)).toEqual(['phone', 'message', 'company'])
+    expect(s.fields[1].visibleWhen).toBeUndefined()
+  })
+})
+
 describe('typing spaces in settings', () => {
   it('keeps a trailing space while typing', async () => {
     const { mergeSettings } = await import('./editor-state')

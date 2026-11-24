@@ -37,6 +37,8 @@ export const CRON_JOBS: readonly CronJob[] = [
   { name: 'automations', path: '/api/automations/cron', method: 'GET', secret: 'AUTOMATION_CRON_SECRET' },
   // Time out abandoned chatbot flow runs.
   { name: 'flows', path: '/api/flows/cron', method: 'GET', secret: 'AUTOMATION_CRON_SECRET' },
+  // Pre-compute the views / leads / conversion shown on the forms list.
+  { name: 'form-stats', path: '/api/forms/stats/cron', method: 'GET', secret: 'AUTOMATION_CRON_SECRET' },
 ]
 
 export type CronOutcome = { job: string; result: number | 'skipped' | 'error' }

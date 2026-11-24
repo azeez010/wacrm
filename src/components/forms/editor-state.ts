@@ -1,5 +1,6 @@
 import { arrayMove } from '@dnd-kit/sortable'
 
+import { sanitizeConditions } from '@/lib/forms/conditions'
 import { parseFormSettings, type FormField, type FormSettings } from '@/lib/forms/types'
 
 // Editor state for a form being edited. Pure reducer so it is easy to test.
@@ -95,11 +96,13 @@ export function editorReducer(state: EditorState, action: EditorAction): EditorS
         ),
       }
     case 'remove':
-      return { ...state, fields: state.fields.filter((f) => f.id !== action.id || f.kind === 'phone') }
+      // Rules that pointed at the removed field are dropped so the form stays valid.
+      return { ...state, fields: sanitizeConditions(state.fields.filter((f) => f.id !== action.id || f.kind === 'phone')) }
     case 'move': {
       if (action.from === action.to || action.from < 0 || action.to < 0) return state
       if (action.from >= state.fields.length || action.to >= state.fields.length) return state
-      return { ...state, fields: arrayMove(state.fields, action.from, action.to) }
+      // A rule must point at an EARLIER field; moving can break that, so drop dead rules.
+      return { ...state, fields: sanitizeConditions(arrayMove(state.fields, action.from, action.to)) }
     }
     case 'settings':
       return { ...state, settings: mergeSettings(state.settings, action.patch) }

@@ -1,4 +1,5 @@
 import type { Conversation, Contact, Tag } from "@/types";
+import { channelOf, type ChannelId } from "@/lib/channels/registry";
 
 /**
  * Conversation select that embeds the contact plus its tags, so the Inbox
@@ -47,6 +48,18 @@ export interface ContactFilters {
   tagIds: string[];
   /** Exact company match, or null for no company filter. */
   company: string | null;
+}
+
+/**
+ * Channel filter: empty selection = every channel. Rows without a channel
+ * (pre-086) count as WhatsApp.
+ */
+export function matchesChannelFilter(
+  conversation: Conversation,
+  channels: readonly ChannelId[],
+): boolean {
+  if (channels.length === 0) return true;
+  return channels.includes(channelOf(conversation));
 }
 
 /**

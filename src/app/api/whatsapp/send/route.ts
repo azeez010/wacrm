@@ -215,6 +215,7 @@ async function findOrCreateConversation(
       .select('id')
       .eq('account_id', accountId)
       .eq('contact_id', contactId)
+      .eq('channel', 'whatsapp')
       .maybeSingle()
     return data?.id ?? null
   }

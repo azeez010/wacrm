@@ -4,6 +4,7 @@ import {
   normalizeConversation,
 } from "./conversations";
 import type { Conversation } from "@/types";
+import { matchesChannelFilter } from "./conversations";
 
 function makeConversation(
   contact: Partial<Conversation["contact"]> | null,
@@ -141,5 +142,19 @@ describe("normalizeConversation", () => {
     };
     // A contactless row passes through untouched (consumers use `?.`).
     expect(normalizeConversation(raw).contact).toBeNull();
+  });
+});
+
+describe("matchesChannelFilter", () => {
+  const base = { id: "1", user_id: "u", contact_id: "c", status: "open", unread_count: 0, created_at: "", updated_at: "" } as Conversation;
+  it("an empty selection matches every channel", () => {
+    expect(matchesChannelFilter(base, [])).toBe(true);
+    expect(matchesChannelFilter({ ...base, channel: "web_chat" }, [])).toBe(true);
+  });
+  it("matches only the selected channels; legacy rows count as WhatsApp", () => {
+    expect(matchesChannelFilter(base, ["whatsapp"])).toBe(true);
+    expect(matchesChannelFilter(base, ["web_chat"])).toBe(false);
+    expect(matchesChannelFilter({ ...base, channel: "web_chat" }, ["web_chat"])).toBe(true);
+    expect(matchesChannelFilter({ ...base, channel: "web_chat" }, ["whatsapp", "web_chat"])).toBe(true);
   });
 });

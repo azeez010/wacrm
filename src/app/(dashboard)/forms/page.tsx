@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { ChevronDown, ClipboardList, Copy, Loader2, MessageCircle, MoreHorizontal, Plus, Upload } from "lucide-react";
 
@@ -24,10 +24,11 @@ import { useAuth } from "@/hooks/use-auth";
 import { useCan } from "@/hooks/use-can";
 import { useUrlAction } from "@/hooks/use-url-action";
 import { createClient } from "@/lib/supabase/client";
-import { monthStartUtc } from "@/lib/billing/usage";
 import { TEMPLATE_SLUGS } from "@/lib/forms/template-slugs";
 import { ShareDialog } from "@/components/forms/share-dialog";
 import { rowActions, type RowAction } from "@/components/forms/row-actions";
+import { FormStatsCell } from "@/components/forms/form-stats";
+import { compactNumber, parseFormStats, summarizeStats, timeAgo } from "@/lib/forms/stats";
 
 interface FormListRow {
   id: string;
@@ -35,6 +36,8 @@ interface FormListRow {
   kind: "lead" | "support";
   name: string;
   status: "draft" | "active" | "paused";
+  /** Pre-computed by a scheduled job (migration 087); null until the first refresh. */
+  stats_cache?: unknown;
 }
 
 interface Usage {
@@ -43,21 +46,15 @@ interface Usage {
   leads: { used: number; held: number; limit: number | null };
 }
 
-interface MonthRow {
-  form_id: string;
-  outcome: string;
-  processing: { steps?: Record<string, { ok?: boolean }> } | null;
-}
-
 export default function FormsPage() {
   const t = useTranslations("Forms.list");
+  const locale = useLocale();
   const tGate = useTranslations("GatedButton");
   const router = useRouter();
   const { accountId } = useAuth();
   const canManage = useCan("manage-forms");
   const canDelete = useCan("delete-forms");
   const [forms, setForms] = useState<FormListRow[] | null>(null);
-  const [month, setMonth] = useState<MonthRow[]>([]);
   const [usage, setUsage] = useState<Usage | null>(null);
   const [newOpen, setNewOpen] = useState(false);
   // Command palette "Create form" links here with ?new=1.
@@ -72,20 +69,13 @@ export default function FormsPage() {
   const load = useCallback(async () => {
     if (!accountId) return;
     const supabase = createClient();
-    const [f, m, u, a] = await Promise.all([
+    const [f, u, a] = await Promise.all([
       supabase
         .from("forms")
-        .select("id, public_id, kind, name, status")
+        .select("id, public_id, kind, name, status, stats_cache")
         .eq("account_id", accountId)
         .is("archived_at", null)
         .order("created_at", { ascending: false }),
-      supabase
-        .from("form_submissions")
-        .select("form_id, outcome, processing")
-        .eq("account_id", accountId)
-        .eq("is_test", false)
-        .gte("created_at", monthStartUtc().toISOString())
-        .limit(5000),
       fetch("/api/forms/usage").then((r) => (r.ok ? (r.json() as Promise<Usage>) : null)).catch(() => null),
       supabase
         .from("forms")
@@ -96,7 +86,6 @@ export default function FormsPage() {
     ]);
     setArchivedRows((a.data as FormListRow[] | null) ?? []);
     setForms((f.data as FormListRow[] | null) ?? []);
-    setMonth((m.data as MonthRow[] | null) ?? []);
     setUsage(u);
   }, [accountId]);
 
@@ -105,16 +94,9 @@ export default function FormsPage() {
     void load();
   }, [load]);
 
-  const stats = useMemo(() => {
-    const by = new Map<string, { leads: number; attention: number }>();
-    for (const r of month) {
-      const s = by.get(r.form_id) ?? { leads: 0, attention: 0 };
-      if (r.outcome === "accepted" || r.outcome === "held") s.leads += 1;
-      if (r.outcome === "accepted" && Object.values(r.processing?.steps ?? {}).some((x) => x.ok === false)) s.attention += 1;
-      by.set(r.form_id, s);
-    }
-    return by;
-  }, [month]);
+  // Stats come pre-computed on each form row (refreshed every few minutes by a cron job).
+  const stats = useMemo(() => new Map((forms ?? []).map((f) => [f.id, parseFormStats(f.stats_cache)] as const)), [forms]);
+  const summary = useMemo(() => summarizeStats([...stats.values()]), [stats]);
 
   const linkFor = (f: FormListRow) => `${window.location.origin}/f/${f.public_id}`;
 
@@ -272,12 +254,19 @@ export default function FormsPage() {
         </div>
       ) : null}
 
+      {summary && forms.length > 0 ? (
+        <p className="text-xs text-muted-foreground">
+          {t("summary", { leads: compactNumber(summary.leads, locale), views: compactNumber(summary.views, locale) })}
+          {summary.conversion === null ? "" : ` · ${t("summaryConversion", { value: summary.conversion })}`}
+        </p>
+      ) : null}
+
       {forms.length === 0 ? (
         <EmptyState title={t("emptyTitle")} hint={t("emptyHint")} icon={ClipboardList} />
       ) : (
         <ul className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-card">
           {forms.map((f) => {
-            const s = stats.get(f.id) ?? { leads: 0, attention: 0 };
+            const s = stats.get(f.id) ?? null;
             return (
               <li key={f.id} className="flex items-center gap-3 px-4 py-3 hover:bg-muted/50">
                 <button type="button" onClick={() => router.push(`/forms/${f.id}`)} className="flex min-w-0 flex-1 items-center gap-3 text-left">
@@ -287,11 +276,15 @@ export default function FormsPage() {
                   <span className="min-w-0">
                     <span className="block truncate text-sm font-medium text-foreground">{f.name}</span>
                     <span className="block text-xs text-muted-foreground">
-                      {f.kind === "support" ? t("kindSupport") : t("kindLead")} · {t("leadsMonth", { count: s.leads })}
+                      {f.kind === "support" ? t("kindSupport") : t("kindLead")} ·{" "}
+                      {/* Small screens: the numbers inline. From sm up they sit in the stats cluster on the right. */}
+                      <span className="sm:hidden">{s ? [t("leadsShort", { count: s.leads }), s.conversion === null ? null : `${s.conversion}%`].filter(Boolean).join(" · ") : t("noStatsYet")}</span>
+                      <span className="hidden sm:inline">{s?.last_lead_at ? t("lastLeadAgo", { when: timeAgo(s.last_lead_at, locale) }) : t("noLeadsYet")}</span>
                     </span>
                   </span>
                 </button>
-                {s.attention > 0 ? (
+                <FormStatsCell stats={s} />
+                {s && s.attention > 0 ? (
                   <Badge variant="outline" className="border-amber-500/40 text-amber-600">
                     {t("attention", { count: s.attention })}
                   </Badge>

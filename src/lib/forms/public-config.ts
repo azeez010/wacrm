@@ -2,6 +2,7 @@ import { BRANDING_DEFAULTS, type BackgroundFit, type BackgroundOverlay, type Bac
 import type { SupabaseClient } from '@supabase/supabase-js'
 
 import { assertFeature } from '@/lib/billing/entitlements'
+import type { VisibleWhen } from './conditions'
 import { loadFormDefinitions } from './definitions'
 import { parseFormFields, parseFormSettings, type FormKind, type FormRow } from './types'
 
@@ -28,6 +29,8 @@ export interface PublicField {
   consentText?: string
   privacyUrl?: string
   text?: string
+  /** Show only when these rules hold (see lib/forms/conditions.ts). */
+  visibleWhen?: VisibleWhen
 }
 
 export interface PublicFormConfig {
@@ -116,6 +119,7 @@ export async function buildPublicConfig(db: SupabaseClient, form: FormRow): Prom
       help: f.help,
       placeholder: f.placeholder,
       required: f.kind === 'phone' ? true : f.required,
+      visibleWhen: f.visibleWhen,
     }
     if (f.kind === 'custom_field') {
       const d = f.customFieldId ? defs.customFields.get(f.customFieldId) : undefined

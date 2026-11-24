@@ -31,7 +31,35 @@ export const FORMS_REFERENCE = {
     hidden: '{ kind, param, fixedValue } filled from ?param=value in the link, or a fixed value.',
     heading: '{ kind, text } a note between fields.',
   },
-  field_shape: { id: 'unique short string', kind: 'one of the kinds above', label: 'string', help: 'optional', placeholder: 'optional', required: 'boolean' },
+  field_shape: {
+    id: 'unique short string',
+    kind: 'one of the kinds above',
+    label: 'string',
+    help: 'optional',
+    placeholder: 'optional',
+    required: 'boolean',
+    visibleWhen: 'optional conditional logic: show this field only when the rules hold. See conditional_fields.',
+  },
+  conditional_fields: {
+    shape: '"visibleWhen": { "match": "all" | "any", "rules": [{ "fieldId": "<id of an EARLIER field>", "op": "<operator>", "value": "<text>" }] }  (1 to 5 rules)',
+    operators: {
+      eq: 'answer equals value (case-insensitive; for multi-select, the value is one of the picks)',
+      neq: 'answer does not equal value',
+      contains: 'answer text contains value',
+      filled: 'answered (no value needed)',
+      empty: 'not answered (no value needed)',
+      gt: 'number is greater than value',
+      lt: 'number is less than value',
+    },
+    values: 'Always a string. Yes/No (bool) and consent fields use "true" or "false"; choice fields use the option text.',
+    rules_of_the_road: [
+      'A rule can only look at a field ABOVE the conditional field in the fields array (put the question before the follow-up).',
+      'Not allowed as the checked field: heading, hidden, tag_picker, phone. The phone field itself can never be conditional.',
+      'A hidden field is not shown, never required, and its answer is ignored (also by scoring). If a field it depends on is itself hidden, it counts as unanswered, so chains cascade.',
+      'The API rejects a form whose conditions point at a later, missing or untestable field, or leave out a value the operator needs.',
+    ],
+    example: '{ "id": "budget", "kind": "custom_field", "customFieldId": "<uuid>", "visibleWhen": { "match": "all", "rules": [{ "fieldId": "interest", "op": "eq", "value": "Enterprise" }] } }',
+  },
   settings: {
     title: 'string', description: 'string', buttonText: 'string', accent: '#RRGGBB', language: 'en|es|fr|pt|ko', defaultCountry: 'ISO code, e.g. NG',
     success: '{ action: "message"|"redirect"|"whatsapp", message, redirectUrl, whatsappText ("Hi, I am {{name}}. {{message}}"), followUpLine }',
@@ -43,6 +71,7 @@ export const FORMS_REFERENCE = {
     pipeline: '{ pipelineId, stageId } creates a deal on submit (needs forms_advanced)',
     welcomeTemplate: '{ name, language, params } approved template sent to consenting new leads (needs forms_advanced)',
   },
+  stats: 'list_forms and get_form include `stats` for the last 30 days: views, visitors (unique browsers), starts, leads (accepted + held, tests excluded), attention (leads with a failed follow-up), conversion (% of visitors), last_lead_at, spark (daily leads for 14 days). It is pre-computed and up to ~5 minutes old; null until the first refresh. For a live breakdown use the dashboard Results tab.',
   notes: [
     'update_form replaces fields and settings with what you send: call get_form first and send the full object back with your edits.',
     'Publishing (status "active") makes the form public. Confirm with the user first.',
@@ -68,7 +97,7 @@ export function registerFormsTools(server: McpServer, api: ApiClient, scopes: st
       'list_forms',
       {
         title: 'List forms',
-        description: 'List the account’s lead forms and support buttons with their link, embed code and status.',
+        description: 'List the account’s lead forms and support buttons with their link, embed code, status and 30-day stats (views, unique visitors, leads, conversion %, last lead, 14-day trend), refreshed every few minutes.',
         inputSchema: {},
         annotations: { ...READ, title: 'List forms' },
       },
@@ -78,7 +107,7 @@ export function registerFormsTools(server: McpServer, api: ApiClient, scopes: st
       'get_form',
       {
         title: 'Get form',
-        description: 'The full editable definition of one form (fields and settings).',
+        description: 'The full editable definition of one form (fields and settings, including any visibleWhen conditions) plus its 30-day stats.',
         inputSchema: { form_id: z.string() },
         annotations: { ...READ, title: 'Get form' },
       },

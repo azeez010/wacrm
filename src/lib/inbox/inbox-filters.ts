@@ -1,4 +1,5 @@
 import type { Conversation, ConversationStatus } from "@/types";
+import { channelCapabilities } from "@/lib/channels/registry";
 
 export const INBOX_FILTERS = [
   "all",
@@ -13,7 +14,7 @@ export const INBOX_FILTERS = [
 
 export type InboxFilter = (typeof INBOX_FILTERS)[number];
 
-const WINDOW_MS = 24 * 60 * 60 * 1000;
+const HOUR_MS = 60 * 60 * 1000;
 const EXPIRING_WITHIN_MS = 2 * 60 * 60 * 1000;
 
 export function parseInboxFilter(raw: string | null | undefined): InboxFilter {
@@ -30,7 +31,10 @@ export function isAwaitingReply(c: Conversation): boolean {
 
 export function isWindowClosing(c: Conversation, now: number): boolean {
   if (!isAwaitingReply(c) || !c.last_inbound_at) return false;
-  const closesAt = new Date(c.last_inbound_at).getTime() + WINDOW_MS;
+  // Only channels with a reply window (WhatsApp's 24h) can "expire".
+  const windowHours = channelCapabilities(c).replyWindowHours;
+  if (windowHours === null) return false;
+  const closesAt = new Date(c.last_inbound_at).getTime() + windowHours * HOUR_MS;
   return closesAt > now && closesAt - now <= EXPIRING_WITHIN_MS;
 }
 

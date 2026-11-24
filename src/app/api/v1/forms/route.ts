@@ -12,7 +12,7 @@ export async function GET(request: Request) {
     const ctx = await requireApiKey(request, 'forms:read');
     const { data, error } = await ctx.supabase
       .from('forms')
-      .select('id, public_id, kind, name, status, created_at, updated_at')
+      .select('id, public_id, kind, name, status, created_at, updated_at, stats_cache')
       .eq('account_id', ctx.accountId)
       .is('archived_at', null)
       .order('created_at', { ascending: false });

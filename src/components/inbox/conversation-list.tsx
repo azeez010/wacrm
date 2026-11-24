@@ -4,9 +4,12 @@ import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
 import {
   CONVERSATION_SELECT,
+  matchesChannelFilter,
   matchesContactFilters,
   normalizeConversations,
 } from "@/lib/inbox/conversations";
+import { CHANNEL_IDS, channelOf, type ChannelId } from "@/lib/channels/registry";
+import { ChannelBadge } from "@/components/inbox/channel-badge";
 import { applyInboxFilter, type InboxFilter } from "@/lib/inbox/inbox-filters";
 import { cn } from "@/lib/utils";
 import type { Conversation, ConversationStatus, Tag } from "@/types";
@@ -82,6 +85,8 @@ export function ConversationList({
   const [tags, setTags] = useState<Tag[]>([]);
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
   const [selectedCompany, setSelectedCompany] = useState<string | null>(null);
+  const [selectedChannels, setSelectedChannels] = useState<ChannelId[]>([]);
+  const tChannels = useTranslations("Channels");
 
   // Keep the latest callback in a ref so the fetch effect below can
   // have a stable, empty-dep identity. Previously the fetch useCallback
@@ -181,6 +186,10 @@ export function ConversationList({
       );
     }
 
+    if (selectedChannels.length > 0) {
+      result = result.filter((c) => matchesChannelFilter(c, selectedChannels));
+    }
+
     if (search.trim()) {
       const q = search.toLowerCase();
       result = result.filter((c) => {
@@ -192,7 +201,7 @@ export function ConversationList({
     }
 
     return result;
-  }, [conversations, filter, now, search, selectedTagIds, selectedCompany]);
+  }, [conversations, filter, now, search, selectedTagIds, selectedCompany, selectedChannels]);
 
   const toggleTag = useCallback((id: string) => {
     setSelectedTagIds((prev) =>
@@ -200,12 +209,20 @@ export function ConversationList({
     );
   }, []);
 
+  const toggleChannel = useCallback((id: ChannelId) => {
+    setSelectedChannels((prev) =>
+      prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id]
+    );
+  }, []);
+
   const clearContactFilters = useCallback(() => {
     setSelectedTagIds([]);
     setSelectedCompany(null);
+    setSelectedChannels([]);
   }, []);
 
-  const hasContactFilters = selectedTagIds.length > 0 || selectedCompany !== null;
+  const hasContactFilters =
+    selectedTagIds.length > 0 || selectedCompany !== null || selectedChannels.length > 0;
 
   const handleSearchChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -354,6 +371,43 @@ export function ConversationList({
               </DropdownMenuContent>
             </DropdownMenu>
           )}
+
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              className={cn(
+                "inline-flex items-center justify-center h-7 gap-1 px-2 text-xs rounded-md hover:bg-muted",
+                selectedChannels.length > 0
+                  ? "text-primary"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              {t("channel")}
+              {selectedChannels.length > 0 && (
+                <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">
+                  {selectedChannels.length}
+                </span>
+              )}
+              <ChevronDown className="h-3 w-3" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align="start"
+              className="w-52 border-border bg-popover"
+            >
+              {CHANNEL_IDS.map((id) => (
+                <DropdownMenuCheckboxItem
+                  key={id}
+                  checked={selectedChannels.includes(id)}
+                  onCheckedChange={() => toggleChannel(id)}
+                  className="text-sm text-popover-foreground"
+                >
+                  <span className="flex items-center gap-2">
+                    <ChannelBadge channel={id} label={tChannels(id)} size={16} className="ring-0" />
+                    <span className="truncate">{tChannels(id)}</span>
+                  </span>
+                </DropdownMenuCheckboxItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
 
         {hasContactFilters && (
@@ -375,6 +429,17 @@ export function ConversationList({
                 </button>
               );
             })}
+            {selectedChannels.map((id) => (
+              <button
+                key={id}
+                onClick={() => toggleChannel(id)}
+                className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[11px] text-foreground hover:bg-muted/70"
+              >
+                <ChannelBadge channel={id} label={tChannels(id)} size={12} className="ring-0" />
+                <span className="max-w-24 truncate">{tChannels(id)}</span>
+                <X className="h-3 w-3" />
+              </button>
+            ))}
             {selectedCompany && (
               <button
                 onClick={() => setSelectedCompany(null)}
@@ -441,6 +506,7 @@ function ConversationItem({
   t,
 }: ConversationItemProps) {
   const dateLocale = getDateLocale(useLocale());
+  const tChannels = useTranslations("Channels");
   const contact = conversation.contact;
   const displayName = contact?.name || contact?.phone || t("unknown");
   const initials = displayName.charAt(0).toUpperCase();
@@ -465,16 +531,24 @@ function ConversationItem({
       )}
     >
       {/* Avatar */}
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-muted text-sm font-medium text-foreground">
-        {contact?.avatar_url ? (
-          <img
-            src={contact.avatar_url}
-            alt={displayName}
-            className="h-10 w-10 rounded-full object-cover"
-          />
-        ) : (
-          initials
-        )}
+      <div className="relative h-10 w-10 shrink-0">
+        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-sm font-medium text-foreground">
+          {contact?.avatar_url ? (
+            <img
+              src={contact.avatar_url}
+              alt={displayName}
+              className="h-10 w-10 rounded-full object-cover"
+            />
+          ) : (
+            initials
+          )}
+        </div>
+        <ChannelBadge
+          channel={channelOf(conversation)}
+          label={tChannels(channelOf(conversation))}
+          size={16}
+          className="absolute -bottom-0.5 -left-0.5"
+        />
       </div>
 
       {/* Content */}

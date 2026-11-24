@@ -22,6 +22,7 @@ describe('runScheduled', () => {
       { job: 'fx-refresh', result: 200 },
       { job: 'automations', result: 200 },
       { job: 'flows', result: 200 },
+      { job: 'form-stats', result: 200 },
     ])
     const sent = fetchSelf.mock.calls.map((call) => {
       const r = call[0] as Request
@@ -32,6 +33,7 @@ describe('runScheduled', () => {
       ['POST', '/api/currency/refresh', 'auto-secret', CRON_ORIGIN],
       ['GET', '/api/automations/cron', 'auto-secret', CRON_ORIGIN],
       ['GET', '/api/flows/cron', 'auto-secret', CRON_ORIGIN],
+      ['GET', '/api/forms/stats/cron', 'auto-secret', CRON_ORIGIN],
     ])
   })
 
@@ -45,11 +47,12 @@ describe('runScheduled', () => {
       .mockResolvedValueOnce(new Response('no', { status: 503 }))
       .mockResolvedValueOnce(new Response('{}', { status: 200 }))
       .mockResolvedValueOnce(new Response('{}', { status: 200 }))
+      .mockResolvedValueOnce(new Response('{}', { status: 200 }))
     const out = await runScheduled(env())
-    expect(out.map((o) => o.result)).toEqual(['error', 503, 200, 200])
+    expect(out.map((o) => o.result)).toEqual(['error', 503, 200, 200, 200])
   })
 
   it('lists exactly the jobs the app has endpoints for', () => {
-    expect(CRON_JOBS.map((j) => j.path)).toEqual(['/api/crm/flush', '/api/currency/refresh', '/api/automations/cron', '/api/flows/cron'])
+    expect(CRON_JOBS.map((j) => j.path)).toEqual(['/api/crm/flush', '/api/currency/refresh', '/api/automations/cron', '/api/flows/cron', '/api/forms/stats/cron'])
   })
 })

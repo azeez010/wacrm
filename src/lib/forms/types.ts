@@ -1,3 +1,4 @@
+import { BACKGROUND_FITS, BACKGROUND_OVERLAYS, BACKGROUND_POSITIONS, LOGO_ALIGNS, LOGO_SIZES } from './branding'
 import { z } from 'zod'
 
 // ============================================================
@@ -78,6 +79,13 @@ export const formSettingsSchema = z
     logoUrl: z.string().url().max(500).optional(),
     /** Picture behind the hosted page (a theme-aware veil keeps the form readable). */
     backgroundImage: z.string().url().max(500).optional(),
+    /** Logo layout (only used when a logo is set). */
+    logoAlign: z.enum(LOGO_ALIGNS).optional(),
+    logoSize: z.enum(LOGO_SIZES).optional(),
+    /** Background layout (only used when a background image is set). */
+    backgroundFit: z.enum(BACKGROUND_FITS).optional(),
+    backgroundPosition: z.enum(BACKGROUND_POSITIONS).optional(),
+    backgroundOverlay: z.enum(BACKGROUND_OVERLAYS).optional(),
     language: z.enum(['en', 'es', 'fr', 'pt', 'ko']).optional(),
     /** 'auto' = the visitor's country from Cloudflare; otherwise a fixed ISO code. */
     defaultCountry: z.union([z.literal('auto'), z.string().length(2)]).optional(),

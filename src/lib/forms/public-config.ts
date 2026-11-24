@@ -1,3 +1,4 @@
+import { BRANDING_DEFAULTS, type BackgroundFit, type BackgroundOverlay, type BackgroundPosition, type LogoAlign, type LogoSize } from '@/lib/forms/branding'
 import type { SupabaseClient } from '@supabase/supabase-js'
 
 import { assertFeature } from '@/lib/billing/entitlements'
@@ -39,6 +40,11 @@ export interface PublicFormConfig {
   accent: string
   logoUrl?: string
   backgroundImage?: string
+  logoAlign: LogoAlign
+  logoSize: LogoSize
+  backgroundFit: BackgroundFit
+  backgroundPosition: BackgroundPosition
+  backgroundOverlay: BackgroundOverlay
   language: string
   theme: 'auto' | 'light' | 'dark'
   /** ISO code, or 'auto' = use the visitor's country. */
@@ -157,6 +163,11 @@ export async function buildPublicConfig(db: SupabaseClient, form: FormRow): Prom
     accent: settings.accent ?? '#10b981',
     logoUrl: settings.logoUrl,
     backgroundImage: settings.backgroundImage,
+    logoAlign: settings.logoAlign ?? BRANDING_DEFAULTS.logoAlign,
+    logoSize: settings.logoSize ?? BRANDING_DEFAULTS.logoSize,
+    backgroundFit: settings.backgroundFit ?? BRANDING_DEFAULTS.backgroundFit,
+    backgroundPosition: settings.backgroundPosition ?? BRANDING_DEFAULTS.backgroundPosition,
+    backgroundOverlay: settings.backgroundOverlay ?? BRANDING_DEFAULTS.backgroundOverlay,
     language: settings.language ?? 'en',
     theme: settings.theme ?? 'auto',
     defaultCountry: (settings.defaultCountry ?? 'auto').toLowerCase() === 'auto' ? 'auto' : (settings.defaultCountry as string).toUpperCase(),

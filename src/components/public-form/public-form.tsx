@@ -1,5 +1,6 @@
 'use client';
 
+import { backgroundCss, logoImageClass, logoWrapperClass, overlayPercent } from '@/lib/forms/branding';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { renderSVG } from 'uqr';
 
@@ -268,9 +269,9 @@ export function PublicForm({
         <div style={{ ...themeVars(config.theme), color: 'var(--og-fg)' }} className="relative min-h-screen bg-[var(--og-page)] px-4 py-8 sm:py-14">
           {config.backgroundImage ? (
             <>
-              <div aria-hidden className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url("${config.backgroundImage.replace(/"/g, '%22')}")` }} />
+              <div aria-hidden className="absolute inset-0" style={{ backgroundImage: `url("${config.backgroundImage.replace(/"/g, '%22')}")`, ...backgroundCss(config.backgroundFit, config.backgroundPosition) }} />
               {/* A veil in the page colour keeps the form readable on any picture, light or dark. */}
-              <div aria-hidden className="absolute inset-0" style={{ background: 'color-mix(in srgb, var(--og-page) 72%, transparent)' }} />
+              <div aria-hidden className="absolute inset-0" style={{ background: `color-mix(in srgb, var(--og-page) ${overlayPercent(config.backgroundOverlay)}%, transparent)` }} />
             </>
           ) : null}
           <div className="relative">{node}</div>
@@ -294,8 +295,10 @@ export function PublicForm({
     <div ref={root} className={wrapper} style={rootStyle}>
       <form onSubmit={submit} noValidate className="space-y-4" aria-describedby={formError ? 'og-form-error' : undefined}>
         {config.logoUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={config.logoUrl} alt="" className="h-10 w-auto" />
+          <div className={logoWrapperClass(config.logoAlign)}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={config.logoUrl} alt="" className={logoImageClass(config.logoSize)} />
+          </div>
         ) : null}
         {!embedded || config.kind === 'lead' ? (
           <div>

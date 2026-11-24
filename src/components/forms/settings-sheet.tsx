@@ -1,7 +1,8 @@
 'use client';
 
+import { SegmentedControl } from '@/components/ui/segmented-control';
 import { ImagePicker } from '@/components/media/image-picker';
-import { ChevronDown } from 'lucide-react';
+import { AlignCenter, AlignLeft, AlignRight, ChevronDown } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
@@ -227,10 +228,85 @@ export function SettingsSheet({ open, onOpenChange, kind, settings, data, canEdi
                 <Row label={t('logoUrl')}>
                   <ImagePicker disabled={!canEdit} value={s.logoUrl} shape="wide" onChange={(url) => patch({ logoUrl: url ?? undefined })} />
                 </Row>
+                {s.logoUrl && (
+                  <div className="grid grid-cols-2 gap-3">
+                    <Row label={t('logoAlign')}>
+                      <SegmentedControl
+                        aria-label={t('logoAlign')}
+                        disabled={!canEdit}
+                        value={s.logoAlign ?? 'left'}
+                        onChange={(logoAlign) => patch({ logoAlign })}
+                        options={[
+                          { value: 'left', label: t('alignLeft'), icon: <AlignLeft className="size-4" />, iconOnly: true },
+                          { value: 'center', label: t('alignCenter'), icon: <AlignCenter className="size-4" />, iconOnly: true },
+                          { value: 'right', label: t('alignRight'), icon: <AlignRight className="size-4" />, iconOnly: true },
+                        ]}
+                      />
+                    </Row>
+                    <Row label={t('logoSize')}>
+                      <SegmentedControl
+                        aria-label={t('logoSize')}
+                        disabled={!canEdit}
+                        value={s.logoSize ?? 'medium'}
+                        onChange={(logoSize) => patch({ logoSize })}
+                        options={[
+                          { value: 'small', label: t('sizeSmall') },
+                          { value: 'medium', label: t('sizeMedium') },
+                          { value: 'large', label: t('sizeLarge') },
+                        ]}
+                      />
+                    </Row>
+                  </div>
+                )}
                 {kind === 'lead' && (
                   <Row label={t('backgroundImage')} hint={t('backgroundImageHint')}>
                     <ImagePicker disabled={!canEdit} value={s.backgroundImage} shape="wide" onChange={(url) => patch({ backgroundImage: url ?? undefined })} />
                   </Row>
+                )}
+                {kind === 'lead' && s.backgroundImage && (
+                  <div className="space-y-4">
+                    <Row label={t('backgroundFit')}>
+                      <SegmentedControl
+                        aria-label={t('backgroundFit')}
+                        disabled={!canEdit}
+                        value={s.backgroundFit ?? 'cover'}
+                        onChange={(backgroundFit) => patch({ backgroundFit })}
+                        options={[
+                          { value: 'cover', label: t('fitCover') },
+                          { value: 'contain', label: t('fitContain') },
+                          { value: 'tile', label: t('fitTile') },
+                        ]}
+                      />
+                    </Row>
+                    <div className="grid grid-cols-2 gap-3">
+                      <Row label={t('backgroundPosition')}>
+                        <SegmentedControl
+                          aria-label={t('backgroundPosition')}
+                          disabled={!canEdit}
+                          value={s.backgroundPosition ?? 'center'}
+                          onChange={(backgroundPosition) => patch({ backgroundPosition })}
+                          options={[
+                            { value: 'top', label: t('posTop') },
+                            { value: 'center', label: t('posCenter') },
+                            { value: 'bottom', label: t('posBottom') },
+                          ]}
+                        />
+                      </Row>
+                      <Row label={t('backgroundOverlay')}>
+                        <SegmentedControl
+                          aria-label={t('backgroundOverlay')}
+                          disabled={!canEdit}
+                          value={s.backgroundOverlay ?? 'soft'}
+                          onChange={(backgroundOverlay) => patch({ backgroundOverlay })}
+                          options={[
+                            { value: 'none', label: t('overlayNone') },
+                            { value: 'soft', label: t('overlaySoft') },
+                            { value: 'strong', label: t('overlayStrong') },
+                          ]}
+                        />
+                      </Row>
+                    </div>
+                  </div>
                 )}
                 <Row label={t('theme')} hint={t('themeHint')}>
                   <select className={selectCls} disabled={!canEdit} value={s.theme ?? 'auto'} onChange={(e) => patch({ theme: e.target.value })}>

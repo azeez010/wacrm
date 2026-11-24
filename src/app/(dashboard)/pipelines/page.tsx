@@ -1,5 +1,6 @@
 "use client";
 
+import { useUrlAction } from "@/hooks/use-url-action";
 import { Suspense, useState, useEffect, useRef, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
@@ -265,6 +266,9 @@ function PipelinesPageInner() {
     handleAddDeal();
     router.replace("/pipelines");
   }, [wantsNew, loading, canCreateDeals, stages, handleAddDeal, router]);
+
+  // Command palette "New pipeline" links here with ?newPipeline=1.
+  useUrlAction("newPipeline", () => setNewPipelineOpen(true), !loading && canEditSettings);
 
   const handleEditDeal = useCallback((deal: Deal) => {
     setEditingDeal(deal);

@@ -1,5 +1,6 @@
 'use client';
 
+import { useUrlAction } from '@/hooks/use-url-action';
 import { Suspense, useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
@@ -534,6 +535,9 @@ function ContactsPageInner() {
     router.replace('/contacts');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wantsNew, canEdit]);
+
+  // Command palette "Import contacts" links here with ?import=1.
+  useUrlAction('import', () => setImportOpen(true), canEdit);
 
   // Notifications link here with ?open=<contact id>: show that contact once.
   const openId = searchParams.get('open');

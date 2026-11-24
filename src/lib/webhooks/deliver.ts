@@ -33,10 +33,23 @@ export const DELIVERY_TIMEOUT_MS = 5000;
 /** Auto-disable an endpoint after this many consecutive failures. */
 export const MAX_CONSECUTIVE_FAILURES = 15;
 
-interface EndpointRow {
+export interface EndpointRow {
   id: string;
   url: string;
   secret: string;
+}
+
+/** How long delivery-log rows are kept (see migration 084). */
+export const DELIVERY_LOG_RETENTION_DAYS = 14;
+const RESPONSE_SNIPPET_MAX = 1000;
+const PRUNE_PROBABILITY = 0.02;
+
+export interface AttemptResult {
+  ok: boolean;
+  statusCode: number | null;
+  durationMs: number;
+  error: string | null;
+  snippet: string | null;
 }
 
 /**
@@ -63,8 +76,9 @@ export async function dispatchWebhookEvent(
     // HMAC over the raw request body. `id` is a per-delivery uuid the
     // receiver can dedupe on (deliveries are at-least-once and may
     // repeat / arrive out of order).
+    const eventId = randomUUID();
     const payload = JSON.stringify({
-      id: randomUUID(),
+      id: eventId,
       event,
       occurred_at: new Date().toISOString(),
       account_id: accountId,
@@ -74,7 +88,7 @@ export async function dispatchWebhookEvent(
 
     await Promise.allSettled(
       (rows as EndpointRow[]).map((row) =>
-        deliverOne(db, row, event, payload, tsSeconds)
+        deliverAndRecord(db, accountId, row, event, payload, tsSeconds)
       )
     );
   } catch (err) {
@@ -83,20 +97,33 @@ export async function dispatchWebhookEvent(
   }
 }
 
-async function deliverOne(
-  db: SupabaseClient,
+/**
+ * One signed POST. Never throws; the result says what happened. Shared
+ * by the live dispatcher and the dashboard's manual "resend".
+ */
+export async function attemptDelivery(
   row: EndpointRow,
-  event: WebhookEvent,
+  event: string,
   payload: string,
   tsSeconds: number
-): Promise<void> {
+): Promise<AttemptResult> {
+  const started = Date.now();
+  const done = (r: Omit<AttemptResult, 'durationMs'>): AttemptResult => ({
+    ...r,
+    durationMs: Date.now() - started,
+  });
+
   // SSRF guard: refuse to POST to a host that resolves to a private /
   // loopback / link-local address. Counts as a failure so a
   // misconfigured internal URL surfaces and eventually auto-disables.
   if (!(await isDeliverableUrl(row.url))) {
     console.warn('[webhooks] refusing non-public delivery target for', row.id);
-    await recordFailure(db, row);
-    return;
+    return done({
+      ok: false,
+      statusCode: null,
+      error: 'Refused: the URL resolves to a private or non-public address',
+      snippet: null,
+    });
   }
 
   let secret: string;
@@ -106,8 +133,12 @@ async function deliverOne(
     // A row whose secret can't be decrypted can never produce a valid
     // signature - count it as a failure so it eventually auto-disables.
     console.error('[webhooks] secret decrypt failed for', row.id, err);
-    await recordFailure(db, row);
-    return;
+    return done({
+      ok: false,
+      statusCode: null,
+      error: 'Could not read the signing secret',
+      snippet: null,
+    });
   }
 
   try {
@@ -126,19 +157,97 @@ async function deliverOne(
       redirect: 'manual',
       signal: AbortSignal.timeout(DELIVERY_TIMEOUT_MS),
     });
-    if (!res.ok) throw new Error(`endpoint responded ${res.status}`);
+    let snippet: string | null = null;
+    try {
+      snippet = (await res.text()).slice(0, RESPONSE_SNIPPET_MAX) || null;
+    } catch {
+      snippet = null;
+    }
+    return done({
+      ok: res.ok,
+      statusCode: res.status,
+      error: res.ok ? null : `Endpoint responded ${res.status}`,
+      snippet,
+    });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    console.warn(`[webhooks] delivery to ${row.id} failed:`, message);
+    return done({ ok: false, statusCode: null, error: message, snippet: null });
+  }
+}
 
+/**
+ * Attempt a delivery, update the endpoint's health counters and write
+ * a log row. `resentFrom` marks a manual resend of an earlier delivery.
+ */
+export async function deliverAndRecord(
+  db: SupabaseClient,
+  accountId: string,
+  row: EndpointRow,
+  event: string,
+  payload: string,
+  tsSeconds: number,
+  resentFrom: string | null = null
+): Promise<AttemptResult> {
+  const result = await attemptDelivery(row, event, payload, tsSeconds);
+
+  if (result.ok) {
     // Success: clear the failure streak.
     await db
       .from('webhook_endpoints')
       .update({ failure_count: 0, last_delivery_at: new Date().toISOString() })
       .eq('id', row.id);
-  } catch (err) {
-    console.warn(
-      `[webhooks] delivery to ${row.id} failed:`,
-      err instanceof Error ? err.message : err
-    );
+  } else {
     await recordFailure(db, row);
+  }
+
+  await logDelivery(db, accountId, row.id, event, payload, result, resentFrom);
+  return result;
+}
+
+/** Best-effort log write (+ occasional prune). Never throws. */
+async function logDelivery(
+  db: SupabaseClient,
+  accountId: string,
+  endpointId: string,
+  event: string,
+  payload: string,
+  result: AttemptResult,
+  resentFrom: string | null
+): Promise<void> {
+  try {
+    let parsed: { id?: string } | null = null;
+    try {
+      parsed = JSON.parse(payload) as { id?: string };
+    } catch {
+      parsed = null;
+    }
+    await db.from('webhook_deliveries').insert({
+      account_id: accountId,
+      endpoint_id: endpointId,
+      event,
+      event_id: parsed?.id ?? null,
+      ok: result.ok,
+      status_code: result.statusCode,
+      duration_ms: result.durationMs,
+      error: result.error,
+      response_snippet: result.snippet,
+      payload: parsed,
+      resent_from: resentFrom,
+    });
+    if (Math.random() < PRUNE_PROBABILITY) {
+      await db
+        .from('webhook_deliveries')
+        .delete()
+        .lt(
+          'created_at',
+          new Date(
+            Date.now() - DELIVERY_LOG_RETENTION_DAYS * 24 * 60 * 60 * 1000
+          ).toISOString()
+        );
+    }
+  } catch (err) {
+    console.error('[webhooks] delivery log write failed:', err);
   }
 }
 

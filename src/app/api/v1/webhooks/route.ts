@@ -9,14 +9,10 @@
 
 import { requireApiKey } from '@/lib/auth/api-context';
 import { ok, okList, fail, toApiErrorResponse } from '@/lib/api/v1/respond';
-import { encrypt } from '@/lib/whatsapp/encryption';
-import { assertFeature, assertWithinLimit } from '@/lib/billing/entitlements';
-import { normalizeEvents } from '@/lib/webhooks/events';
+import { createWebhookEndpoint, parseCreateInput } from '@/lib/webhooks/manage';
 import {
   WEBHOOK_PUBLIC_COLUMNS,
   serializeWebhookEndpoint,
-  generateWebhookSecret,
-  checkWebhookUrl,
 } from '@/lib/webhooks/endpoints';
 
 export async function GET(request: Request) {
@@ -59,53 +55,21 @@ export async function POST(request: Request) {
       return fail('bad_request', 'Request body must be a JSON object', 400);
     }
 
-    const urlCheck = checkWebhookUrl(body.url);
-    if (!urlCheck.ok) {
-      return fail('bad_request', urlCheck.message, 400);
-    }
-    const url = urlCheck.url;
+    const parsed = parseCreateInput(body);
+    if (!parsed.ok) return fail('bad_request', parsed.message, 400);
 
-    const events = normalizeEvents(body.events);
-    if (!events) {
-      return fail(
-        'bad_request',
-        "'events' must be a non-empty array of known event names",
-        400
-      );
-    }
-
-    // Plan: outbound webhooks are a feature with an endpoint-count limit.
-    await assertFeature(ctx.supabase, ctx.accountId, 'outbound_webhooks');
-    const { count: endpointCount } = await ctx.supabase
-      .from('webhook_endpoints')
-      .select('id', { count: 'exact', head: true })
-      .eq('account_id', ctx.accountId);
-    await assertWithinLimit(ctx.supabase, ctx.accountId, 'webhook_endpoints', endpointCount ?? 0);
-
-    const secret = generateWebhookSecret();
-
-    const { data: created, error } = await ctx.supabase
-      .from('webhook_endpoints')
-      .insert({
-        account_id: ctx.accountId,
-        created_by: ctx.createdBy,
-        url,
-        secret: encrypt(secret),
-        events,
-      })
-      .select(WEBHOOK_PUBLIC_COLUMNS)
-      .single();
-
-    if (error || !created) {
-      console.error('[api/v1/webhooks] create error:', error);
+    const created = await createWebhookEndpoint(
+      ctx.supabase,
+      ctx.accountId,
+      ctx.createdBy,
+      parsed.value
+    );
+    if (!created) {
       return fail('internal', 'Failed to create webhook', 500);
     }
 
     // Secret shown exactly once.
-    return ok(
-      { ...serializeWebhookEndpoint(created as Record<string, unknown>), secret },
-      201
-    );
+    return ok({ ...created.endpoint, secret: created.secret }, 201);
   } catch (err) {
     return toApiErrorResponse(err);
   }

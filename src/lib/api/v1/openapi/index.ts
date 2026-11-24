@@ -1,5 +1,5 @@
 import { API_SCOPES, SCOPE_DESCRIPTIONS } from '@/lib/api-keys/scopes'
-import { INTRODUCTION } from './guides'
+import { INTRODUCTION, MCP_GUIDE } from './guides'
 import { paths } from './paths'
 import { schemas } from './schemas'
 import type { OpenApiObject } from './types'
@@ -30,7 +30,7 @@ export function buildOpenApiSpec(baseUrl: string): OpenApiObject {
     info: {
       title: 'OgaDesk API',
       version: '1.0.0',
-      description: `${INTRODUCTION.replaceAll('{{BASE_URL}}', baseUrl)}\n\n${scopeTable}\n`,
+      description: `${`${INTRODUCTION}\n\n${MCP_GUIDE}`.replaceAll('{{BASE_URL}}', baseUrl)}\n\n${scopeTable}\n`,
       contact: { name: 'OgaDesk support', url: baseUrl },
     },
     servers: [{ url: `${baseUrl}/api/v1`, description: 'Production' }],

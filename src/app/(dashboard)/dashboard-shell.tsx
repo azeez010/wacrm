@@ -11,6 +11,7 @@ import { PresenceHeartbeat } from "@/components/presence/presence-heartbeat";
 import { DefaultsSeeder } from "@/components/automations/defaults-seeder";
 import { OnboardingDialog } from "@/components/onboarding/onboarding-dialog";
 import { ReferralAttribution } from "@/components/partner/referral-attribution";
+import { CommandPalette } from "@/components/command-palette/command-palette";
 import { BrowserNotificationsListener } from "@/components/notifications/browser-notifications-listener";
 
 // Auth-gated dashboard shell. Extracted from the layout so the layout
@@ -60,6 +61,8 @@ function DashboardShellInner({ children }: { children: React.ReactNode }) {
       <OnboardingDialog />
       {/* Links this user to the partner whose ?ref= link they used (once). */}
       <ReferralAttribution />
+      {/* Cmd/Ctrl+K search and quick actions (desktop only). */}
+      <CommandPalette />
       <Sidebar open={sidebarOpen} onClose={closeSidebar} />
       <div className="flex flex-1 flex-col overflow-hidden">
         <Header onOpenSidebar={() => setSidebarOpen(true)} />

@@ -20,6 +20,7 @@ import {
 
 import { useTranslations } from "next-intl";
 import { useCan } from "@/hooks/use-can";
+import { useUrlAction } from "@/hooks/use-url-action";
 import { Button } from "@/components/ui/button";
 import { GatedButton } from "@/components/ui/gated-button";
 import {
@@ -90,6 +91,8 @@ export default function FlowsPage() {
   const [flows, setFlows] = useState<FlowRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [createOpen, setCreateOpen] = useState(false);
+  // Command palette "Create flow" links here with ?new=1.
+  useUrlAction("new", () => setCreateOpen(true), canCreate);
   const [newName, setNewName] = useState("");
   const [creating, setCreating] = useState(false);
   const [templates, setTemplates] = useState<TemplateSummary[]>([]);

@@ -22,6 +22,7 @@ import { Input } from "@/components/ui/input";
 import { EmptyState } from "@/components/dashboard/empty-state";
 import { useAuth } from "@/hooks/use-auth";
 import { useCan } from "@/hooks/use-can";
+import { useUrlAction } from "@/hooks/use-url-action";
 import { createClient } from "@/lib/supabase/client";
 import { monthStartUtc } from "@/lib/billing/usage";
 import { TEMPLATE_SLUGS } from "@/lib/forms/template-slugs";
@@ -59,6 +60,8 @@ export default function FormsPage() {
   const [month, setMonth] = useState<MonthRow[]>([]);
   const [usage, setUsage] = useState<Usage | null>(null);
   const [newOpen, setNewOpen] = useState(false);
+  // Command palette "Create form" links here with ?new=1.
+  useUrlAction("new", () => setNewOpen(true), canManage);
   const [archivedRows, setArchivedRows] = useState<FormListRow[]>([]);
   const [showArchived, setShowArchived] = useState(false);
   const [shareFor, setShareFor] = useState<FormListRow | null>(null);

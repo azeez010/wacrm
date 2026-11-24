@@ -8,6 +8,13 @@ Claude Code, Cursor, and any other MCP client — in natural language:
 > "Show the last five messages with +1 415 555 0123."
 > "Send the `order_update` template to that contact."
 
+> **Hosted server (recommended):** OgaDesk also serves MCP directly at
+> `https://<your-domain>/api/mcp` with the same API key, so nothing needs to be
+> installed. Setup snippets for Claude Code, Claude Desktop, Cursor and
+> single-link apps are in the API reference under **Connect with MCP** (`/docs`)
+> and in **Settings → API & MCP**. The local `wacrm-mcp` package described
+> below is the older, self-hosted option.
+
 It lives in [`mcp-server/`](../mcp-server) and is published to npm as
 [`wacrm-mcp`](https://www.npmjs.com/package/wacrm-mcp). Under the hood
 it's a thin wrapper over the [public API](./public-api.md), so every

@@ -10,11 +10,10 @@
 import { requireApiKey } from '@/lib/auth/api-context';
 import { ok, fail, toApiErrorResponse } from '@/lib/api/v1/respond';
 import { isUuid } from '@/lib/api/v1/pagination';
-import { normalizeEvents } from '@/lib/webhooks/events';
+import { parseUpdateInput } from '@/lib/webhooks/manage';
 import {
   WEBHOOK_PUBLIC_COLUMNS,
   serializeWebhookEndpoint,
-  checkWebhookUrl,
 } from '@/lib/webhooks/endpoints';
 
 export async function GET(
@@ -62,41 +61,9 @@ export async function PATCH(
       return fail('bad_request', 'Request body must be a JSON object', 400);
     }
 
-    const updates: Record<string, unknown> = {};
-
-    if ('url' in body) {
-      const urlCheck = checkWebhookUrl(body.url);
-      if (!urlCheck.ok) {
-        return fail('bad_request', urlCheck.message, 400);
-      }
-      updates.url = urlCheck.url;
-    }
-
-    if ('events' in body) {
-      const events = normalizeEvents(body.events);
-      if (!events) {
-        return fail(
-          'bad_request',
-          "'events' must be a non-empty array of known event names",
-          400
-        );
-      }
-      updates.events = events;
-    }
-
-    if ('is_active' in body) {
-      if (typeof body.is_active !== 'boolean') {
-        return fail('bad_request', "'is_active' must be a boolean", 400);
-      }
-      updates.is_active = body.is_active;
-      // Re-enabling a disabled endpoint clears its failure streak so it
-      // isn't instantly re-disabled by a single stale failure.
-      if (body.is_active === true) updates.failure_count = 0;
-    }
-
-    if (Object.keys(updates).length === 0) {
-      return fail('bad_request', 'No updatable fields provided', 400);
-    }
+    const parsed = parseUpdateInput(body);
+    if (!parsed.ok) return fail('bad_request', parsed.message, 400);
+    const updates = parsed.value;
 
     // Scope the update by account_id so a foreign id touches nothing;
     // the returned row (null when unmatched) drives the 404.

@@ -8,26 +8,17 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
 import { useTotalUnread } from "@/hooks/use-total-unread";
 import {
-  Bot,
-  ClipboardList,
   Crown,
-  Gift,
-  GitBranch,
-  LayoutDashboard,
   LogOut,
-  MessageSquare,
-  Radio,
   Settings,
   Shield,
   User,
   UserCog,
-  Users,
   UsersRound,
-  Workflow,
   X,
-  Zap,
 } from "lucide-react";
 import type { AccountRole } from "@/lib/auth/roles";
+import { bottomNavItems, navItems } from "@/lib/nav";
 
 // Per-role chip metadata used in the sidebar's account strip + the
 // Members tab roster. Keeping this near both consumers in a single
@@ -78,34 +69,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
-interface NavItem {
-  href: string;
-  labelKey: string;
-  icon: typeof LayoutDashboard;
-  /**
-   * When true, the nav row renders a small "Beta" chip after the label.
-   * Purely informational - doesn't affect routing or access.
-   */
-  beta?: boolean;
-}
-
-const navItems: NavItem[] = [
-  { href: "/dashboard", labelKey: "dashboard", icon: LayoutDashboard },
-  { href: "/inbox", labelKey: "inbox", icon: MessageSquare },
-  { href: "/contacts", labelKey: "contacts", icon: Users },
-  { href: "/forms", labelKey: "forms", icon: ClipboardList },
-  { href: "/pipelines", labelKey: "pipelines", icon: GitBranch },
-  { href: "/broadcasts", labelKey: "broadcasts", icon: Radio },
-  { href: "/automations", labelKey: "automations", icon: Zap },
-  { href: "/flows", labelKey: "flows", icon: Workflow, beta: true },
-  { href: "/agents", labelKey: "aiAgents", icon: Bot },
-];
-
-const bottomNavItems = [
-  { href: "/affiliate", labelKey: "partner", icon: Gift },
-  { href: "/settings", labelKey: "settings", icon: Settings },
-];
 
 interface SidebarProps {
   /** Controlled on mobile by the Header's hamburger button. Ignored on lg+. */

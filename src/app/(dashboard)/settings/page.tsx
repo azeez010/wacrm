@@ -23,6 +23,7 @@ import { DealsSettings } from '@/components/settings/deals-settings';
 import { InboxSettings } from '@/components/settings/inbox-settings';
 import { MembersTab } from '@/components/settings/members-tab';
 import { ApiKeysPanel } from '@/components/settings/api-keys-panel';
+import { WebhooksPanel } from '@/components/settings/webhooks-panel';
 import { BillingPanel } from '@/components/settings/billing-panel';
 import {
   resolveSection,
@@ -97,6 +98,7 @@ function SettingsPageInner() {
     deals: <DealsSettings />,
     members: <MembersTab />,
     api: <ApiKeysPanel />,
+    webhooks: <WebhooksPanel />,
   };
 
   return (

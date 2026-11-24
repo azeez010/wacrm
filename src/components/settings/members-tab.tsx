@@ -21,6 +21,7 @@
 //   the role anyway.
 // ============================================================
 
+import { useUrlAction } from '@/hooks/use-url-action';
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import {
@@ -135,6 +136,8 @@ export function MembersTab() {
   const [loading, setLoading] = useState(true);
 
   const [inviteOpen, setInviteOpen] = useState(false);
+  // Command palette "Invite team" links here with ?invite=1.
+  useUrlAction('invite', () => setInviteOpen(true), canManageMembers);
   const [removingMember, setRemovingMember] = useState<Member | null>(null);
   const [pendingMemberAction, setPendingMemberAction] = useState<string | null>(
     null,

@@ -25,6 +25,9 @@ const tablesWithoutDomainData = new Set([
   // Encrypted copy of an api_keys row's secret: it only exists alongside that key,
   // and api_keys is already checked above, so an account with data here has data there.
   "api_key_secrets",
+  // Delivery log rows only exist for a webhook_endpoints row (ON DELETE CASCADE),
+  // and webhook_endpoints is already checked, so data here implies data there.
+  "webhook_deliveries",
 ]);
 
 function accountScopedTables(): Set<string> {

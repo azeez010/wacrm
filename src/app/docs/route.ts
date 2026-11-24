@@ -24,10 +24,17 @@ const html = `<!doctype html>
       Scalar.createApiReference('#app', {
         url: '/api/v1/openapi.json',
         theme: 'default',
+        layout: 'modern',
         hideClientButton: false,
         defaultHttpClient: { targetKey: 'shell', clientKey: 'curl' },
         metaData: { title: 'API reference · ${BRAND_NAME}' },
         customCss: \`
+          /* Keep short first columns (status codes, scope names) on one line
+             instead of letting a narrow column wrap them letter by letter. */
+          .scalar-app .markdown table { width: 100%; table-layout: auto; }
+          .scalar-app .markdown td:first-of-type,
+          .scalar-app .markdown th:first-of-type { white-space: nowrap; }
+          .scalar-app .markdown td code { overflow-wrap: anywhere; }
           :root, .light-mode {
             --scalar-color-accent: #11875D;
             --scalar-button-1: #11875D;

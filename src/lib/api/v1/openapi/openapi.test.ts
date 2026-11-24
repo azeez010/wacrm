@@ -103,4 +103,11 @@ describe('OpenAPI spec', () => {
       .map((o) => `${o.method} ${o.path}`)
     expect(missing).toEqual([])
   })
+
+  it('documents how to connect over MCP, with the real server URL', () => {
+    const description = (spec.info as { description: string }).description
+    expect(description).toContain('# Connect with MCP')
+    expect(description).toContain(`${BASE}/api/mcp`)
+    expect(description).not.toContain('{{BASE_URL}}')
+  })
 })

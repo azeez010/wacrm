@@ -3,6 +3,8 @@
 // like prose. Reference material (scopes, events) is generated from code in
 // index.ts, not written here, so it cannot drift.
 
+import { buildSetup } from '@/lib/api-keys/setup'
+
 export const INTRODUCTION = `
 # Introduction
 
@@ -136,7 +138,7 @@ Always use international format with a leading \`+\` and the country code, e.g. 
 
 ## Webhooks
 
-Register an HTTPS endpoint (\`POST /webhooks\`) to be told when messages arrive or change status. Each delivery is a \`POST\` with a JSON body:
+Register an HTTPS endpoint (\`POST /webhooks\`, or add one in **Settings → Webhooks**) to be told when messages arrive or change status. Each delivery is a \`POST\` with a JSON body:
 
 \`\`\`json
 {
@@ -185,4 +187,82 @@ def verify(raw_body: bytes, header: str, secret: str, tolerance=300) -> bool:
 - Each event is attempted **once** (no automatic retries). If you need certainty, also poll the message status endpoints.
 - After **15 consecutive failures** the endpoint is disabled; re-enable it with \`PATCH /webhooks/{id}\`.
 - The body \`id\` identifies the event; use it to de-duplicate.
+- **Settings → Webhooks** keeps a delivery log for 14 days (status code, response and payload for every attempt) and can resend an event.
 `;
+
+// `{{BASE_URL}}` is filled in by buildOpenApiSpec, so the snippets reuse the same
+// builders the Settings → API & MCP screen shows and cannot drift from it.
+const mcpSnippet = (client: Parameters<typeof buildSetup>[2]) =>
+  buildSetup('{{BASE_URL}}', null, client)[0].value
+
+export const MCP_GUIDE = `
+# Connect with MCP
+
+OgaDesk has a hosted [Model Context Protocol](https://modelcontextprotocol.io) server, so AI assistants such as Claude, ChatGPT and Cursor can read and act on your workspace (contacts, conversations, forms, pipelines, broadcasts and more) in plain language, using the same API key as the REST API.
+
+**Server URL:** \`{{BASE_URL}}/api/mcp\` (Streamable HTTP)
+
+MCP is included on plans with the MCP feature; other plans get a \`402\` with a message saying so.
+
+## Authentication
+
+Create a key in **Settings → API & MCP** and send it with any of:
+
+- \`Authorization: Bearer wacrm_live_...\`
+- \`X-API-Key: wacrm_live_...\`
+- \`?key=wacrm_live_...\` on the URL, for apps that only accept a single link. Treat that link like a password.
+
+The key's **scopes decide which tools exist**. A read-only key never sees a tool that sends a message, and every call is checked again by the API. Give an assistant only what it needs; you can revoke the key at any time.
+
+## Claude Code
+
+\`\`\`bash
+${mcpSnippet('claudecode')}
+\`\`\`
+
+## Claude Desktop
+
+Add this to \`claude_desktop_config.json\` (it needs Node.js for \`npx\`):
+
+\`\`\`json
+${mcpSnippet('claudedesktop')}
+\`\`\`
+
+## Cursor and other clients with HTTP support
+
+\`\`\`json
+{
+  "mcpServers": {
+    "ogadesk": {
+      "url": "{{BASE_URL}}/api/mcp",
+      "headers": { "X-API-Key": "YOUR_API_KEY" }
+    }
+  }
+}
+\`\`\`
+
+## Apps that take a single link (Claude.ai, ChatGPT connectors)
+
+Paste this as the server URL:
+
+\`\`\`text
+${mcpSnippet('url')}
+\`\`\`
+
+## What the tools cover
+
+Start by asking the assistant to run \`whoami\` and \`get_usage\`: they show the account, the key's scopes and your plan limits.
+
+| Area | Examples |
+| --- | --- |
+| Contacts and segments | list, search, filter, create, update, import, tag |
+| Inbox | list conversations and messages, send a message |
+| Templates and broadcasts | create templates, send and track broadcasts |
+| Forms and leads | create and edit forms, read submissions, release held leads, import or export a form |
+| Pipelines and deals | build pipelines, create and move deals |
+| Automations and flows | create, validate and switch on automations and chatbot flows |
+| Custom data | custom fields and tables with rows |
+| Developer | webhooks, API keys, verification codes (OTP) |
+
+Anything that messages customers or deletes data is only available to keys with the matching write scope, and assistants are told to ask you before doing it. The scope table below lists every scope.
+`

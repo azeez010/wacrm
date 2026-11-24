@@ -21,7 +21,7 @@ export function buildPreviewConfig(
       label: f.label ?? '',
       help: f.help,
       placeholder: f.placeholder,
-      required: f.kind === 'phone' ? true : f.required,
+      required: f.kind === 'phone' && settings.widget?.mode !== 'live_chat' ? true : f.required,
       visibleWhen: f.visibleWhen,
     };
     if (f.kind === 'custom_field') {
@@ -82,7 +82,7 @@ export function buildPreviewConfig(
     widget: kind === 'support' ? { corner: w?.corner ?? 'bottom-left', offsetX: w?.offsetX ?? 20, offsetY: w?.offsetY ?? 20, icon: w?.icon ?? 'whatsapp', mode: w?.mode ?? 'whatsapp', label: w?.label, color: w?.color ?? settings.accent, greeting: w?.greeting, animation: w?.animation ?? 'pulse', sound: w?.sound ?? 'none', preMessage: w?.preMessage, preMessageDelay: w?.preMessageDelay ?? 4, preMessageRepeat: w?.preMessageRepeat ?? 'session', showOn: w?.showOn ?? 'all', devices: w?.devices ?? 'all', hours: w?.hours } : undefined,
     chat:
       kind === 'support' && w?.mode === 'live_chat'
-        ? { greeting: settings.chat?.greeting, offlineText: settings.chat?.offlineText, showOnlineBadge: settings.chat?.showOnlineBadge !== false }
+        ? { greeting: settings.chat?.greeting, offlineText: settings.chat?.offlineText, showOnlineBadge: settings.chat?.showOnlineBadge !== false, onlineMode: settings.chat?.onlineMode ?? 'auto', showTyping: settings.chat?.showTyping !== false }
         : undefined,
     fields: out,
   };

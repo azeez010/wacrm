@@ -145,7 +145,6 @@ export const EMBED_SCRIPT = `(function () {
     x.style.cssText = 'border:0;background:transparent;color:#fff;font-size:22px;line-height:1;cursor:pointer';
     head.appendChild(title); head.appendChild(x); panel.appendChild(head);
     if (PREVIEW) {
-      // Click the header text to rename it right here (the editor listens for the relayed message).
       title.contentEditable = 'plaintext-only'; title.style.cursor = 'text'; title.style.outline = 'none';
       var before = '';
       title.addEventListener('focus', function () { before = title.textContent; });
@@ -205,10 +204,10 @@ export const EMBED_SCRIPT = `(function () {
       var mobile = isMobile();
       panel.style.cssText = 'position:fixed;z-index:2147483001;display:' + (panel.style.display === 'block' ? 'block' : 'none') + ';background:' + (dark ? '#111827' : '#fff') + ';border-radius:16px;box-shadow:0 12px 40px rgba(0,0,0,.3);overflow:hidden;width:360px;max-width:calc(100vw - 16px);max-height:85vh;bottom:' + ((w.offsetY || 20) + 64) + 'px;' + side +
         (mobile ? ';left:0;right:0;bottom:0;width:100%;max-width:100%;border-radius:16px 16px 0 0' : '');
-      head.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:' + color + ';color:#fff;font:600 14px system-ui,sans-serif';
-      title.textContent = w.greeting || c.title || '';
-      // Live chat shows its own offline notice inside the chat.
-      if (w.mode !== 'live_chat' && w.hours && w.hours.enabled && !inHours(w.hours, c.timezone)) {
+      var lc = w.mode === 'live_chat';
+      head.style.cssText = (lc ? 'position:absolute;top:0;right:0;z-index:2;padding:8px 12px;' : 'display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:' + color + ';') + 'color:#fff;font:600 14px system-ui,sans-serif';
+      title.textContent = lc ? '' : w.greeting || c.title || '';
+      if (!lc && w.hours && w.hours.enabled && !inHours(w.hours, c.timezone)) {
         offline.style.cssText = 'padding:8px 14px;background:' + (dark ? '#422006' : '#fef3c7') + ';color:' + (dark ? '#fde68a' : '#78350f') + ';font:13px system-ui,sans-serif';
         offline.textContent = w.hours.offlineText || 'We are offline right now. Leave your number and we will reply.';
         if (!offline.parentNode) panel.insertBefore(offline, head.nextSibling);

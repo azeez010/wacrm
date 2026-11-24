@@ -205,6 +205,7 @@ export default function FormEditorPage({ params }: { params: Promise<{ id: strin
         data={data}
         canEdit={canEdit}
         advanced={advanced}
+        liveChat={meta.kind === 'support' && state.settings.widget?.mode === 'live_chat'}
         patch={(p) => dispatch({ type: "settings", patch: p })}
       />
     </div>

@@ -1,3 +1,4 @@
+import { validateMessage } from '@/lib/forms/client-validate'
 import { authorizeVisitor, chatJson, chatPreflight } from '@/lib/chat/http'
 import { CHAT_IMAGE_MAX_BYTES, CHAT_UPLOAD_LIMITS, checkChatImage, chatImagePath } from '@/lib/chat/upload'
 import { recordVisitorMessage } from '@/lib/inbound/web-chat'
@@ -48,6 +49,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ pub
   }
   if (!file && !text?.trim()) return chatJson({ ok: false, error: 'empty' }, 400)
   if (text && text.length > 4000) return chatJson({ ok: false, error: 'too_large' }, 413)
+  if (text?.trim() && validateMessage(text, true)) return chatJson({ ok: false, error: 'invalid_message' }, 400)
 
   let imageUrl: string | null = null
   let imageMime: string | null = null

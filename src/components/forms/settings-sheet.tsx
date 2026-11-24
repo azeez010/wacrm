@@ -27,6 +27,8 @@ interface Props {
   canEdit: boolean;
   /** Plan has forms_advanced: may hide the OgaDesk badge. */
   advanced: boolean;
+  /** Support button in Live chat mode: only the settings the chat uses. */
+  liveChat?: boolean;
   patch: (p: Record<string, unknown>) => void;
 }
 
@@ -41,7 +43,7 @@ function Row({ label, hint, children }: { label: string; hint?: string; children
 }
 
 /** One side sheet. Four things up front; everything else under "More options". */
-export function SettingsSheet({ open, onOpenChange, kind, settings, data, canEdit, advanced, patch }: Props) {
+export function SettingsSheet({ open, onOpenChange, kind, settings, data, canEdit, advanced, liveChat = false, patch }: Props) {
   const t = useTranslations('Forms.settings');
   const [more, setMore] = useState(false);
   const s = settings;
@@ -56,10 +58,12 @@ export function SettingsSheet({ open, onOpenChange, kind, settings, data, canEdi
       <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-md">
         <SheetHeader>
           <SheetTitle>{t('title')}</SheetTitle>
-          <SheetDescription>{t('subtitle')}</SheetDescription>
+          <SheetDescription>{liveChat ? t('subtitleLiveChat') : t('subtitle')}</SheetDescription>
         </SheetHeader>
 
         <div className="space-y-5 px-4 pb-8">
+          {!liveChat && (
+            <>
           {/* 1. After submit */}
           <Row label={t('afterSubmit')}>
             <select
@@ -159,6 +163,9 @@ export function SettingsSheet({ open, onOpenChange, kind, settings, data, canEdi
             )}
           </Row>
 
+            </>
+          )}
+
           {/* 4. Qualify */}
           {kind === 'lead' && (
             <div className="space-y-2">
@@ -202,6 +209,8 @@ export function SettingsSheet({ open, onOpenChange, kind, settings, data, canEdi
             </button>
             {more && (
               <div className="space-y-4 border-t border-border p-3">
+                {!liveChat && (
+                  <>
                 <Row label={t('formTitle')}>
                   <Input disabled={!canEdit} value={s.title ?? ''} onChange={(e) => patch({ title: e.target.value })} />
                 </Row>
@@ -211,10 +220,14 @@ export function SettingsSheet({ open, onOpenChange, kind, settings, data, canEdi
                 <Row label={t('buttonText')}>
                   <Input disabled={!canEdit} value={s.buttonText ?? ''} onChange={(e) => patch({ buttonText: e.target.value })} />
                 </Row>
+                  </>
+                )}
                 <div className="grid grid-cols-2 gap-3">
+                  {!liveChat && (
                   <Row label={t('accent')}>
                     <input type="color" disabled={!canEdit} value={s.accent ?? '#10b981'} onChange={(e) => patch({ accent: e.target.value })} className="h-9 w-full rounded-lg border border-border bg-muted" />
                   </Row>
+                  )}
                   <Row label={t('language')}>
                     <select className={selectCls} disabled={!canEdit} value={s.language ?? 'en'} onChange={(e) => patch({ language: e.target.value })}>
                       {['en', 'es', 'fr', 'pt', 'ko'].map((l) => (
@@ -225,6 +238,8 @@ export function SettingsSheet({ open, onOpenChange, kind, settings, data, canEdi
                     </select>
                   </Row>
                 </div>
+                {!liveChat && (
+                  <>
                 <Row label={t('logoUrl')}>
                   <ImagePicker disabled={!canEdit} value={s.logoUrl} shape="wide" onChange={(url) => patch({ logoUrl: url ?? undefined })} />
                 </Row>
@@ -257,6 +272,8 @@ export function SettingsSheet({ open, onOpenChange, kind, settings, data, canEdi
                       />
                     </Row>
                   </div>
+                )}
+                  </>
                 )}
                 {kind === 'lead' && (
                   <Row label={t('backgroundImage')} hint={t('backgroundImageHint')}>
@@ -334,6 +351,8 @@ export function SettingsSheet({ open, onOpenChange, kind, settings, data, canEdi
                 </Row>
 
                 <div className="space-y-3 border-t border-border pt-3">
+                  {!liveChat && (
+                    <>
                   <label className="flex items-center gap-2 text-sm">
                     <Switch disabled={!canEdit} checked={!!s.rules.onePerPhone} onCheckedChange={(on) => patch({ rules: { onePerPhone: on } })} />
                     {t('onePerPhone')}
@@ -344,6 +363,8 @@ export function SettingsSheet({ open, onOpenChange, kind, settings, data, canEdi
                   <Row label={t('maxSubmissions')}>
                     <Input type="number" min={1} disabled={!canEdit} value={s.rules.maxSubmissions ?? ''} onChange={(e) => patch({ rules: { maxSubmissions: e.target.value ? Math.max(1, Number(e.target.value)) : undefined } })} />
                   </Row>
+                    </>
+                  )}
                   <div className="grid grid-cols-2 gap-3">
                     <Row label={t('opensAt')}>
                       <Input type="datetime-local" disabled={!canEdit} value={toLocal(s.rules.opensAt)} onChange={(e) => patch({ rules: { opensAt: fromLocal(e.target.value) } })} />
@@ -355,6 +376,8 @@ export function SettingsSheet({ open, onOpenChange, kind, settings, data, canEdi
                   <Row label={t('closedMessage')}>
                     <Input disabled={!canEdit} value={s.rules.closedMessage ?? ''} onChange={(e) => patch({ rules: { closedMessage: e.target.value } })} />
                   </Row>
+                  {!liveChat && (
+                    <>
                   <label className="flex items-center gap-2 text-sm">
                     <Switch disabled={!canEdit} checked={s.rules.saveMessageAsNote !== false} onCheckedChange={(on) => patch({ rules: { saveMessageAsNote: on } })} />
                     {t('messageAsNote')}
@@ -377,6 +400,8 @@ export function SettingsSheet({ open, onOpenChange, kind, settings, data, canEdi
                         ))}
                       </select>
                     </Row>
+                  )}
+                    </>
                   )}
                 </div>
 

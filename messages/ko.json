@@ -3999,6 +3999,7 @@
     "settings": {
       "title": "설정",
       "subtitle": "제출 후 일어나는 일입니다.",
+      "subtitleLiveChat": "채팅의 운영 시간, 언어 및 모양.",
       "afterSubmit": "제출 후",
       "actionMessage": "감사 메시지 표시",
       "actionWhatsapp": "WhatsApp에서 계속",
@@ -4163,6 +4164,11 @@
       "chatOffline": "응대할 수 없을 때 보여줄 메시지",
       "showOnlineBadge": "온라인 배지 표시",
       "onlineRule": "근무 시간 중 팀원이 OgaDesk에서 활동 중이거나 AI 에이전트가 답할 수 있으면 온라인으로 표시됩니다.",
+      "onlineMode": "온라인 상태",
+      "onlineAuto": "상담원이 온라인일 때 온라인 (기본값)",
+      "onlineAlways": "항상 온라인",
+      "onlineAlwaysHint": "근무 시간 외에도 배지가 항상 온라인으로 표시됩니다.",
+      "showTyping": "정보를 묻기 전에 입력 중 표시",
       "askPhone": "전화번호 요청(방문자는 선택 입력)"
     },
     "share": {

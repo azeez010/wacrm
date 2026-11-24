@@ -3999,6 +3999,7 @@
     "settings": {
       "title": "Settings",
       "subtitle": "What happens after someone submits.",
+      "subtitleLiveChat": "Opening hours, language and look of your chat.",
       "afterSubmit": "After submit",
       "actionMessage": "Show a thank-you message",
       "actionWhatsapp": "Continue in WhatsApp",
@@ -4163,6 +4164,11 @@
       "chatOffline": "Message when nobody is available",
       "showOnlineBadge": "Show the Online badge",
       "onlineRule": "Shows Online during your business hours when a teammate is active in OgaDesk or an AI agent can reply.",
+      "onlineMode": "Online status",
+      "onlineAuto": "Online when an agent is online (default)",
+      "onlineAlways": "Always online",
+      "onlineAlwaysHint": "The badge always says Online, even outside business hours.",
+      "showTyping": "Show typing dots before asking for details",
       "askPhone": "Ask for a phone number (optional for the visitor)"
     },
     "share": {

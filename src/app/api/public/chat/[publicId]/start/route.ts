@@ -1,3 +1,4 @@
+import { validateEmail, validateMessage, validateName, validatePhone } from '@/lib/forms/client-validate'
 import { z } from 'zod'
 
 import { chatJson, chatPreflight, loadChatForm } from '@/lib/chat/http'
@@ -64,6 +65,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ pub
     phone = parseInternationalPhone(body.phone)
     if (!phone) return chatJson({ ok: false, error: 'invalid_phone' }, 400)
   }
+  // Same rubbish checks as the widget (client-side checks can be bypassed).
+  const junk = validateName(name ?? '', false) ?? validateEmail(email ?? '', false) ?? validateMessage(body.message, true) ?? validatePhone(phone ?? '', false)
+  if (junk) return chatJson({ ok: false, error: junk }, 400)
   if ((required('name') && !name) || (required('email') && !email) || (required('phone') && !phone)) {
     return chatJson({ ok: false, error: 'missing_field' }, 400)
   }

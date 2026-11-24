@@ -2,6 +2,7 @@ import { computeVisibility } from './conditions'
 import { coerceValue } from '@/lib/custom-fields/coerce'
 import type { FieldDef } from '@/lib/custom-fields/types'
 import { normalizeFormPhone } from './countries'
+import { validateMessage, validateName, validatePhone } from './client-validate'
 import type { FormField } from './types'
 
 /** A contact custom field the form can write (needs its key for the writer). */
@@ -105,7 +106,7 @@ export function validateAnswers(
           break
         }
         const p = normalizeFormPhone(raw, ctx.defaultCountry)
-        if (!p) fail(f.id, 'invalid_phone')
+        if (!p || validatePhone(p, true)) fail(f.id, 'invalid_phone')
         else {
           out.phone = p
           out.snapshot[f.id] = { label, value: p }
@@ -121,6 +122,12 @@ export function validateAnswers(
           break
         }
         const max = f.kind === 'message' ? 2000 : 120
+        // Same "is this rubbish?" rules the browser applies (bypassable there, so enforced here too).
+        const junk = f.kind === 'name' ? validateName(String(raw), false) : f.kind === 'message' ? validateMessage(String(raw), false, max) : null
+        if (junk) {
+          fail(f.id, junk)
+          break
+        }
         const s = String(raw).trim().slice(0, max)
         if (f.kind === 'name') out.name = s
         else if (f.kind === 'company') out.company = s

@@ -5,7 +5,9 @@ import { backgroundCss, logoImageClass, logoWrapperClass, overlayPercent } from 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { renderSVG } from 'uqr';
 
-import { COUNTRIES, composeFormPhone, resolveDefaultCountry } from '@/lib/forms/countries';
+import { composeFormPhone, resolveDefaultCountry } from '@/lib/forms/countries';
+import { PhoneInput } from './phone-input';
+import { validateEmail, validateMessage, validateName, validatePhone } from '@/lib/forms/client-validate';
 import { themeVars } from '@/lib/forms/theme';
 import { PoweredBy } from './powered-by';
 import { Editable, EditContext } from './editable';
@@ -201,8 +203,28 @@ export function PublicForm({
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     if (busy || preview) return;
-    setBusy(true);
     setFormError(null);
+    // Catch rubbish before it leaves the browser; the server re-checks everything.
+    const clientErrors: Record<string, string> = {};
+    for (const f of config.fields) {
+      if (f.kind === 'heading' || f.kind === 'hidden' || visibility[f.id] === false) continue;
+      const raw = values[f.id];
+      const text = typeof raw === 'string' ? raw : '';
+      let code: string | null = null;
+      if (f.kind === 'name') code = validateName(text, f.required === true);
+      else if (f.kind === 'email') code = validateEmail(text, f.required === true);
+      else if (f.kind === 'phone') code = validatePhone(composePhone(raw), true);
+      else if (f.kind === 'message') code = validateMessage(text, f.required === true, 2000);
+      else if (f.required && (raw === undefined || raw === null || raw === '' || raw === false || (Array.isArray(raw) && raw.length === 0))) code = 'required';
+      if (code) clientErrors[f.id] = code;
+    }
+    if (Object.keys(clientErrors).length > 0) {
+      setErrors(clientErrors);
+      const first = config.fields.find((f) => clientErrors[f.id]);
+      if (first) document.getElementById(`og-${first.id}`)?.focus();
+      return;
+    }
+    setBusy(true);
     const answers: Record<string, unknown> = {};
     for (const f of config.fields) {
       if (f.kind === 'heading' || visibility[f.id] === false) continue;
@@ -453,31 +475,16 @@ function FieldInput({
         <Label htmlFor={id} required>
           <Editable target={{ kind: 'field', fieldId: f.id, key: 'label' }} value={label} />
         </Label>
-        <div className="flex gap-2">
-          <select
-            aria-label="Country"
-            value={country}
-            onChange={(e) => onCountry(e.target.value)}
-            className={`${inputCls} w-[7rem] shrink-0 px-2`}
-          >
-            {COUNTRIES.map((c) => (
-              <option key={`${c.iso}-${c.cc}`} value={c.iso}>
-                {c.iso} +{c.cc}
-              </option>
-            ))}
-          </select>
-          <input
-            id={id}
-            type="tel"
-            inputMode="tel"
-            autoComplete="tel"
-            value={String(value ?? '')}
-            placeholder={f.placeholder || (country === defaultCountry && defaultCountry === 'NG' ? '0803 123 4567' : '')}
-            onChange={(e) => onChange(e.target.value)}
-            className={`${inputCls} min-w-0 flex-1`}
-            {...aria}
-          />
-        </div>
+        <PhoneInput
+          id={id}
+          value={String(value ?? '')}
+          onChange={(v) => onChange(v)}
+          country={country}
+          onCountry={onCountry}
+          placeholder={f.placeholder || (country === defaultCountry && defaultCountry === 'NG' ? '0803 123 4567' : '')}
+          invalid={!!error}
+          describedBy={error ? `${id}-err` : undefined}
+        />
         {f.help ? <p className="mt-1 text-xs text-[color:var(--og-muted)]"><Editable target={{ kind: 'field', fieldId: f.id, key: 'help' }} value={f.help} /></p> : null}
         {err}
       </div>

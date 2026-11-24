@@ -12,10 +12,14 @@ export async function GET(_request: Request, { params }: { params: Promise<{ pub
   if (!loaded.ok) return loaded.res
   const { db, form, settings } = loaded.value
 
-  const { data: acct } = await db.from('accounts').select('timezone').eq('id', form.account_id).maybeSingle()
-  const tz = (acct as { timezone?: string } | null)?.timezone ?? 'UTC'
-  const availability = await loadChatAvailability(db, form.account_id)
-  const online = computeOnline(isWithinHours(settings.widget?.hours, tz, new Date()), availability)
+  // 'always' skips the hours/presence lookups entirely.
+  let online = true
+  if (settings.chat?.onlineMode !== 'always') {
+    const { data: acct } = await db.from('accounts').select('timezone').eq('id', form.account_id).maybeSingle()
+    const tz = (acct as { timezone?: string } | null)?.timezone ?? 'UTC'
+    const availability = await loadChatAvailability(db, form.account_id)
+    online = computeOnline(isWithinHours(settings.widget?.hours, tz, new Date()), availability)
+  }
 
   const fields = Array.isArray(form.fields) ? (form.fields as { kind?: string; required?: boolean; label?: string }[]) : []
   const ask = (kind: string) => {
@@ -26,6 +30,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ pub
     ok: true,
     online,
     showOnlineBadge: settings.chat?.showOnlineBadge !== false,
+    showTyping: settings.chat?.showTyping !== false,
     greeting: settings.chat?.greeting ?? null,
     offlineText: settings.chat?.offlineText ?? settings.widget?.hours?.offlineText ?? null,
     ask: { name: ask('name'), phone: ask('phone'), email: ask('email') },

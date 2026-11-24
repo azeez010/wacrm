@@ -66,7 +66,7 @@ export interface PublicFormConfig {
   /** Account time zone, for the support button's business hours. */
   timezone?: string
   /** Live-chat wording (only meaningful when widget.mode is 'live_chat'). */
-  chat?: { greeting?: string; offlineText?: string; showOnlineBadge: boolean }
+  chat?: { greeting?: string; offlineText?: string; showOnlineBadge: boolean; onlineMode: 'auto' | 'always'; showTyping: boolean }
   widget?: {
     corner: 'bottom-left' | 'bottom-right'
     offsetX: number
@@ -122,7 +122,7 @@ export async function buildPublicConfig(db: SupabaseClient, form: FormRow): Prom
       label: f.label ?? '',
       help: f.help,
       placeholder: f.placeholder,
-      required: f.kind === 'phone' ? true : f.required,
+      required: f.kind === 'phone' && settings.widget?.mode !== 'live_chat' ? true : f.required,
       visibleWhen: f.visibleWhen,
     }
     if (f.kind === 'custom_field') {
@@ -216,7 +216,7 @@ export async function buildPublicConfig(db: SupabaseClient, form: FormRow): Prom
           : undefined,
     chat:
       form.kind === 'support' && w?.mode === 'live_chat'
-        ? { greeting: settings.chat?.greeting, offlineText: settings.chat?.offlineText, showOnlineBadge: settings.chat?.showOnlineBadge !== false }
+        ? { greeting: settings.chat?.greeting, offlineText: settings.chat?.offlineText, showOnlineBadge: settings.chat?.showOnlineBadge !== false, onlineMode: settings.chat?.onlineMode ?? 'auto', showTyping: settings.chat?.showTyping !== false }
         : undefined,
     fields: pub,
   }

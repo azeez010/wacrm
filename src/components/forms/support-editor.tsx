@@ -48,7 +48,7 @@ export function SupportEditor({
   };
   const hours = w.hours ?? { enabled: false, days: [1, 2, 3, 4, 5], from: '09:00', to: '17:00' };
   const liveChat = w.mode === 'live_chat';
-  const chat = settings.chat ?? { showOnlineBadge: true };
+  const chat = settings.chat ?? { showOnlineBadge: true, onlineMode: 'auto' as const, showTyping: true };
   const patchChat = (p: Record<string, unknown>) => dispatch({ type: 'settings', patch: { chat: p } });
   // Switching mode keeps the fields consistent: a chat always asks for the first message and may skip the phone;
   // WhatsApp mode needs the phone (the handoff goes to WhatsApp) and the message stays optional.
@@ -88,11 +88,18 @@ export function SupportEditor({
             <Label className="text-xs text-muted-foreground">{t('chatOffline')}</Label>
             <Input disabled={!canEdit} value={chat.offlineText ?? ''} onChange={(e) => patchChat({ offlineText: e.target.value })} />
           </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs text-muted-foreground">{t('onlineMode')}</Label>
+            <select className={selectCls} disabled={!canEdit} value={chat.onlineMode ?? 'auto'} onChange={(e) => patchChat({ onlineMode: e.target.value })}>
+              <option value="auto">{t('onlineAuto')}</option>
+              <option value="always">{t('onlineAlways')}</option>
+            </select>
+            <p className="text-xs text-muted-foreground">{(chat.onlineMode ?? 'auto') === 'auto' ? t('onlineRule') : t('onlineAlwaysHint')}</p>
+          </div>
           <label className="flex items-center justify-between gap-2 text-sm">
-            {t('showOnlineBadge')}
-            <Switch disabled={!canEdit} checked={chat.showOnlineBadge !== false} onCheckedChange={(on) => patchChat({ showOnlineBadge: on })} />
+            {t('showTyping')}
+            <Switch disabled={!canEdit} checked={chat.showTyping !== false} onCheckedChange={(on) => patchChat({ showTyping: on })} />
           </label>
-          <p className="text-xs text-muted-foreground">{t('onlineRule')}</p>
           <label className="flex items-center justify-between gap-2 text-sm">
             {t('askPhone')}
             <Switch disabled={!canEdit} checked={has('phone')} onCheckedChange={togglePhone} />

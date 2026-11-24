@@ -17,7 +17,9 @@ import {
 } from '@/lib/chat/client-state';
 import type { ChatMessageView, ServerFrame } from '@/lib/chat/protocol';
 import { CHAT_IMAGE_MAX_BYTES } from '@/lib/chat/upload';
-import { COUNTRIES, composeFormPhone, resolveDefaultCountry } from '@/lib/forms/countries';
+import { composeFormPhone, resolveDefaultCountry } from '@/lib/forms/countries';
+import { validateEmail, validateMessage, validateName, validatePhone, type ValidationCode } from '@/lib/forms/client-validate';
+import { PhoneInput } from '@/components/public-form/phone-input';
 import type { PublicFormConfig } from '@/lib/forms/public-config';
 import { stringsFor } from '@/lib/forms/public-strings';
 import { themeVars } from '@/lib/forms/theme';
@@ -30,9 +32,10 @@ import { themeVars } from '@/lib/forms/theme';
 // Everything the owner or a teammate wrote is rendered as TEXT, never HTML.
 // ============================================================
 
-interface ChatStatus {
+export interface ChatStatus {
   online: boolean;
   showOnlineBadge: boolean;
+  showTyping?: boolean;
   greeting: string | null;
   offlineText: string | null;
   ask: Record<'name' | 'phone' | 'email', { required: boolean; label: string } | null>;
@@ -90,6 +93,23 @@ function writeSession(publicId: string, s: Session | null) {
   }
 }
 
+const draftKey = (publicId: string) => `ogadesk:chatdraft:${publicId}`;
+function readDraft(publicId: string): string | null {
+  try {
+    return localStorage.getItem(draftKey(publicId));
+  } catch {
+    return null;
+  }
+}
+function writeDraft(publicId: string, text: string | null) {
+  try {
+    if (text) localStorage.setItem(draftKey(publicId), text);
+    else localStorage.removeItem(draftKey(publicId));
+  } catch {
+    /* storage blocked: the intro just restarts on reload */
+  }
+}
+
 function previewStatus(config: PublicFormConfig): ChatStatus {
   const ask = (kind: string) => {
     const f = config.fields.find((x) => x.kind === kind);
@@ -98,6 +118,7 @@ function previewStatus(config: PublicFormConfig): ChatStatus {
   return {
     online: true,
     showOnlineBadge: config.chat?.showOnlineBadge !== false,
+    showTyping: config.chat?.showTyping !== false,
     greeting: config.chat?.greeting ?? null,
     offlineText: config.chat?.offlineText ?? null,
     ask: { name: ask('name'), phone: ask('phone'), email: ask('email') },
@@ -117,7 +138,11 @@ export function PublicChat({
   const accent = config.widget?.color ?? config.accent;
   const api = `/api/public/chat/${config.publicId}`;
 
-  const [status, setStatus] = useState<ChatStatus | null>(preview ? previewStatus(config) : null);
+  // Preview derives its status from the live config (no frozen copy); real visitors fetch it.
+  const previewSt = useMemo(() => previewStatus(config), [config]);
+  const [liveStatus, setStatus] = useState<ChatStatus | null>(null);
+  const status = preview ? previewSt : liveStatus;
+  const [intro, setIntro] = useState<{ text: string; phase: 'typing' | 'details' } | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [stage, setStage] = useState<'loading' | 'prechat' | 'chat' | 'unavailable'>(preview ? 'prechat' : 'loading');
   const [messages, setMessages] = useState<LocalMessage[]>([]);
@@ -149,6 +174,7 @@ export function PublicChat({
     setSession(null);
     setMessages([]);
     setConnected(false);
+    setIntro(null);
     setStage('prechat');
   }, [config.publicId]);
 
@@ -184,6 +210,8 @@ export function PublicChat({
     void fetchStatus();
     const saved = readSession(config.publicId);
     if (!saved) {
+      const draft = readDraft(config.publicId);
+      if (draft) setIntro({ text: draft, phase: 'details' });
       setStage((s) => (s === 'loading' ? 'prechat' : s));
       return;
     }
@@ -302,6 +330,9 @@ export function PublicChat({
       if (code === 'rate_limited') return t.too_many;
       if (code === 'invalid_phone') return t.invalid_phone;
       if (code === 'missing_field') return t.required;
+      if (code === 'invalid_name') return t.invalid_name;
+      if (code === 'invalid_email') return t.invalid_email;
+      if (code === 'invalid_message') return t.invalid_message;
       return t.generic_error;
     },
     [t],
@@ -390,11 +421,57 @@ export function PublicChat({
       if (j.ignored || !j.token || !j.conversationId) return;
       const s = { token: j.token, conversationId: j.conversationId };
       writeSession(config.publicId, s);
+      writeDraft(config.publicId, null);
+      setIntro(null);
       setSession(s);
       setMessages(j.messages ?? []);
       setStage('chat');
     },
     [api, config.publicId, errorText],
+  );
+
+  const introTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(
+    () => () => {
+      if (introTimer.current) clearTimeout(introTimer.current);
+    },
+    [],
+  );
+  const asked = status ? Object.values(status.ask).filter(Boolean).length : 0;
+
+  // First message typed before anything exists server-side: keep it local, then either ask for the details
+  // (after the typing dots) or, when none are asked, open the chat straight away.
+  const firstMessage = useCallback(
+    async (text: string) => {
+      const body = text.trim();
+      if (!status) return;
+      setNotice(null);
+      if (asked === 0) {
+        if (preview) return;
+        try {
+          await start({ name: '', phone: '', email: '', message: body, honeypot: '' });
+        } catch (e) {
+          setNotice(e instanceof Error ? e.message : t.generic_error);
+        }
+        return;
+      }
+      if (!preview) writeDraft(config.publicId, body);
+      const typing = status.showTyping !== false;
+      setIntro({ text: body, phase: typing ? 'typing' : 'details' });
+      if (typing) {
+        if (introTimer.current) clearTimeout(introTimer.current);
+        introTimer.current = setTimeout(() => setIntro((cur) => (cur ? { ...cur, phase: 'details' } : cur)), 1200);
+      }
+    },
+    [asked, config.publicId, preview, start, status, t.generic_error],
+  );
+
+  const submitDetails = useCallback(
+    async (d: { name: string; phone: string; email: string; honeypot: string }) => {
+      if (preview || !intro) return;
+      await start({ ...d, message: intro.text });
+    },
+    [intro, preview, start],
   );
 
   const greeting = status?.greeting || config.chat?.greeting || t.chatHello;
@@ -403,7 +480,7 @@ export function PublicChat({
 
   return (
     <div style={{ ...themeVars(config.theme), color: 'var(--og-fg)' }} className="flex h-screen min-h-[320px] flex-col bg-[var(--og-card)]">
-      <header className="flex items-center gap-3 px-4 py-3" style={{ backgroundColor: accent, color: '#fff' }}>
+      <header className="flex items-center gap-3 py-3 pl-4 pr-12" style={{ backgroundColor: accent, color: '#fff' }}>
         <div className="min-w-0 flex-1">
           <div className="truncate text-sm font-semibold">{title}</div>
           {status?.showOnlineBadge !== false && status ? (
@@ -420,7 +497,20 @@ export function PublicChat({
       ) : stage === 'unavailable' ? (
         <p className="p-6 text-center text-sm text-[color:var(--og-muted)]">{t.chatUnavailable}</p>
       ) : stage === 'prechat' && status ? (
-        <PreChat t={t} status={status} greeting={greeting} accent={accent} preview={preview} defaultCountry={resolveDefaultCountry(config.defaultCountry, detectedCountry)} onStart={start} />
+        <IntroView
+          t={t}
+          status={status}
+          greeting={greeting}
+          accent={accent}
+          online={online}
+          intro={intro}
+          notice={notice}
+          onNotice={setNotice}
+          defaultCountry={resolveDefaultCountry(config.defaultCountry, detectedCountry)}
+          onSend={firstMessage}
+          onSubmit={submitDetails}
+          errorText={errorText}
+        />
       ) : stage === 'chat' ? (
         <>
           {!online && status?.offlineText ? (
@@ -438,7 +528,18 @@ export function PublicChat({
             </p>
           ) : null}
           {!connected ? <p className="px-4 pb-1 text-[11px] text-[color:var(--og-muted)]">{t.chatReconnecting}</p> : null}
-          <Composer t={t} accent={accent} onSend={send} onTyping={sendTyping} onError={setNotice} />
+          <Composer
+            t={t}
+            accent={accent}
+            onSend={send}
+            onTyping={sendTyping}
+            onError={setNotice}
+            validate={(text, hasFile) => {
+              if (!text && hasFile) return null;
+              const c = validateMessage(text, true);
+              return c ? (c === 'required' ? t.required : t.invalid_message) : null;
+            }}
+          />
         </>
       ) : null}
 
@@ -451,57 +552,173 @@ export function PublicChat({
   );
 }
 
-function PreChat({
+function TypingDots({ label }: { label: string }) {
+  return (
+    <div className="flex" role="status" aria-label={label}>
+      <div className="flex items-center gap-1 rounded-2xl rounded-bl-sm bg-[var(--og-input)] px-3 py-3">
+        {[0, 150, 300].map((d) => (
+          <span key={d} aria-hidden className="size-1.5 animate-bounce rounded-full bg-[color:var(--og-muted)]" style={{ animationDelay: `${d}ms` }} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+const botBubble = 'max-w-[85%] rounded-2xl rounded-bl-sm bg-[var(--og-input)] px-3 py-2 text-sm';
+
+/**
+ * Before a chat exists: the greeting, the visitor's first message, then (after typing dots)
+ * the details the owner asked for. Nothing is created on the server until those are sent.
+ */
+export function IntroView({
   t,
   status,
   greeting,
   accent,
-  preview,
+  online,
+  intro,
+  notice,
+  onNotice,
   defaultCountry,
-  onStart,
+  onSend,
+  onSubmit,
+  errorText,
 }: {
   t: ReturnType<typeof stringsFor>;
   status: ChatStatus;
   greeting: string;
   accent: string;
-  preview: boolean;
+  online: boolean;
+  intro: { text: string; phase: 'typing' | 'details' } | null;
+  notice: string | null;
+  onNotice: (m: string | null) => void;
   defaultCountry: string;
-  onStart: (d: { name: string; phone: string; email: string; message: string; honeypot: string }) => Promise<void>;
+  onSend: (text: string) => void | Promise<void>;
+  onSubmit: (d: { name: string; phone: string; email: string; honeypot: string }) => Promise<void>;
+  errorText: (code: string | undefined) => string;
+}) {
+  const scroller = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    scroller.current?.scrollTo({ top: scroller.current.scrollHeight });
+  }, [intro?.phase, intro?.text]);
+
+  const codeText = (c: ValidationCode) => (c === 'required' ? t.required : errorText(c));
+
+  return (
+    <>
+      <div ref={scroller} className="flex-1 space-y-2 overflow-y-auto px-3 py-3" role="log" aria-live="polite">
+        <div className={botBubble}>{greeting}</div>
+        {!online && status.offlineText ? (
+          <p className="rounded-lg bg-[var(--og-warn-bg)] p-3 text-xs text-[color:var(--og-warn-fg)]">{status.offlineText}</p>
+        ) : null}
+        {intro ? (
+          <div className="flex justify-end">
+            <div className="max-w-[85%] whitespace-pre-wrap break-words rounded-2xl rounded-br-sm px-3 py-2 text-sm text-white" style={{ backgroundColor: accent }}>
+              {intro.text}
+            </div>
+          </div>
+        ) : null}
+        {intro?.phase === 'typing' ? <TypingDots label={t.chatTyping} /> : null}
+        {intro?.phase === 'details' ? (
+          <>
+            <div className={botBubble}>{t.chatDetailsPrompt}</div>
+            <DetailsCard t={t} status={status} accent={accent} defaultCountry={defaultCountry} onSubmit={onSubmit} codeText={codeText} />
+          </>
+        ) : null}
+      </div>
+      {notice ? (
+        <p role="alert" className="px-4 pb-1 text-xs text-red-500" onClick={() => onNotice(null)}>
+          {notice}
+        </p>
+      ) : null}
+      {!intro ? (
+        <Composer
+          t={t}
+          accent={accent}
+          allowImage={false}
+          onSend={(text) => void onSend(text)}
+          onTyping={() => undefined}
+          onError={onNotice}
+          validate={(text) => {
+            const c = validateMessage(text, true);
+            return c ? codeText(c) : null;
+          }}
+        />
+      ) : null}
+    </>
+  );
+}
+
+function DetailsCard({
+  t,
+  status,
+  accent,
+  defaultCountry,
+  onSubmit,
+  codeText,
+}: {
+  t: ReturnType<typeof stringsFor>;
+  status: ChatStatus;
+  accent: string;
+  defaultCountry: string;
+  onSubmit: (d: { name: string; phone: string; email: string; honeypot: string }) => Promise<void>;
+  codeText: (c: ValidationCode) => string;
 }) {
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [country, setCountry] = useState(defaultCountry);
   const [email, setEmail] = useState('');
-  const [message, setMessage] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErr, setFieldErr] = useState<Record<string, string>>({});
   const honeypot = useRef<HTMLInputElement>(null);
 
   const label = (k: 'name' | 'phone' | 'email', fallback: string) => status.ask[k]?.label || fallback;
+  const allOptional = Object.values(status.ask).every((a) => !a || !a.required);
 
-  async function submit(e: React.FormEvent) {
-    e.preventDefault();
-    if (busy || preview) return;
-    const errs: Record<string, string> = {};
-    if (status.ask.name?.required && !name.trim()) errs.name = t.required;
+  // One place for the rules: returns the per-field error codes for what is currently typed.
+  function check(): Record<string, ValidationCode> {
+    const errs: Record<string, ValidationCode> = {};
+    if (status.ask.name) {
+      const c = validateName(name, status.ask.name.required);
+      if (c) errs.name = c;
+    }
     if (status.ask.email) {
-      if (status.ask.email.required && !email.trim()) errs.email = t.required;
-      else if (email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) errs.email = t.invalid_email;
+      const c = validateEmail(email, status.ask.email.required);
+      if (c) errs.email = c;
     }
-    let composed = '';
     if (status.ask.phone) {
-      composed = phone.trim() ? composeFormPhone(phone, country) : '';
-      if (status.ask.phone.required && !composed) errs.phone = t.required;
-      else if (composed && !composed.startsWith('+')) errs.phone = t.invalid_phone;
+      const c = validatePhone(phone.trim() ? composeFormPhone(phone, country) : '', status.ask.phone.required);
+      if (c) errs.phone = c;
     }
-    if (!message.trim()) errs.message = t.required;
-    setFieldErr(errs);
-    if (Object.keys(errs).length > 0) return;
+    return errs;
+  }
+  const showErrors = (errs: Record<string, ValidationCode>) =>
+    setFieldErr(Object.fromEntries(Object.entries(errs).map(([k, c]) => [k, codeText(c)])));
+  const blur = (k: 'name' | 'email' | 'phone') => {
+    const c = check()[k];
+    setFieldErr((cur) => {
+      const { [k]: _drop, ...rest } = cur;
+      return c ? { ...rest, [k]: codeText(c) } : rest;
+    });
+  };
+
+  async function send(skip: boolean) {
+    if (busy) return;
+    if (!skip) {
+      const errs = check();
+      showErrors(errs);
+      if (Object.keys(errs).length > 0) return;
+    }
     setBusy(true);
     setError(null);
     try {
-      await onStart({ name: name.trim(), phone: composed, email: email.trim(), message: message.trim(), honeypot: honeypot.current?.value ?? '' });
+      await onSubmit({
+        name: skip ? '' : name.trim(),
+        phone: skip || !phone.trim() ? '' : composeFormPhone(phone, country),
+        email: skip ? '' : email.trim(),
+        honeypot: honeypot.current?.value ?? '',
+      });
     } catch (err) {
       setError(err instanceof Error ? err.message : t.generic_error);
     } finally {
@@ -510,67 +727,63 @@ function PreChat({
   }
 
   const err = (k: string) => (fieldErr[k] ? <p role="alert" className="mt-1 text-xs text-red-500">{fieldErr[k]}</p> : null);
+  const mark = (k: 'name' | 'phone' | 'email') =>
+    status.ask[k]?.required ? <span className="text-red-500"> *</span> : <span className="text-[color:var(--og-muted)]"> ({t.optional})</span>;
+  const lbl = 'mb-1 block text-xs font-medium text-[color:var(--og-label)]';
 
   return (
-    <form onSubmit={submit} noValidate className="flex-1 space-y-3 overflow-y-auto px-4 py-4">
-      <div className="max-w-[85%] rounded-2xl rounded-bl-sm bg-[var(--og-input)] px-3 py-2 text-sm">{greeting}</div>
-      {!status.online && status.offlineText ? (
-        <p className="rounded-lg bg-[var(--og-warn-bg)] p-3 text-xs text-[color:var(--og-warn-fg)]">{status.offlineText}</p>
-      ) : null}
+    <form
+      noValidate
+      onSubmit={(e) => {
+        e.preventDefault();
+        void send(false);
+      }}
+      className="space-y-3 rounded-2xl border border-[color:var(--og-border)] p-3"
+    >
       <div aria-hidden className="absolute -left-[9999px] h-0 w-0 overflow-hidden">
         <input ref={honeypot} type="text" name="website" tabIndex={-1} autoComplete="off" />
       </div>
       {status.ask.name ? (
         <div>
-          <label className="mb-1 block text-xs font-medium text-[color:var(--og-label)]" htmlFor="ogc-name">
+          <label className={lbl} htmlFor="ogc-name">
             {label('name', t.name)}
-            {status.ask.name.required ? <span className="text-red-500"> *</span> : <span className="text-[color:var(--og-muted)]"> ({t.optional})</span>}
+            {mark('name')}
           </label>
-          <input id="ogc-name" className={inputCls} value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" maxLength={120} />
+          <input id="ogc-name" className={inputCls} value={name} onChange={(e) => setName(e.target.value)} onBlur={() => blur('name')} autoComplete="name" maxLength={120} aria-invalid={!!fieldErr.name || undefined} />
           {err('name')}
         </div>
       ) : null}
       {status.ask.phone ? (
         <div>
-          <label className="mb-1 block text-xs font-medium text-[color:var(--og-label)]" htmlFor="ogc-phone">
-            {label('phone', t.phone)}
-            {status.ask.phone.required ? <span className="text-red-500"> *</span> : <span className="text-[color:var(--og-muted)]"> ({t.optional})</span>}
+          <label className={lbl} htmlFor="ogc-phone">
+            {label('phone', t.chatPhone)}
+            {mark('phone')}
           </label>
-          <div className="flex gap-2">
-            <select aria-label="Country" value={country} onChange={(e) => setCountry(e.target.value)} className={`${inputCls} w-[7rem] shrink-0 px-2`}>
-              {COUNTRIES.map((c) => (
-                <option key={`${c.iso}-${c.cc}`} value={c.iso}>
-                  {c.iso} +{c.cc}
-                </option>
-              ))}
-            </select>
-            <input id="ogc-phone" type="tel" inputMode="tel" autoComplete="tel" className={`${inputCls} min-w-0 flex-1`} value={phone} onChange={(e) => setPhone(e.target.value)} maxLength={32} />
-          </div>
+          <PhoneInput id="ogc-phone" value={phone} onChange={setPhone} country={country} onCountry={setCountry} onBlur={() => blur('phone')} invalid={!!fieldErr.phone} />
           {err('phone')}
         </div>
       ) : null}
       {status.ask.email ? (
         <div>
-          <label className="mb-1 block text-xs font-medium text-[color:var(--og-label)]" htmlFor="ogc-email">
+          <label className={lbl} htmlFor="ogc-email">
             {label('email', t.email)}
-            {status.ask.email.required ? <span className="text-red-500"> *</span> : <span className="text-[color:var(--og-muted)]"> ({t.optional})</span>}
+            {mark('email')}
           </label>
-          <input id="ogc-email" type="email" className={inputCls} value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" maxLength={200} />
+          <input id="ogc-email" type="email" className={inputCls} value={email} onChange={(e) => setEmail(e.target.value)} onBlur={() => blur('email')} autoComplete="email" maxLength={254} aria-invalid={!!fieldErr.email || undefined} />
           {err('email')}
         </div>
       ) : null}
-      <div>
-        <label className="mb-1 block text-xs font-medium text-[color:var(--og-label)]" htmlFor="ogc-message">
-          {t.message}
-          <span className="text-red-500"> *</span>
-        </label>
-        <textarea id="ogc-message" rows={3} className={inputCls} value={message} onChange={(e) => setMessage(e.target.value)} maxLength={4000} />
-        {err('message')}
-      </div>
       {error ? <p role="alert" className="text-sm text-red-500">{error}</p> : null}
-      <button type="submit" disabled={busy} className="w-full rounded-lg px-4 py-3 text-sm font-semibold text-white transition-opacity disabled:opacity-60" style={{ backgroundColor: accent }}>
-        {busy ? t.sending : t.chatStart}
-      </button>
+      <div className="flex gap-2">
+        <button type="submit" disabled={busy} className="flex-1 rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition-opacity disabled:opacity-60" style={{ backgroundColor: accent }}>
+          {busy ? t.chatConnecting : t.chatStart}
+        </button>
+        {allOptional ? (
+          <button type="button" disabled={busy} onClick={() => void send(true)} className="rounded-lg border border-[color:var(--og-border)] px-4 py-2.5 text-sm text-[color:var(--og-muted)] disabled:opacity-60">
+            {t.chatSkip}
+          </button>
+        ) : null}
+      </div>
     </form>
   );
 }
@@ -613,9 +826,14 @@ function Composer({
   onSend,
   onTyping,
   onError,
+  validate,
+  allowImage = true,
 }: {
   t: ReturnType<typeof stringsFor>;
   accent: string;
+  /** Returns an error text to block the send (the draft stays in the box). */
+  validate?: (text: string, hasFile: boolean) => string | null;
+  allowImage?: boolean;
   onSend: (text: string, file: File | null) => void;
   onTyping: (on: boolean) => void;
   onError: (msg: string | null) => void;
@@ -630,6 +848,9 @@ function Composer({
   function submit() {
     const body = text.trim();
     if (!body && !file) return;
+    const problem = validate?.(body, !!file);
+    if (problem) return onError(problem);
+    onError(null);
     onSend(body, file);
     setText('');
     setFile(null);
@@ -657,12 +878,16 @@ function Composer({
         </div>
       ) : null}
       <div className="flex items-end gap-1.5">
+        {allowImage ? (
+          <>
         <input ref={fileInput} type="file" accept="image/png,image/jpeg,image/webp,image/gif" hidden onChange={(e) => { pick(e.target.files?.[0]); e.target.value = ''; }} />
         <button type="button" onClick={() => fileInput.current?.click()} aria-label={t.chatAttach} title={t.chatAttach} className="flex size-9 shrink-0 items-center justify-center rounded-lg text-[color:var(--og-muted)] hover:bg-[var(--og-input)]">
           <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
             <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" />
           </svg>
         </button>
+          </>
+        ) : null}
         <textarea
           rows={1}
           value={text}

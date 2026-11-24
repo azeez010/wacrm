@@ -3999,6 +3999,7 @@
     "settings": {
       "title": "Réglages",
       "subtitle": "Ce qui se passe après un envoi.",
+      "subtitleLiveChat": "Horaires, langue et apparence de votre chat.",
       "afterSubmit": "Après l'envoi",
       "actionMessage": "Afficher un message de remerciement",
       "actionWhatsapp": "Continuer sur WhatsApp",
@@ -4163,6 +4164,11 @@
       "chatOffline": "Message quand personne n'est disponible",
       "showOnlineBadge": "Afficher le badge En ligne",
       "onlineRule": "Affiche En ligne pendant vos horaires lorsqu'un coéquipier est actif dans OgaDesk ou qu'un agent IA peut répondre.",
+      "onlineMode": "Statut en ligne",
+      "onlineAuto": "En ligne quand un agent est en ligne (par défaut)",
+      "onlineAlways": "Toujours en ligne",
+      "onlineAlwaysHint": "Le badge affiche toujours En ligne, même hors des horaires.",
+      "showTyping": "Afficher l'indicateur de saisie avant de demander les coordonnées",
       "askPhone": "Demander un numéro de téléphone (facultatif pour le visiteur)"
     },
     "share": {

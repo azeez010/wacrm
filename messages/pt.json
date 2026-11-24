@@ -3999,6 +3999,7 @@
     "settings": {
       "title": "Configurações",
       "subtitle": "O que acontece depois que alguém envia.",
+      "subtitleLiveChat": "Horário, idioma e aparência do seu chat.",
       "afterSubmit": "Depois de enviar",
       "actionMessage": "Mostrar uma mensagem de agradecimento",
       "actionWhatsapp": "Continuar no WhatsApp",
@@ -4163,6 +4164,11 @@
       "chatOffline": "Mensagem quando ninguém está disponível",
       "showOnlineBadge": "Mostrar o selo Online",
       "onlineRule": "Mostra Online no seu horário de atendimento quando um colega está ativo no OgaDesk ou um agente de IA pode responder.",
+      "onlineMode": "Status online",
+      "onlineAuto": "Online quando um agente está online (padrão)",
+      "onlineAlways": "Sempre online",
+      "onlineAlwaysHint": "O selo sempre mostra Online, mesmo fora do horário.",
+      "showTyping": "Mostrar indicador de digitação antes de pedir os dados",
       "askPhone": "Pedir um telefone (opcional para o visitante)"
     },
     "share": {

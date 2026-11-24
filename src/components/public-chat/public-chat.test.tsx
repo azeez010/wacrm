@@ -2,7 +2,8 @@ import { renderToString } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
 
 import type { PublicFormConfig } from '@/lib/forms/public-config'
-import { PublicChat } from './public-chat'
+import { stringsFor } from '@/lib/forms/public-strings'
+import { IntroView, PublicChat } from './public-chat'
 
 function config(over: Partial<PublicFormConfig> = {}): PublicFormConfig {
   return {
@@ -21,7 +22,7 @@ function config(over: Partial<PublicFormConfig> = {}): PublicFormConfig {
     turnstile: false,
     showBranding: true,
     widget: { corner: 'bottom-right', offsetX: 20, offsetY: 20, icon: 'chat', mode: 'live_chat', greeting: 'Chat with us', animation: 'none', sound: 'none', preMessageDelay: 4, preMessageRepeat: 'session', showOn: 'all', devices: 'all' },
-    chat: { greeting: 'Hello there, what do you need?', showOnlineBadge: true },
+    chat: { greeting: 'Hello there, what do you need?', showOnlineBadge: true, onlineMode: 'auto', showTyping: true },
     fields: [
       { id: 'name', kind: 'name', required: true, label: '' },
       { id: 'phone', kind: 'phone', required: false, label: '' },
@@ -31,29 +32,38 @@ function config(over: Partial<PublicFormConfig> = {}): PublicFormConfig {
   } as PublicFormConfig
 }
 
-describe('PublicChat pre-chat (preview render)', () => {
-  it('shows the owner\'s greeting, the Online badge, only the fields the widget asks for, and the start button', () => {
+describe('PublicChat intro (preview render)', () => {
+  it('opens with the owner\'s greeting, the Online badge and a message box only (details come after the first message)', () => {
     const html = renderToString(<PublicChat config={config()} preview />)
     expect(html).toContain('Hello there, what do you need?')
     expect(html).toContain('Online')
     expect(html).toContain('Chat with us')
+    expect(html).not.toContain('id="ogc-name"')
+    expect(html).not.toContain('id="ogc-phone"')
+    expect(html).toContain('<textarea')
+  })
+
+  it('after the first message asks only for the details the widget wants, with optional/required marks', () => {
+    const status = { online: true, showOnlineBadge: true, showTyping: true, greeting: null, offlineText: null, ask: { name: { required: true, label: '' }, phone: { required: false, label: '' }, email: null } }
+    const html = renderToString(
+      <IntroView t={stringsFor('en')} status={status} greeting="Hi" accent="#111" online intro={{ text: 'need help', phase: 'details' }} notice={null} onNotice={() => undefined} defaultCountry="NG" onSend={() => undefined} onSubmit={async () => undefined} errorText={(c) => c ?? ''} />,
+    )
+    expect(html).toContain('need help')
     expect(html).toContain('id="ogc-name"')
     expect(html).toContain('id="ogc-phone"')
-    expect(html).toContain('id="ogc-message"')
     expect(html).not.toContain('id="ogc-email"')
-    expect(html).toContain('Start chat')
-    // the optional phone is marked optional, the required name is starred
-    expect(html).toContain('optional')
+    expect(html).toContain('Phone number')
+    expect(html).not.toContain('Skip') // a required field means no skipping
   })
 
   it('falls back to the built-in greeting in the form\'s language and hides the badge when switched off', () => {
-    const html = renderToString(<PublicChat config={config({ language: 'es', chat: { showOnlineBadge: false } })} preview />)
+    const html = renderToString(<PublicChat config={config({ language: 'es', chat: { showOnlineBadge: false, onlineMode: 'auto', showTyping: true } })} preview />)
     expect(html).toContain('Hola, ¿en qué puedo ayudarte?')
     expect(html).not.toContain('En línea')
   })
 
   it('renders the owner\'s text as text, never as HTML', () => {
-    const html = renderToString(<PublicChat config={config({ chat: { greeting: '<img src=x onerror=alert(1)>', showOnlineBadge: true } })} preview />)
+    const html = renderToString(<PublicChat config={config({ chat: { greeting: '<img src=x onerror=alert(1)>', showOnlineBadge: true, onlineMode: 'auto', showTyping: true } })} preview />)
     expect(html).not.toContain('<img src=x')
     expect(html).toContain('&lt;img src=x')
   })

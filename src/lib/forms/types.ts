@@ -187,6 +187,10 @@ export const formSettingsSchema = z
         /** Shown instead of the greeting while nobody can answer. */
         offlineText: shortText.optional(),
         showOnlineBadge: z.boolean().default(true),
+        /** 'auto': Online only while an agent (human or AI) can answer; 'always': always Online. */
+        onlineMode: z.enum(['auto', 'always']).default('auto'),
+        /** Show typing dots before the bot-style reply that asks for details. */
+        showTyping: z.boolean().default(true),
       })
       .strict()
       .optional(),

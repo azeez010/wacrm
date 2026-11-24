@@ -44,6 +44,12 @@ export interface PublicStrings {
   chatAi: string
   optional: string
   chatUnavailable: string
+  invalid_name: string
+  invalid_message: string
+  chatPhone: string
+  chatDetailsPrompt: string
+  chatSkip: string
+  chatConnecting: string
 }
 
 export const PUBLIC_STRINGS: Record<PublicLang, PublicStrings> = {
@@ -88,6 +94,12 @@ export const PUBLIC_STRINGS: Record<PublicLang, PublicStrings> = {
     chatAi: 'AI assistant',
     optional: 'optional',
     chatUnavailable: 'Chat is not available right now. Please try again later.',
+    invalid_name: "Enter your real name",
+    invalid_message: "Please write a short message",
+    chatPhone: "Phone number",
+    chatDetailsPrompt: "Before we connect you, could you share a few details?",
+    chatSkip: "Skip",
+    chatConnecting: "Connecting you to our team...",
   },
   es: {
     submit: 'Enviar',
@@ -130,6 +142,12 @@ export const PUBLIC_STRINGS: Record<PublicLang, PublicStrings> = {
     chatAi: 'Asistente de IA',
     optional: 'opcional',
     chatUnavailable: 'El chat no está disponible ahora. Inténtalo más tarde.',
+    invalid_name: "Ingresa tu nombre real",
+    invalid_message: "Escribe un mensaje breve",
+    chatPhone: "Número de teléfono",
+    chatDetailsPrompt: "Antes de conectarte, ¿puedes compartir algunos datos?",
+    chatSkip: "Omitir",
+    chatConnecting: "Conectándote con nuestro equipo...",
   },
   fr: {
     submit: 'Envoyer',
@@ -172,6 +190,12 @@ export const PUBLIC_STRINGS: Record<PublicLang, PublicStrings> = {
     chatAi: 'Assistant IA',
     optional: 'facultatif',
     chatUnavailable: 'Le chat n\'est pas disponible pour le moment. Réessayez plus tard.',
+    invalid_name: "Saisissez votre vrai nom",
+    invalid_message: "Écrivez un court message",
+    chatPhone: "Numéro de téléphone",
+    chatDetailsPrompt: "Avant de vous mettre en relation, pouvez-vous partager quelques informations ?",
+    chatSkip: "Ignorer",
+    chatConnecting: "Mise en relation avec notre équipe...",
   },
   pt: {
     submit: 'Enviar',
@@ -214,6 +238,12 @@ export const PUBLIC_STRINGS: Record<PublicLang, PublicStrings> = {
     chatAi: 'Assistente de IA',
     optional: 'opcional',
     chatUnavailable: 'O chat não está disponível agora. Tente novamente mais tarde.',
+    invalid_name: "Digite seu nome real",
+    invalid_message: "Escreva uma mensagem curta",
+    chatPhone: "Número de telefone",
+    chatDetailsPrompt: "Antes de conectar você, pode compartilhar alguns dados?",
+    chatSkip: "Pular",
+    chatConnecting: "Conectando você à nossa equipe...",
   },
   ko: {
     submit: '제출',
@@ -256,6 +286,12 @@ export const PUBLIC_STRINGS: Record<PublicLang, PublicStrings> = {
     chatAi: 'AI 어시스턴트',
     optional: '선택',
     chatUnavailable: '지금은 채팅을 이용할 수 없습니다. 나중에 다시 시도해 주세요.',
+    invalid_name: "실제 이름을 입력해 주세요",
+    invalid_message: "짧은 메시지를 입력해 주세요",
+    chatPhone: "전화번호",
+    chatDetailsPrompt: "연결하기 전에 몇 가지 정보를 알려 주시겠어요?",
+    chatSkip: "건너뛰기",
+    chatConnecting: "팀에 연결하는 중...",
   },
 }
 

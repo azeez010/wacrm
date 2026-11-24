@@ -356,7 +356,8 @@
       "clearAll": "Clear all",
       "noConversations": "No conversations found",
       "noMessagesYet": "No messages yet",
-      "unknown": "Unknown"
+      "unknown": "Unknown",
+      "channel": "Channel"
     },
     "messageThread": {
       "backToConversations": "Back to conversations",
@@ -4565,5 +4566,10 @@
     "tooLarge": "That image is {size} MB. The limit is {max} MB.",
     "notSignedIn": "You are not signed in.",
     "uploadFailed": "Could not upload the image"
+  },
+  "Channels": {
+    "whatsapp": "WhatsApp",
+    "web_chat": "Website chat",
+    "websiteVisitor": "Website visitor"
   }
 }

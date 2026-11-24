@@ -4170,7 +4170,7 @@
       "onlineAlways": "Sempre online",
       "onlineAlwaysHint": "O selo sempre mostra Online, mesmo fora do horário.",
       "showTyping": "Mostrar indicador de digitação antes de pedir os dados",
-      "askPhone": "Pedir um telefone (opcional para o visitante)"
+      "askPhone": "Pedir um telefone"
     },
     "share": {
       "title": "Compartilhar",

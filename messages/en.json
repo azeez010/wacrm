@@ -4170,7 +4170,7 @@
       "onlineAlways": "Always online",
       "onlineAlwaysHint": "The badge always says Online, even outside business hours.",
       "showTyping": "Show typing dots before asking for details",
-      "askPhone": "Ask for a phone number (optional for the visitor)"
+      "askPhone": "Ask for a phone number"
     },
     "share": {
       "title": "Share",

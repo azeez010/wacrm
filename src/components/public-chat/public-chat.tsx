@@ -674,7 +674,6 @@ function DetailsCard({
   const honeypot = useRef<HTMLInputElement>(null);
 
   const label = (k: 'name' | 'phone' | 'email', fallback: string) => status.ask[k]?.label || fallback;
-  const allOptional = Object.values(status.ask).every((a) => !a || !a.required);
 
   // One place for the rules: returns the per-field error codes for what is currently typed.
   function check(): Record<string, ValidationCode> {
@@ -703,20 +702,18 @@ function DetailsCard({
     });
   };
 
-  async function send(skip: boolean) {
+  async function send() {
     if (busy) return;
-    if (!skip) {
-      const errs = check();
-      showErrors(errs);
-      if (Object.keys(errs).length > 0) return;
-    }
+    const errs = check();
+    showErrors(errs);
+    if (Object.keys(errs).length > 0) return;
     setBusy(true);
     setError(null);
     try {
       await onSubmit({
-        name: skip ? '' : name.trim(),
-        phone: skip || !phone.trim() ? '' : composeFormPhone(phone, country),
-        email: skip ? '' : email.trim(),
+        name: name.trim(),
+        phone: phone.trim() ? composeFormPhone(phone, country) : '',
+        email: email.trim(),
         honeypot: honeypot.current?.value ?? '',
       });
     } catch (err) {
@@ -736,7 +733,7 @@ function DetailsCard({
       noValidate
       onSubmit={(e) => {
         e.preventDefault();
-        void send(false);
+        void send();
       }}
       className="space-y-3 rounded-2xl border border-[color:var(--og-border)] p-3"
     >
@@ -778,11 +775,6 @@ function DetailsCard({
         <button type="submit" disabled={busy} className="flex-1 rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition-opacity disabled:opacity-60" style={{ backgroundColor: accent }}>
           {busy ? t.chatConnecting : t.chatStart}
         </button>
-        {allOptional ? (
-          <button type="button" disabled={busy} onClick={() => void send(true)} className="rounded-lg border border-[color:var(--og-border)] px-4 py-2.5 text-sm text-[color:var(--og-muted)] disabled:opacity-60">
-            {t.chatSkip}
-          </button>
-        ) : null}
       </div>
     </form>
   );

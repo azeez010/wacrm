@@ -40,7 +40,7 @@ export function SupportEditor({
   const patchW = (p: Record<string, unknown>) => dispatch({ type: 'settings', patch: { widget: p } });
   const has = (kind: FormField['kind']) => fields.some((f) => f.kind === kind);
   const toggle = (kind: 'name' | 'email' | 'message', on: boolean) => {
-    if (on && !has(kind)) dispatch({ type: 'add', field: { id: kind, kind, required: kind === 'message' } });
+    if (on && !has(kind)) dispatch({ type: 'add', field: { id: kind, kind, required: true } });
     if (!on) {
       const f = fields.find((x) => x.kind === kind);
       if (f) dispatch({ type: 'remove', id: f.id });
@@ -56,7 +56,7 @@ export function SupportEditor({
     patchW({ mode, ...(mode === 'live_chat' && w.icon === 'whatsapp' ? { icon: 'chat' } : {}), ...(mode === 'whatsapp' && w.icon === 'chat' ? { icon: 'whatsapp' } : {}) });
     const phone = fields.find((f) => f.kind === 'phone');
     if (mode === 'live_chat') {
-      if (phone) dispatch({ type: 'update', id: phone.id, patch: { required: false } });
+      if (phone) dispatch({ type: 'update', id: phone.id, patch: { required: true } });
       if (!has('message')) dispatch({ type: 'add', field: { id: 'message', kind: 'message', required: true } });
       else dispatch({ type: 'update', id: fields.find((f) => f.kind === 'message')!.id, patch: { required: true } });
     } else if (phone) dispatch({ type: 'update', id: phone.id, patch: { required: true } });
@@ -64,7 +64,7 @@ export function SupportEditor({
   };
   const togglePhone = (on: boolean) => {
     const phone = fields.find((f) => f.kind === 'phone');
-    if (on && !phone) dispatch({ type: 'add', field: { id: 'phone', kind: 'phone', required: false } });
+    if (on && !phone) dispatch({ type: 'add', field: { id: 'phone', kind: 'phone', required: true } });
     if (!on && phone) dispatch({ type: 'remove', id: phone.id });
   };
 

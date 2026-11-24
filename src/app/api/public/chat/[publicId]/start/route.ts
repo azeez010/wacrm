@@ -57,7 +57,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ pub
   // Only collect what this widget asks for; honour its required flags.
   const fields = Array.isArray(form.fields) ? (form.fields as { kind?: string; required?: boolean }[]) : []
   const asks = (kind: string) => fields.some((f) => f.kind === kind)
-  const required = (kind: string) => fields.some((f) => f.kind === kind && f.required === true)
+  // Live chat: whatever the widget asks for is mandatory.
+  const required = (kind: string) => asks(kind)
   const name = asks('name') ? body.name || null : null
   const email = asks('email') ? body.email || null : null
   let phone: string | null = null

@@ -4170,7 +4170,7 @@
       "onlineAlways": "Siempre en línea",
       "onlineAlwaysHint": "La insignia siempre dice En línea, incluso fuera del horario.",
       "showTyping": "Mostrar puntos de escritura antes de pedir los datos",
-      "askPhone": "Pedir un teléfono (opcional para el visitante)"
+      "askPhone": "Pedir un teléfono"
     },
     "share": {
       "title": "Compartir",

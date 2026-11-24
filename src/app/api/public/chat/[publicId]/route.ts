@@ -24,7 +24,8 @@ export async function GET(_request: Request, { params }: { params: Promise<{ pub
   const fields = Array.isArray(form.fields) ? (form.fields as { kind?: string; required?: boolean; label?: string }[]) : []
   const ask = (kind: string) => {
     const f = fields.find((x) => x.kind === kind)
-    return f ? { required: f.required === true, label: f.label ?? '' } : null
+    // Every field the widget asks for is mandatory.
+    return f ? { required: true, label: f.label ?? '' } : null
   }
   return chatJson({
     ok: true,

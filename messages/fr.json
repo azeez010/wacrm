@@ -4170,7 +4170,7 @@
       "onlineAlways": "Toujours en ligne",
       "onlineAlwaysHint": "Le badge affiche toujours En ligne, même hors des horaires.",
       "showTyping": "Afficher l'indicateur de saisie avant de demander les coordonnées",
-      "askPhone": "Demander un numéro de téléphone (facultatif pour le visiteur)"
+      "askPhone": "Demander un numéro de téléphone"
     },
     "share": {
       "title": "Partager",

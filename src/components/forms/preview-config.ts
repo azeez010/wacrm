@@ -21,7 +21,7 @@ export function buildPreviewConfig(
       label: f.label ?? '',
       help: f.help,
       placeholder: f.placeholder,
-      required: f.kind === 'phone' && settings.widget?.mode !== 'live_chat' ? true : f.required,
+      required: f.kind === 'phone' || (settings.widget?.mode === 'live_chat' && (f.kind === 'name' || f.kind === 'email')) ? true : f.required,
       visibleWhen: f.visibleWhen,
     };
     if (f.kind === 'custom_field') {

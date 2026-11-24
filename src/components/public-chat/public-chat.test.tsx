@@ -53,7 +53,7 @@ describe('PublicChat intro (preview render)', () => {
     expect(html).toContain('id="ogc-phone"')
     expect(html).not.toContain('id="ogc-email"')
     expect(html).toContain('Phone number')
-    expect(html).not.toContain('Skip') // a required field means no skipping
+    expect(html).not.toContain('Skip')
   })
 
   it('falls back to the built-in greeting in the form\'s language and hides the badge when switched off', () => {

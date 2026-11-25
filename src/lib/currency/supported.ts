@@ -30,3 +30,15 @@ export function currencyForCountry(country: string | null | undefined): Currency
   if (!country) return null
   return COUNTRY_CURRENCY[country.toUpperCase()] ?? null
 }
+
+/**
+ * Flag file (public/flags/<code>.svg) shown beside each currency. Shared
+ * currencies show the issuing union's flag (EUR -> EU); XOF/XAF span several
+ * countries with no flag of their own, so they have none (code only).
+ */
+export const CURRENCY_FLAG: Record<CurrencyCode, string | null> = {
+  NGN: 'ng', USD: 'us', GBP: 'gb', EUR: 'eu', GHS: 'gh', KES: 'ke', ZAR: 'za', UGX: 'ug', TZS: 'tz',
+  RWF: 'rw', XOF: null, XAF: null, EGP: 'eg', MAD: 'ma', CAD: 'ca', AUD: 'au', NZD: 'nz', INR: 'in',
+  AED: 'ae', SAR: 'sa', BRL: 'br', MXN: 'mx', KRW: 'kr', JPY: 'jp', CNY: 'cn', CHF: 'ch', SEK: 'se',
+  NOK: 'no', DKK: 'dk', PLN: 'pl', TRY: 'tr', SGD: 'sg', HKD: 'hk',
+}

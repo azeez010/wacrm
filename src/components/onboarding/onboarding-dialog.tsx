@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
+import { PhoneField } from '@/components/phone-field'
 import { DETAIL_MAX, HEARD_FROM, USE_CASES, type HeardFrom, type UseCase } from '@/lib/onboarding/options'
 import { cn } from '@/lib/utils'
 
@@ -127,7 +128,7 @@ export function OnboardingDialog() {
             </div>
             <div className="space-y-1.5">
               <label htmlFor="onboarding-phone" className="text-sm font-medium">{t('phoneLabel')}</label>
-              <Input id="onboarding-phone" type="tel" inputMode="tel" autoComplete="tel" value={phone} placeholder="+2348012345678" onChange={(e) => setPhone(e.target.value)} />
+              <PhoneField id="onboarding-phone" value={phone} onChange={setPhone} placeholder="8012345678" />
               <p className="text-xs text-muted-foreground">{t('phoneHint')}</p>
             </div>
             <div className="flex items-start justify-between gap-4">

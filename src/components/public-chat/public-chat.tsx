@@ -799,7 +799,7 @@ function DetailsCard({
             {label('phone', t.chatPhone)}
             {mark('phone')}
           </label>
-          <PhoneInput id="ogc-phone" value={phone} onChange={setPhone} country={country} onCountry={setCountry} onBlur={() => blur('phone')} invalid={!!fieldErr.phone} />
+          <PhoneInput id="ogc-phone" value={phone} onChange={setPhone} country={country} onCountry={setCountry} searchPlaceholder={t.searchCountry} onBlur={() => blur('phone')} invalid={!!fieldErr.phone} />
           {err('phone')}
         </div>
       ) : null}

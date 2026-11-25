@@ -4635,5 +4635,8 @@
     "whatsapp": "WhatsApp",
     "web_chat": "Chat do site",
     "websiteVisitor": "Visitante do site"
+  },
+  "PhoneField": {
+    "searchCountry": "Pesquisar país ou código"
   }
 }

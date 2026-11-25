@@ -12,6 +12,7 @@ import {
   isUniqueViolation,
   type ExistingContact,
 } from '@/lib/contacts/dedupe';
+import { PhoneField } from '@/components/phone-field';
 import { parseInternationalPhone } from '@/lib/whatsapp/phone-utils';
 import {
   Dialog,
@@ -267,16 +268,15 @@ export function ContactForm({
             <Label htmlFor="cf-phone" className="text-muted-foreground">
               {t('phoneLabel')} <span className="text-red-400">*</span>
             </Label>
-            <Input
+            <PhoneField
               id="cf-phone"
               value={phone}
-              onChange={(e) => {
-                setPhone(e.target.value);
+              onChange={(v) => {
+                setPhone(v);
                 if (dupMatch) setDupMatch(null);
               }}
               onBlur={checkDuplicate}
               placeholder={t('phonePlaceholder')}
-              className="bg-muted border-border text-foreground placeholder:text-muted-foreground"
             />
             {dupMatch ? (
               <div

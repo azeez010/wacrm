@@ -3,6 +3,8 @@
 import { useState } from 'react'
 import { Check, ChevronDown } from 'lucide-react'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { Flag } from '@/components/flag'
+import { CURRENCY_FLAG, isSupportedCurrency } from '@/lib/currency/supported'
 import { cn } from '@/lib/utils'
 
 /**
@@ -10,6 +12,11 @@ import { cn } from '@/lib/utils'
  * reloads so server-rendered prices follow. Hidden when conversion is off or
  * there is nothing to choose.
  */
+function CurrencyFlag({ code }: { code: string }) {
+  const iso = isSupportedCurrency(code) ? CURRENCY_FLAG[code] : null
+  return iso ? <Flag iso={iso} /> : null
+}
+
 export function CurrencySwitcher({ current, options, className }: { current: string; options: string[]; className?: string }) {
   const [busy, setBusy] = useState(false)
   if (options.length < 2) return null
@@ -29,13 +36,17 @@ export function CurrencySwitcher({ current, options, className }: { current: str
         aria-label="Currency"
         disabled={busy}
       >
+        <CurrencyFlag code={current} />
         {current}
         <ChevronDown className="size-3.5 opacity-60" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="max-h-72 overflow-y-auto">
         {options.map((code) => (
           <DropdownMenuItem key={code} onClick={() => void choose(code)} className="justify-between gap-4">
-            {code}
+            <span className="flex items-center gap-2">
+              <CurrencyFlag code={code} />
+              {code}
+            </span>
             {code === current && <Check className="size-4" />}
           </DropdownMenuItem>
         ))}

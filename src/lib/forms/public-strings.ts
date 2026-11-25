@@ -47,6 +47,7 @@ export interface PublicStrings {
   invalid_name: string
   invalid_message: string
   chatPhone: string
+  searchCountry: string
   chatDetailsPrompt: string
   chatSkip: string
   chatConnecting: string
@@ -98,6 +99,7 @@ export const PUBLIC_STRINGS: Record<PublicLang, PublicStrings> = {
     invalid_name: "Enter your real name",
     invalid_message: "Please write a short message",
     chatPhone: "Phone number",
+    searchCountry: "Search country or code",
     chatDetailsPrompt: "Before we connect you, could you share a few details?",
     chatSkip: "Skip",
     chatConnecting: "Connecting you to our team...",
@@ -147,6 +149,7 @@ export const PUBLIC_STRINGS: Record<PublicLang, PublicStrings> = {
     invalid_name: "Ingresa tu nombre real",
     invalid_message: "Escribe un mensaje breve",
     chatPhone: "Número de teléfono",
+    searchCountry: "Buscar país o código",
     chatDetailsPrompt: "Antes de conectarte, ¿puedes compartir algunos datos?",
     chatSkip: "Omitir",
     chatConnecting: "Conectándote con nuestro equipo...",
@@ -196,6 +199,7 @@ export const PUBLIC_STRINGS: Record<PublicLang, PublicStrings> = {
     invalid_name: "Saisissez votre vrai nom",
     invalid_message: "Écrivez un court message",
     chatPhone: "Numéro de téléphone",
+    searchCountry: "Rechercher un pays ou un indicatif",
     chatDetailsPrompt: "Avant de vous mettre en relation, pouvez-vous partager quelques informations ?",
     chatSkip: "Ignorer",
     chatConnecting: "Mise en relation avec notre équipe...",
@@ -245,6 +249,7 @@ export const PUBLIC_STRINGS: Record<PublicLang, PublicStrings> = {
     invalid_name: "Digite seu nome real",
     invalid_message: "Escreva uma mensagem curta",
     chatPhone: "Número de telefone",
+    searchCountry: "Pesquisar país ou código",
     chatDetailsPrompt: "Antes de conectar você, pode compartilhar alguns dados?",
     chatSkip: "Pular",
     chatConnecting: "Conectando você à nossa equipe...",
@@ -294,6 +299,7 @@ export const PUBLIC_STRINGS: Record<PublicLang, PublicStrings> = {
     invalid_name: "실제 이름을 입력해 주세요",
     invalid_message: "짧은 메시지를 입력해 주세요",
     chatPhone: "전화번호",
+    searchCountry: "국가 또는 코드 검색",
     chatDetailsPrompt: "연결하기 전에 몇 가지 정보를 알려 주시겠어요?",
     chatSkip: "건너뛰기",
     chatConnecting: "팀에 연결하는 중...",

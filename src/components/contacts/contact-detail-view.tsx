@@ -49,6 +49,7 @@ import { ContactSourceCard } from '@/components/contacts/contact-source-card';
 import { BulkBlockDialog } from '@/components/contacts/bulk-block-dialog';
 import { ContactTagEditor } from '@/components/contacts/contact-tag-editor';
 import { contactHandle } from '@/lib/whatsapp/wa-identity';
+import { PhoneField } from '@/components/phone-field';
 import { parseInternationalPhone } from '@/lib/whatsapp/phone-utils';
 
 interface ContactDetailViewProps {
@@ -551,11 +552,7 @@ export function ContactDetailView({
                     <Label className="text-muted-foreground text-xs">
                       {t('phone')} <span className="text-red-400">*</span>
                     </Label>
-                    <Input
-                      value={editPhone}
-                      onChange={(e) => setEditPhone(e.target.value)}
-                      className="bg-muted border-border text-foreground h-8 text-sm"
-                    />
+                    <PhoneField value={editPhone} onChange={setEditPhone} />
                   </div>
                   <div className="space-y-1.5">
                     <Label className="text-muted-foreground text-xs">{t('email')}</Label>

@@ -481,6 +481,7 @@ function FieldInput({
           onChange={(v) => onChange(v)}
           country={country}
           onCountry={onCountry}
+          searchPlaceholder={t.searchCountry}
           placeholder={f.placeholder || (country === defaultCountry && defaultCountry === 'NG' ? '0803 123 4567' : '')}
           invalid={!!error}
           describedBy={error ? `${id}-err` : undefined}

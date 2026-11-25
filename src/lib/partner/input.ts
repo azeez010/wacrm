@@ -6,10 +6,32 @@ export interface PayoutDetails {
   account_number: string
 }
 
+/** How a referrer's referrals land in their own CRM. Ids are checked against their account on save. */
+export interface CrmConfig {
+  unpaid?: { tagId: string | null; pipelineId: string | null; stageId: string | null }
+  paid?: { tagId: string | null }
+  autoWon?: boolean
+}
+
 export interface PartnerPatch {
   display_name?: string | null
   show_on_leaderboard?: boolean
   payout_details?: PayoutDetails
+  crm_config?: CrmConfig
+}
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+const id = (v: unknown): string | null => (typeof v === 'string' && UUID.test(v) ? v : null)
+
+export function parseCrmConfig(raw: unknown): CrmConfig | null {
+  if (!raw || typeof raw !== 'object') return null
+  const b = raw as Record<string, unknown>
+  const u = (b.unpaid && typeof b.unpaid === 'object' ? b.unpaid : {}) as Record<string, unknown>
+  const p = (b.paid && typeof b.paid === 'object' ? b.paid : {}) as Record<string, unknown>
+  const unpaid = { tagId: id(u.tagId), pipelineId: id(u.pipelineId), stageId: id(u.stageId) }
+  // A stage only makes sense with its pipeline.
+  if (unpaid.stageId && !unpaid.pipelineId) return null
+  return { unpaid, paid: { tagId: id(p.tagId) }, autoWon: b.autoWon !== false }
 }
 
 const clean = (v: unknown, max: number): string => (typeof v === 'string' ? v.trim().slice(0, max) : '')
@@ -42,6 +64,11 @@ export function parsePartnerPatch(raw: unknown): { ok: true; value: PartnerPatch
       if (!/^[A-Za-z0-9-]{6,34}$/.test(details.account_number)) return { ok: false, error: 'Enter a valid account number' }
     }
     out.payout_details = details
+  }
+  if ('crm_config' in body) {
+    const cfg = parseCrmConfig(body.crm_config)
+    if (!cfg) return { ok: false, error: 'Invalid CRM settings' }
+    out.crm_config = cfg
   }
   if (Object.keys(out).length === 0) return { ok: false, error: 'Nothing to update' }
   return { ok: true, value: out }

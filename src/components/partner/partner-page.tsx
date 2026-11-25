@@ -3,7 +3,8 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
 import { toast } from 'sonner'
-import { Check, Copy, ExternalLink, Gift, Loader2, Trophy, Users, Wallet } from 'lucide-react'
+import Link from 'next/link'
+import { Check, Copy, ExternalLink, Gift, Loader2, Trophy, UserPlus, Users, Wallet } from 'lucide-react'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -17,6 +18,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { EmptyState } from '@/components/dashboard/empty-state'
 import { formatPlanPrice } from '@/lib/billing/format'
 import type { PartnerOverview } from '@/lib/partner/overview'
+import { CrmRoutingCard } from './crm-routing'
 
 export function PartnerPage() {
   const t = useTranslations('Partner')
@@ -25,6 +27,9 @@ export function PartnerPage() {
   const [failed, setFailed] = useState(false)
   const [copied, setCopied] = useState(false)
   const [payoutOpen, setPayoutOpen] = useState(false)
+  const [phoneFor, setPhoneFor] = useState<string | null>(null)
+  const [addingId, setAddingId] = useState<string | null>(null)
+  const [addingAll, setAddingAll] = useState(false)
 
   const load = useCallback(async () => {
     setFailed(false)
@@ -50,6 +55,42 @@ export function PartnerPage() {
     setData(await res.json())
     toast.success(t('saved'))
     return true
+  }
+
+  async function addToCrm(id: string, phone?: string): Promise<boolean> {
+    setAddingId(id)
+    try {
+      const res = await fetch(`/api/partner/referrals/${id}/crm`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ phone }) })
+      const body = await res.json().catch(() => ({}))
+      if (res.status === 409 && body.error === 'needs_phone') {
+        setPhoneFor(id)
+        return false
+      }
+      if (!res.ok) {
+        toast.error(body.error === 'invalid_phone' ? t('crm.invalidPhone') : t('saveFailed'))
+        return false
+      }
+      toast.success(t('crm.added'))
+      await load()
+      return true
+    } finally {
+      setAddingId(null)
+    }
+  }
+
+  async function addAll() {
+    setAddingAll(true)
+    try {
+      const res = await fetch('/api/partner/referrals/crm', { method: 'POST' })
+      const body = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error('failed')
+      toast.success(t('crm.addedAll', { added: body.added ?? 0, skipped: body.skipped ?? 0 }))
+      await load()
+    } catch {
+      toast.error(t('saveFailed'))
+    } finally {
+      setAddingAll(false)
+    }
   }
 
   async function copy() {
@@ -123,6 +164,8 @@ export function PartnerPage() {
         </div>
       </Card>
 
+      <CrmRoutingCard initial={data.crmConfig} onSave={(crm_config) => save({ crm_config })} />
+
       <Tabs defaultValue="history">
         <TabsList className="h-auto flex-wrap">
           <TabsTrigger value="history">{t('tabs.history')}</TabsTrigger>
@@ -135,26 +178,54 @@ export function PartnerPage() {
           {data.referrals.length === 0 ? (
             <EmptyState icon={Users} title={t('history.empty')} hint={t('history.emptyHint')} />
           ) : (
-            <Card className="overflow-x-auto p-0">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>{t('history.colWho')}</TableHead>
-                    <TableHead>{t('history.colPlan')}</TableHead>
-                    <TableHead>{t('history.colDate')}</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {data.referrals.map((r) => (
-                    <TableRow key={r.id}>
-                      <TableCell className="font-mono text-sm">{r.who}</TableCell>
-                      <TableCell><Badge variant="secondary" className="capitalize">{r.plan}</Badge></TableCell>
-                      <TableCell>{date(r.at)}</TableCell>
+            <div className="space-y-2">
+              {data.referrals.some((r) => !r.crmContactId) && (
+                <div className="flex justify-end">
+                  <Button size="sm" variant="outline" disabled={addingAll} onClick={() => void addAll()}>
+                    {addingAll ? <Loader2 className="size-4 animate-spin" /> : <UserPlus className="size-4" />} {t('crm.addAll')}
+                  </Button>
+                </div>
+              )}
+              <Card className="overflow-x-auto p-0">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>{t('history.colWho')}</TableHead>
+                      <TableHead>{t('history.colPhone')}</TableHead>
+                      <TableHead>{t('history.colPlan')}</TableHead>
+                      <TableHead>{t('history.colPayment')}</TableHead>
+                      <TableHead>{t('history.colDate')}</TableHead>
+                      <TableHead className="text-right">{t('history.colCrm')}</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </Card>
+                  </TableHeader>
+                  <TableBody>
+                    {data.referrals.map((r) => (
+                      <TableRow key={r.id}>
+                        <TableCell>
+                          <div className="text-sm font-medium">{r.name || '—'}</div>
+                          <div className="text-xs text-muted-foreground">{r.email || '—'}</div>
+                        </TableCell>
+                        <TableCell className="text-sm tabular-nums">{r.phone ? `+${r.phone.replace(/^\+/, '')}` : '—'}</TableCell>
+                        <TableCell><Badge variant="secondary" className="capitalize">{r.plan}</Badge></TableCell>
+                        <TableCell>
+                          <Badge variant={r.paid ? 'default' : 'outline'}>{r.paid ? t('history.paid') : t('history.unpaid')}</Badge>
+                        </TableCell>
+                        <TableCell>{date(r.at)}</TableCell>
+                        <TableCell className="text-right">
+                          {r.crmContactId ? (
+                            <Link href={`/contacts?open=${r.crmContactId}`} className="text-sm text-primary hover:underline">{t('crm.inCrm')}</Link>
+                          ) : (
+                            <Button size="sm" variant="outline" className="h-7" disabled={addingId === r.id} onClick={() => void addToCrm(r.id)}>
+                              {addingId === r.id ? <Loader2 className="size-3.5 animate-spin" /> : <UserPlus className="size-3.5" />} {t('crm.add')}
+                            </Button>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </Card>
+            </div>
           )}
         </TabsContent>
 
@@ -242,6 +313,14 @@ export function PartnerPage() {
         </TabsContent>
       </Tabs>
 
+      <PhoneDialog
+        open={phoneFor !== null}
+        onOpenChange={(o) => !o && setPhoneFor(null)}
+        onSubmit={async (phone) => {
+          if (!phoneFor) return
+          if (await addToCrm(phoneFor, phone)) setPhoneFor(null)
+        }}
+      />
       <PayoutDialog open={payoutOpen} onOpenChange={setPayoutOpen} initial={data.payoutDetails as Record<string, string>} onSave={(d) => save({ payout_details: d })} />
     </div>
   )
@@ -286,6 +365,41 @@ function DisplayNameField({ initial, onSave }: { initial: string; onSave: (v: st
         {t('saveName')}
       </Button>
     </div>
+  )
+}
+
+function PhoneDialog({ open, onOpenChange, onSubmit }: { open: boolean; onOpenChange: (o: boolean) => void; onSubmit: (phone: string) => Promise<void> }) {
+  const t = useTranslations('Partner.crm')
+  const [phone, setPhone] = useState('')
+  const [busy, setBusy] = useState(false)
+  useEffect(() => {
+    if (open) setPhone('')
+  }, [open])
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{t('phoneTitle')}</DialogTitle>
+          <DialogDescription>{t('phoneDesc')}</DialogDescription>
+        </DialogHeader>
+        <div className="space-y-1.5">
+          <Label htmlFor="crm-phone">{t('phoneLabel')}</Label>
+          <Input id="crm-phone" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+2348012345678" inputMode="tel" />
+        </div>
+        <DialogFooter>
+          <Button
+            disabled={busy || !phone.trim()}
+            onClick={async () => {
+              setBusy(true)
+              await onSubmit(phone)
+              setBusy(false)
+            }}
+          >
+            {busy && <Loader2 className="size-4 animate-spin" />} {t('add')}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   )
 }
 

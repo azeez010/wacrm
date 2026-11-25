@@ -4408,7 +4408,9 @@
         "description": "Points de terminaison, exemples et webhooks.",
         "action": "Ouvrir la documentation"
       }
-    }
+    },
+    "phoneLabel": "Votre numéro WhatsApp",
+    "phoneHint": "Avec l'indicatif du pays, ex. +2348012345678."
   },
   "Emails": {
     "footer": "Vous recevez cet e-mail de service parce que vous avez un compte OgaDesk.",
@@ -4495,7 +4497,12 @@
       "emptyHint": "Les personnes inscrites avec votre lien apparaîtront ici.",
       "colWho": "Personne",
       "colPlan": "Forfait",
-      "colDate": "Inscription"
+      "colDate": "Inscription",
+      "colPhone": "Téléphone",
+      "colPayment": "Paiement",
+      "colCrm": "CRM",
+      "paid": "Payé",
+      "unpaid": "Non payé"
     },
     "report": {
       "empty": "Pas encore de rapport",
@@ -4539,7 +4546,29 @@
     },
     "shareTitle": "Partagez votre lien pour parrainer des personnes sur OgaDesk",
     "commissionLine": "Votre commission est de {percent} % par vente pendant {months} mois",
-    "active": "Actif"
+    "active": "Actif",
+    "crm": {
+      "title": "Ajouter les filleuls à votre CRM",
+      "info": "Choisissez une étiquette et une étape de pipeline pour les filleuls ajoutés à vos contacts. Quand un filleul paie, son affaire passe automatiquement à Gagné et l'étiquette payée remplace l'autre.",
+      "unpaidTag": "Étiquette (pas encore payé)",
+      "pipeline": "Pipeline",
+      "noDeal": "Aucune affaire",
+      "stage": "Étape",
+      "pickStage": "Choisir une étape",
+      "paidTag": "Étiquette (après paiement)",
+      "none": "Aucune étiquette",
+      "autoWon": "Passer l'affaire à Gagné au paiement",
+      "save": "Enregistrer",
+      "add": "Ajouter au CRM",
+      "addAll": "Tout ajouter au CRM",
+      "inCrm": "Dans le CRM",
+      "added": "Ajouté à votre CRM",
+      "addedAll": "{added} ajouté(s). {skipped} sans numéro, ajoutez-les un par un.",
+      "phoneTitle": "Numéro de téléphone requis",
+      "phoneDesc": "Cette personne n'a pas de numéro enregistré. Saisissez son numéro WhatsApp pour l'ajouter à vos contacts.",
+      "phoneLabel": "Numéro WhatsApp",
+      "invalidPhone": "Saisissez le numéro avec + et l'indicatif, ex. +2348012345678."
+    }
   },
   "CommandPalette": {
     "title": "Rechercher",

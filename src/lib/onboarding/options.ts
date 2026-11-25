@@ -19,6 +19,8 @@ export const HEARD_FROM = [
 ] as const
 export type HeardFrom = (typeof HEARD_FROM)[number]
 
+import { parseInternationalPhone } from '@/lib/whatsapp/phone-utils'
+
 export const DETAIL_MAX = 200
 
 export interface OnboardingInput {
@@ -26,6 +28,8 @@ export interface OnboardingInput {
   heardFrom: HeardFrom | null
   heardFromDetail: string | null
   marketingOptIn: boolean
+  /** International WhatsApp number, digits only (no +). Optional so older clients keep working. */
+  phone: string | null
 }
 
 export type ParseResult = { ok: true; value: OnboardingInput } | { ok: false; error: string }
@@ -63,9 +67,15 @@ export function parseOnboardingInput(body: unknown): ParseResult {
     return { ok: false, error: "'marketing_opt_in' must be true or false" }
   }
 
+  let phone: string | null = null
+  if (b.phone !== undefined && b.phone !== null && b.phone !== '') {
+    phone = typeof b.phone === 'string' ? parseInternationalPhone(b.phone) : null
+    if (!phone) return { ok: false, error: "'phone' must be an international number starting with + and the country code" }
+  }
+
   return {
     ok: true,
-    value: { useCases, heardFrom, heardFromDetail, marketingOptIn: b.marketing_opt_in === true },
+    value: { useCases, heardFrom, heardFromDetail, marketingOptIn: b.marketing_opt_in === true, phone },
   }
 }
 

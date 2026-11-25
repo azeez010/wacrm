@@ -24,6 +24,7 @@ export interface PartnerRow {
   display_name: string | null
   show_on_leaderboard: boolean
   payout_details: Record<string, unknown>
+  crm_config?: Record<string, unknown>
   status: 'active' | 'suspended'
   clicks?: number | string
   created_at: string

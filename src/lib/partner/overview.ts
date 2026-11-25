@@ -1,7 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { SITE_URL } from '@/lib/seo'
 import { ensurePartner } from './code'
-import { maskEmail } from './input'
+import type { CrmConfig } from './input'
 
 type Db = SupabaseClient
 
@@ -13,7 +13,17 @@ export interface PartnerOverview {
   payoutDetails: Record<string, unknown>
   settings: { enabled: boolean; commissionPercent: number; recurringMonths: number; minPayout: number; currency: string }
   stats: { clicks: number; signups: number; customers: number; byPlan: Record<string, number> }
-  referrals: Array<{ id: string; who: string; plan: string; at: string }>
+  crmConfig: CrmConfig
+  referrals: Array<{
+    id: string
+    name: string
+    email: string
+    phone: string | null
+    plan: string
+    paid: boolean
+    at: string
+    crmContactId: string | null
+  }>
   report: Array<{ month: string; count: number }>
   materials: Array<{ id: string; title: string; kind: string; description: string | null; url: string; imageUrl: string | null; sizeLabel: string | null }>
   leaderboard: Array<{ rank: number; name: string; referrals: number; isYou: boolean }>
@@ -28,7 +38,7 @@ export async function buildPartnerOverview(db: Db, userId: string): Promise<Part
     db.from('partner_settings').select('enabled, commission_percent, recurring_months, min_payout, currency').eq('id', 1).maybeSingle(),
     db
       .from('referrals')
-      .select('id, referred_user_id, referred_account_id, created_at')
+      .select('id, referred_user_id, referred_account_id, created_at, crm_contact_id')
       .eq('partner_user_id', userId)
       .order('created_at', { ascending: false })
       .limit(500),
@@ -40,21 +50,25 @@ export async function buildPartnerOverview(db: Db, userId: string): Promise<Part
     db.rpc('partner_leaderboard', { p_limit: 20 }),
   ])
 
-  const refs = (refsRes.data ?? []) as Array<{ id: string; referred_user_id: string; referred_account_id: string | null; created_at: string }>
+  const refs = (refsRes.data ?? []) as Array<{ id: string; referred_user_id: string; referred_account_id: string | null; created_at: string; crm_contact_id: string | null }>
   const userIds = refs.map((r) => r.referred_user_id)
   const accountIds = [...new Set(refs.map((r) => r.referred_account_id).filter(Boolean))] as string[]
   const [people, subs] = await Promise.all([
-    userIds.length ? db.from('profiles').select('user_id, email').in('user_id', userIds) : Promise.resolve({ data: [] }),
+    userIds.length ? db.from('profiles').select('user_id, email, full_name, phone').in('user_id', userIds) : Promise.resolve({ data: [] }),
     accountIds.length ? db.from('account_subscriptions').select('account_id, plan_id, status').in('account_id', accountIds) : Promise.resolve({ data: [] }),
   ])
-  const emailBy = new Map(((people.data ?? []) as Array<{ user_id: string; email: string }>).map((p) => [p.user_id, p.email]))
+  const personBy = new Map(((people.data ?? []) as Array<{ user_id: string; email: string; full_name: string | null; phone: string | null }>).map((p) => [p.user_id, p]))
   const planBy = new Map(((subs.data ?? []) as Array<{ account_id: string; plan_id: string; status: string }>).map((s) => [s.account_id, s.status === 'active' || s.status === 'trialing' ? s.plan_id : 'free']))
 
   const referrals = refs.map((r) => ({
     id: r.id,
-    who: maskEmail(emailBy.get(r.referred_user_id)),
+    name: personBy.get(r.referred_user_id)?.full_name || '',
+    email: personBy.get(r.referred_user_id)?.email || '',
+    phone: personBy.get(r.referred_user_id)?.phone ?? null,
     plan: (r.referred_account_id && planBy.get(r.referred_account_id)) || 'free',
+    paid: Boolean(r.referred_account_id && (planBy.get(r.referred_account_id) ?? 'free') !== 'free'),
     at: r.created_at,
+    crmContactId: r.crm_contact_id ?? null,
   }))
   const byPlan: Record<string, number> = {}
   const byMonth: Record<string, number> = {}
@@ -78,6 +92,7 @@ export async function buildPartnerOverview(db: Db, userId: string): Promise<Part
     displayName: partner.display_name,
     showOnLeaderboard: partner.show_on_leaderboard,
     payoutDetails: partner.payout_details ?? {},
+    crmConfig: (partner.crm_config ?? {}) as CrmConfig,
     settings: {
       enabled: s?.enabled ?? true,
       commissionPercent: Number(s?.commission_percent ?? 20),

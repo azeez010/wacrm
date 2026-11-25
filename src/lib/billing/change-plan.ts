@@ -5,6 +5,7 @@
 // ============================================================
 
 import type { SupabaseClient } from '@supabase/supabase-js'
+import { markReferralPaid } from '@/lib/partner/crm-sync'
 
 export type ChangePlanResult = { ok: true; planId: string; planName: string } | { ok: false; error: 'unknown_plan' | 'failed' }
 
@@ -28,5 +29,7 @@ export async function changePlan(db: SupabaseClient, accountId: string, planId: 
     console.error('[billing] changePlan failed:', error.message)
     return { ok: false, error: 'failed' }
   }
+  // A referred account that just went paid: close the referrer's deal as Won (never throws).
+  if (plan.id !== 'free') await markReferralPaid(db, accountId)
   return { ok: true, planId: plan.id as string, planName: plan.name as string }
 }

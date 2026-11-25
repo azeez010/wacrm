@@ -11,11 +11,11 @@ describe('parseOnboardingInput', () => {
   it('accepts a full answer and normalises it', () => {
     expect(
       ok({ use_cases: ['developer', 'sales', 'developer'], heard_from: 'google', heard_from_detail: '  A newsletter ', marketing_opt_in: true }),
-    ).toEqual({ useCases: ['developer', 'sales'], heardFrom: 'google', heardFromDetail: 'A newsletter', marketingOptIn: true })
+    ).toEqual({ useCases: ['developer', 'sales'], heardFrom: 'google', heardFromDetail: 'A newsletter', marketingOptIn: true, phone: null })
   })
 
   it('treats the source and opt-in as optional (a skipped second step)', () => {
-    expect(ok({ use_cases: ['support'] })).toEqual({ useCases: ['support'], heardFrom: null, heardFromDetail: null, marketingOptIn: false })
+    expect(ok({ use_cases: ['support'] })).toEqual({ useCases: ['support'], heardFrom: null, heardFromDetail: null, marketingOptIn: false, phone: null })
     expect(ok({ use_cases: ['support'], heard_from: null, heard_from_detail: '   ' })).toMatchObject({ heardFrom: null, heardFromDetail: null })
   })
 

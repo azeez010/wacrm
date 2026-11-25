@@ -97,6 +97,7 @@ export async function POST(request: Request) {
       .update({
         locale: isLocale(cookieLocale) ? cookieLocale : null,
         country: country && /^[A-Za-z]{2}$/.test(country) && country.toUpperCase() !== 'XX' ? country.toUpperCase() : null,
+        ...(input.phone ? { phone: `+${input.phone}` } : {}),
         marketing_opt_in: input.marketingOptIn,
         marketing_opt_in_at: input.marketingOptIn ? new Date().toISOString() : null,
       })

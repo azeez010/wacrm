@@ -10,6 +10,7 @@ import { supabaseAdmin } from '@/lib/flows/admin-client'
 import { buildPartnerOverview } from '@/lib/partner/overview'
 import { ensurePartner } from '@/lib/partner/code'
 import { parsePartnerPatch } from '@/lib/partner/input'
+import { checkCrmConfigOwnership } from '@/lib/partner/crm-sync'
 
 export async function GET() {
   try {
@@ -28,6 +29,11 @@ export async function PATCH(request: Request) {
 
     const db = supabaseAdmin()
     await ensurePartner(db, ctx.userId)
+    if (parsed.value.crm_config) {
+      // The tag / pipeline / stage must live in the caller's own account.
+      const bad = await checkCrmConfigOwnership(db, ctx.accountId, parsed.value.crm_config)
+      if (bad) return NextResponse.json({ error: bad }, { status: 400 })
+    }
     const { error } = await db
       .from('partners')
       .update({ ...parsed.value, updated_at: new Date().toISOString() })

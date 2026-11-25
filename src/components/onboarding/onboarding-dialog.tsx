@@ -13,6 +13,8 @@ import { Input } from '@/components/ui/input'
 import { DETAIL_MAX, HEARD_FROM, USE_CASES, type HeardFrom, type UseCase } from '@/lib/onboarding/options'
 import { cn } from '@/lib/utils'
 
+const PHONE_RE = /^\+\d{8,15}$/
+
 export const ONBOARDED_EVENT = 'wacrm:onboarded'
 
 const USE_CASE_ICONS: Record<UseCase, LucideIcon> = {
@@ -36,6 +38,7 @@ export function OnboardingDialog() {
   const [heardFrom, setHeardFrom] = useState<HeardFrom | null>(null)
   const [detail, setDetail] = useState('')
   const [optIn, setOptIn] = useState(true)
+  const [phone, setPhone] = useState('')
   const [saving, setSaving] = useState(false)
   // Arrived through a partner link: skip the "where did you hear" step.
   const [referred, setReferred] = useState(false)
@@ -67,6 +70,7 @@ export function OnboardingDialog() {
           heard_from: referred ? 'partner' : skipSource ? null : heardFrom,
           heard_from_detail: skipSource ? null : detail || null,
           marketing_opt_in: optIn,
+          phone: phone.trim() || null,
         }),
       })
       if (!res.ok) throw new Error('save failed')
@@ -121,6 +125,11 @@ export function OnboardingDialog() {
                 )
               })}
             </div>
+            <div className="space-y-1.5">
+              <label htmlFor="onboarding-phone" className="text-sm font-medium">{t('phoneLabel')}</label>
+              <Input id="onboarding-phone" type="tel" inputMode="tel" autoComplete="tel" value={phone} placeholder="+2348012345678" onChange={(e) => setPhone(e.target.value)} />
+              <p className="text-xs text-muted-foreground">{t('phoneHint')}</p>
+            </div>
             <div className="flex items-start justify-between gap-4">
               <div className="text-sm">
                 <p id="onboarding-marketing-label">{t('marketingLabel')}</p>
@@ -129,7 +138,7 @@ export function OnboardingDialog() {
               <Switch checked={optIn} onCheckedChange={(v) => setOptIn(Boolean(v))} aria-labelledby="onboarding-marketing-label" />
             </div>
             <div className="flex justify-end">
-              <Button disabled={useCases.length === 0 || saving} onClick={() => (referred ? void submit(true) : setStep(2))}>
+              <Button disabled={useCases.length === 0 || !PHONE_RE.test(phone.replace(/[\s().-]/g, '')) || saving} onClick={() => (referred ? void submit(true) : setStep(2))}>
                 {referred ? (saving ? t('saving') : t('finish')) : t('next')}
               </Button>
             </div>

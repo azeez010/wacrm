@@ -4408,7 +4408,9 @@
         "description": "Endpoints, ejemplos y webhooks.",
         "action": "Abrir documentación"
       }
-    }
+    },
+    "phoneLabel": "Tu número de WhatsApp",
+    "phoneHint": "Con prefijo de país, p. ej. +2348012345678."
   },
   "Emails": {
     "footer": "Recibes este correo de servicio porque tienes una cuenta de OgaDesk.",
@@ -4495,7 +4497,12 @@
       "emptyHint": "Las personas que se registren con tu enlace aparecerán aquí.",
       "colWho": "Persona",
       "colPlan": "Plan",
-      "colDate": "Registro"
+      "colDate": "Registro",
+      "colPhone": "Teléfono",
+      "colPayment": "Pago",
+      "colCrm": "CRM",
+      "paid": "Pagado",
+      "unpaid": "Sin pagar"
     },
     "report": {
       "empty": "Aún no hay informe",
@@ -4539,7 +4546,29 @@
     },
     "shareTitle": "Comparte tu enlace para recomendar OgaDesk",
     "commissionLine": "Tu comisión es del {percent} % por venta durante {months} meses",
-    "active": "Activo"
+    "active": "Activo",
+    "crm": {
+      "title": "Añade referidos a tu CRM",
+      "info": "Elige una etiqueta y una etapa del pipeline para los referidos que añadas a tus contactos. Cuando un referido paga, su negocio pasa a Ganado automáticamente y la etiqueta de pago reemplaza a la otra.",
+      "unpaidTag": "Etiqueta (sin pagar)",
+      "pipeline": "Pipeline",
+      "noDeal": "Sin negocio",
+      "stage": "Etapa",
+      "pickStage": "Elige una etapa",
+      "paidTag": "Etiqueta (tras pagar)",
+      "none": "Sin etiqueta",
+      "autoWon": "Pasar el negocio a Ganado al pagar",
+      "save": "Guardar",
+      "add": "Añadir al CRM",
+      "addAll": "Añadir todos al CRM",
+      "inCrm": "En el CRM",
+      "added": "Añadido a tu CRM",
+      "addedAll": "{added} añadidos. {skipped} necesitan teléfono, añádelos uno a uno.",
+      "phoneTitle": "Falta el teléfono",
+      "phoneDesc": "Esta persona no tiene teléfono registrado. Introduce su número de WhatsApp para añadirla a tus contactos.",
+      "phoneLabel": "Número de WhatsApp",
+      "invalidPhone": "Introduce el número con + y prefijo, p. ej. +2348012345678."
+    }
   },
   "CommandPalette": {
     "title": "Buscar",

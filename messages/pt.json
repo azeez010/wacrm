@@ -4408,7 +4408,9 @@
         "description": "Endpoints, exemplos e webhooks.",
         "action": "Abrir documentação"
       }
-    }
+    },
+    "phoneLabel": "Seu número de WhatsApp",
+    "phoneHint": "Com o código do país, ex. +2348012345678."
   },
   "Emails": {
     "footer": "Você recebe este e-mail de serviço porque tem uma conta no OgaDesk.",
@@ -4495,7 +4497,12 @@
       "emptyHint": "As pessoas que se registarem com o seu link aparecerão aqui.",
       "colWho": "Pessoa",
       "colPlan": "Plano",
-      "colDate": "Registo"
+      "colDate": "Registo",
+      "colPhone": "Telefone",
+      "colPayment": "Pagamento",
+      "colCrm": "CRM",
+      "paid": "Pago",
+      "unpaid": "Não pago"
     },
     "report": {
       "empty": "Ainda sem relatório",
@@ -4539,7 +4546,29 @@
     },
     "shareTitle": "Partilhe o seu link para indicar o OgaDesk",
     "commissionLine": "A sua comissão é de {percent}% por venda durante {months} meses",
-    "active": "Ativo"
+    "active": "Ativo",
+    "crm": {
+      "title": "Adicione indicados ao seu CRM",
+      "info": "Escolha uma tag e uma etapa do funil para os indicados que adicionar aos contatos. Quando um indicado paga, o negócio vai para Ganho automaticamente e a tag de pago substitui a outra.",
+      "unpaidTag": "Tag (ainda não pagou)",
+      "pipeline": "Funil",
+      "noDeal": "Sem negócio",
+      "stage": "Etapa",
+      "pickStage": "Escolha uma etapa",
+      "paidTag": "Tag (após pagar)",
+      "none": "Sem tag",
+      "autoWon": "Mover o negócio para Ganho ao pagar",
+      "save": "Salvar",
+      "add": "Adicionar ao CRM",
+      "addAll": "Adicionar todos ao CRM",
+      "inCrm": "No CRM",
+      "added": "Adicionado ao seu CRM",
+      "addedAll": "{added} adicionados. {skipped} precisam de telefone, adicione um a um.",
+      "phoneTitle": "Telefone necessário",
+      "phoneDesc": "Esta pessoa não tem telefone cadastrado. Informe o WhatsApp para adicioná-la aos contatos.",
+      "phoneLabel": "Número de WhatsApp",
+      "invalidPhone": "Informe o número com + e código do país, ex. +2348012345678."
+    }
   },
   "CommandPalette": {
     "title": "Pesquisar",

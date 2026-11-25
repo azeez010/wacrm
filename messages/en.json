@@ -4408,7 +4408,9 @@
         "description": "Endpoints, examples and webhooks.",
         "action": "Open docs"
       }
-    }
+    },
+    "phoneLabel": "Your WhatsApp number",
+    "phoneHint": "Include the country code, e.g. +2348012345678."
   },
   "Emails": {
     "footer": "You're receiving this service email because you have an OgaDesk account.",
@@ -4495,7 +4497,12 @@
       "emptyHint": "People who sign up with your link will appear here.",
       "colWho": "Person",
       "colPlan": "Plan",
-      "colDate": "Joined"
+      "colDate": "Joined",
+      "colPhone": "Phone",
+      "colPayment": "Payment",
+      "colCrm": "CRM",
+      "paid": "Paid",
+      "unpaid": "Not paid"
     },
     "report": {
       "empty": "No report yet",
@@ -4539,7 +4546,29 @@
     },
     "shareTitle": "Share your link to refer people to OgaDesk",
     "commissionLine": "Your commission is {percent}% per sale for {months} months",
-    "active": "Active"
+    "active": "Active",
+    "crm": {
+      "title": "Add referrals to your CRM",
+      "info": "Choose a tag and pipeline stage for referrals you add to your contacts. When a referral pays, their deal moves to Won automatically and the paid tag replaces the free one, so you can close them yourself and see who converted.",
+      "unpaidTag": "Tag (not paid yet)",
+      "pipeline": "Pipeline",
+      "noDeal": "No deal",
+      "stage": "Stage",
+      "pickStage": "Choose a stage",
+      "paidTag": "Tag (once paid)",
+      "none": "No tag",
+      "autoWon": "Move deal to Won when they pay",
+      "save": "Save",
+      "add": "Add to CRM",
+      "addAll": "Add all to CRM",
+      "inCrm": "In CRM",
+      "added": "Added to your CRM",
+      "addedAll": "Added {added}. {skipped} need a phone number, add them one by one.",
+      "phoneTitle": "Phone number needed",
+      "phoneDesc": "This person has no phone number on file. Enter their WhatsApp number to add them to your contacts.",
+      "phoneLabel": "WhatsApp number",
+      "invalidPhone": "Enter the number with + and country code, e.g. +2348012345678."
+    }
   },
   "CommandPalette": {
     "title": "Search",

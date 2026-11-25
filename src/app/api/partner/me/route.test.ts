@@ -39,12 +39,12 @@ beforeEach(() => {
 })
 
 describe('GET /api/partner/me', () => {
-  it('returns the link, masked referrals with plan, report and materials for any role', async () => {
+  it('returns the link, full referral details with plan and payment status, report and materials for any role', async () => {
     const body = await (await GET()).json()
     expect(body.code).toBe('ADA1')
     expect(body.link).toContain('/signup?ref=ADA1')
     expect(body.stats).toEqual({ clicks: 0, signups: 1, customers: 1, byPlan: { pro: 1 } })
-    expect(body.referrals).toEqual([{ id: 'x1', who: 'bo***@gmail.com', plan: 'pro', at: '2026-11-02T00:00:00Z' }])
+    expect(body.referrals).toEqual([{ id: 'x1', name: 'Bob', email: 'bobby@gmail.com', phone: null, plan: 'pro', paid: true, at: '2026-11-02T00:00:00Z', crmContactId: null }])
     expect(body.report).toEqual([{ month: '2026-11', count: 1 }])
     expect(body.materials).toHaveLength(1)
     expect(body.settings.commissionPercent).toBe(20)

@@ -8,7 +8,7 @@ import { buttonVariants } from '@/components/ui/button'
 import { BrandLogo } from '@/components/brand-logo'
 import { LanguageSwitcher } from '@/components/language-switcher'
 import { HREFLANG, isLocale } from '@/i18n/locales'
-import { localizedAlternates, localizedUrl } from '@/lib/seo'
+import { localizedAlternates, localizedUrl, organizationJsonLd } from '@/lib/seo'
 import { cn } from '@/lib/utils'
 import { BRAND_NAME } from '@/lib/brand'
 import { getPublicPlans } from '@/lib/billing/public-plans'
@@ -191,6 +191,7 @@ export default async function LandingPage({
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: organizationJsonLd(BRAND_NAME) }} />
       <header className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-x-3 gap-y-3 px-4 py-5 sm:px-6">
         <BrandLogo className="text-lg" markClassName="h-9 w-9" />
         <nav className="flex w-full flex-wrap items-center justify-between gap-2 sm:w-auto sm:justify-end">

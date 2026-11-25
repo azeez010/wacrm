@@ -199,8 +199,8 @@ export const EMBED_SCRIPT = `(function () {
 
     function apply(c) {
       cfg = c; var w = c.widget || {};
-      // Live chat: warm the hidden iframe shortly after load so the first click opens instantly.
-      if (!PREVIEW && w.mode === 'live_chat' && !frame) setTimeout(ensureFrame, 1500);
+      // Live chat: warm the hidden iframe right away so the first click opens instantly.
+      if (!PREVIEW && w.mode === 'live_chat') ensureFrame();
       var color = w.color || c.accent || '#16a34a', left = w.corner === 'bottom-left', dark = isDark(c.theme);
       var side = (left ? 'left:' : 'right:') + (w.offsetX || 20) + 'px;' + (left ? 'right:auto;' : 'left:auto;');
       btn.setAttribute('aria-label', w.label || 'Chat');

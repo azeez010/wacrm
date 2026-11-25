@@ -132,10 +132,13 @@ export function PublicChat({
   config,
   preview = false,
   detectedCountry,
+  initialStatus,
 }: {
   config: PublicFormConfig;
   preview?: boolean;
   detectedCountry?: string | null;
+  /** Server-rendered status: the greeting and fields paint immediately, no first round trip. */
+  initialStatus?: ChatStatus | null;
 }) {
   const t = stringsFor(config.language);
   const accent = config.widget?.color ?? config.accent;
@@ -143,7 +146,7 @@ export function PublicChat({
 
   // Preview derives its status from the live config (no frozen copy); real visitors fetch it.
   const previewSt = useMemo(() => previewStatus(config), [config]);
-  const [liveStatus, setStatus] = useState<ChatStatus | null>(null);
+  const [liveStatus, setStatus] = useState<ChatStatus | null>(initialStatus ?? null);
   const status = preview ? previewSt : liveStatus;
   const [intro, setIntro] = useState<{ text: string; phase: 'typing' | 'details' } | null>(null);
   const [session, setSession] = useState<Session | null>(null);
@@ -210,7 +213,7 @@ export function PublicChat({
     window.parent.postMessage({ source: 'ogadesk', type: 'resize', height: FRAME_HEIGHT }, '*');
     if (preview) return;
     visitorId.current = loadVisitorId(new URLSearchParams(window.location.search).get('ogvid'));
-    void fetchStatus();
+    if (!initialStatus) void fetchStatus();
     const saved = readSession(config.publicId);
     if (!saved) {
       const draft = readDraft(config.publicId);
@@ -234,7 +237,7 @@ export function PublicChat({
         setStage('prechat');
       }
     })();
-  }, [api, config.publicId, fetchStatus, preview]);
+  }, [api, config.publicId, fetchStatus, initialStatus, preview]);
 
   // The host page tells us when the panel opens/closes: the iframe is preloaded hidden, so only
   // poll (and refresh once on open) while someone can actually see it.

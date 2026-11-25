@@ -122,6 +122,24 @@ describe('openVisitorThread', () => {
   })
 })
 
+describe('visitor phone as the route passes it (bare digits, no +)', () => {
+  it('saves it on a brand-new contact', async () => {
+    h.responses['contacts.select'] = { data: null }
+    h.responses['contacts.insert'] = { data: { id: 'c-new' } }
+    h.responses['conversations.select'] = { data: [] }
+    h.responses['conversations.insert'] = { data: { id: 'conv-new', status: 'open', first_inbound_at: null } }
+    await openVisitorThread(db(), widget, { visitorId: 'vis-12345678', name: 'Ada', phone: '2348142018001' })
+    const ins = h.calls.find((c) => c.table === 'contacts' && c.op === 'insert')
+    expect(ins?.payload).toMatchObject({ phone: '2348142018001', name: 'Ada' })
+  })
+  it('saves it on a returning visitor\'s contact that has none', async () => {
+    h.responses['contacts.select'] = { data: { id: 'c-1', name: 'Website visitor', email: null, phone: '' } }
+    h.responses['conversations.select'] = { data: [{ id: 'conv-1', status: 'open', first_inbound_at: null }] }
+    await openVisitorThread(db(), widget, { visitorId: 'vis-12345678', phone: '2348142018001' })
+    expect(h.calls.find((c) => c.table === 'contacts' && c.op === 'update')?.payload).toMatchObject({ phone: '2348142018001' })
+  })
+})
+
 describe('openVisitorThread: returning visitor details', () => {
   it('fills the placeholder name, email and phone on the existing contact', async () => {
     h.responses['contacts.select'] = { data: { id: 'c-1', name: 'Website visitor', email: null, phone: '' } }

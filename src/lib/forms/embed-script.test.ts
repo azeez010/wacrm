@@ -16,8 +16,7 @@ describe('embed script', () => {
     // One shared frame factory: used on open, and warmed on load ONLY for live chat outside the preview.
     expect(EMBED_SCRIPT).toMatch(/function ensureFrame\(\) \{\s*if \(frame\) return;/)
     expect(EMBED_SCRIPT).toMatch(/function open\(\)[\s\S]*ensureFrame\(\)/)
-    expect(EMBED_SCRIPT).toContain("if (!PREVIEW && w.mode === 'live_chat' && !frame) setTimeout(ensureFrame")
-    expect((EMBED_SCRIPT.match(/setTimeout\(ensureFrame/g) ?? []).length).toBe(1)
+    expect(EMBED_SCRIPT).toContain("if (!PREVIEW && w.mode === 'live_chat') ensureFrame();")
   })
   it('has the attention features: animations, teaser bubble, synthesised sound, reduced motion', () => {
     for (const k of ['ogpulse', 'ogbounce', 'ogwiggle', 'ogring', 'preMessage', 'preMessageDelay', 'createOscillator', 'prefers-reduced-motion']) {

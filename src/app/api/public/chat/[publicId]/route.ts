@@ -1,5 +1,5 @@
-import { computeOnline, isWithinHours, loadChatAvailability } from '@/lib/chat/online'
 import { chatJson, chatPreflight, loadChatForm } from '@/lib/chat/http'
+import { buildChatStatus } from '@/lib/chat/status'
 
 export function OPTIONS() {
   return chatPreflight()
@@ -11,33 +11,5 @@ export async function GET(_request: Request, { params }: { params: Promise<{ pub
   const loaded = await loadChatForm(publicId)
   if (!loaded.ok) return loaded.res
   const { db, form, settings } = loaded.value
-
-  // 'always' skips the hours/presence lookups entirely.
-  let online = true
-  let agentName: string | null = null
-  if (settings.chat?.onlineMode !== 'always') {
-    const { data: acct } = await db.from('accounts').select('timezone').eq('id', form.account_id).maybeSingle()
-    const tz = (acct as { timezone?: string } | null)?.timezone ?? 'UTC'
-    const availability = await loadChatAvailability(db, form.account_id)
-    online = computeOnline(isWithinHours(settings.widget?.hours, tz, new Date()), availability)
-    agentName = availability.agentName ?? null
-  }
-
-  const fields = Array.isArray(form.fields) ? (form.fields as { kind?: string; required?: boolean; label?: string }[]) : []
-  const ask = (kind: string) => {
-    const f = fields.find((x) => x.kind === kind)
-    // Every field the widget asks for is mandatory.
-    return f ? { required: true, label: f.label ?? '' } : null
-  }
-  return chatJson({
-    ok: true,
-    online,
-    agentName,
-    showOnlineBadge: settings.chat?.showOnlineBadge !== false,
-    showTyping: settings.chat?.showTyping !== false,
-    allowSkip: settings.chat?.allowSkip === true,
-    greeting: settings.chat?.greeting ?? null,
-    offlineText: settings.chat?.offlineText ?? settings.widget?.hours?.offlineText ?? null,
-    ask: { name: ask('name'), phone: ask('phone'), email: ask('email') },
-  })
+  return chatJson({ ok: true, ...(await buildChatStatus(db, form, settings)) })
 }

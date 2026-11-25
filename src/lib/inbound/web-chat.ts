@@ -6,7 +6,7 @@ import { findExistingContact, isUniqueViolation } from '@/lib/contacts/dedupe'
 import { claimFirstInboundMessage } from '@/lib/conversations/first-inbound'
 import { reopenClosedConversation } from '@/lib/conversations/reopen'
 import { dispatchWebhookEvent } from '@/lib/webhooks/deliver'
-import { parseInternationalPhone } from '@/lib/whatsapp/phone-utils'
+import { isValidE164, parseInternationalPhone } from '@/lib/whatsapp/phone-utils'
 import { CHAT_MESSAGE_COLUMNS, toChatMessageView, type ChatMessageRow } from '@/lib/chat/message-view'
 import { pushToRoom } from '@/lib/chat/room'
 import type { ChatMessageView } from '@/lib/chat/protocol'
@@ -44,6 +44,18 @@ export interface VisitorThread {
   conversationCreated: boolean
 }
 
+/**
+ * The route hands us the number already parsed (bare digits, no "+"), while other callers may pass
+ * "+<digits>". Accept both; anything else is not a usable number. Stored in the app's digits format.
+ */
+export function normalizeVisitorPhone(raw: string | null | undefined): string | null {
+  if (!raw) return null
+  const viaPlus = parseInternationalPhone(raw)
+  if (viaPlus) return viaPlus
+  const digits = raw.trim()
+  return /^\d+$/.test(digits) && isValidE164(digits) ? digits : null
+}
+
 const cleanText = (v: string | null | undefined, max: number): string | null => {
   const t = (v ?? '').replace(/[\u0000-\u001f\u007f]/g, ' ').trim().slice(0, max)
   return t || null
@@ -66,7 +78,7 @@ const PLACEHOLDER_NAME = 'Website visitor'
 async function applyVisitorDetails(db: SupabaseClient, widget: ChatWidgetRef, known: KnownContact, visitor: VisitorDetails, ownerUserId: string) {
   const name = cleanText(visitor.name, 120)
   const email = cleanText(visitor.email, 200)
-  const phone = visitor.phone ? parseInternationalPhone(visitor.phone) : null
+  const phone = normalizeVisitorPhone(visitor.phone)
   if (!name && !email && !phone) return
 
   const patch: Record<string, string> = {}
@@ -117,7 +129,7 @@ async function resolveVisitorContact(
 
   const name = cleanText(visitor.name, 120)
   const email = cleanText(visitor.email, 200)
-  const phone = visitor.phone ? parseInternationalPhone(visitor.phone) : null
+  const phone = normalizeVisitorPhone(visitor.phone)
 
   // A phone the visitor typed may belong to an existing contact. Claiming it is
   // the same trust level as a lead form, but only while that contact has no

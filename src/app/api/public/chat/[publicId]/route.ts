@@ -32,6 +32,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ pub
     online,
     showOnlineBadge: settings.chat?.showOnlineBadge !== false,
     showTyping: settings.chat?.showTyping !== false,
+    allowSkip: settings.chat?.allowSkip === true,
     greeting: settings.chat?.greeting ?? null,
     offlineText: settings.chat?.offlineText ?? settings.widget?.hours?.offlineText ?? null,
     ask: { name: ask('name'), phone: ask('phone'), email: ask('email') },

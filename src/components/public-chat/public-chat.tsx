@@ -36,6 +36,7 @@ export interface ChatStatus {
   online: boolean;
   showOnlineBadge: boolean;
   showTyping?: boolean;
+  allowSkip?: boolean;
   greeting: string | null;
   offlineText: string | null;
   ask: Record<'name' | 'phone' | 'email', { required: boolean; label: string } | null>;
@@ -119,6 +120,7 @@ function previewStatus(config: PublicFormConfig): ChatStatus {
     online: true,
     showOnlineBadge: config.chat?.showOnlineBadge !== false,
     showTyping: config.chat?.showTyping !== false,
+    allowSkip: config.chat?.allowSkip === true,
     greeting: config.chat?.greeting ?? null,
     offlineText: config.chat?.offlineText ?? null,
     ask: { name: ask('name'), phone: ask('phone'), email: ask('email') },
@@ -401,7 +403,7 @@ export function PublicChat({
   );
 
   const start = useCallback(
-    async (details: { name: string; phone: string; email: string; message: string; honeypot: string }) => {
+    async (details: { name: string; phone: string; email: string; message: string; honeypot: string; skip?: boolean }) => {
       const clientId = randomId();
       const res = await fetch(`${api}/start`, {
         method: 'POST',
@@ -414,6 +416,7 @@ export function PublicChat({
           message: details.message,
           clientId,
           website: details.honeypot || undefined,
+          skipDetails: details.skip ? true : undefined,
         }),
       });
       const j = (await res.json().catch(() => ({}))) as { ok?: boolean; ignored?: boolean; token?: string; conversationId?: string; messages?: ChatMessageView[]; error?: string };
@@ -467,7 +470,7 @@ export function PublicChat({
   );
 
   const submitDetails = useCallback(
-    async (d: { name: string; phone: string; email: string; honeypot: string }) => {
+    async (d: { name: string; phone: string; email: string; honeypot: string; skip?: boolean }) => {
       if (preview || !intro) return;
       await start({ ...d, message: intro.text });
     },
@@ -594,7 +597,7 @@ export function IntroView({
   onNotice: (m: string | null) => void;
   defaultCountry: string;
   onSend: (text: string) => void | Promise<void>;
-  onSubmit: (d: { name: string; phone: string; email: string; honeypot: string }) => Promise<void>;
+  onSubmit: (d: { name: string; phone: string; email: string; honeypot: string; skip?: boolean }) => Promise<void>;
   errorText: (code: string | undefined) => string;
 }) {
   const scroller = useRef<HTMLDivElement>(null);
@@ -661,7 +664,7 @@ function DetailsCard({
   status: ChatStatus;
   accent: string;
   defaultCountry: string;
-  onSubmit: (d: { name: string; phone: string; email: string; honeypot: string }) => Promise<void>;
+  onSubmit: (d: { name: string; phone: string; email: string; honeypot: string; skip?: boolean }) => Promise<void>;
   codeText: (c: ValidationCode) => string;
 }) {
   const [name, setName] = useState('');
@@ -702,19 +705,22 @@ function DetailsCard({
     });
   };
 
-  async function send() {
+  async function send(skip = false) {
     if (busy) return;
-    const errs = check();
-    showErrors(errs);
-    if (Object.keys(errs).length > 0) return;
+    if (!skip) {
+      const errs = check();
+      showErrors(errs);
+      if (Object.keys(errs).length > 0) return;
+    }
     setBusy(true);
     setError(null);
     try {
       await onSubmit({
-        name: name.trim(),
-        phone: phone.trim() ? composeFormPhone(phone, country) : '',
-        email: email.trim(),
+        name: skip ? '' : name.trim(),
+        phone: skip || !phone.trim() ? '' : composeFormPhone(phone, country),
+        email: skip ? '' : email.trim(),
         honeypot: honeypot.current?.value ?? '',
+        skip,
       });
     } catch (err) {
       setError(err instanceof Error ? err.message : t.generic_error);
@@ -775,6 +781,11 @@ function DetailsCard({
         <button type="submit" disabled={busy} className="flex-1 rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition-opacity disabled:opacity-60" style={{ backgroundColor: accent }}>
           {busy ? t.chatConnecting : t.chatStart}
         </button>
+        {status.allowSkip ? (
+          <button type="button" disabled={busy} onClick={() => void send(true)} className="rounded-lg border border-[color:var(--og-border)] px-4 py-2.5 text-sm text-[color:var(--og-muted)] disabled:opacity-60">
+            {t.chatSkip}
+          </button>
+        ) : null}
       </div>
     </form>
   );

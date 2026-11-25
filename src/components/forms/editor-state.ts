@@ -29,6 +29,10 @@ const snapshot = (s: Pick<EditorState, 'name' | 'status' | 'fields' | 'settings'
   JSON.stringify([s.name, s.status, s.fields, s.settings])
 
 /** Shallow-merge a patch into settings, merging one level of nested objects. */
+function isLiveChat(state: { settings: { widget?: { mode?: string } } }): boolean {
+  return state.settings.widget?.mode === 'live_chat'
+}
+
 export function mergeSettings(current: FormSettings, patch: Record<string, unknown>): FormSettings {
   const next: Record<string, unknown> = { ...current }
   for (const [k, v] of Object.entries(patch)) {
@@ -87,17 +91,22 @@ export function editorReducer(state: EditorState, action: EditorAction): EditorS
       fields.splice(action.at ?? fields.length, 0, field)
       return { ...state, fields }
     }
-    case 'update':
+    case 'update': {
+      // The phone field is locked (always required, never removed or retyped) because the WhatsApp
+      // hand-off needs it. A live chat does not hand off, so there it is an ordinary toggle.
+      const lockPhone = !isLiveChat(state)
       return {
         ...state,
-        // The phone field is locked: always required, never removed or retyped.
         fields: state.fields.map((f) =>
-          f.id === action.id ? { ...f, ...action.patch, ...(f.kind === 'phone' ? { kind: 'phone' as const, required: true } : {}) } : f,
+          f.id === action.id ? { ...f, ...action.patch, ...(lockPhone && f.kind === 'phone' ? { kind: 'phone' as const, required: true } : {}) } : f,
         ),
       }
-    case 'remove':
+    }
+    case 'remove': {
+      const lockPhone = !isLiveChat(state)
       // Rules that pointed at the removed field are dropped so the form stays valid.
-      return { ...state, fields: sanitizeConditions(state.fields.filter((f) => f.id !== action.id || f.kind === 'phone')) }
+      return { ...state, fields: sanitizeConditions(state.fields.filter((f) => f.id !== action.id || (lockPhone && f.kind === 'phone'))) }
+    }
     case 'move': {
       if (action.from === action.to || action.from < 0 || action.to < 0) return state
       if (action.from >= state.fields.length || action.to >= state.fields.length) return state

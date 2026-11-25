@@ -26,6 +26,14 @@ describe('form editor state', () => {
     expect(newFieldId(s.fields, 'email')).toBe('email_3')
   })
 
+  it('in a live chat the phone is an ordinary toggle: it can be removed and made optional', () => {
+    let s = editorReducer(initialState(), { type: 'load', name: 'Chat', status: 'draft', fields: [phone, name], settings: parseFormSettings({ widget: { mode: 'live_chat' } }) })
+    s = editorReducer(s, { type: 'update', id: 'phone', patch: { required: false } })
+    expect(s.fields[0]).toMatchObject({ kind: 'phone', required: false })
+    s = editorReducer(s, { type: 'remove', id: 'phone' })
+    expect(s.fields.some((f) => f.kind === 'phone')).toBe(false)
+  })
+
   it('the phone field cannot be removed, made optional or retyped', () => {
     let s = load()
     s = editorReducer(s, { type: 'remove', id: 'phone' })

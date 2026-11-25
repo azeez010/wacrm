@@ -191,6 +191,8 @@ export const formSettingsSchema = z
         onlineMode: z.enum(['auto', 'always']).default('auto'),
         /** Show typing dots before the bot-style reply that asks for details. */
         showTyping: z.boolean().default(true),
+        /** Let the visitor skip the details card and start the chat with just their message. */
+        allowSkip: z.boolean().default(false),
       })
       .strict()
       .optional(),

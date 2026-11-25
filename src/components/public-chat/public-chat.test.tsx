@@ -22,7 +22,7 @@ function config(over: Partial<PublicFormConfig> = {}): PublicFormConfig {
     turnstile: false,
     showBranding: true,
     widget: { corner: 'bottom-right', offsetX: 20, offsetY: 20, icon: 'chat', mode: 'live_chat', greeting: 'Chat with us', animation: 'none', sound: 'none', preMessageDelay: 4, preMessageRepeat: 'session', showOn: 'all', devices: 'all' },
-    chat: { greeting: 'Hello there, what do you need?', showOnlineBadge: true, onlineMode: 'auto', showTyping: true },
+    chat: { greeting: 'Hello there, what do you need?', showOnlineBadge: true, onlineMode: 'auto', showTyping: true, allowSkip: false },
     fields: [
       { id: 'name', kind: 'name', required: true, label: '' },
       { id: 'phone', kind: 'phone', required: false, label: '' },
@@ -54,16 +54,20 @@ describe('PublicChat intro (preview render)', () => {
     expect(html).not.toContain('id="ogc-email"')
     expect(html).toContain('Phone number')
     expect(html).not.toContain('Skip')
+    const skippable = renderToString(
+      <IntroView t={stringsFor('en')} status={{ ...status, allowSkip: true }} greeting="Hi" accent="#111" online intro={{ text: 'need help', phase: 'details' }} notice={null} onNotice={() => undefined} defaultCountry="NG" onSend={() => undefined} onSubmit={async () => undefined} errorText={(c) => c ?? ''} />,
+    )
+    expect(skippable).toContain('Skip')
   })
 
   it('falls back to the built-in greeting in the form\'s language and hides the badge when switched off', () => {
-    const html = renderToString(<PublicChat config={config({ language: 'es', chat: { showOnlineBadge: false, onlineMode: 'auto', showTyping: true } })} preview />)
+    const html = renderToString(<PublicChat config={config({ language: 'es', chat: { showOnlineBadge: false, onlineMode: 'auto', showTyping: true, allowSkip: false } })} preview />)
     expect(html).toContain('Hola, ¿en qué puedo ayudarte?')
     expect(html).not.toContain('En línea')
   })
 
   it('renders the owner\'s text as text, never as HTML', () => {
-    const html = renderToString(<PublicChat config={config({ chat: { greeting: '<img src=x onerror=alert(1)>', showOnlineBadge: true, onlineMode: 'auto', showTyping: true } })} preview />)
+    const html = renderToString(<PublicChat config={config({ chat: { greeting: '<img src=x onerror=alert(1)>', showOnlineBadge: true, onlineMode: 'auto', showTyping: true, allowSkip: false } })} preview />)
     expect(html).not.toContain('<img src=x')
     expect(html).toContain('&lt;img src=x')
   })

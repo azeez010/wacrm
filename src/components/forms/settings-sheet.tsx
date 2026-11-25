@@ -77,9 +77,11 @@ export function SettingsSheet({ open, onOpenChange, kind, settings, data, canEdi
               {kind === 'lead' && <option value="redirect">{t('actionRedirect')}</option>}
             </select>
           </Row>
-          <Row label={t('thankYou')}>
-            <Textarea rows={2} disabled={!canEdit} value={s.success.message ?? ''} onChange={(e) => patch({ success: { message: e.target.value } })} />
-          </Row>
+          {s.success.action === 'message' && (
+            <Row label={t('thankYou')}>
+              <Textarea rows={2} disabled={!canEdit} value={s.success.message ?? ''} onChange={(e) => patch({ success: { message: e.target.value } })} />
+            </Row>
+          )}
           {s.success.action === 'redirect' && (
             <Row label={t('redirectUrl')} hint={t('redirectHint')}>
               <Input disabled={!canEdit} value={s.success.redirectUrl ?? ''} placeholder="https://" onChange={(e) => patch({ success: { redirectUrl: e.target.value || undefined } })} />
@@ -365,6 +367,12 @@ export function SettingsSheet({ open, onOpenChange, kind, settings, data, canEdi
                   </Row>
                     </>
                   )}
+                  {kind === 'lead' && (
+                  <div className="space-y-3 rounded-lg border border-border p-3">
+                    <div>
+                      <p className="text-sm font-medium">{t('schedule')}</p>
+                      <p className="text-xs text-muted-foreground">{t('scheduleHint')}</p>
+                    </div>
                   <div className="grid grid-cols-2 gap-3">
                     <Row label={t('opensAt')}>
                       <Input type="datetime-local" disabled={!canEdit} value={toLocal(s.rules.opensAt)} onChange={(e) => patch({ rules: { opensAt: fromLocal(e.target.value) } })} />
@@ -373,9 +381,13 @@ export function SettingsSheet({ open, onOpenChange, kind, settings, data, canEdi
                       <Input type="datetime-local" disabled={!canEdit} value={toLocal(s.rules.closesAt)} onChange={(e) => patch({ rules: { closesAt: fromLocal(e.target.value) } })} />
                     </Row>
                   </div>
-                  <Row label={t('closedMessage')}>
-                    <Input disabled={!canEdit} value={s.rules.closedMessage ?? ''} onChange={(e) => patch({ rules: { closedMessage: e.target.value } })} />
-                  </Row>
+                  {(s.rules.opensAt || s.rules.closesAt) && (
+                    <Row label={t('closedMessage')}>
+                      <Input disabled={!canEdit} value={s.rules.closedMessage ?? ''} onChange={(e) => patch({ rules: { closedMessage: e.target.value } })} />
+                    </Row>
+                  )}
+                  </div>
+                  )}
                   {!liveChat && (
                     <>
                   <label className="flex items-center gap-2 text-sm">

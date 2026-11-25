@@ -48,7 +48,7 @@ export function SupportEditor({
   };
   const hours = w.hours ?? { enabled: false, days: [1, 2, 3, 4, 5], from: '09:00', to: '17:00' };
   const liveChat = w.mode === 'live_chat';
-  const chat = settings.chat ?? { showOnlineBadge: true, onlineMode: 'auto' as const, showTyping: true };
+  const chat = settings.chat ?? { showOnlineBadge: true, onlineMode: 'auto' as const, showTyping: true, allowSkip: false };
   const patchChat = (p: Record<string, unknown>) => dispatch({ type: 'settings', patch: { chat: p } });
   // Switching mode keeps the fields consistent: a chat always asks for the first message and may skip the phone;
   // WhatsApp mode needs the phone (the handoff goes to WhatsApp) and the message stays optional.
@@ -100,11 +100,13 @@ export function SupportEditor({
             {t('showTyping')}
             <Switch disabled={!canEdit} checked={chat.showTyping !== false} onCheckedChange={(on) => patchChat({ showTyping: on })} />
           </label>
-          <label className="flex items-center justify-between gap-2 text-sm">
-            {t('askPhone')}
-            <Switch disabled={!canEdit} checked={has('phone')} onCheckedChange={togglePhone} />
-          </label>
         </div>
+      ) : null}
+      {liveChat ? (
+        <label className="flex items-center justify-between gap-2 text-sm">
+          {t('askPhone')}
+          <Switch disabled={!canEdit} checked={has('phone')} onCheckedChange={togglePhone} />
+        </label>
       ) : null}
       <label className="flex items-center justify-between gap-2 text-sm">
         {t('askName')}
@@ -114,6 +116,12 @@ export function SupportEditor({
         {t('askEmail')}
         <Switch disabled={!canEdit} checked={has('email')} onCheckedChange={(on) => toggle('email', on)} />
       </label>
+      {liveChat ? (
+        <label className="flex items-center justify-between gap-2 text-sm">
+          {t('allowSkip')}
+          <Switch disabled={!canEdit} checked={chat.allowSkip === true} onCheckedChange={(on) => patchChat({ allowSkip: on })} />
+        </label>
+      ) : null}
       {liveChat ? null : (
         <label className="flex items-center justify-between gap-2 text-sm">
           {t('askMessage')}

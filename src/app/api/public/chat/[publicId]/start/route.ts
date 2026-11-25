@@ -22,6 +22,8 @@ const bodySchema = z
     clientId: z.string().regex(/^[A-Za-z0-9_-]{8,64}$/).optional(),
     /** Honeypot: real visitors never fill it. */
     website: z.string().max(200).optional(),
+    /** The visitor skipped the details card (only honoured when the widget allows it). */
+    skipDetails: z.boolean().optional(),
   })
   .strict()
 
@@ -52,17 +54,18 @@ export async function POST(request: Request, { params }: { params: Promise<{ pub
 
   const loaded = await loadChatForm(publicId)
   if (!loaded.ok) return loaded.res
-  const { db, form } = loaded.value
+  const { db, form, settings } = loaded.value
+  const skipping = body.skipDetails === true && settings.chat?.allowSkip === true
 
   // Only collect what this widget asks for; honour its required flags.
   const fields = Array.isArray(form.fields) ? (form.fields as { kind?: string; required?: boolean }[]) : []
   const asks = (kind: string) => fields.some((f) => f.kind === kind)
   // Live chat: whatever the widget asks for is mandatory.
-  const required = (kind: string) => asks(kind)
-  const name = asks('name') ? body.name || null : null
-  const email = asks('email') ? body.email || null : null
+  const required = (kind: string) => !skipping && asks(kind)
+  const name = !skipping && asks('name') ? body.name || null : null
+  const email = !skipping && asks('email') ? body.email || null : null
   let phone: string | null = null
-  if (asks('phone') && body.phone) {
+  if (!skipping && asks('phone') && body.phone) {
     phone = parseInternationalPhone(body.phone)
     if (!phone) return chatJson({ ok: false, error: 'invalid_phone' }, 400)
   }

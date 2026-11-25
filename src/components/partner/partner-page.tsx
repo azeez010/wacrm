@@ -18,7 +18,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { EmptyState } from '@/components/dashboard/empty-state'
 import { formatPlanPrice } from '@/lib/billing/format'
 import type { PartnerOverview } from '@/lib/partner/overview'
-import { CrmRoutingCard } from './crm-routing'
+import { CrmRouting } from './crm-routing'
 
 export function PartnerPage() {
   const t = useTranslations('Partner')
@@ -45,7 +45,7 @@ export function PartnerPage() {
     void load()
   }, [load])
 
-  async function save(patch: Record<string, unknown>): Promise<boolean> {
+  async function save(patch: Record<string, unknown>, opts?: { silent?: boolean }): Promise<boolean> {
     const res = await fetch('/api/partner/me', { method: 'PATCH', headers: { 'content-type': 'application/json' }, body: JSON.stringify(patch) })
     if (!res.ok) {
       const body = await res.json().catch(() => ({}))
@@ -53,7 +53,7 @@ export function PartnerPage() {
       return false
     }
     setData(await res.json())
-    toast.success(t('saved'))
+    if (!opts?.silent) toast.success(t('saved'))
     return true
   }
 
@@ -121,6 +121,7 @@ export function PartnerPage() {
   }
 
   const date = (iso: string) => new Date(iso).toLocaleDateString(locale, { year: 'numeric', month: 'short', day: 'numeric' })
+  const crmOn = data.crmConfig.enabled === true
   const hasPayout = Boolean((data.payoutDetails as { account_number?: string }).account_number)
 
   return (
@@ -164,7 +165,7 @@ export function PartnerPage() {
         </div>
       </Card>
 
-      <CrmRoutingCard initial={data.crmConfig} onSave={(crm_config) => save({ crm_config })} />
+      <CrmRouting config={data.crmConfig} onSave={(crm_config) => save({ crm_config }, { silent: true })} />
 
       <Tabs defaultValue="history">
         <TabsList className="h-auto flex-wrap">
@@ -179,7 +180,7 @@ export function PartnerPage() {
             <EmptyState icon={Users} title={t('history.empty')} hint={t('history.emptyHint')} />
           ) : (
             <div className="space-y-2">
-              {data.referrals.some((r) => !r.crmContactId) && (
+              {crmOn && data.referrals.some((r) => !r.crmContactId) && (
                 <div className="flex justify-end">
                   <Button size="sm" variant="outline" disabled={addingAll} onClick={() => void addAll()}>
                     {addingAll ? <Loader2 className="size-4 animate-spin" /> : <UserPlus className="size-4" />} {t('crm.addAll')}
@@ -195,7 +196,7 @@ export function PartnerPage() {
                       <TableHead>{t('history.colPlan')}</TableHead>
                       <TableHead>{t('history.colPayment')}</TableHead>
                       <TableHead>{t('history.colDate')}</TableHead>
-                      <TableHead className="text-right">{t('history.colCrm')}</TableHead>
+                      {crmOn && <TableHead className="text-right">{t('history.colCrm')}</TableHead>}
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -211,6 +212,7 @@ export function PartnerPage() {
                           <Badge variant={r.paid ? 'default' : 'outline'}>{r.paid ? t('history.paid') : t('history.unpaid')}</Badge>
                         </TableCell>
                         <TableCell>{date(r.at)}</TableCell>
+                        {crmOn && (
                         <TableCell className="text-right">
                           {r.crmContactId ? (
                             <Link href={`/contacts?open=${r.crmContactId}`} className="text-sm text-primary hover:underline">{t('crm.inCrm')}</Link>
@@ -220,6 +222,7 @@ export function PartnerPage() {
                             </Button>
                           )}
                         </TableCell>
+                        )}
                       </TableRow>
                     ))}
                   </TableBody>

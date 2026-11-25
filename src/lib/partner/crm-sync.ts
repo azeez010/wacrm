@@ -146,7 +146,7 @@ export async function markReferralPaid(db: Db, referredAccountId: string): Promi
 
     const { data: partner } = await db.from('partners').select('crm_config').eq('user_id', referral.partner_user_id).maybeSingle()
     const config = ((partner as { crm_config?: CrmConfig } | null)?.crm_config ?? {}) as CrmConfig
-    if (config.autoWon === false) return
+    if (config.enabled === false || config.autoWon === false) return
 
     const { data: deal } = await db.from('deals').select('id, account_id, pipeline_id, status').eq('id', referral.crm_deal_id).maybeSingle()
     const d = deal as { id: string; account_id: string; pipeline_id: string; status: string } | null

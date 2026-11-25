@@ -8,6 +8,8 @@ export interface PayoutDetails {
 
 /** How a referrer's referrals land in their own CRM. Ids are checked against their account on save. */
 export interface CrmConfig {
+  /** The referrer's switch: off hides every CRM control and stops auto-Won. */
+  enabled?: boolean
   unpaid?: { tagId: string | null; pipelineId: string | null; stageId: string | null }
   paid?: { tagId: string | null }
   autoWon?: boolean
@@ -31,7 +33,7 @@ export function parseCrmConfig(raw: unknown): CrmConfig | null {
   const unpaid = { tagId: id(u.tagId), pipelineId: id(u.pipelineId), stageId: id(u.stageId) }
   // A stage only makes sense with its pipeline.
   if (unpaid.stageId && !unpaid.pipelineId) return null
-  return { unpaid, paid: { tagId: id(p.tagId) }, autoWon: b.autoWon !== false }
+  return { enabled: b.enabled === true, unpaid, paid: { tagId: id(p.tagId) }, autoWon: b.autoWon !== false }
 }
 
 const clean = (v: unknown, max: number): string => (typeof v === 'string' ? v.trim().slice(0, max) : '')

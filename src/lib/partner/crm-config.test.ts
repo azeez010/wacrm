@@ -7,6 +7,7 @@ const ID = (n: number) => `00000000-0000-4000-8000-${String(n).padStart(12, '0')
 describe('parseCrmConfig', () => {
   it('accepts ids and defaults autoWon to on', () => {
     expect(parseCrmConfig({ unpaid: { tagId: ID(1), pipelineId: ID(2), stageId: ID(3) }, paid: { tagId: ID(4) } })).toEqual({
+      enabled: false,
       unpaid: { tagId: ID(1), pipelineId: ID(2), stageId: ID(3) },
       paid: { tagId: ID(4) },
       autoWon: true,
@@ -38,5 +39,12 @@ describe('onboarding phone', () => {
   })
   it('rejects a number without +country code', () => {
     expect(parseOnboardingInput({ ...base, phone: '08012345678' }).ok).toBe(false)
+  })
+})
+
+describe('crm enabled switch', () => {
+  it('is off unless explicitly true', () => {
+    expect(parseCrmConfig({ unpaid: {} })?.enabled).toBe(false)
+    expect(parseCrmConfig({ enabled: true, unpaid: {} })?.enabled).toBe(true)
   })
 })

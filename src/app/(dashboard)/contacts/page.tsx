@@ -17,6 +17,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
+import { TagPickerList, useCreateTag } from '@/components/tags/tag-picker';
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -52,7 +53,6 @@ import {
   SlidersHorizontal,
   Filter,
   Tag as TagIcon,
-  X,
 } from 'lucide-react';
 import { ContactForm } from '@/components/contacts/contact-form';
 import { ContactDetailView } from '@/components/contacts/contact-detail-view';
@@ -108,7 +108,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 
-const TAG_COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#8b5cf6', '#06b6d4', '#ec4899', '#ef4444', '#f97316'];
 const PAGE_SIZES = [25, 50, 100] as const;
 const DEFAULT_PAGE_SIZE = 25;
 const PAGE_SIZE_KEY = 'wacrm:contacts-page-size';
@@ -205,8 +204,6 @@ function ContactsPageInner() {
   // timestamp is in the future the next fetches keep (and prune) the selection.
   const keepSelectionUntil = useRef(0);
   const tableMetaForce = useRef(false);
-  const [newTagName, setNewTagName] = useState('');
-  const [creatingTag, setCreatingTag] = useState(false);
   const [tagToDelete, setTagToDelete] = useState<Tag | null>(null);
   const [deletingTag, setDeletingTag] = useState(false);
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
@@ -216,7 +213,7 @@ function ContactsPageInner() {
 
   // Custom-field columns. Which ones show is a per-browser preference
   // (localStorage); a field's "Show as column" flag provides the default.
-  const { accountId, user, defaultCurrency, accountTimezone } = useAuth();
+  const { accountId, defaultCurrency, accountTimezone } = useAuth();
   const [fieldDefs, setFieldDefs] = useState<CustomField[]>([]);
   const [colPrefs, setColPrefs] = useState<ColumnPrefs>({ hidden: [], custom: null, refCols: [] });
   const [valuesByContact, setValuesByContact] = useState<ValuesByContact>({});
@@ -687,29 +684,9 @@ function ContactsPageInner() {
   }
 
   /** Create a tag from the Tags filter (colour picked from the same palette as Settings). */
-  async function createTagInline() {
-    const name = newTagName.trim();
-    if (!name || !accountId || !user) return;
-    if (allTags.some((tg) => tg.name.toLowerCase() === name.toLowerCase())) {
-      toast.error(t('tagManage.duplicate', { name }));
-      return;
-    }
-    setCreatingTag(true);
-    const color = TAG_COLORS[allTags.length % TAG_COLORS.length];
-    const { data, error } = await supabase
-      .from('tags')
-      .insert({ user_id: user.id, account_id: accountId, name, color })
-      .select()
-      .single();
-    setCreatingTag(false);
-    if (error || !data) {
-      toast.error(t('tagManage.createFailed'));
-      return;
-    }
-    setTagsMap((prev) => ({ ...prev, [(data as Tag).id]: data as Tag }));
-    setNewTagName('');
-    toast.success(t('tagManage.created', { name }));
-  }
+  const { create: createTagInline, creating: creatingTag } = useCreateTag(allTags, (tag) =>
+    setTagsMap((prev) => ({ ...prev, [tag.id]: tag })),
+  );
 
   async function deleteTagConfirmed() {
     if (!tagToDelete) return;
@@ -1049,64 +1026,17 @@ function ContactsPageInner() {
                   </button>
                 )}
               </div>
-              {canEditSettings && (
-                <div className="flex items-center gap-1.5 border-b border-border p-2">
-                  <Input
-                    value={newTagName}
-                    onChange={(e) => setNewTagName(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault();
-                        void createTagInline();
-                      }
-                    }}
-                    placeholder={t('tagManage.newPlaceholder')}
-                    maxLength={50}
-                    className="h-8 bg-muted text-sm"
-                  />
-                  <Button
-                    type="button"
-                    size="icon-sm"
-                    variant="ghost"
-                    onClick={() => void createTagInline()}
-                    disabled={!newTagName.trim() || creatingTag}
-                    aria-label={t('tagManage.add')}
-                    title={t('tagManage.add')}
-                    className="shrink-0 text-muted-foreground hover:text-primary"
-                  >
-                    {creatingTag ? <Loader2 className="size-4 animate-spin" /> : <Plus className="size-4" />}
-                  </Button>
-                </div>
-              )}
-              <div className="max-h-64 overflow-y-auto py-1">
-                {allTags.length === 0 ? (
-                  <p className="px-3 py-4 text-center text-xs text-muted-foreground">{t('noTagsYet')}</p>
-                ) : (
-                  allTags.map((tag) => (
-                    <div key={tag.id} className="group/row flex items-center hover:bg-muted">
-                      <label className="flex min-w-0 flex-1 cursor-pointer items-center gap-2 px-3 py-1.5 text-sm">
-                        <Checkbox checked={tagFilterIds.includes(tag.id)} onCheckedChange={() => toggleTagFilter(tag.id)} />
-                        <span className="size-2 shrink-0 rounded-full" style={{ backgroundColor: tag.color }} />
-                        <span className="truncate">{tag.name}</span>
-                      </label>
-                      {canEditSettings && (
-                        <button
-                          type="button"
-                          aria-label={t('tagManage.deleteAria', { name: tag.name })}
-                          title={t('tagManage.deleteAria', { name: tag.name })}
-                          // Warm the "what uses this tag" answer so the confirmation opens ready.
-                          onMouseEnter={() => void fetchTagUsage(tag.id).catch(() => undefined)}
-                          onFocus={() => void fetchTagUsage(tag.id).catch(() => undefined)}
-                          onClick={() => setTagToDelete(tag)}
-                          className="mr-2 flex size-6 shrink-0 items-center justify-center rounded text-muted-foreground opacity-60 transition-opacity hover:text-red-400 hover:opacity-100 focus-visible:opacity-100 group-hover/row:opacity-100"
-                        >
-                          <X className="size-3.5" />
-                        </button>
-                      )}
-                    </div>
-                  ))
-                )}
-              </div>
+              <TagPickerList
+                tags={allTags}
+                selectedIds={tagFilterIds}
+                onToggle={(tag) => toggleTagFilter(tag.id)}
+                onCreate={createTagInline}
+                creating={creatingTag}
+                canCreate={canEditSettings}
+                onDelete={setTagToDelete}
+                // Warm the "what uses this tag" answer so the confirmation opens ready.
+                onWarmDelete={(tag) => void fetchTagUsage(tag.id).catch(() => undefined)}
+              />
             </PopoverContent>
           </Popover>
 

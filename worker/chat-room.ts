@@ -11,7 +11,7 @@
 // only ever added by that code, never taken from the client.
 // ============================================================
 
-// @ts-ignore: provided by the Workers runtime (the worker/ folder is excluded from tsc)
+// @ts-expect-error: provided by the Workers runtime (the worker/ folder is excluded from tsc)
 import { DurableObject } from 'cloudflare:workers'
 import {
   createFrameLimiter,
@@ -39,12 +39,12 @@ export class ChatRoom extends DurableObject {
   constructor(ctx: unknown, env: unknown) {
     super(ctx, env)
     // Keepalive without waking the object: client sends "ping", runtime answers "pong".
-    // @ts-ignore
+    // @ts-expect-error: Workers runtime API, not in the DOM types
     this.ctx.setWebSocketAutoResponse(new WebSocketRequestResponsePair('ping', 'pong'))
   }
 
   private sockets(except?: WebSocket): Sock[] {
-    // @ts-ignore
+    // @ts-expect-error: Workers runtime API, not in the DOM types
     return (this.ctx.getWebSockets() as Sock[]).filter((s) => s !== except && s.readyState === 1)
   }
 
@@ -109,10 +109,10 @@ export class ChatRoom extends DurableObject {
       if (role !== 'visitor' && role !== 'agent') return new Response('forbidden', { status: 403 })
       if (!roomHasCapacity(role, this.counts())) return new Response('room full', { status: 429 })
 
-      // @ts-ignore
+      // @ts-expect-error: WebSocketPair is a Workers runtime global
       const pair = new WebSocketPair()
       const [client, server] = Object.values(pair) as [WebSocket, Sock]
-      // @ts-ignore
+      // @ts-expect-error: Workers runtime API, not in the DOM types
       this.ctx.acceptWebSocket(server, [role])
       server.serializeAttachment({ role, sub } satisfies Attachment)
       this.limiters.set(server, createFrameLimiter())

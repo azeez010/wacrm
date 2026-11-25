@@ -31,12 +31,15 @@ const tablesWithoutDomainData = new Set([
   // Image library: an empty personal account being discarded holds at most a
   // just-uploaded picture; the rows cascade with the account.
   "media_assets",
+  // Admin console's daily MRR snapshot (admin schema, 088): derived numbers, no
+  // user-entered data, and the rows cascade with the account.
+  "metrics_snapshots",
 ]);
 
 function accountScopedTables(): Set<string> {
   const tables = new Set<string>();
   const accountForeignKey = /\baccount_id\s+uuid\b[^,;]*references\s+(?:public\.)?accounts\s*\(\s*id\s*\)/i;
-  const tableName = /(?:create\s+table(?:\s+if\s+not\s+exists)?|alter\s+table)\s+(?:public\.)?(\w+)/i;
+  const tableName = /(?:create\s+table(?:\s+if\s+not\s+exists)?|alter\s+table)\s+(?:\w+\.)?(\w+)/i;
   for (const { sql } of migrations) {
     for (const statement of sql.split(";")) {
       if (!accountForeignKey.test(statement)) continue;

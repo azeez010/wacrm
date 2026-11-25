@@ -59,3 +59,81 @@ export function localizedAlternates(locale: Locale, path = '/'): NonNullable<Met
   languages['x-default'] = localizedUrl(routing.defaultLocale, path)
   return { canonical: localizedUrl(locale, path), languages }
 }
+
+/** Serialises structured data for a <script type="application/ld+json"> (no "<", so it cannot close the tag). */
+export function jsonLd(doc: unknown): string {
+  return JSON.stringify(doc).replace(/</g, '\\u003c')
+}
+
+export type Crumb = { name: string; path: string }
+
+export function breadcrumbJsonLd(crumbs: Crumb[], siteUrl: string = SITE_URL) {
+  return {
+    '@type': 'BreadcrumbList',
+    itemListElement: crumbs.map((c, i) => ({ '@type': 'ListItem', position: i + 1, name: c.name, item: `${siteUrl}${c.path}` })),
+  }
+}
+
+export type BlogPostingInput = {
+  slug: string
+  title: string
+  description: string | null
+  images: string[]
+  publishedAt: string
+  updatedAt: string
+  author: string | null
+  category: string | null
+  tags: string[]
+  keywords: string[]
+  wordCount: number
+  canonical: string
+}
+
+/**
+ * BlogPosting with the fields Google uses for article rich results: headline, images, both dates,
+ * author (a Person when named, else the organisation) and the publisher with its logo.
+ */
+export function blogPostingJsonLd(p: BlogPostingInput, brand: string, siteUrl: string = SITE_URL) {
+  const org = { '@type': 'Organization', '@id': `${siteUrl}/#organization`, name: brand, url: siteUrl, logo: { '@type': 'ImageObject', url: `${siteUrl}/android-chrome-512x512.png`, width: 512, height: 512 } }
+  return {
+    '@type': 'BlogPosting',
+    '@id': `${p.canonical}#article`,
+    mainEntityOfPage: { '@type': 'WebPage', '@id': p.canonical },
+    url: p.canonical,
+    headline: p.title.slice(0, 110),
+    ...(p.description ? { description: p.description } : {}),
+    image: p.images,
+    datePublished: p.publishedAt,
+    dateModified: p.updatedAt,
+    author: p.author ? { '@type': 'Person', name: p.author } : { '@id': `${siteUrl}/#organization` },
+    publisher: org,
+    inLanguage: 'en',
+    ...(p.category ? { articleSection: p.category } : {}),
+    ...(p.tags.length || p.keywords.length ? { keywords: [...new Set([...p.keywords, ...p.tags])].join(', ') } : {}),
+    wordCount: p.wordCount,
+    isPartOf: { '@type': 'Blog', '@id': `${siteUrl}/blog#blog` },
+  }
+}
+
+export function faqJsonLd(faq: { question: string; answer: string }[]) {
+  return {
+    '@type': 'FAQPage',
+    mainEntity: faq.map((f) => ({ '@type': 'Question', name: f.question, acceptedAnswer: { '@type': 'Answer', text: f.answer } })),
+  }
+}
+
+/** The blog (or a category of it) as a collection listing its posts. */
+export function blogCollectionJsonLd(opts: { name: string; description: string; url: string; posts: { title: string; url: string }[] }, brand: string, siteUrl: string = SITE_URL) {
+  return {
+    '@type': 'CollectionPage',
+    '@id': `${opts.url}#page`,
+    url: opts.url,
+    name: opts.name,
+    description: opts.description,
+    isPartOf: { '@type': 'Blog', '@id': `${siteUrl}/blog#blog`, name: `${brand} Blog`, url: `${siteUrl}/blog`, publisher: { '@id': `${siteUrl}/#organization` } },
+    mainEntity: { '@type': 'ItemList', itemListElement: opts.posts.map((p, i) => ({ '@type': 'ListItem', position: i + 1, url: p.url, name: p.title })) },
+  }
+}
+
+/** Wraps several nodes into one @graph document. */
+export const graph = (...nodes: object[]) => ({ '@context': 'https://schema.org', '@graph': nodes })

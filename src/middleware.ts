@@ -15,6 +15,30 @@ function isLocalizedLandingPath(pathname: string): boolean {
   return (pathname.replace(LOCALE_PREFIX, '') || '/') === '/'
 }
 
+/** Public blog: anonymous, so skip the auth round trip (and keep it fast for crawlers). */
+const BLOG_PATH = /^\/blog(\/|$)/
+
+/**
+ * A deleted post answers 410 Gone (search engines drop it faster than a 404). Pages can't set a 410
+ * themselves, so this asks the blog API, whose answer is cached at the edge. Fails open.
+ */
+async function blogGone(pathname: string): Promise<NextResponse | null> {
+  const m = /^\/blog\/([a-z0-9]+(?:-[a-z0-9]+)*)\/?$/.exec(pathname)
+  if (!m || m[1] === 'page' || m[1] === 'category') return null
+  try {
+    const api = (process.env.BLOG_API_URL || 'https://api.ogadesk.com').replace(/\/+$/, '')
+    const init = { redirect: 'manual', cf: { cacheTtl: 300, cacheEverything: true } } as RequestInit
+    const res = await fetch(`${api}/blog/${m[1]}`, init)
+    if (res.status !== 410) return null
+    return new NextResponse('<!doctype html><title>Post removed</title><p>This post has been removed. <a href="/blog">See the blog</a>.</p>', {
+      status: 410,
+      headers: { 'content-type': 'text/html; charset=utf-8', 'x-robots-tag': 'noindex', 'cache-control': 'public, max-age=300' },
+    })
+  } catch {
+    return null
+  }
+}
+
 /** Public lead-form surface: anonymous by design, so skip the auth round trip. */
 const PUBLIC_FORM_PATH = /^\/(f|embed)\/|^\/embed\.js$|^\/api\/public\//
 
@@ -34,6 +58,9 @@ async function handle(request: NextRequest) {
 
   if (PUBLIC_FORM_PATH.test(request.nextUrl.pathname)) {
     return NextResponse.next({ request })
+  }
+  if (BLOG_PATH.test(request.nextUrl.pathname)) {
+    return (await blogGone(request.nextUrl.pathname)) ?? NextResponse.next({ request })
   }
   if (isLocalizedLandingPath(request.nextUrl.pathname)) {
     return intlMiddleware(request)

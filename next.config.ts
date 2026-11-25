@@ -161,7 +161,7 @@ const nextConfig: NextConfig = {
         headers: [{ key: "Cache-Control", value: "no-store" }],
       },
       {
-        source: "/:path((?!_next/static|_next/image|api|f/|embed/|embed\\.js).*)",
+        source: "/:path((?!_next/static|_next/image|api|f/|embed/|embed\\.js|blog(?:/|$)|sitemap\\.xml).*)",
         headers: [
           {
             key: "Cache-Control",
@@ -182,6 +182,19 @@ const nextConfig: NextConfig = {
       {
         source: "/embed/:path*",
         headers: [cspHeader(false, true), { key: "Cache-Control", value: "public, max-age=0, s-maxage=30, stale-while-revalidate=60" }],
+      },
+      {
+        // Public blog + sitemap: same content for everyone, so shared caches may keep it briefly.
+        source: "/blog",
+        headers: [{ key: "Cache-Control", value: "public, max-age=0, s-maxage=300, stale-while-revalidate=600" }],
+      },
+      {
+        source: "/blog/:path*",
+        headers: [{ key: "Cache-Control", value: "public, max-age=0, s-maxage=300, stale-while-revalidate=600" }],
+      },
+      {
+        source: "/sitemap.xml",
+        headers: [{ key: "Cache-Control", value: "public, max-age=0, s-maxage=3600, stale-while-revalidate=86400" }],
       },
       {
         // The embed script itself: cached, loadable from any site.

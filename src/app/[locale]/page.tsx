@@ -10,7 +10,7 @@ import { LanguageSwitcher } from '@/components/language-switcher'
 import { HREFLANG, isLocale } from '@/i18n/locales'
 import { localizedAlternates, localizedUrl } from '@/lib/seo'
 import { cn } from '@/lib/utils'
-import { BRAND_NAME, COMPANY_COUNTRY, COMPANY_NAME, COMPANY_RC_NUMBER } from '@/lib/brand'
+import { BRAND_NAME } from '@/lib/brand'
 import { getPublicPlans } from '@/lib/billing/public-plans'
 import { createClient } from '@/lib/supabase/server'
 import { CurrencySwitcher } from '@/components/currency-switcher'
@@ -261,9 +261,7 @@ export default async function LandingPage({
       </main>
 
       <footer className="border-t py-8 text-center text-sm text-muted-foreground">
-        <p className="mb-2">
-          © {new Date().getFullYear()} {COMPANY_NAME} · {COMPANY_RC_NUMBER} · Registered in {COMPANY_COUNTRY}
-        </p>
+        © {new Date().getFullYear()} {BRAND_NAME} ·{' '}
         <Link href={signedIn ? '/dashboard' : '/login'} className="underline">
           {signedIn ? t('nav.dashboard') : t('footer.login')}
         </Link>

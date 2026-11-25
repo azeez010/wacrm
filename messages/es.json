@@ -2380,6 +2380,25 @@
         "document": "📄 Documento",
         "location": "📍 Ubicación",
         "template": "📋 Plantilla"
+      },
+      "testSent": "Prueba enviada. Si no la viste, revisa los ajustes de notificaciones de tu ordenador.",
+      "osBlockedTitle": "Tu navegador lo permitió, pero tu ordenador puede estar ocultándola",
+      "osBlockedHint": "Activa las notificaciones de tu navegador (p. ej., Chrome) en Ajustes del sistema → Notificaciones y desactiva Concentración / No molestar."
+    },
+    "messageSound": {
+      "title": "Sonido de mensajes",
+      "description": "Reproduce un sonido cuando llega un nuevo mensaje de un cliente, como en WhatsApp. Se guarda en este dispositivo.",
+      "toggleLabel": "Reproducir un sonido con mensajes nuevos",
+      "toggleDesc": "Suena mientras la app está abierta en una pestaña. Silencio en el chat que ya estás viendo.",
+      "soundLabel": "Sonido",
+      "volumeLabel": "Volumen",
+      "preview": "Reproducir sonido",
+      "sounds": {
+        "pop": "Pop",
+        "chime": "Campanilla",
+        "ding": "Ding",
+        "bubble": "Burbuja",
+        "soft": "Suave"
       }
     },
     "apiKeys": {

@@ -2380,6 +2380,25 @@
         "document": "📄 Documento",
         "location": "📍 Localização",
         "template": "📋 Modelo"
+      },
+      "testSent": "Teste enviado. Se não o viu, verifique as definições de notificações do computador.",
+      "osBlockedTitle": "O navegador permitiu, mas o computador pode estar a ocultá-la",
+      "osBlockedHint": "Ative as notificações do navegador (ex.: Chrome) em Definições do Sistema → Notificações e desative o modo Foco / Não incomodar."
+    },
+    "messageSound": {
+      "title": "Som de mensagem",
+      "description": "Toca um som quando chega uma nova mensagem de cliente, como no WhatsApp. Guardado neste dispositivo.",
+      "toggleLabel": "Tocar um som para novas mensagens",
+      "toggleDesc": "Toca enquanto a app estiver aberta num separador. Silencioso na conversa que já está a ver.",
+      "soundLabel": "Som",
+      "volumeLabel": "Volume",
+      "preview": "Tocar som",
+      "sounds": {
+        "pop": "Pop",
+        "chime": "Carrilhão",
+        "ding": "Ding",
+        "bubble": "Bolha",
+        "soft": "Suave"
       }
     },
     "apiKeys": {

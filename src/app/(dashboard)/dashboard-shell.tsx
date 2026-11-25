@@ -13,6 +13,8 @@ import { OnboardingDialog } from "@/components/onboarding/onboarding-dialog";
 import { ReferralAttribution } from "@/components/partner/referral-attribution";
 import { CommandPalette } from "@/components/command-palette/command-palette";
 import { BrowserNotificationsListener } from "@/components/notifications/browser-notifications-listener";
+import { useTotalUnread } from "@/hooks/use-total-unread";
+import { useUnreadTitle } from "@/hooks/use-unread-title";
 
 // Auth-gated dashboard shell. Extracted from the layout so the layout
 // itself can stay a server component and export metadata (noindex) -
@@ -48,6 +50,29 @@ function DashboardShellInner({ children }: { children: React.ReactNode }) {
   if (!user) return null;
 
   return (
+    <SignedInShell sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} closeSidebar={closeSidebar}>
+      {children}
+    </SignedInShell>
+  );
+}
+
+// Split out so the unread realtime subscription (and the "(n)" tab
+// title) only runs once a user is signed in.
+function SignedInShell({
+  children,
+  sidebarOpen,
+  setSidebarOpen,
+  closeSidebar,
+}: {
+  children: React.ReactNode;
+  sidebarOpen: boolean;
+  setSidebarOpen: (open: boolean) => void;
+  closeSidebar: () => void;
+}) {
+  const totalUnread = useTotalUnread();
+  useUnreadTitle(totalUnread);
+
+  return (
     <div className="flex h-screen overflow-hidden bg-background">
       {/* Reports this tab's online/away presence once we know a user is
           signed in. Headless, renders nothing. */}
@@ -63,7 +88,7 @@ function DashboardShellInner({ children }: { children: React.ReactNode }) {
       <ReferralAttribution />
       {/* Cmd/Ctrl+K search and quick actions (desktop only). */}
       <CommandPalette />
-      <Sidebar open={sidebarOpen} onClose={closeSidebar} />
+      <Sidebar open={sidebarOpen} onClose={closeSidebar} totalUnread={totalUnread} />
       <div className="flex flex-1 flex-col overflow-hidden">
         <Header onOpenSidebar={() => setSidebarOpen(true)} />
         {/* Thinner horizontal padding on mobile so cards have room to breathe. */}

@@ -17,6 +17,15 @@ import {
   viewedConversationFromLocation,
   type NotificationLabels,
 } from "@/lib/notifications/browser-notify";
+import {
+  DEFAULT_SOUND_PREF,
+  playSound,
+  readSoundPref,
+  shouldPlaySound,
+  subscribeSoundPref,
+  unlockAudioOnGesture,
+  type SoundPref,
+} from "@/lib/notifications/sound";
 
 const serverSnapshot = () => false;
 
@@ -32,8 +41,16 @@ export function useBrowserNotifyPref(): boolean {
   );
 }
 
+const serverSoundSnapshot = (): SoundPref => DEFAULT_SOUND_PREF;
+
+/** The device-scoped new-message sound preference. */
+export function useSoundPref(): SoundPref {
+  return useSyncExternalStore(subscribeSoundPref, readSoundPref, serverSoundSnapshot);
+}
+
 /**
- * Desktop notifications for new inbound customer messages. Mount ONCE
+ * Desktop notifications AND the new-message sound for new inbound
+ * customer messages. Mount ONCE
  * per signed-in dashboard tab (the dashboard shell does this via
  * <BrowserNotificationsListener />) so alerts fire on any page.
  *
@@ -49,7 +66,10 @@ export function useBrowserNotifyPref(): boolean {
  * or Web Push here, so a closed browser stays quiet.
  */
 export function useBrowserNotifications(): void {
-  const enabled = useBrowserNotifyPref();
+  const notifyEnabled = useBrowserNotifyPref();
+  const sound = useSoundPref();
+  const soundEnabled = sound.enabled;
+  const enabled = notifyEnabled || soundEnabled;
   const router = useRouter();
   const t = useTranslations("Settings.browserNotifications.labels");
 
@@ -72,10 +92,19 @@ export function useBrowserNotifications(): void {
   // Message ids already handled, for replay dedupe. Survives re-renders,
   // pruned by shouldNotifyForMessage.
   const seenRef = useRef<Map<string, number>>(new Map());
+  const lastSoundAtRef = useRef<number | null>(null);
+  // Latest prefs, read inside the realtime callback without re-subscribing.
+  const prefsRef = useRef({ notifyEnabled, sound });
+  useEffect(() => {
+    prefsRef.current = { notifyEnabled, sound };
+  });
+
+  useEffect(() => {
+    unlockAudioOnGesture();
+  }, []);
 
   useEffect(() => {
     if (!enabled) return;
-    if (getNotificationPermission() === "unsupported") return;
 
     const supabase = createClient();
     let cancelled = false;
@@ -105,8 +134,10 @@ export function useBrowserNotifications(): void {
           // One alert per conversation: a second message from the same
           // customer replaces the first instead of stacking.
           tag: msg.conversation_id,
+          // Without renotify a same-tag replacement is silent (no banner).
+          renotify: true,
           icon: "/android-chrome-192x192.png",
-        });
+        } as NotificationOptions);
         notification.onclick = () => {
           window.focus();
           router.push(conversationHref(msg.conversation_id));
@@ -125,9 +156,6 @@ export function useBrowserNotifications(): void {
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "messages" },
         (payload) => {
-          // Re-check every time: the user can revoke permission in the
-          // browser without the preference flipping.
-          if (getNotificationPermission() !== "granted") return;
           const msg = payload.new as Message;
           const shouldNotify = shouldNotifyForMessage(msg, {
             documentVisible: document.visibilityState === "visible",
@@ -138,7 +166,19 @@ export function useBrowserNotifications(): void {
             seen: seenRef.current,
           });
           if (!shouldNotify) return;
-          void notify(msg);
+          const prefs = prefsRef.current;
+          if (prefs.sound.enabled) {
+            const now = Date.now();
+            if (shouldPlaySound(now, lastSoundAtRef.current)) {
+              lastSoundAtRef.current = now;
+              playSound(prefs.sound.sound, prefs.sound.volume);
+            }
+          }
+          // Re-check every time: the user can revoke permission in the
+          // browser without the preference flipping.
+          if (prefs.notifyEnabled && getNotificationPermission() === "granted") {
+            void notify(msg);
+          }
         },
       )
       .subscribe();

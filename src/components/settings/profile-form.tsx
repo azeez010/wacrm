@@ -18,6 +18,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { useTranslations } from 'next-intl';
 import { SettingsPanelHead } from './settings-panel-head';
 import { BrowserNotificationsCard } from './browser-notifications-card';
+import { MessageSoundCard } from './message-sound-card';
 import { UseCaseCard } from './use-case-card';
 import { MarketingCard } from './marketing-card';
 import { MediaDialog } from '@/components/media/media-dialog';
@@ -310,6 +311,8 @@ export function ProfileForm() {
       {/* Device-scoped, so it lives outside the profile form and its
           Save button, flipping the switch applies immediately. */}
       <BrowserNotificationsCard className="mt-6" />
+
+      <MessageSoundCard className="mt-6" />
 
       <MarketingCard className="mt-6" />
 

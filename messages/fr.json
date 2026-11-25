@@ -2380,6 +2380,25 @@
         "document": "📄 Document",
         "location": "📍 Position",
         "template": "📋 Modèle"
+      },
+      "testSent": "Test envoyé. Si vous ne l'avez pas vu, vérifiez les réglages de notifications de votre ordinateur.",
+      "osBlockedTitle": "Votre navigateur l'autorise, mais votre ordinateur la masque peut-être",
+      "osBlockedHint": "Activez les notifications de votre navigateur (ex. Chrome) dans Réglages Système → Notifications et désactivez Concentration / Ne pas déranger."
+    },
+    "messageSound": {
+      "title": "Son des messages",
+      "description": "Joue un son à l'arrivée d'un nouveau message client, comme WhatsApp. Enregistré sur cet appareil.",
+      "toggleLabel": "Jouer un son pour les nouveaux messages",
+      "toggleDesc": "Fonctionne tant que l'app est ouverte dans un onglet. Silencieux pour la conversation déjà ouverte.",
+      "soundLabel": "Son",
+      "volumeLabel": "Volume",
+      "preview": "Écouter",
+      "sounds": {
+        "pop": "Pop",
+        "chime": "Carillon",
+        "ding": "Ding",
+        "bubble": "Bulle",
+        "soft": "Doux"
       }
     },
     "apiKeys": {

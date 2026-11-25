@@ -21,6 +21,7 @@ import {
   writeBrowserNotifyPref,
   type BrowserNotifyPermission,
 } from '@/lib/notifications/browser-notify';
+import { playSound, readSoundPref } from '@/lib/notifications/sound';
 
 // `Notification.permission` has no change event of its own. Re-read it
 // whenever the tab regains focus (the user may have flipped the site
@@ -85,12 +86,33 @@ export function BrowserNotificationsCard({ className }: { className?: string }) 
   };
 
   const sendTest = () => {
+    // The chosen new-message sound plays too, so there is always some
+    // feedback even when the OS hides the banner.
+    const sound = readSoundPref();
+    if (sound.enabled) playSound(sound.sound, sound.volume);
     try {
-      new Notification(t('testTitle'), {
+      const notification = new Notification(t('testTitle'), {
         body: t('testBody'),
         icon: '/android-chrome-192x192.png',
-        tag: 'wacrm-test-notification',
+        // Unique per click: reusing one tag makes the browser silently
+        // replace the previous test in Notification Centre (no banner).
+        tag: `wacrm-test-${Date.now()}`,
       });
+      let shown = false;
+      // If the OS has notifications for this browser off (or Focus /
+      // Do Not Disturb is on) the constructor succeeds but nothing shows.
+      const hidden = window.setTimeout(() => {
+        if (!shown) toast.warning(t('osBlockedTitle'), { description: t('osBlockedHint') });
+      }, 4000);
+      notification.onshow = () => {
+        shown = true;
+        window.clearTimeout(hidden);
+        toast.success(t('testSent'));
+      };
+      notification.onerror = () => {
+        window.clearTimeout(hidden);
+        toast.warning(t('osBlockedTitle'), { description: t('osBlockedHint') });
+      };
     } catch {
       toast.error(t('unsupported'));
     }

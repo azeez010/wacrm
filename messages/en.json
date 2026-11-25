@@ -2380,6 +2380,25 @@
         "document": "📄 Document",
         "location": "📍 Location",
         "template": "📋 Template"
+      },
+      "testSent": "Test sent. If you didn't see it, check your computer's notification settings.",
+      "osBlockedTitle": "Your browser allowed it, but your computer may be hiding it",
+      "osBlockedHint": "Turn on notifications for your browser (e.g. Chrome) in System Settings → Notifications, and turn off Focus / Do Not Disturb."
+    },
+    "messageSound": {
+      "title": "Message sound",
+      "description": "Play a sound when a new customer message arrives, like WhatsApp. Saved to this device.",
+      "toggleLabel": "Play a sound for new messages",
+      "toggleDesc": "Plays while the app is open in a browser tab. Silent for the chat you're already looking at.",
+      "soundLabel": "Sound",
+      "volumeLabel": "Volume",
+      "preview": "Play sound",
+      "sounds": {
+        "pop": "Pop",
+        "chime": "Chime",
+        "ding": "Ding",
+        "bubble": "Bubble",
+        "soft": "Soft"
       }
     },
     "apiKeys": {

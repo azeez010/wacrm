@@ -37,7 +37,10 @@
 		"EMAIL_FROM_ADDRESS": "no.reply@ogadesk.com",
 		"EMAIL_FROM_NAME": "No Reply",
 		// Public domain used in links we hand out (form links, embed snippets, SEO).
-		"NEXT_PUBLIC_APP_URL": "https://ogadesk.com"
+		"NEXT_PUBLIC_APP_URL": "https://ogadesk.com",
+		// Crash + performance monitoring (a DSN is public, not a secret).
+		"SENTRY_DSN": "https://cd13aaa08676d8130925ab75802aff92@o4510754529345536.ingest.de.sentry.io/4512489681846352",
+		"SENTRY_ENVIRONMENT": "production"
 	},
 	"durable_objects": {
 		"bindings": [

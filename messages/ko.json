@@ -367,6 +367,7 @@
       "showContact": "연락처 표시",
       "refresh": "새로고침",
       "loadOlder": "이전 메시지 불러오기",
+      "agentJoined": "{name}님이 채팅에 참여했습니다",
       "loadingOlder": "불러오는 중…",
       "loadOlderFailed": "이전 메시지를 불러오지 못했습니다.",
       "refreshConversation": "대화 새로고침",

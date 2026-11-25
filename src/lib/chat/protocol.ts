@@ -9,7 +9,7 @@ export interface ChatMessageView {
   id: string
   /** 'customer' = the visitor; 'agent' / 'bot' = the team. */
   sender_type: 'customer' | 'agent' | 'bot'
-  content_type: 'text' | 'image' | 'interactive'
+  content_type: 'text' | 'image' | 'interactive' | 'event'
   content_text: string | null
   media_url: string | null
   interactive_payload?: unknown

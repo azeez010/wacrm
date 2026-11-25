@@ -16,3 +16,10 @@ describe('toChatMessageView', () => {
     expect('interactive_payload' in toChatMessageView({ ...base, sender_type: 'agent' })).toBe(false)
   })
 })
+
+describe('event rows', () => {
+  it('passes an event through with the teammate name as its text', () => {
+    const v = toChatMessageView({ id: 'e1', sender_type: 'bot', content_type: 'event', content_text: 'Jide', media_url: null, created_at: '2026-11-25T10:00:00Z' })
+    expect(v).toMatchObject({ content_type: 'event', content_text: 'Jide', sender_type: 'bot' })
+  })
+})

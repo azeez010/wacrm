@@ -56,6 +56,9 @@ export async function sendWebChatMessage(
     throw new ChannelSendError('channel_not_supported', 'Website chat carries text and images.', 400)
   }
 
+  // The first time a teammate replies in this chat, say so in the timeline ("Jide just joined the chat").
+  if (!params.bot && params.senderId) await announceAgentJoined(db, accountId, conversationId, params.senderId)
+
   const text = type === 'interactive' ? params.interactivePayload!.body : (params.contentText ?? null)
   const { data, error } = await db
     .from('messages')
@@ -85,4 +88,29 @@ export async function sendWebChatMessage(
   const names = await loadSenderNames(db, accountId, [row])
   await pushToRoom(conversationId, { type: 'message', message: toChatMessageView(row, row.sender_id ? names.get(row.sender_id) : null) }, 'visitor')
   return { messageId: row.id }
+}
+
+/** One centred "<name> just joined the chat" line per teammate per conversation. Best-effort: never blocks the reply. */
+async function announceAgentJoined(db: SupabaseClient, accountId: string, conversationId: string, agentId: string): Promise<void> {
+  try {
+    const { data: prior } = await db
+      .from('messages')
+      .select('id')
+      .eq('conversation_id', conversationId)
+      .eq('content_type', 'event')
+      .eq('sender_id', agentId)
+      .limit(1)
+    if ((prior?.length ?? 0) > 0) return
+    const { data: profile } = await db.from('profiles').select('full_name').eq('account_id', accountId).eq('user_id', agentId).maybeSingle()
+    const name = ((profile as { full_name?: string | null } | null)?.full_name ?? '').trim().split(/\s+/)[0]
+    if (!name) return
+    const { data } = await db
+      .from('messages')
+      .insert({ conversation_id: conversationId, sender_type: 'bot', sender_id: agentId, content_type: 'event', content_text: name, status: 'sent' })
+      .select(CHAT_MESSAGE_COLUMNS)
+      .single()
+    if (data) await pushToRoom(conversationId, { type: 'message', message: toChatMessageView(data as ChatMessageRow) }, 'visitor')
+  } catch (err) {
+    console.error('[web-chat] join event failed:', err instanceof Error ? err.message : err)
+  }
 }

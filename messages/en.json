@@ -367,6 +367,7 @@
       "showContact": "Show contact",
       "refresh": "Refresh",
       "loadOlder": "Load older messages",
+      "agentJoined": "{name} just joined the chat",
       "loadingOlder": "Loading…",
       "loadOlderFailed": "Could not load older messages.",
       "refreshConversation": "Refresh conversation",

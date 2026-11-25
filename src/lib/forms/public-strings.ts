@@ -50,6 +50,7 @@ export interface PublicStrings {
   chatDetailsPrompt: string
   chatSkip: string
   chatConnecting: string
+  chatAgentJoined: string
 }
 
 export const PUBLIC_STRINGS: Record<PublicLang, PublicStrings> = {
@@ -100,6 +101,7 @@ export const PUBLIC_STRINGS: Record<PublicLang, PublicStrings> = {
     chatDetailsPrompt: "Before we connect you, could you share a few details?",
     chatSkip: "Skip",
     chatConnecting: "Connecting you to our team...",
+    chatAgentJoined: "{name} just joined the chat",
   },
   es: {
     submit: 'Enviar',
@@ -148,6 +150,7 @@ export const PUBLIC_STRINGS: Record<PublicLang, PublicStrings> = {
     chatDetailsPrompt: "Antes de conectarte, ¿puedes compartir algunos datos?",
     chatSkip: "Omitir",
     chatConnecting: "Conectándote con nuestro equipo...",
+    chatAgentJoined: "{name} se unió al chat",
   },
   fr: {
     submit: 'Envoyer',
@@ -196,6 +199,7 @@ export const PUBLIC_STRINGS: Record<PublicLang, PublicStrings> = {
     chatDetailsPrompt: "Avant de vous mettre en relation, pouvez-vous partager quelques informations ?",
     chatSkip: "Ignorer",
     chatConnecting: "Mise en relation avec notre équipe...",
+    chatAgentJoined: "{name} vient de rejoindre le chat",
   },
   pt: {
     submit: 'Enviar',
@@ -244,6 +248,7 @@ export const PUBLIC_STRINGS: Record<PublicLang, PublicStrings> = {
     chatDetailsPrompt: "Antes de conectar você, pode compartilhar alguns dados?",
     chatSkip: "Pular",
     chatConnecting: "Conectando você à nossa equipe...",
+    chatAgentJoined: "{name} entrou no chat",
   },
   ko: {
     submit: '제출',
@@ -292,6 +297,7 @@ export const PUBLIC_STRINGS: Record<PublicLang, PublicStrings> = {
     chatDetailsPrompt: "연결하기 전에 몇 가지 정보를 알려 주시겠어요?",
     chatSkip: "건너뛰기",
     chatConnecting: "팀에 연결하는 중...",
+    chatAgentJoined: "{name}님이 채팅에 참여했습니다",
   },
 }
 

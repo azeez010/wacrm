@@ -99,6 +99,9 @@ export function SettingsSheet({ open, onOpenChange, kind, settings, data, canEdi
             </>
           )}
 
+            </>
+          )}
+
           {/* 2. Tag */}
           <Row label={t('tag')} hint={t('tagHint')}>
             <Input
@@ -109,6 +112,8 @@ export function SettingsSheet({ open, onOpenChange, kind, settings, data, canEdi
             />
           </Row>
 
+          {!liveChat && (
+            <>
           {/* 3. Assign */}
           <Row label={t('assign')}>
             <select className={selectCls} disabled={!canEdit} value={a.mode} onChange={(e) => patch({ assignment: { mode: e.target.value } })}>

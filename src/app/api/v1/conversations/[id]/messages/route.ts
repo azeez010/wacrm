@@ -38,6 +38,7 @@ export async function GET(
       .from('messages')
       .select('*')
       .eq('conversation_id', id)
+      .neq('content_type', 'event')
       .order('created_at', { ascending: false })
       .order('id', { ascending: false })
       .limit(limit + 1);

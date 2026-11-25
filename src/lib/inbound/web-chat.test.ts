@@ -122,6 +122,25 @@ describe('openVisitorThread', () => {
   })
 })
 
+describe('openVisitorThread: returning visitor details', () => {
+  it('fills the placeholder name, email and phone on the existing contact', async () => {
+    h.responses['contacts.select'] = { data: { id: 'c-1', name: 'Website visitor', email: null, phone: '' } }
+    h.responses['conversations.select'] = { data: [{ id: 'conv-1', status: 'open', first_inbound_at: null }] }
+    await openVisitorThread(db(), widget, { visitorId: 'vis-12345678', name: 'Ada Obi', email: 'ada@x.co', phone: '+2348031234567' })
+    const upd = h.calls.find((c) => c.table === 'contacts' && c.op === 'update')
+    expect(upd?.payload).toMatchObject({ name: 'Ada Obi', email: 'ada@x.co', phone: '2348031234567' })
+  })
+
+  it('never overwrites a real name or a number that belongs to another contact (adds a note instead)', async () => {
+    h.responses['contacts.select'] = { data: { id: 'c-1', name: 'Real Name', email: 'a@b.co', phone: '' } }
+    h.responses['conversations.select'] = { data: [{ id: 'conv-1', status: 'open', first_inbound_at: null }] }
+    h.existingContact = { id: 'other', phone: '+2348031234567' }
+    await openVisitorThread(db(), widget, { visitorId: 'vis-12345678', name: 'Someone', email: 'z@y.co', phone: '+2348031234567' })
+    expect(h.calls.some((c) => c.table === 'contacts' && c.op === 'update')).toBe(false)
+    expect(h.calls.some((c) => c.table === 'contact_notes' && c.op === 'insert')).toBe(true)
+  })
+})
+
 describe('recordVisitorMessage', () => {
   const args = { accountId: 'acc-1', contactId: 'c-1', conversationId: 'conv-1' }
 

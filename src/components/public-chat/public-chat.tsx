@@ -37,6 +37,7 @@ export interface ChatStatus {
   showOnlineBadge: boolean;
   showTyping?: boolean;
   allowSkip?: boolean;
+  agentName?: string | null;
   greeting: string | null;
   offlineText: string | null;
   ask: Record<'name' | 'phone' | 'email', { required: boolean; label: string } | null>;
@@ -478,7 +479,17 @@ export function PublicChat({
   );
 
   const greeting = status?.greeting || config.chat?.greeting || t.chatHello;
-  const online = status?.online ?? false;
+  // Once a teammate has replied in this chat they are plainly there: show them by name, not the offline notice.
+  const replier = useMemo(() => {
+    for (let i = messages.length - 1; i >= 0; i--) {
+      const m = messages[i];
+      if (m.content_type === 'event' && m.content_text) return m.content_text;
+      if (m.sender_type === 'agent' && !m.ai_generated && m.sender_name) return m.sender_name;
+    }
+    return null;
+  }, [messages]);
+  const online = (status?.online ?? false) || !!replier;
+  const agentName = replier ?? (status?.online ? status.agentName ?? null : null);
   const title = config.widget?.greeting || config.title;
 
   return (
@@ -489,7 +500,7 @@ export function PublicChat({
           {status?.showOnlineBadge !== false && status ? (
             <div className="mt-0.5 flex items-center gap-1.5 text-xs opacity-95" aria-live="polite">
               <span aria-hidden className={`inline-block size-2 rounded-full ${online ? 'bg-emerald-300' : 'bg-white/50'}`} />
-              {online ? t.chatOnline : t.chatOffline}
+              {online ? (agentName ? `${agentName} · ${t.chatOnline}` : t.chatOnline) : t.chatOffline}
             </div>
           ) : null}
         </div>
@@ -520,9 +531,15 @@ export function PublicChat({
             <p className="bg-[var(--og-warn-bg)] px-4 py-2 text-xs text-[color:var(--og-warn-fg)]">{status.offlineText}</p>
           ) : null}
           <div ref={scroller} className="flex-1 space-y-2 overflow-y-auto px-3 py-3" role="log" aria-live="polite">
-            {messages.map((m) => (
+            {messages.map((m) =>
+              m.content_type === 'event' ? (
+                <div key={m.id} className="flex justify-center py-1">
+                  <span className="rounded-full bg-[var(--og-input)] px-3 py-1 text-[11px] text-[color:var(--og-muted)]">{t.chatAgentJoined.replace('{name}', m.content_text ?? '')}</span>
+                </div>
+              ) : (
               <Bubble key={m.id} m={m} accent={accent} aiLabel={t.chatAi} failedLabel={t.chatFailed} onRetry={m.clientId ? () => retry(m.clientId as string) : undefined} />
-            ))}
+            )
+            )}
             {agentTyping ? <p className="px-1 text-xs text-[color:var(--og-muted)]">{t.chatTyping}</p> : null}
           </div>
           {notice ? (

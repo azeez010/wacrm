@@ -49,6 +49,52 @@ const cleanText = (v: string | null | undefined, max: number): string | null => 
   return t || null
 }
 
+interface KnownContact {
+  id: string
+  name?: string | null
+  email?: string | null
+  phone?: string | null
+}
+
+const PLACEHOLDER_NAME = 'Website visitor'
+
+/**
+ * Details typed into the chat for a contact that already exists (a returning browser). Only
+ * fills what is missing or a placeholder, so an agent's edits and earlier answers are never
+ * overwritten by whoever later uses the same browser.
+ */
+async function applyVisitorDetails(db: SupabaseClient, widget: ChatWidgetRef, known: KnownContact, visitor: VisitorDetails, ownerUserId: string) {
+  const name = cleanText(visitor.name, 120)
+  const email = cleanText(visitor.email, 200)
+  const phone = visitor.phone ? parseInternationalPhone(visitor.phone) : null
+  if (!name && !email && !phone) return
+
+  const patch: Record<string, string> = {}
+  const currentName = (known.name ?? '').trim()
+  const placeholder = !currentName || currentName === PLACEHOLDER_NAME || currentName === (known.phone ?? '') || currentName === (known.email ?? '')
+  if (name && placeholder) patch.name = name
+  if (email && !known.email) patch.email = email
+  let collision = false
+  if (phone && !known.phone) {
+    const other = await findExistingContact(db, widget.accountId, phone)
+    if (other && other.id !== known.id) collision = true
+    else patch.phone = phone
+  }
+  if (!name && placeholder && patch.email) patch.name = patch.email
+  if (Object.keys(patch).length > 0) {
+    const { error } = await db.from('contacts').update(patch).eq('id', known.id).eq('account_id', widget.accountId)
+    if (error) console.error('[web-chat] contact update failed:', error.message)
+  }
+  if (collision && phone) {
+    await db.from('contact_notes').insert({
+      account_id: widget.accountId,
+      contact_id: known.id,
+      user_id: ownerUserId,
+      note_text: `This website visitor gave the number ${phone}, which already belongs to another contact. Not merged automatically.`,
+    })
+  }
+}
+
 /** Find the visitor's contact (by visitor id) or create / claim one. */
 async function resolveVisitorContact(
   db: SupabaseClient,
@@ -59,11 +105,15 @@ async function resolveVisitorContact(
   const accountId = widget.accountId
   const byVisitor = await db
     .from('contacts')
-    .select('id')
+    .select('id, name, email, phone')
     .eq('account_id', accountId)
     .eq('web_visitor_id', visitor.visitorId)
     .maybeSingle()
-  if (byVisitor.data) return { id: byVisitor.data.id as string, created: false }
+  if (byVisitor.data) {
+    // A returning visitor (same browser) who now gave details: put them on their contact.
+    await applyVisitorDetails(db, widget, byVisitor.data as KnownContact, visitor, ownerUserId)
+    return { id: (byVisitor.data as KnownContact).id, created: false }
+  }
 
   const name = cleanText(visitor.name, 120)
   const email = cleanText(visitor.email, 200)

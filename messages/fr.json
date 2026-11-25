@@ -367,6 +367,7 @@
       "showContact": "Afficher le contact",
       "refresh": "Actualiser",
       "loadOlder": "Charger les messages plus anciens",
+      "agentJoined": "{name} vient de rejoindre le chat",
       "loadingOlder": "Chargement…",
       "loadOlderFailed": "Impossible de charger les messages plus anciens.",
       "refreshConversation": "Actualiser la conversation",

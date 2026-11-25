@@ -14,11 +14,13 @@ export async function GET(_request: Request, { params }: { params: Promise<{ pub
 
   // 'always' skips the hours/presence lookups entirely.
   let online = true
+  let agentName: string | null = null
   if (settings.chat?.onlineMode !== 'always') {
     const { data: acct } = await db.from('accounts').select('timezone').eq('id', form.account_id).maybeSingle()
     const tz = (acct as { timezone?: string } | null)?.timezone ?? 'UTC'
     const availability = await loadChatAvailability(db, form.account_id)
     online = computeOnline(isWithinHours(settings.widget?.hours, tz, new Date()), availability)
+    agentName = availability.agentName ?? null
   }
 
   const fields = Array.isArray(form.fields) ? (form.fields as { kind?: string; required?: boolean; label?: string }[]) : []
@@ -30,6 +32,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ pub
   return chatJson({
     ok: true,
     online,
+    agentName,
     showOnlineBadge: settings.chat?.showOnlineBadge !== false,
     showTyping: settings.chat?.showTyping !== false,
     allowSkip: settings.chat?.allowSkip === true,

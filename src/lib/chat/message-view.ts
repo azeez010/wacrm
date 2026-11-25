@@ -20,7 +20,7 @@ export interface ChatMessageRow {
 /** Row -> what the visitor's widget renders. Pure. */
 export function toChatMessageView(row: ChatMessageRow, senderName?: string | null): ChatMessageView {
   const sender = row.sender_type === 'customer' || row.sender_type === 'bot' ? row.sender_type : 'agent'
-  const type = row.content_type === 'image' || row.content_type === 'interactive' ? row.content_type : 'text'
+  const type = row.content_type === 'image' || row.content_type === 'interactive' || row.content_type === 'event' ? row.content_type : 'text'
   return {
     id: row.id,
     sender_type: sender,

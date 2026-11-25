@@ -1,3 +1,5 @@
+import { addContactTags } from '@/lib/api/v1/contacts'
+import { slugTag } from '@/lib/forms/submit'
 import { validateEmail, validateMessage, validateName, validatePhone } from '@/lib/forms/client-validate'
 import { z } from 'zod'
 
@@ -93,6 +95,13 @@ export async function POST(request: Request, { params }: { params: Promise<{ pub
   try {
     const widget = { formId: form.id, formName: form.name, accountId: form.account_id }
     const thread = await openVisitorThread(db, widget, { visitorId: body.visitorId, name, phone, email })
+    // Tag the contact like a lead form does (the owner's tag, or the widget's name as a slug). Best-effort.
+    try {
+      const tag = settings.autoTag === undefined ? slugTag(form.name) : settings.autoTag
+      if (tag && tag.trim()) await addContactTags(db, form.account_id, thread.ownerUserId, thread.contactId, [tag])
+    } catch (err) {
+      console.error('[chat/start] tagging failed:', err instanceof Error ? err.message : err)
+    }
     const label = name || email || phone || 'Website visitor'
     await recordVisitorMessage(db, {
       accountId: form.account_id,

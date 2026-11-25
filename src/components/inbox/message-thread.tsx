@@ -1283,6 +1283,15 @@ export function MessageThread({
                 {/* Messages */}
                 <div className="space-y-2">
                   {group.messages.map((msg) => {
+                    if (msg.content_type === "event") {
+                      return (
+                        <div key={msg.id} className="flex justify-center py-1">
+                          <span className="rounded-full bg-muted px-3 py-1 text-[11px] text-muted-foreground">
+                            {t("agentJoined", { name: msg.content_text ?? "" })}
+                          </span>
+                        </div>
+                      );
+                    }
                     const parent = msg.reply_to_message_id
                       ? messagesById.get(msg.reply_to_message_id)
                       : null;

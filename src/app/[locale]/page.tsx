@@ -198,6 +198,10 @@ export default async function LandingPage({
           <a href="#pricing" className={cn(buttonVariants({ variant: 'ghost' }), 'hidden sm:inline-flex')}>
             {t('nav.pricing')}
           </a>
+          {/* The blog is English-only, so the label isn't translated. */}
+          <Link href="/blog" className={cn(buttonVariants({ variant: 'ghost' }), 'hidden sm:inline-flex')}>
+            Blog
+          </Link>
           <LanguageSwitcher mode="path" iconOnly />
           <CurrencySwitcher current={fx.current} options={fx.options} />
           {signedIn ? (
@@ -265,6 +269,10 @@ export default async function LandingPage({
         © {new Date().getFullYear()} {BRAND_NAME} ·{' '}
         <Link href={signedIn ? '/dashboard' : '/login'} className="underline">
           {signedIn ? t('nav.dashboard') : t('footer.login')}
+        </Link>
+        {' · '}
+        <Link href="/blog" className="underline">
+          Blog
         </Link>
         {' · '}
         <Link href="/docs" className="underline">

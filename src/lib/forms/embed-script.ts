@@ -174,19 +174,23 @@ export const EMBED_SCRIPT = `(function () {
       if (withSound) beep(cfg.widget.sound, function () { return teaser.style.display === 'flex'; });
       if (!PREVIEW) store('ogadesk:teaser:' + id, '1');
     }
+    function ensureFrame() {
+      if (frame) return;
+      frame = document.createElement('iframe'); frame.setAttribute('aria-label', (cfg && cfg.title) || 'Chat'); frame.src = frameSrc(id, !!(cfg && cfg.widget && cfg.widget.mode === 'live_chat'));
+      frame.style.cssText = 'display:block;width:100%;border:0;height:300px;color-scheme:normal';
+      frame.addEventListener('load', postConfig);
+      panel.appendChild(frame);
+      onMessage(id, frame, function (h) { frame.style.height = Math.min(h, Math.floor(window.innerHeight * 0.85) - 50) + 'px'; });
+    }
+    function send(t) { if (frame && frame.contentWindow) { try { frame.contentWindow.postMessage({ source: 'ogadesk-host', type: t }, BASE); } catch (e) {} } }
     function open() {
       opened = true; hideTeaser(); btn.className = 'og-btn'; store('ogadesk:opened:' + id, '1');
       panel.style.display = 'block';
-      if (!frame) {
-        frame = document.createElement('iframe'); frame.setAttribute('aria-label', (cfg && cfg.title) || 'Chat'); frame.src = frameSrc(id, !!(cfg && cfg.widget && cfg.widget.mode === 'live_chat'));
-        frame.style.cssText = 'display:block;width:100%;border:0;height:300px;color-scheme:normal';
-        frame.addEventListener('load', postConfig);
-        panel.appendChild(frame);
-        onMessage(id, frame, function (h) { frame.style.height = Math.min(h, Math.floor(window.innerHeight * 0.85) - 50) + 'px'; });
-      }
+      ensureFrame();
+      send('open');
       postConfig();
     }
-    function close() { panel.style.display = 'none'; opened = false; }
+    function close() { panel.style.display = 'none'; opened = false; send('close'); }
     btn.addEventListener('click', function () { panel.style.display === 'block' ? close() : open(); });
     x.addEventListener('click', close);
     tx.addEventListener('click', function (e) { e.stopPropagation(); hideTeaser(); store('ogadesk:opened:' + id, '1'); });
@@ -195,6 +199,8 @@ export const EMBED_SCRIPT = `(function () {
 
     function apply(c) {
       cfg = c; var w = c.widget || {};
+      // Live chat: warm the hidden iframe shortly after load so the first click opens instantly.
+      if (!PREVIEW && w.mode === 'live_chat' && !frame) setTimeout(ensureFrame, 1500);
       var color = w.color || c.accent || '#16a34a', left = w.corner === 'bottom-left', dark = isDark(c.theme);
       var side = (left ? 'left:' : 'right:') + (w.offsetX || 20) + 'px;' + (left ? 'right:auto;' : 'left:auto;');
       btn.setAttribute('aria-label', w.label || 'Chat');

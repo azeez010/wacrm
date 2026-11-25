@@ -241,7 +241,7 @@ export function PublicForm({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           answers,
-          website: (root.current?.querySelector('input[name="website"]') as HTMLInputElement | null)?.value ?? '',
+          website: (root.current?.querySelector('input[name="ogx_hp"]') as HTMLInputElement | null)?.value ?? '',
           elapsedMs: Date.now() - rendered.current,
           visitorId: ctx.current.vid,
           key: key.current,
@@ -339,7 +339,7 @@ export function PublicForm({
         <div aria-hidden className="absolute -left-[9999px] h-0 w-0 overflow-hidden">
           <label>
             Website
-            <input type="text" name="website" tabIndex={-1} autoComplete="off" defaultValue="" />
+            <input type="text" name="ogx_hp" tabIndex={-1} autoComplete="off" readOnly defaultValue="" />
           </label>
         </div>
 

@@ -236,12 +236,29 @@ export function PublicChat({
     })();
   }, [api, config.publicId, fetchStatus, preview]);
 
-  // Keep the Online badge fresh.
+  // The host page tells us when the panel opens/closes: the iframe is preloaded hidden, so only
+  // poll (and refresh once on open) while someone can actually see it.
+  const [panelOpen, setPanelOpen] = useState(false);
   useEffect(() => {
-    if (preview || stage === 'loading' || stage === 'unavailable') return;
+    const onHost = (e: MessageEvent) => {
+      const d = e.data as { source?: string; type?: string } | null;
+      if (!d || d.source !== 'ogadesk-host' || e.source !== window.parent) return;
+      setPanelOpen(d.type === 'open');
+    };
+    window.addEventListener('message', onHost);
+    return () => window.removeEventListener('message', onHost);
+  }, []);
+  useEffect(() => {
+    if (!panelOpen || preview) return;
+    void fetchStatus();
+  }, [fetchStatus, panelOpen, preview]);
+
+  // Keep the Online badge fresh while the panel is open.
+  useEffect(() => {
+    if (preview || !panelOpen || stage === 'loading' || stage === 'unavailable') return;
     const id = setInterval(() => void fetchStatus(), STATUS_MS);
     return () => clearInterval(id);
-  }, [fetchStatus, preview, stage]);
+  }, [fetchStatus, panelOpen, preview, stage]);
 
   // Real-time: one WebSocket per chat, with backoff, keepalive and catch-up on reconnect.
   useEffect(() => {
@@ -761,7 +778,7 @@ function DetailsCard({
       className="space-y-3 rounded-2xl border border-[color:var(--og-border)] p-3"
     >
       <div aria-hidden className="absolute -left-[9999px] h-0 w-0 overflow-hidden">
-        <input ref={honeypot} type="text" name="website" tabIndex={-1} autoComplete="off" />
+        <input ref={honeypot} type="text" name="ogx_hp" tabIndex={-1} autoComplete="off" readOnly />
       </div>
       {status.ask.name ? (
         <div>

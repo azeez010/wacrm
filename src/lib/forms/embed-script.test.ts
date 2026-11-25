@@ -7,14 +7,17 @@ describe('embed script', () => {
     expect(() => new Function(EMBED_SCRIPT)).not.toThrow()
   })
   it('stays small enough to be a friendly third-party script', () => {
-    expect(EMBED_SCRIPT.length).toBeLessThan(18_000)
+    expect(EMBED_SCRIPT.length).toBeLessThan(18_600)
   })
   it('supports inline forms and the lazy floating widget, and fires the host event', () => {
     expect(EMBED_SCRIPT).toContain('data-ogadesk-form')
     expect(EMBED_SCRIPT).toContain("getAttribute('data-widget')")
     expect(EMBED_SCRIPT).toContain('ogadesk:submitted')
-    // The iframe is created on first open, not on page load.
-    expect(EMBED_SCRIPT).toMatch(/function open\(\)[\s\S]*if \(!frame\)/)
+    // One shared frame factory: used on open, and warmed on load ONLY for live chat outside the preview.
+    expect(EMBED_SCRIPT).toMatch(/function ensureFrame\(\) \{\s*if \(frame\) return;/)
+    expect(EMBED_SCRIPT).toMatch(/function open\(\)[\s\S]*ensureFrame\(\)/)
+    expect(EMBED_SCRIPT).toContain("if (!PREVIEW && w.mode === 'live_chat' && !frame) setTimeout(ensureFrame")
+    expect((EMBED_SCRIPT.match(/setTimeout\(ensureFrame/g) ?? []).length).toBe(1)
   })
   it('has the attention features: animations, teaser bubble, synthesised sound, reduced motion', () => {
     for (const k of ['ogpulse', 'ogbounce', 'ogwiggle', 'ogring', 'preMessage', 'preMessageDelay', 'createOscillator', 'prefers-reduced-motion']) {

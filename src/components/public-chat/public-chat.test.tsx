@@ -49,6 +49,9 @@ describe('PublicChat intro (preview render)', () => {
       <IntroView t={stringsFor('en')} status={status} greeting="Hi" accent="#111" online intro={{ text: 'need help', phase: 'details' }} notice={null} onNotice={() => undefined} defaultCountry="NG" onSend={() => undefined} onSubmit={async () => undefined} errorText={(c) => c ?? ''} />,
     )
     expect(html).toContain('need help')
+    // The bot trap must not look like a profile field browsers autofill, and must be read-only.
+    expect(html).toMatch(/<input[^>]*name="ogx_hp"[^>]*readOnly|<input[^>]*readOnly=""[^>]*name="ogx_hp"|<input[^>]*name="ogx_hp"[^>]*readonly/i)
+    expect(html).not.toContain('name="website"')
     expect(html).toContain('id="ogc-name"')
     expect(html).toContain('id="ogc-phone"')
     expect(html).not.toContain('id="ogc-email"')

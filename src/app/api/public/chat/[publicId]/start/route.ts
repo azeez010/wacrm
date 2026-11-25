@@ -37,10 +37,6 @@ export function OPTIONS() {
 export async function POST(request: Request, { params }: { params: Promise<{ publicId: string }> }) {
   const { publicId } = await params
   const ip = getClientIp(request)
-  if (!checkRateLimit(`chat-start:${ip}:${publicId}`, RATE_LIMITS.chatStart).success) {
-    return chatJson({ ok: false, error: 'rate_limited' }, 429, { 'Retry-After': '60' })
-  }
-
   const text = await request.text().catch(() => '')
   if (text.length > MAX_BODY) return chatJson({ ok: false, error: 'too_large' }, 413)
   let raw: unknown
@@ -53,6 +49,10 @@ export async function POST(request: Request, { params }: { params: Promise<{ pub
   if (!parsed.success) return chatJson({ ok: false, error: 'invalid' }, 400)
   const body = parsed.data
   if (body.website) return chatJson({ ok: true, ignored: true }) // bot: look successful, store nothing
+
+  if (!checkRateLimit(`chat-start:${ip}:${publicId}`, RATE_LIMITS.chatStart).success) {
+    return chatJson({ ok: false, error: 'rate_limited' }, 429, { 'Retry-After': '60' })
+  }
 
   const loaded = await loadChatForm(publicId)
   if (!loaded.ok) return loaded.res

@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
 import { initOpenNextCloudflareForDev } from "@opennextjs/cloudflare";
+import { withSentryConfig } from "@sentry/nextjs/config";
 
 // Exposes Cloudflare bindings (R2 cache, Images, service binding, ...)
 // to `next dev`, mirroring what the Worker sees in production. No-op
@@ -215,4 +216,17 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default withNextIntl(nextConfig);
+// Uploads source maps so crash reports show real code. Only active when
+// SENTRY_AUTH_TOKEN (plus org and project) is set at build time; otherwise a no-op.
+const sentryBuild = Boolean(process.env.SENTRY_AUTH_TOKEN && process.env.SENTRY_ORG && process.env.SENTRY_PROJECT);
+
+export default withSentryConfig(withNextIntl(nextConfig), {
+  org: process.env.SENTRY_ORG,
+  project: process.env.SENTRY_PROJECT,
+  silent: !process.env.CI,
+  widenClientFileUpload: true,
+  // Browser reports go through our own domain, so ad blockers and the CSP do not drop them.
+  tunnelRoute: "/monitoring",
+  sourcemaps: { disable: !sentryBuild },
+  telemetry: false,
+});

@@ -33,6 +33,7 @@ export interface ChannelSendParams {
   bot?: boolean
   aiGenerated?: boolean
   aiAgentId?: string | null
+  aiSources?: unknown[] | null
 }
 
 /** Send into a website live-chat conversation: store it, bump the thread, push it to the visitor. */
@@ -73,6 +74,7 @@ export async function sendWebChatMessage(
       interactive_payload: type === 'interactive' ? params.interactivePayload : null,
       ai_generated: params.aiGenerated === true,
       ai_agent_id: params.aiAgentId ?? null,
+      ...(params.aiSources && params.aiSources.length > 0 ? { ai_sources: params.aiSources } : {}),
       // Our own id, so the flow / automation engines can find the row they just sent.
       message_id: `web:out:${crypto.randomUUID()}`,
       status: 'sent',
@@ -105,7 +107,7 @@ async function announceAgentJoined(db: SupabaseClient, accountId: string, conver
       .eq('sender_id', agentId)
       .limit(1)
     if ((prior?.length ?? 0) > 0) return
-    const { data: profile } = await db.from('profiles').select('full_name').eq('account_id', accountId).eq('user_id', agentId).maybeSingle()
+    const { data: profile } = await db.from('workspace_members').select('full_name').eq('account_id', accountId).eq('user_id', agentId).maybeSingle()
     const name = ((profile as { full_name?: string | null } | null)?.full_name ?? '').trim().split(/\s+/)[0]
     if (!name) return
     const { data } = await db

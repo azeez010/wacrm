@@ -51,7 +51,7 @@ export function useNotifications(opts: { limit?: number; channel: string; enable
     // the UI can translate it while keeping people's names.
     const [actors, contacts] = await Promise.all([
       actorIds.length
-        ? supabase.from('profiles').select('user_id, full_name').eq('account_id', accountId).in('user_id', actorIds)
+        ? supabase.from('workspace_members').select('user_id, full_name').eq('account_id', accountId).in('user_id', actorIds)
         : Promise.resolve({ data: [] }),
       contactIds.length
         ? supabase.from('contacts').select('id, name, phone').eq('account_id', accountId).in('id', contactIds)

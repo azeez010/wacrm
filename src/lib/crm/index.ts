@@ -42,7 +42,7 @@ export async function crmSyncAccount(accountId: string): Promise<void> {
   if (!isCrmEnabled()) return
   await safely('crmSyncAccount', async () => {
     const db = supabaseAdmin()
-    const { data } = await db.from('profiles').select('user_id').eq('account_id', accountId)
+    const { data } = await db.from('workspace_members').select('user_id').eq('account_id', accountId)
     for (const row of (data ?? []) as Array<{ user_id: string }>) {
       await enqueue(db, { kind: 'contact', userId: row.user_id, dedupeKey: `contact:${row.user_id}` })
     }

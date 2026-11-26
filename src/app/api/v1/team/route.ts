@@ -7,7 +7,7 @@ export async function GET(request: Request) {
   try {
     const ctx = await requireAnyScope(request, ['automations:read', 'flows:read', 'pipelines:read']);
     const { data, error } = await ctx.supabase
-      .from('profiles')
+      .from('workspace_members')
       .select('user_id, full_name, account_role')
       .eq('account_id', ctx.accountId);
     if (error) return fail('internal', 'Failed to list team members', 500);

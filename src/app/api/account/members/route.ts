@@ -34,13 +34,13 @@ export async function GET() {
   try {
     const ctx = await getCurrentAccount();
 
-    // RLS on profiles allows reading any row whose account matches
-    // the caller's, so this query is naturally account-scoped.
+    // Members of the caller's active workspace (migration 121). A person can
+    // belong to several workspaces; their role here comes from the membership.
     const { data, error } = await ctx.supabase
-      .from("profiles")
-      .select("user_id, full_name, email, avatar_url, account_role, created_at")
+      .from("workspace_members")
+      .select("user_id, full_name, email, avatar_url, account_role, created_at:joined_at")
       .eq("account_id", ctx.accountId)
-      .order("created_at", { ascending: true });
+      .order("joined_at", { ascending: true });
 
     if (error) {
       console.error("[GET /api/account/members] fetch error:", error);

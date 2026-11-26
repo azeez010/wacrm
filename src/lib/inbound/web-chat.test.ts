@@ -215,7 +215,7 @@ describe('recordVisitorMessage', () => {
     h.responses['messages.insert'] = { data: [stored] }
     h.responses['conversations.select'] = { data: { id: 'conv-1', status: 'open', first_inbound_at: null } }
     h.responses['contacts.select'] = { data: { blocked_at: null } }
-    h.responses['profiles.select'] = { data: [{ user_id: 'u1' }, { user_id: 'u2' }] }
+    h.responses['workspace_members.select'] = { data: [{ user_id: 'u1' }, { user_id: 'u2' }] }
     await recordVisitorMessage(db(), { ...args, content: { text: 'hello' }, announceNew: { widgetName: 'Support', label: 'Ada' } })
     const n = h.calls.find((c) => c.table === 'notifications' && c.op === 'insert')!.payload as Record<string, unknown>[]
     expect(n.map((r) => r.user_id)).toEqual(['u1', 'u2'])

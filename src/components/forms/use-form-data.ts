@@ -49,7 +49,7 @@ export function useFormEditorData(accountId: string | null): FormEditorData {
           .is('archived_at', null)
           .order('sort_order'),
         db.from('tags').select('id, name').eq('account_id', accountId).order('name'),
-        db.from('profiles').select('user_id, full_name, account_role').eq('account_id', accountId),
+        db.from('workspace_members').select('user_id, full_name, account_role').eq('account_id', accountId),
         db.from('pipelines').select('id, name, kind, pipeline_stages(id, name, position)').eq('account_id', accountId),
         db.from('message_templates').select('name, language, status').eq('account_id', accountId).eq('status', 'APPROVED'),
         db.from('whatsapp_config').select('id, label, display_phone_number, verified_name').eq('account_id', accountId),

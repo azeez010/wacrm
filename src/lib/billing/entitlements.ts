@@ -97,7 +97,7 @@ export async function assertCanAddWhatsAppConnection(supabase: SupabaseClient, a
 /** Seats = members + pending invitations. */
 export async function assertCanAddSeat(supabase: SupabaseClient, accountId: string) {
   const [{ count: members }, { count: pending }] = await Promise.all([
-    supabase.from('profiles').select('id', { count: 'exact', head: true }).eq('account_id', accountId),
+    supabase.from('workspace_members').select('user_id', { count: 'exact', head: true }).eq('account_id', accountId),
     supabase
       .from('account_invitations')
       .select('id', { count: 'exact', head: true })

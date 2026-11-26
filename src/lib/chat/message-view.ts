@@ -39,7 +39,7 @@ export async function loadSenderNames(db: SupabaseClient, accountId: string, row
   const ids = [...new Set(rows.filter((r) => r.sender_type === 'agent' && r.sender_id).map((r) => r.sender_id as string))]
   const out = new Map<string, string>()
   if (ids.length === 0) return out
-  const { data } = await db.from('profiles').select('user_id, full_name').eq('account_id', accountId).in('user_id', ids)
+  const { data } = await db.from('workspace_members').select('user_id, full_name').eq('account_id', accountId).in('user_id', ids)
   for (const p of (data as { user_id: string; full_name: string | null }[] | null) ?? []) {
     const first = (p.full_name ?? '').trim().split(/\s+/)[0]
     if (first) out.set(p.user_id, first)

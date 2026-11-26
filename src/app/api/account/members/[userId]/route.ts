@@ -121,7 +121,8 @@ export async function DELETE(
 
     if (error) return rpcErrorToResponse(error);
 
-    // The removed person now has a fresh personal workspace; the team shrank.
+    // The removed person keeps their other workspaces (or gets a fresh personal
+    // one if this was their only one); the team shrank.
     await onWorkspaceChanged(ctx.accountId);
     await crmSyncUser(userId);
     return NextResponse.json({ ok: true, newPersonalAccountId: data });

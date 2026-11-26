@@ -348,7 +348,7 @@ export async function recordVisitorMessage(
 /** One in-app notification per teammate who handles conversations, when a chat begins. */
 async function notifyTeam(db: SupabaseClient, accountId: string, contactId: string, conversationId: string, label: string, preview: string) {
   try {
-    const { data } = await db.from('profiles').select('user_id').eq('account_id', accountId).in('account_role', ['owner', 'admin', 'agent'])
+    const { data } = await db.from('workspace_members').select('user_id').eq('account_id', accountId).in('account_role', ['owner', 'admin', 'agent'])
     const ids = ((data ?? []) as { user_id: string }[]).map((r) => r.user_id)
     if (ids.length === 0) return
     await db.from('notifications').insert(

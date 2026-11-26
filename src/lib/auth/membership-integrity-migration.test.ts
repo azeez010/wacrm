@@ -53,7 +53,7 @@ describe("account membership integrity migrations", () => {
 
   it("unassigns a removed member's conversations", () => {
     expect(latestFunctionBody("remove_account_member")).toMatch(
-      /update\s+conversations\s+set\s+assigned_agent_id\s*=\s*null\s+where\s+account_id\s*=\s*v_target_account_id\s+and\s+assigned_agent_id\s*=\s*p_user_id/i,
+      /update\s+conversations\s+set\s+assigned_agent_id\s*=\s*null\s+where\s+account_id\s*=\s*(?:v_target_account_id|v_account)\s+and\s+assigned_agent_id\s*=\s*p_user_id/i,
     );
   });
 

@@ -23,7 +23,7 @@ function fakeDb() {
       chain.update = (p: Record<string, unknown>) => { op = 'update'; h.updated.push(p); return chain }
       for (const m of ['select', 'eq', 'in']) chain[m] = () => chain
       chain.single = async () => (h.insertError ? { data: null, error: h.insertError } : { data: row(h.inserted.at(-1) ?? {}), error: null })
-      chain.then = (res: (v: unknown) => unknown) => Promise.resolve(table === 'profiles' ? { data: [{ user_id: 'u1', full_name: 'Ada Obi' }] } : { error: null, data: op }).then(res)
+      chain.then = (res: (v: unknown) => unknown) => Promise.resolve(table === 'workspace_members' ? { data: [{ user_id: 'u1', full_name: 'Ada Obi' }] } : { error: null, data: op }).then(res)
       return chain
     },
   }

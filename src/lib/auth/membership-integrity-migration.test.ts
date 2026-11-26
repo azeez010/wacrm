@@ -17,17 +17,22 @@ function latestFunctionBody(functionName: string): string {
   const latest = migrations.filter(({ sql }) => header.test(sql)).at(-1);
   if (!latest) throw new Error(`${functionName} is not defined in any migration`);
   const start = latest.sql.search(header);
-  const bodyStart = latest.sql.indexOf("$$", start);
-  const bodyEnd = latest.sql.indexOf("$$", bodyStart + 2);
-  return latest.sql.slice(bodyStart + 2, bodyEnd);
+  // Any dollar-quote tag: hand-written migrations use $$, definitions copied from
+  // pg_get_functiondef (e.g. 117) use $function$.
+  const tag = /\$[a-z_]*\$/i.exec(latest.sql.slice(start));
+  if (!tag) throw new Error(`${functionName}: no dollar-quoted body`);
+  const bodyStart = start + tag.index + tag[0].length;
+  const bodyEnd = latest.sql.indexOf(tag[0], bodyStart);
+  return latest.sql.slice(bodyStart, bodyEnd);
 }
 
 function lastMigrationMatching(pattern: RegExp): string | undefined {
   return migrations.filter(({ sql }) => pattern.test(sql)).at(-1)?.name;
 }
 
+// Membership lives in account_members since 116/117 (profiles before that).
 const membershipCheck =
-  /select\s+1\s+from\s+profiles\s+where\s+user_id\s*=\s*new\.assigned_agent_id\s+and\s+account_id\s*=\s*new\.account_id/i;
+  /select\s+1\s+from\s+(?:profiles|account_members)\s+where\s+user_id\s*=\s*new\.assigned_agent_id\s+and\s+account_id\s*=\s*new\.account_id/i;
 
 describe("account membership integrity migrations", () => {
   it("leaves no client INSERT policy on profiles", () => {
@@ -70,7 +75,11 @@ describe("account membership integrity migrations", () => {
         expect(latest, policy).toBeDefined();
         const start = latest!.sql.indexOf(`CREATE POLICY "${policy}"`);
         const statement = latest!.sql.slice(start, latest!.sql.indexOf(";", start));
-        expect(statement, policy).toContain("p.account_role IN ('owner', 'admin', 'agent')");
+        // Hand-written ("IN (...)") or as Postgres deparses it ("= ANY (ARRAY[...])").
+        expect(statement, policy).toMatch(
+          /p\.account_role\s*(?:IN\s*\(\s*'owner',\s*'admin',\s*'agent'\s*\)|=\s*ANY\s*\(ARRAY\['owner'::account_role_enum,\s*'admin'::account_role_enum,\s*'agent'::account_role_enum\]\))/,
+        );
+        expect(statement, policy).not.toMatch(/from\s+profiles\b/i);
       }
     }
   });

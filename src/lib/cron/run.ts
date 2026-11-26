@@ -41,6 +41,8 @@ export const CRON_JOBS: readonly CronJob[] = [
   { name: 'form-stats', path: '/api/forms/stats/cron', method: 'GET', secret: 'AUTOMATION_CRON_SECRET' },
   // AI knowledge library: index queued pages / documents, scheduled re-syncs.
   { name: 'knowledge', path: '/api/ai/knowledge/cron', method: 'POST', secret: 'AUTOMATION_CRON_SECRET' },
+  // Billing: expire stale checkouts, move ended paid periods (+ grace) to past_due.
+  { name: 'billing-sweep', path: '/api/billing/sweep', method: 'POST', secret: 'AUTOMATION_CRON_SECRET' },
 ]
 
 export type CronOutcome = { job: string; result: number | 'skipped' | 'error' }

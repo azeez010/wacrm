@@ -46,6 +46,9 @@ const tablesWithoutDomainData = new Set([
   // Admin console announcement audiences (admin schema, 108): a frozen list of which businesses see a
   // banner, written by platform admins; the rows cascade with the account.
   "announcement_targets",
+  // Payment checkouts (111): created by the billing flow for a real business, reference the
+  // account for its plan change, and cascade with the account.
+  "checkout_sessions",
   // Browser/phone push registrations (105): per-device, re-created by one tap,
   // and they cascade with the account.
   "push_subscriptions",

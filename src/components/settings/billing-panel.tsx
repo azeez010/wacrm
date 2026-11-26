@@ -23,6 +23,7 @@ import { UpgradeDialog } from '@/components/billing/upgrade-dialog';
 import { useMoney } from '@/hooks/use-money';
 
 interface Billing {
+  payments_mode?: 'off' | 'test' | 'live';
   can_view_history: boolean;
   subscription: {
     plan_id: string;
@@ -262,7 +263,7 @@ function Plans({ data, t, money, onPick }: { data: Billing; t: T; money: Money; 
             );
           })}
         </div>
-        <p className="text-muted-foreground text-xs">{t('upgradeSoon')}</p>
+        {data.payments_mode === 'test' ? <p className="text-xs text-amber-600 dark:text-amber-400">{t('pay.testMode')}</p> : data.payments_mode === 'live' ? null : <p className="text-muted-foreground text-xs">{t('upgradeSoon')}</p>}
       </CardContent>
     </Card>
   );

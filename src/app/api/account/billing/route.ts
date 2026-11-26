@@ -47,7 +47,7 @@ export async function GET() {
     const [sub, ents, plansRes, history, counts] = await Promise.all([
       db
         .from('account_subscriptions')
-        .select('plan_id, status, billing_interval, current_period_end, provider')
+        .select('plan_id, status, billing_interval, current_period_end, provider, auto_renew')
         .eq('account_id', accountId)
         .maybeSingle(),
       getEntitlements(db, accountId),
@@ -125,7 +125,18 @@ export async function GET() {
     const planId = sub.data?.plan_id ?? 'free';
     const lapsed = !sub.data || sub.data.status === 'canceled' || sub.data.status === 'past_due';
 
+    // Platform payments (admin console): off = plan changes stay free switches; test/live = real checkout.
+    let paymentsMode: 'off' | 'test' | 'live' = 'off';
+    try {
+      const { data: pm } = await supabaseAdmin().rpc('payment_checkout_settings', { p_account: accountId });
+      const m = (pm as { mode?: string } | null)?.mode;
+      if (m === 'test' || m === 'live') paymentsMode = m;
+    } catch {
+      paymentsMode = 'off';
+    }
+
     return NextResponse.json({
+      payments_mode: paymentsMode,
       can_view_history: isAdmin,
       subscription: sub.data
         ? {
@@ -134,6 +145,7 @@ export async function GET() {
             billing_interval: sub.data.billing_interval,
             current_period_end: sub.data.current_period_end,
             provider: sub.data.provider,
+            auto_renew: (sub.data as { auto_renew?: boolean }).auto_renew === true,
           }
         : { plan_id: 'free', status: 'active', billing_interval: null, current_period_end: null, provider: null },
       effective_plan_name: ents.planName,

@@ -5,6 +5,8 @@ import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import { Check, Loader2, X } from 'lucide-react';
 
+import { PaymentStep } from '@/components/billing/payment-step';
+
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useBillingPlans } from '@/hooks/use-billing-plans';
@@ -15,7 +17,9 @@ import { cn } from '@/lib/utils';
 
 /**
  * Pick a plan and switch to it. Reused wherever a locked feature needs an upgrade.
- * Payments are not connected yet, so the switch applies immediately (POST /api/account/billing/plan).
+ * When the platform collects payments (admin console), a paid plan goes through the payment step
+ * (period, method, then the provider's page or bank-transfer details). Otherwise, and for the free
+ * plan, the switch applies immediately (POST /api/account/billing/plan).
  * `feature`: the feature that prompted this, so the cards show which plans include it.
  */
 export function UpgradeDialog({
@@ -36,6 +40,17 @@ export function UpgradeDialog({
   const { data, error } = useBillingPlans(open);
   const [picked, setPicked] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [paying, setPaying] = useState(false);
+  const [paymentsOn, setPaymentsOn] = useState<boolean | null>(null);
+
+  // Does this account pay for plans (admin console switch)? Asked once per opening.
+  useEffect(() => {
+    if (!open || paymentsOn !== null) return;
+    fetch('/api/account/billing', { cache: 'no-store' })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((b: { payments_mode?: string } | null) => setPaymentsOn(b?.payments_mode === 'test' || b?.payments_mode === 'live'))
+      .catch(() => setPaymentsOn(false));
+  }, [open, paymentsOn]);
 
   // Preselect: the plan we were asked for, else the cheapest one with the feature, else the first upgrade.
   useEffect(() => {
@@ -49,6 +64,10 @@ export function UpgradeDialog({
 
   async function confirm() {
     if (!chosen) return;
+    if (paymentsOn && chosen.id !== 'free') {
+      setPaying(true);
+      return;
+    }
     setBusy(true);
     try {
       const res = await fetch('/api/account/billing/plan', {
@@ -76,11 +95,19 @@ export function UpgradeDialog({
     <Dialog
       open={open}
       onOpenChange={(o) => {
-        if (!o) setPicked(null);
+        if (!o) {
+          setPicked(null);
+          setPaying(false);
+          setPaymentsOn(null);
+        }
         onOpenChange(o);
       }}
     >
       <DialogContent className="max-h-[calc(100dvh-2rem)] grid-rows-[auto_minmax(0,1fr)_auto] sm:max-w-xl">
+        {paying && chosen ? (
+          <PaymentStep plan={chosen} onBack={() => setPaying(false)} />
+        ) : (
+        <>
         <DialogHeader>
           <DialogTitle>{t('pickTitle')}</DialogTitle>
           <DialogDescription>{t('pickDesc')}</DialogDescription>
@@ -132,11 +159,13 @@ export function UpgradeDialog({
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={busy}>
             {t('cancel')}
           </Button>
-          <Button onClick={() => void confirm()} disabled={busy || !chosen || chosen.id === data?.currentPlanId}>
+          <Button onClick={() => void confirm()} disabled={busy || paymentsOn === null || !chosen || chosen.id === data?.currentPlanId}>
             {busy ? <Loader2 className="size-4 animate-spin" /> : null}
             {chosen ? t('switchTo', { plan: chosen.name }) : t('switchToGeneric')}
           </Button>
         </DialogFooter>
+        </>
+        )}
       </DialogContent>
     </Dialog>
   );

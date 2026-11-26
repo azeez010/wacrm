@@ -52,6 +52,19 @@ export interface PublicStrings {
   chatSkip: string
   chatConnecting: string
   chatAgentJoined: string
+  verifyTitle: string
+  verifyWhatsapp: string
+  verifyEmail: string
+  verifyCodeLabel: string
+  verifyConfirm: string
+  verifyResend: string
+  verifyResendIn: string
+  verifyWrong: string
+  verifyExpired: string
+  verifyLocked: string
+  verifyBack: string
+  verifyNoCode: string
+  verifyAgain: string
 }
 
 export const PUBLIC_STRINGS: Record<PublicLang, PublicStrings> = {
@@ -104,6 +117,19 @@ export const PUBLIC_STRINGS: Record<PublicLang, PublicStrings> = {
     chatSkip: "Skip",
     chatConnecting: "Connecting you to our team...",
     chatAgentJoined: "{name} just joined the chat",
+    verifyTitle: `Confirm it's you`,
+    verifyWhatsapp: `Enter the code we sent to your WhatsApp ({to})`,
+    verifyEmail: `Enter the code we sent to your email ({to})`,
+    verifyCodeLabel: `Code`,
+    verifyConfirm: `Confirm and submit`,
+    verifyResend: `Send a new code`,
+    verifyResendIn: `Send a new code in {seconds}s`,
+    verifyWrong: `That code is not right. Try again.`,
+    verifyExpired: `That code expired. Send a new one.`,
+    verifyLocked: `Too many wrong tries. Send a new code.`,
+    verifyBack: `Change my details`,
+    verifyNoCode: `No code? Check the number is right and that it is on WhatsApp.`,
+    verifyAgain: `Please confirm your code again.`,
   },
   es: {
     submit: 'Enviar',
@@ -154,6 +180,19 @@ export const PUBLIC_STRINGS: Record<PublicLang, PublicStrings> = {
     chatSkip: "Omitir",
     chatConnecting: "Conectándote con nuestro equipo...",
     chatAgentJoined: "{name} se unió al chat",
+    verifyTitle: `Confirma que eres tú`,
+    verifyWhatsapp: `Introduce el código que enviamos a tu WhatsApp ({to})`,
+    verifyEmail: `Introduce el código que enviamos a tu correo ({to})`,
+    verifyCodeLabel: `Código`,
+    verifyConfirm: `Confirmar y enviar`,
+    verifyResend: `Enviar un código nuevo`,
+    verifyResendIn: `Enviar un código nuevo en {seconds}s`,
+    verifyWrong: `Ese código no es correcto. Inténtalo de nuevo.`,
+    verifyExpired: `Ese código caducó. Envía uno nuevo.`,
+    verifyLocked: `Demasiados intentos fallidos. Envía un código nuevo.`,
+    verifyBack: `Cambiar mis datos`,
+    verifyNoCode: `¿No llega? Comprueba que el número es correcto y que está en WhatsApp.`,
+    verifyAgain: `Confirma tu código de nuevo.`,
   },
   fr: {
     submit: 'Envoyer',
@@ -204,6 +243,19 @@ export const PUBLIC_STRINGS: Record<PublicLang, PublicStrings> = {
     chatSkip: "Ignorer",
     chatConnecting: "Mise en relation avec notre équipe...",
     chatAgentJoined: "{name} vient de rejoindre le chat",
+    verifyTitle: `Confirmez que c'est vous`,
+    verifyWhatsapp: `Saisissez le code envoyé sur votre WhatsApp ({to})`,
+    verifyEmail: `Saisissez le code envoyé à votre e-mail ({to})`,
+    verifyCodeLabel: `Code`,
+    verifyConfirm: `Confirmer et envoyer`,
+    verifyResend: `Envoyer un nouveau code`,
+    verifyResendIn: `Envoyer un nouveau code dans {seconds}s`,
+    verifyWrong: `Ce code n'est pas correct. Réessayez.`,
+    verifyExpired: `Ce code a expiré. Envoyez-en un nouveau.`,
+    verifyLocked: `Trop d'essais incorrects. Envoyez un nouveau code.`,
+    verifyBack: `Modifier mes informations`,
+    verifyNoCode: `Pas de code ? Vérifiez que le numéro est correct et qu'il est sur WhatsApp.`,
+    verifyAgain: `Veuillez confirmer à nouveau votre code.`,
   },
   pt: {
     submit: 'Enviar',
@@ -254,6 +306,19 @@ export const PUBLIC_STRINGS: Record<PublicLang, PublicStrings> = {
     chatSkip: "Pular",
     chatConnecting: "Conectando você à nossa equipe...",
     chatAgentJoined: "{name} entrou no chat",
+    verifyTitle: `Confirme que é você`,
+    verifyWhatsapp: `Digite o código enviado ao seu WhatsApp ({to})`,
+    verifyEmail: `Digite o código enviado ao seu e-mail ({to})`,
+    verifyCodeLabel: `Código`,
+    verifyConfirm: `Confirmar e enviar`,
+    verifyResend: `Enviar um novo código`,
+    verifyResendIn: `Enviar um novo código em {seconds}s`,
+    verifyWrong: `Esse código não está certo. Tente de novo.`,
+    verifyExpired: `Esse código expirou. Envie um novo.`,
+    verifyLocked: `Muitas tentativas erradas. Envie um novo código.`,
+    verifyBack: `Alterar meus dados`,
+    verifyNoCode: `Não chegou? Confira se o número está certo e se está no WhatsApp.`,
+    verifyAgain: `Confirme seu código novamente.`,
   },
   ko: {
     submit: '제출',
@@ -304,6 +369,19 @@ export const PUBLIC_STRINGS: Record<PublicLang, PublicStrings> = {
     chatSkip: "건너뛰기",
     chatConnecting: "팀에 연결하는 중...",
     chatAgentJoined: "{name}님이 채팅에 참여했습니다",
+    verifyTitle: `본인 확인`,
+    verifyWhatsapp: `WhatsApp으로 보낸 코드를 입력하세요 ({to})`,
+    verifyEmail: `이메일로 보낸 코드를 입력하세요 ({to})`,
+    verifyCodeLabel: `코드`,
+    verifyConfirm: `확인 후 제출`,
+    verifyResend: `새 코드 보내기`,
+    verifyResendIn: `{seconds}초 후 새 코드 보내기`,
+    verifyWrong: `코드가 올바르지 않습니다. 다시 시도하세요.`,
+    verifyExpired: `코드가 만료되었습니다. 새 코드를 보내세요.`,
+    verifyLocked: `틀린 횟수가 너무 많습니다. 새 코드를 보내세요.`,
+    verifyBack: `내 정보 수정`,
+    verifyNoCode: `코드가 오지 않나요? 번호가 맞는지, WhatsApp을 사용하는 번호인지 확인하세요.`,
+    verifyAgain: `코드를 다시 확인해 주세요.`,
   },
 }
 

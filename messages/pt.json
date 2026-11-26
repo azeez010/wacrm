@@ -4357,7 +4357,26 @@
       "backgroundOverlay": "Véu",
       "overlayNone": "Nenhum",
       "overlaySoft": "Suave",
-      "overlayStrong": "Forte"
+      "overlayStrong": "Forte",
+      "verify": "Verificar o visitante",
+      "verifyHint": "Antes de salvar um lead, o visitante digita um código que enviamos. Um número que não está no WhatsApp nunca o recebe, então nunca é salvo. Cada código do WhatsApp conta como uma mensagem do seu plano.",
+      "verifyOption": {
+        "off": "Desligado",
+        "whatsapp": "Código por WhatsApp",
+        "email": "Código por e-mail",
+        "both": "Códigos por WhatsApp e e-mail"
+      },
+      "verifyReason": {
+        "wa_no_connection": "Conecte um número de WhatsApp para enviar códigos por WhatsApp.",
+        "wa_no_template": "Os códigos por WhatsApp precisam de um modelo de verificação aprovado.",
+        "wa_template_pending": "O modelo de verificação aguarda a aprovação da Meta.",
+        "wa_template_rejected": "A Meta rejeitou o modelo de verificação: crie-o de novo.",
+        "email_field": "Os códigos por e-mail precisam de um campo E-mail obrigatório neste formulário.",
+        "email_off": "Os códigos por e-mail não estão disponíveis neste servidor."
+      },
+      "verifyCreateTemplate": "Criar o modelo de verificação",
+      "verifyTemplateSent": "Modelo enviado. A Meta costuma aprovar em minutos ou em um dia.",
+      "verifyTemplateFailed": "Não foi possível criar o modelo"
     },
     "support": {
       "askName": "Pedir o nome",
@@ -4511,7 +4530,12 @@
         "desktop": "Computador",
         "tablet": "Tablet",
         "unknown": "Desconhecido"
-      }
+      },
+      "verified": "Verificado",
+      "verifiedWhatsapp": "Número de WhatsApp verificado",
+      "verifiedEmail": "E-mail verificado",
+      "unverified": "Não verificado",
+      "unverifiedHint": "Não foi possível enviar um código, então este lead foi salvo sem verificação."
     }
   },
   "StarterForms": {
@@ -4709,6 +4733,13 @@
       "body": "Olá {name}, seu plano {plan} inclui {limit} mensagens por mês e você usou {used}.",
       "advice": "Mensagens de modelo e códigos de verificação não serão enviados até a cota renovar no próximo mês ou você fazer upgrade.",
       "cta": "Fazer upgrade"
+    },
+    "formCode": {
+      "subject": "Seu código: {code}",
+      "heading": "Confirme seu e-mail",
+      "body": "Use este código para confirmar seus dados em {form}.",
+      "expires": "Expira em {minutes} minutos.",
+      "footer": "Você recebeu este e-mail porque alguém digitou este endereço em um formulário. Se não foi você, pode ignorá-lo."
     }
   },
   "Partner": {

@@ -73,6 +73,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     if (r.status === 'gated') return fail('bad_request', 'Entry was not accepted (not qualified)', 422);
     if (r.status === 'closed') return fail('bad_request', 'This form is closed', 410);
     if (r.status === 'not_found') return fail('not_found', 'Form not found', 404);
+    if (r.status === 'verification_required') return fail('bad_request', 'Verification required', 400);
     return fail('internal', 'This form is not accepting leads right now', 503);
   } catch (err) {
     return toApiErrorResponse(err);

@@ -18,7 +18,7 @@ const LOADERS: Record<Locale, () => Promise<{ default: Record<string, unknown> }
   ko: () => import('../../../messages/ko.json'),
 }
 
-export type EmailKind = 'welcome' | 'quota_80' | 'quota_100'
+export type EmailKind = 'welcome' | 'quota_80' | 'quota_100' | 'form_code'
 
 export interface RenderedEmail {
   subject: string
@@ -38,7 +38,7 @@ async function translator(locale: string | null | undefined) {
   ) => string
 }
 
-function layout(opts: { heading: string; paragraphs: string[]; cta?: { label: string; url: string }; footer: string }): string {
+function layout(opts: { heading: string; paragraphs: string[]; cta?: { label: string; url: string }; footer: string; code?: string }): string {
   const green = '#11875D'
   return `<!doctype html><html><body style="margin:0;padding:24px;background:#f4f7f6;font-family:Inter,Arial,sans-serif;color:#172A25">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center">
@@ -46,13 +46,14 @@ function layout(opts: { heading: string; paragraphs: string[]; cta?: { label: st
 <tr><td style="font-size:20px;font-weight:700;color:#104D3C;padding-bottom:16px">${esc(BRAND_NAME)}</td></tr>
 <tr><td style="font-size:22px;font-weight:700;padding-bottom:12px">${esc(opts.heading)}</td></tr>
 ${opts.paragraphs.map((p) => `<tr><td style="font-size:15px;line-height:1.6;padding-bottom:12px">${esc(p)}</td></tr>`).join('\n')}
+${opts.code ? `<tr><td style="padding:4px 0 16px"><div style="display:inline-block;font:700 30px/1 'SFMono-Regular',Menlo,Consolas,monospace;letter-spacing:6px;color:#104D3C;background:#f1f7f4;border-radius:10px;padding:14px 20px">${esc(opts.code)}</div></td></tr>` : ''}
 ${opts.cta ? `<tr><td style="padding:8px 0 20px"><a href="${esc(opts.cta.url)}" style="display:inline-block;background:${green};color:#ffffff;text-decoration:none;font-weight:600;padding:12px 20px;border-radius:8px">${esc(opts.cta.label)}</a></td></tr>` : ''}
 <tr><td style="font-size:12px;line-height:1.5;color:#6b7a76;border-top:1px solid #e3ebe8;padding-top:16px">${esc(opts.footer)}<br>${esc(COMPANY_NAME)}</td></tr>
 </table></td></tr></table></body></html>`
 }
 
-function plain(heading: string, paragraphs: string[], cta?: { label: string; url: string }, footer?: string): string {
-  return [heading, '', ...paragraphs, ...(cta ? ['', `${cta.label}: ${cta.url}`] : []), ...(footer ? ['', '--', footer] : [])].join('\n')
+function plain(heading: string, paragraphs: string[], cta?: { label: string; url: string }, footer?: string, code?: string): string {
+  return [heading, '', ...paragraphs, ...(code ? ['', code] : []), ...(cta ? ['', `${cta.label}: ${cta.url}`] : []), ...(footer ? ['', '--', footer] : [])].join('\n')
 }
 
 export interface WelcomeVars {
@@ -66,6 +67,17 @@ export interface QuotaVars {
   limit: number
 }
 
+export interface FormCodeVars {
+  code: string
+  formName: string
+  minutes: number
+}
+
+export async function renderEmail(
+  kind: 'form_code',
+  locale: string | null | undefined,
+  vars: FormCodeVars,
+): Promise<RenderedEmail>
 export async function renderEmail(
   kind: 'welcome',
   locale: string | null | undefined,
@@ -79,11 +91,25 @@ export async function renderEmail(
 export async function renderEmail(
   kind: EmailKind,
   locale: string | null | undefined,
-  vars: WelcomeVars | QuotaVars,
+  vars: WelcomeVars | QuotaVars | FormCodeVars,
 ): Promise<RenderedEmail> {
   const t = await translator(locale)
+
+  // A form visitor asked for this code, so the footer must not say "you have an account".
+  if (kind === 'form_code') {
+    const v = vars as FormCodeVars
+    const heading = t('formCode.heading')
+    const paragraphs = [t('formCode.body', { form: v.formName }), t('formCode.expires', { minutes: v.minutes })]
+    const footer = t('formCode.footer')
+    return {
+      subject: t('formCode.subject', { code: v.code }),
+      html: layout({ heading, paragraphs, footer, code: v.code }),
+      text: plain(heading, paragraphs, undefined, footer, v.code),
+    }
+  }
+
   const footer = t('footer')
-  const name = vars.name || t('fallbackName')
+  const name = (vars as WelcomeVars | QuotaVars).name || t('fallbackName')
 
   if (kind === 'welcome') {
     const v = vars as WelcomeVars

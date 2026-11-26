@@ -4357,7 +4357,26 @@
       "backgroundOverlay": "Overlay",
       "overlayNone": "None",
       "overlaySoft": "Soft",
-      "overlayStrong": "Strong"
+      "overlayStrong": "Strong",
+      "verify": "Verify the visitor",
+      "verifyHint": "Before a lead is saved, the visitor types a code we send them. A number that is not on WhatsApp never gets it, so it is never stored. Each WhatsApp code counts as one message on your plan.",
+      "verifyOption": {
+        "off": "Off",
+        "whatsapp": "WhatsApp code",
+        "email": "Email code",
+        "both": "WhatsApp and email codes"
+      },
+      "verifyReason": {
+        "wa_no_connection": "Connect a WhatsApp number to send WhatsApp codes.",
+        "wa_no_template": "WhatsApp codes need an approved verification template.",
+        "wa_template_pending": "The verification template is waiting for Meta approval.",
+        "wa_template_rejected": "Meta rejected the verification template: create it again.",
+        "email_field": "Email codes need a required Email field on this form.",
+        "email_off": "Email codes are not available on this server."
+      },
+      "verifyCreateTemplate": "Create the verification template",
+      "verifyTemplateSent": "Template submitted. Meta usually approves it within minutes to a day.",
+      "verifyTemplateFailed": "Could not create the template"
     },
     "support": {
       "askName": "Ask for their name",
@@ -4511,7 +4530,12 @@
         "desktop": "Desktop",
         "tablet": "Tablet",
         "unknown": "Unknown"
-      }
+      },
+      "verified": "Verified",
+      "verifiedWhatsapp": "Verified WhatsApp number",
+      "verifiedEmail": "Verified email",
+      "unverified": "Not verified",
+      "unverifiedHint": "A code could not be sent, so this lead was saved without verification."
     }
   },
   "StarterForms": {
@@ -4709,6 +4733,13 @@
       "body": "Hi {name}, your {plan} plan includes {limit} messages a month and you've used {used}.",
       "advice": "Template messages and verification codes won't send until your allowance renews next month or you upgrade.",
       "cta": "Upgrade your plan"
+    },
+    "formCode": {
+      "subject": "Your code: {code}",
+      "heading": "Confirm your email",
+      "body": "Use this code to confirm your details for {form}.",
+      "expires": "It expires in {minutes} minutes.",
+      "footer": "You received this email because someone entered this address on a form. If it wasn't you, you can ignore it."
     }
   },
   "Partner": {

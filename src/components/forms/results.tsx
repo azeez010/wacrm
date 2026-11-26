@@ -40,7 +40,7 @@ interface Submission {
   utm: Record<string, string>;
   country: string | null;
   referrer: string | null;
-  processing: { steps?: Record<string, { ok?: boolean; error?: string; skipped?: string }> } | null;
+  processing: { steps?: Record<string, { ok?: boolean; error?: string; skipped?: string }>; verified?: { whatsapp?: boolean; email?: boolean; dropped?: string[] } } | null;
   created_at: string;
 }
 
@@ -283,6 +283,15 @@ export function Results({ formId, fields }: { formId: string; fields: FormField[
                   <td className="px-3 py-2">
                     <Badge variant={r.outcome === 'accepted' ? 'default' : 'outline'}>{t(`outcome.${r.outcome}`)}</Badge>
                     {r.qualified === false ? <span className="ml-1 text-xs text-muted-foreground">{t('notQualified')}</span> : null}
+                    {r.processing?.verified && (r.processing.verified.whatsapp || r.processing.verified.email) ? (
+                      <span className="ml-1 text-xs text-primary" title={[r.processing.verified.whatsapp ? t('verifiedWhatsapp') : null, r.processing.verified.email ? t('verifiedEmail') : null].filter(Boolean).join(' · ')}>
+                        {t('verified')}
+                      </span>
+                    ) : r.processing?.verified?.dropped?.length ? (
+                      <span className="ml-1 text-xs text-amber-600" title={t('unverifiedHint')}>
+                        {t('unverified')}
+                      </span>
+                    ) : null}
                     {r.outcome === 'accepted' && Object.values(r.processing?.steps ?? {}).some((s) => s.ok === false) ? (
                       <span className="ml-1 text-xs text-amber-600">{t('needsAttention')}</span>
                     ) : null}

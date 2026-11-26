@@ -4,6 +4,7 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import { assertFeature } from '@/lib/billing/entitlements'
 import type { VisibleWhen } from './conditions'
 import { loadFormDefinitions } from './definitions'
+import { effectiveVerifyMode } from './verify'
 import { parseFormFields, parseFormSettings, type FormKind, type FormRow } from './types'
 
 // ============================================================
@@ -61,6 +62,8 @@ export interface PublicFormConfig {
     followUpLine?: boolean
   }
   turnstile: boolean
+  /** Visitors must confirm a code (WhatsApp and/or email) before the lead is saved. */
+  verify: 'off' | 'whatsapp' | 'email' | 'both'
   /** Show the "Powered by" line (hidden on plans with forms_advanced). */
   showBranding: boolean
   /** Account time zone, for the support button's business hours. */
@@ -190,6 +193,7 @@ export async function buildPublicConfig(db: SupabaseClient, form: FormRow): Prom
     showBranding: branded,
     timezone: (acct as { timezone?: string } | null)?.timezone ?? 'UTC',
     turnstile: !!settings.rules.turnstile && !!process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY,
+    verify: await effectiveVerifyMode(db, form, settings),
     widget:
       form.kind === 'support' && w
         ? {

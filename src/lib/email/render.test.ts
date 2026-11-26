@@ -41,3 +41,19 @@ describe('renderEmail', () => {
     expect(r.html).toContain('&lt;img')
   })
 })
+
+describe('form_code email', () => {
+  it('shows the code, names the form, and has its own footer in every language', async () => {
+    const { renderEmail } = await import('./render')
+    for (const locale of ['en', 'es', 'fr', 'pt', 'ko']) {
+      const r = await renderEmail('form_code', locale, { code: '482913', formName: 'Spring promo', minutes: 5 })
+      expect(r.subject, locale).toContain('482913')
+      expect(r.html, locale).toContain('482913')
+      expect(r.text, locale).toContain('Spring promo')
+      expect(r.text, locale).not.toMatch(/Emails\.|formCode\./) // no raw translation keys
+    }
+    // Not the "you have an account" service footer: the reader is a form visitor.
+    const en = await renderEmail('form_code', 'en', { code: '1', formName: 'F', minutes: 5 })
+    expect(en.text).not.toContain('you have an OgaDesk account')
+  })
+})

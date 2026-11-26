@@ -4357,7 +4357,26 @@
       "backgroundOverlay": "Voile",
       "overlayNone": "Aucun",
       "overlaySoft": "Léger",
-      "overlayStrong": "Fort"
+      "overlayStrong": "Fort",
+      "verify": "Vérifier le visiteur",
+      "verifyHint": "Avant d'enregistrer un lead, le visiteur saisit un code que nous lui envoyons. Un numéro qui n'est pas sur WhatsApp ne le reçoit jamais, donc il n'est jamais enregistré. Chaque code WhatsApp compte comme un message de votre formule.",
+      "verifyOption": {
+        "off": "Désactivé",
+        "whatsapp": "Code WhatsApp",
+        "email": "Code par e-mail",
+        "both": "Codes WhatsApp et e-mail"
+      },
+      "verifyReason": {
+        "wa_no_connection": "Connectez un numéro WhatsApp pour envoyer des codes WhatsApp.",
+        "wa_no_template": "Les codes WhatsApp nécessitent un modèle de vérification approuvé.",
+        "wa_template_pending": "Le modèle de vérification attend l'approbation de Meta.",
+        "wa_template_rejected": "Meta a refusé le modèle de vérification : recréez-le.",
+        "email_field": "Les codes par e-mail nécessitent un champ E-mail obligatoire dans ce formulaire.",
+        "email_off": "Les codes par e-mail ne sont pas disponibles sur ce serveur."
+      },
+      "verifyCreateTemplate": "Créer le modèle de vérification",
+      "verifyTemplateSent": "Modèle soumis. Meta l'approuve généralement en quelques minutes à un jour.",
+      "verifyTemplateFailed": "Impossible de créer le modèle"
     },
     "support": {
       "askName": "Demander leur nom",
@@ -4511,7 +4530,12 @@
         "desktop": "Ordinateur",
         "tablet": "Tablette",
         "unknown": "Inconnu"
-      }
+      },
+      "verified": "Vérifié",
+      "verifiedWhatsapp": "Numéro WhatsApp vérifié",
+      "verifiedEmail": "E-mail vérifié",
+      "unverified": "Non vérifié",
+      "unverifiedHint": "Un code n'a pas pu être envoyé : ce lead a été enregistré sans vérification."
     }
   },
   "StarterForms": {
@@ -4709,6 +4733,13 @@
       "body": "Bonjour {name}, votre forfait {plan} inclut {limit} messages par mois et vous en avez utilisé {used}.",
       "advice": "Les messages modèles et les codes de vérification ne partiront plus tant que votre quota n'est pas renouvelé le mois prochain ou que vous ne changez pas de forfait.",
       "cta": "Changer de forfait"
+    },
+    "formCode": {
+      "subject": "Votre code : {code}",
+      "heading": "Confirmez votre e-mail",
+      "body": "Utilisez ce code pour confirmer vos informations pour {form}.",
+      "expires": "Il expire dans {minutes} minutes.",
+      "footer": "Vous recevez cet e-mail car quelqu'un a saisi cette adresse dans un formulaire. Si ce n'était pas vous, ignorez-le."
     }
   },
   "Partner": {

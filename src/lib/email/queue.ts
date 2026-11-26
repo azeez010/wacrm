@@ -8,7 +8,7 @@ import { getEntitlements } from '@/lib/billing/entitlements'
 import { renderEmail } from './render'
 
 /** The verified sender (Brevo needs the address or its domain verified). */
-function sender(): EmailMessage['from'] | null {
+export function sender(): EmailMessage['from'] | null {
   const email = process.env.EMAIL_FROM_ADDRESS
   if (!email) return null
   return { email, name: process.env.EMAIL_FROM_NAME || BRAND_NAME }

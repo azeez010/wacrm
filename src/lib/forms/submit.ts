@@ -17,6 +17,7 @@ import { sendMessageToConversation } from '@/lib/whatsapp/send-message'
 
 import { loadFormDefinitions, type FormDefinitions } from './definitions'
 import { scoreAnswers } from './scoring'
+import { consumeProof, effectiveVerifyMode, type VerifiedInfo } from './verify'
 import {
   parseFormFields,
   parseFormSettings,
@@ -64,6 +65,7 @@ export type SubmitResult =
   | { status: 'invalid'; errors: Record<string, string> }
   | { status: 'closed'; message: string }
   | { status: 'gated'; message: string }
+  | { status: 'verification_required' }
   | { status: 'unavailable' }
   | { status: 'not_found' }
 
@@ -201,6 +203,15 @@ export async function submitForm(
   })
   if (!v.ok) return { result: { status: 'invalid', errors: v.errors } }
 
+  // Verify-by-code: a public visitor must bring a proof for exactly this phone (and email). Server
+  // submissions (API/MCP) are trusted and skipped; a test lead has nothing to verify.
+  let verified: VerifiedInfo | null = null
+  if (meta.source !== 'api' && !isTest && (await effectiveVerifyMode(db, form, settings)) !== 'off') {
+    const spent = await consumeProof(db, form, payload.proof, { phone: v.phone as string, email: v.email }, now)
+    if (!spent.ok) return { result: { status: 'verification_required' } }
+    verified = spent.verified
+  }
+
   const score = scoreAnswers(fields, payload.answers, settings)
 
   // Qualification gate: block the entry (still logged, never creates a contact).
@@ -243,7 +254,7 @@ export async function submitForm(
       qualified: settings.qualification.enabled ? score.qualified : null,
       outcome: held ? 'held' : 'accepted',
       consent: v.consent,
-      processing: payload.key ? { key: payload.key } : {},
+      processing: { ...(payload.key ? { key: payload.key } : {}), ...(verified ? { verified: { whatsapp: verified.whatsapp, email: verified.email, ...(verified.dropped ? { dropped: verified.dropped } : {}) } } : {}) },
     })
     .select('id')
     .single()
@@ -274,6 +285,7 @@ export async function submitForm(
         v,
         qualified: settings.qualification.enabled ? score.qualified : null,
         score: score.score,
+        verified,
         payload,
         pre,
         now,
@@ -385,6 +397,8 @@ interface FinishCtx {
   qualified: boolean | null
   /** The lead's score (for the score custom field). */
   score?: number
+  /** What the visitor proved with a code (null: nothing required). */
+  verified?: VerifiedInfo | null
   payload: SubmitPayload
   pre: Prechecked
   now: Date
@@ -472,6 +486,8 @@ export async function runSideEffects(db: Db, c: FinishCtx): Promise<void> {
         c.now,
       ),
     )
+    if (c.verified?.whatsapp && isEmptyCell(row.phone_verified_at)) patch.phone_verified_at = c.now.toISOString()
+    if (c.verified?.email && isEmptyCell(row.email_verified_at)) patch.email_verified_at = c.now.toISOString()
     if (v.consent && isEmptyCell(row.opt_in_at)) {
       patch.opt_in_at = v.consent.at
       patch.opt_in_source = `Form: ${form.name}`

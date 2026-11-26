@@ -542,3 +542,56 @@ describe('score field and hidden-field mapping', () => {
     expect(bad.customByKey).toEqual({})
   })
 })
+
+describe('verify-by-code gating', () => {
+  const verifyForm = () => form({}, { rules: { verify: 'whatsapp' } })
+  const proofFor = async (over: Record<string, unknown> = {}) => {
+    const { signToken } = await import('@/lib/otp/code')
+    return signToken('vp', { f: 'form-1', ph: '2348031234567', em: null, ids: { whatsapp: 'wa-1' }, ...over }, 1200)
+  }
+  const withProof = (proof?: string) => ({ ...good, answers: { ...good.answers }, proof })
+  const spend = (rows: unknown[]) => ({ ...handlersOk, 'otp_verifications.update': () => ({ data: rows }) })
+
+  it('refuses a public submission without a proof, and stores nothing', async () => {
+    const { db, calls } = makeDb(handlersOk)
+    const out = await submitForm(db, verifyForm(), withProof(undefined), { source: 'public' })
+    expect(out.result).toEqual({ status: 'verification_required' })
+    expect(submissionsInsert(calls)).toHaveLength(0)
+  })
+
+  it('refuses a proof for a different number, or one already spent', async () => {
+    const wrongNumber = await proofFor({ ph: '2348039999999' })
+    const a = makeDb(spend([{ id: 'wa-1', channel: 'whatsapp', metadata: null }]))
+    expect((await submitForm(a.db, verifyForm(), withProof(wrongNumber), { source: 'public' })).result).toEqual({ status: 'verification_required' })
+    const b = makeDb(spend([])) // nothing left to spend: a replay
+    expect((await submitForm(b.db, verifyForm(), withProof(await proofFor()), { source: 'public' })).result).toEqual({ status: 'verification_required' })
+    expect(submissionsInsert(a.calls)).toHaveLength(0)
+    expect(submissionsInsert(b.calls)).toHaveLength(0)
+  })
+
+  it('a valid proof saves the lead, records what was verified, and marks the contact', async () => {
+    const m = makeDb(spend([{ id: 'wa-1', channel: 'whatsapp', metadata: { contact_created: true } }]))
+    const out = await submitForm(m.db, verifyForm(), withProof(await proofFor()), { source: 'public' })
+    expect(out.result.status).toBe('ok')
+    expect(submissionsInsert(m.calls)[0].payload).toMatchObject({ processing: { verified: { whatsapp: true, email: false } } })
+    await out.finish?.()
+    const contactUpdate = m.calls.find((c) => c.table === 'contacts' && c.op === 'update')!.payload as Record<string, unknown>
+    expect(contactUpdate.phone_verified_at).toBeTruthy()
+    expect(contactUpdate.email_verified_at).toBeUndefined()
+  })
+
+  it('server (API/MCP) submissions are trusted and need no proof; so do forms without verification', async () => {
+    const a = makeDb(handlersOk)
+    expect((await submitForm(a.db, verifyForm(), good, { source: 'api' })).result.status).toBe('ok')
+    const b = makeDb(handlersOk)
+    expect((await submitForm(b.db, form({}, {}), good, { source: 'public' })).result.status).toBe('ok')
+  })
+
+  it('a plan that no longer includes advanced forms never locks leads out', async () => {
+    ;(h.assertFeature as unknown as { mockImplementation: (f: (d: unknown, a: unknown, feature: string) => Promise<void>) => void }).mockImplementation(async (_d, _a, feature) => {
+      if (feature === 'forms_advanced') throw new Error('locked')
+    })
+    const m = makeDb(handlersOk)
+    expect((await submitForm(m.db, verifyForm(), withProof(undefined), { source: 'public' })).result.status).toBe('ok')
+  })
+})

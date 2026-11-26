@@ -57,3 +57,36 @@ export function verifyOtp(verificationId: string, code: string, storedHash: stri
   const b = Buffer.from(storedHash, 'hex')
   return a.length === b.length && crypto.timingSafeEqual(a, b)
 }
+
+// ---- signed, expiring tokens (form verification challenge / proof) ----------
+// A token is base64url(JSON) + "." + HMAC. The purpose is part of what is signed, so a
+// challenge can never be used as a proof, and `exp` (ms) is checked on read.
+
+function b64(s: string): string {
+  return Buffer.from(s, 'utf8').toString('base64url')
+}
+
+function tokenMac(purpose: string, body: string): string {
+  return crypto.createHmac('sha256', secret()).update(`tok:${purpose}:${body}`).digest('base64url')
+}
+
+export function signToken(purpose: string, payload: Record<string, unknown>, ttlSeconds: number, nowMs: number = Date.now()): string {
+  const body = b64(JSON.stringify({ ...payload, exp: nowMs + ttlSeconds * 1000 }))
+  return `${body}.${tokenMac(purpose, body)}`
+}
+
+export function readToken<T extends Record<string, unknown>>(purpose: string, token: unknown, nowMs: number = Date.now()): (T & { exp: number }) | null {
+  if (typeof token !== 'string' || token.length > 2000) return null
+  const [body, mac, extra] = token.split('.')
+  if (!body || !mac || extra !== undefined) return null
+  const expected = Buffer.from(tokenMac(purpose, body))
+  const given = Buffer.from(mac)
+  if (expected.length !== given.length || !crypto.timingSafeEqual(expected, given)) return null
+  try {
+    const parsed = JSON.parse(Buffer.from(body, 'base64url').toString('utf8')) as T & { exp?: number }
+    if (typeof parsed.exp !== 'number' || parsed.exp <= nowMs) return null
+    return parsed as T & { exp: number }
+  } catch {
+    return null
+  }
+}

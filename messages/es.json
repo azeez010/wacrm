@@ -4357,7 +4357,26 @@
       "backgroundOverlay": "Velo",
       "overlayNone": "Ninguno",
       "overlaySoft": "Suave",
-      "overlayStrong": "Fuerte"
+      "overlayStrong": "Fuerte",
+      "verify": "Verificar al visitante",
+      "verifyHint": "Antes de guardar un lead, el visitante escribe un código que le enviamos. Un número que no está en WhatsApp nunca lo recibe, así que nunca se guarda. Cada código de WhatsApp cuenta como un mensaje de tu plan.",
+      "verifyOption": {
+        "off": "Desactivado",
+        "whatsapp": "Código por WhatsApp",
+        "email": "Código por correo",
+        "both": "Códigos por WhatsApp y correo"
+      },
+      "verifyReason": {
+        "wa_no_connection": "Conecta un número de WhatsApp para enviar códigos por WhatsApp.",
+        "wa_no_template": "Los códigos por WhatsApp necesitan una plantilla de verificación aprobada.",
+        "wa_template_pending": "La plantilla de verificación espera la aprobación de Meta.",
+        "wa_template_rejected": "Meta rechazó la plantilla de verificación: créala de nuevo.",
+        "email_field": "Los códigos por correo necesitan un campo Correo obligatorio en este formulario.",
+        "email_off": "Los códigos por correo no están disponibles en este servidor."
+      },
+      "verifyCreateTemplate": "Crear la plantilla de verificación",
+      "verifyTemplateSent": "Plantilla enviada. Meta suele aprobarla en minutos o en un día.",
+      "verifyTemplateFailed": "No se pudo crear la plantilla"
     },
     "support": {
       "askName": "Pedir su nombre",
@@ -4511,7 +4530,12 @@
         "desktop": "Escritorio",
         "tablet": "Tableta",
         "unknown": "Desconocido"
-      }
+      },
+      "verified": "Verificado",
+      "verifiedWhatsapp": "Número de WhatsApp verificado",
+      "verifiedEmail": "Correo verificado",
+      "unverified": "Sin verificar",
+      "unverifiedHint": "No se pudo enviar un código, así que este lead se guardó sin verificar."
     }
   },
   "StarterForms": {
@@ -4709,6 +4733,13 @@
       "body": "Hola {name}, tu plan {plan} incluye {limit} mensajes al mes y has usado {used}.",
       "advice": "Los mensajes de plantilla y los códigos de verificación no se enviarán hasta que tu cupo se renueve el mes que viene o mejores tu plan.",
       "cta": "Mejorar tu plan"
+    },
+    "formCode": {
+      "subject": "Tu código: {code}",
+      "heading": "Confirma tu correo",
+      "body": "Usa este código para confirmar tus datos en {form}.",
+      "expires": "Caduca en {minutes} minutos.",
+      "footer": "Recibiste este correo porque alguien introdujo esta dirección en un formulario. Si no fuiste tú, puedes ignorarlo."
     }
   },
   "Partner": {

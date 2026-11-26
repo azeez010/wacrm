@@ -86,6 +86,13 @@ export function PublicForm({
   const [done, setDone] = useState<SuccessInfo | null>(null);
   const [gated, setGated] = useState<string | null>(null);
   const [turnstileToken, setTurnstileToken] = useState<string | undefined>();
+  // Verify-by-code: the code screen, what the visitor typed, and the signed proof to submit with.
+  type VerifyStep = { challenge: string; channels: ('whatsapp' | 'email')[]; masked: { phone?: string; email?: string }; resendAt: number };
+  const [verifyStep, setVerifyStep] = useState<VerifyStep | null>(null);
+  const [codes, setCodes] = useState<{ whatsapp: string; email: string }>({ whatsapp: '', email: '' });
+  const [verifyError, setVerifyError] = useState<string | null>(null);
+  const [tick, setTick] = useState(0);
+  const proof = useRef<string | null>(null);
   const started = useRef(false);
   const rendered = useRef(0);
   const key = useRef(randomId());
@@ -166,6 +173,15 @@ export function PublicForm({
     };
   }, [config.turnstile]);
 
+  // Resend countdown: re-render once a second while the code screen is open.
+  useEffect(() => {
+    if (!verifyStep) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setTick(Date.now());
+    const id = setInterval(() => setTick(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, [verifyStep]);
+
   const setValue = useCallback(
     (id: string, v: unknown) => {
       setValues((prev) => ({ ...prev, [id]: v }));
@@ -224,7 +240,15 @@ export function PublicForm({
       if (first) document.getElementById(`og-${first.id}`)?.focus();
       return;
     }
-    setBusy(true);
+    if (config.verify !== 'off' && !proof.current) {
+      await startVerify();
+      return;
+    }
+    await send(proof.current ?? undefined);
+  }
+
+  /** The answers as the server expects them (also used to ask for a code). */
+  function collectAnswers(): Record<string, unknown> {
     const answers: Record<string, unknown> = {};
     for (const f of config.fields) {
       if (f.kind === 'heading' || visibility[f.id] === false) continue;
@@ -235,6 +259,99 @@ export function PublicForm({
       }
       answers[f.id] = f.kind === 'phone' ? composePhone(values[f.id]) : values[f.id];
     }
+    return answers;
+  }
+
+  /** Ask the server to send the code(s); shows the code screen, or goes straight on when none is needed. */
+  async function startVerify() {
+    setBusy(true);
+    try {
+      const res = await fetch(`${endpoint}/verify/start`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          answers: collectAnswers(),
+          website: (root.current?.querySelector('input[name="ogx_hp"]') as HTMLInputElement | null)?.value ?? '',
+          turnstileToken,
+        }),
+      });
+      const json = (await res.json().catch(() => ({}))) as {
+        ok?: boolean;
+        error?: string;
+        errors?: Record<string, string>;
+        required?: boolean;
+        skipped?: boolean;
+        proof?: string;
+        challenge?: string;
+        channels?: ('whatsapp' | 'email')[];
+        masked?: { phone?: string; email?: string };
+        resendAfter?: number;
+      };
+      if (json.ok && json.required === false) {
+        setBusy(false);
+        await send(undefined);
+        return;
+      }
+      if (json.ok && json.skipped && json.proof) {
+        // We could not send a code: the lead goes through unverified rather than being lost.
+        proof.current = json.proof;
+        setBusy(false);
+        await send(json.proof);
+        return;
+      }
+      if (json.ok && json.challenge && json.channels) {
+        setCodes({ whatsapp: '', email: '' });
+        setVerifyError(null);
+        setVerifyStep({ challenge: json.challenge, channels: json.channels, masked: json.masked ?? {}, resendAt: Date.now() + (json.resendAfter ?? 30) * 1000 });
+      } else if (json.error === 'invalid' && json.errors) {
+        setErrors(json.errors);
+      } else if (res.status === 429) {
+        setFormError(t.too_many);
+      } else if (json.error === 'closed') {
+        setFormError(t.closed);
+      } else {
+        setFormError(t.generic_error);
+      }
+    } catch {
+      setFormError(t.generic_error);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function confirmCodes(e: React.FormEvent) {
+    e.preventDefault();
+    if (!verifyStep || busy) return;
+    setBusy(true);
+    setVerifyError(null);
+    try {
+      const res = await fetch(`${endpoint}/verify/confirm`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ challenge: verifyStep.challenge, codes }),
+      });
+      const json = (await res.json().catch(() => ({}))) as { ok?: boolean; status?: string; proof?: string };
+      if (json.ok && json.status === 'approved' && json.proof) {
+        proof.current = json.proof;
+        setVerifyStep(null);
+        setBusy(false);
+        await send(json.proof);
+        return;
+      }
+      if (json.ok && json.status === 'expired') setVerifyError(t.verifyExpired);
+      else if (json.ok && json.status === 'failed') setVerifyError(t.verifyLocked);
+      else if (res.status === 429) setVerifyError(t.too_many);
+      else setVerifyError(t.verifyWrong);
+    } catch {
+      setVerifyError(t.generic_error);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function send(withProof: string | undefined) {
+    setBusy(true);
+    const answers = collectAnswers();
     try {
       const res = await fetch(`${endpoint}/submit`, {
         method: 'POST',
@@ -250,6 +367,7 @@ export function PublicForm({
           referrer: ctx.current.params.get('ogref') || document.referrer || undefined,
           pageUrl: (ctx.current.params.get('ogpage') || window.location.href).slice(0, 900),
           turnstileToken,
+          proof: withProof,
         }),
       });
       const json = (await res.json().catch(() => ({}))) as {
@@ -268,6 +386,11 @@ export function PublicForm({
       } else if (json.error === 'invalid' && json.errors) {
         setErrors(json.errors);
         setFormError(json.errors._form ? t.generic_error : null);
+      } else if (json.error === 'verification_required') {
+        // The proof expired or does not match what was typed: ask again.
+        proof.current = null;
+        setVerifyStep(null);
+        setFormError(t.verifyAgain);
       } else if (json.error === 'gated') {
         setGated(json.message || t.closed);
       } else if (json.error === 'closed') {
@@ -313,6 +436,61 @@ export function PublicForm({
       <div ref={root} className={wrapper} style={rootStyle}>
         <SuccessView done={done} t={t} accent={accent} config={config} />
         {config.showBranding ? <PoweredBy lang={config.language} /> : null}
+      </div>,
+    );
+  }
+
+  if (verifyStep) {
+    const wait = Math.max(0, Math.ceil((verifyStep.resendAt - tick) / 1000));
+    const field = (channel: 'whatsapp' | 'email') => {
+      const to = channel === 'whatsapp' ? verifyStep.masked.phone : verifyStep.masked.email;
+      return (
+        <div key={channel}>
+          <Label htmlFor={`og-code-${channel}`}>{(channel === 'whatsapp' ? t.verifyWhatsapp : t.verifyEmail).replace('{to}', to ?? '')}</Label>
+          <input
+            id={`og-code-${channel}`}
+            inputMode="numeric"
+            autoComplete="one-time-code"
+            maxLength={8}
+            value={codes[channel]}
+            onChange={(e) => setCodes((c) => ({ ...c, [channel]: e.target.value.replace(/\s+/g, '') }))}
+            className={`${inputFull} text-center text-lg tracking-[0.4em]`}
+            aria-label={t.verifyCodeLabel}
+          />
+        </div>
+      );
+    };
+    return page(
+      <div ref={root} className={wrapper} style={rootStyle}>
+        <form onSubmit={confirmCodes} noValidate className="space-y-4">
+          <div>
+            <h1 className="text-xl font-semibold leading-tight">{t.verifyTitle}</h1>
+            {verifyStep.channels.includes('whatsapp') ? <p className="mt-1 text-xs text-[color:var(--og-muted)]">{t.verifyNoCode}</p> : null}
+          </div>
+          {verifyStep.channels.map(field)}
+          {verifyError ? (
+            <p role="alert" className="text-sm text-red-500">
+              {verifyError}
+            </p>
+          ) : null}
+          <button
+            type="submit"
+            disabled={busy || verifyStep.channels.some((c) => codes[c].length < 4)}
+            className="w-full rounded-lg px-4 py-3 text-sm font-semibold text-white transition-opacity disabled:opacity-60"
+            style={{ backgroundColor: accent }}
+          >
+            {busy ? t.sending : t.verifyConfirm}
+          </button>
+          <div className="flex items-center justify-between text-xs text-[color:var(--og-muted)]">
+            <button type="button" className="underline" onClick={() => { proof.current = null; setVerifyStep(null); setVerifyError(null); }}>
+              {t.verifyBack}
+            </button>
+            <button type="button" className="underline disabled:no-underline disabled:opacity-60" disabled={busy || wait > 0} onClick={() => void startVerify()}>
+              {wait > 0 ? t.verifyResendIn.replace('{seconds}', String(wait)) : t.verifyResend}
+            </button>
+          </div>
+          {config.showBranding ? <PoweredBy lang={config.language} /> : null}
+        </form>
       </div>,
     );
   }

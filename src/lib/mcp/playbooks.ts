@@ -61,6 +61,7 @@ export const PLAYBOOKS: Record<PlaybookTopic, Playbook> = {
       'Who should follow up (a person, round-robin among agents) and how fast.',
       'Whether to score or qualify leads (needs the Advanced forms plan).',
       'Where the form will live: shareable link, embed on a site, or a QR code.',
+      'Whether to verify the visitor with a code before saving the lead (settings.rules.verify: whatsapp, email or both). It keeps fake and mistyped numbers out of your contacts. WhatsApp codes need a connected number and an approved verification template; email codes need a required email field; it needs the Advanced forms plan, and each WhatsApp code counts as one message.',
     ],
     steps: [
       'get_forms_reference, then list_forms to avoid duplicates.',

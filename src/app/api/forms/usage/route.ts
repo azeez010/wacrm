@@ -4,6 +4,7 @@ import { requireRole } from '@/lib/auth/account'
 import { supabaseAdmin } from '@/lib/automations/admin-client'
 import { assertFeature, getLimit } from '@/lib/billing/entitlements'
 import { monthStartUtc } from '@/lib/billing/usage'
+import { verifyAvailability } from '@/lib/forms/verify'
 import { formErrorResponse } from '@/lib/forms/route-helpers'
 
 /** Plan usage for the Forms list: forms used/allowed and leads this month. */
@@ -23,6 +24,8 @@ export async function GET() {
     )
     return NextResponse.json({
       advanced,
+      // Which verification codes can work for this account (WhatsApp needs a connection + approved code template).
+      verify: await verifyAvailability(ctx.supabase, ctx.accountId),
       planName: formsLimit.planName,
       forms: { used: count ?? 0, limit: formsLimit.limit },
       leads: { used: Number(counts.accepted ?? 0), held: Number(counts.held ?? 0), limit: leadsLimit.limit },

@@ -157,7 +157,7 @@ export async function createVerification(
   db: SupabaseClient,
   accountId: string,
   input: CreateVerificationInput,
-): Promise<{ verification: PublicVerification; whatsappMessageId: string }> {
+): Promise<{ verification: PublicVerification; whatsappMessageId: string; contact: { id: string; created: boolean } | null }> {
   // ---- validate -------------------------------------------------
   const phone = typeof input.to === 'string' ? parseInternationalPhone(input.to) : null
   if (!phone) {
@@ -242,6 +242,7 @@ export async function createVerification(
     .select('created_at')
     .eq('account_id', accountId)
     .eq('phone', phone)
+    .eq('channel', 'whatsapp')
     .gte('created_at', since)
     .order('created_at', { ascending: true })
   if ((recent?.length ?? 0) >= OTP_LIMITS.throttleMax) {
@@ -263,6 +264,7 @@ export async function createVerification(
     id,
     account_id: accountId,
     phone,
+    channel: 'whatsapp',
     status: 'pending',
     code_hash: hashOtp(id, code),
     max_attempts: OTP_LIMITS.maxAttempts,
@@ -276,11 +278,13 @@ export async function createVerification(
   }
 
   let sent: { messageId: string; whatsappMessageId: string }
+  let resolvedContact: { id: string; created: boolean } | null = null
   try {
     const conversation = await resolveConversationByPhone(db, accountId, `+${phone}`, null, {
       whatsappConfigId: config.id,
       quiet: true,
     })
+    resolvedContact = { id: conversation.contactId, created: conversation.contactCreated }
     sent = await sendMessageToConversation(db, accountId, {
       conversationId: conversation.conversationId,
       messageType: 'template',
@@ -300,7 +304,12 @@ export async function createVerification(
 
   const { data: updated } = await db
     .from('otp_verifications')
-    .update({ message_row_id: sent.messageId })
+    .update({
+      message_row_id: sent.messageId,
+      // Remember whether this send created the contact, so a form that never gets its code
+      // confirmed can remove that contact again (no ghost numbers left behind).
+      metadata: { ...(metadata ?? {}), contact_id: resolvedContact?.id ?? null, contact_created: resolvedContact?.created ?? false },
+    })
     .eq('id', id)
     .select(ROW_COLUMNS)
     .single()
@@ -312,6 +321,7 @@ export async function createVerification(
     .update({ status: 'canceled' })
     .eq('account_id', accountId)
     .eq('phone', phone)
+    .eq('channel', 'whatsapp')
     .eq('status', 'pending')
     .neq('id', id)
   // CRM: the first code a workspace ever sends is a milestone. And the monthly
@@ -336,6 +346,7 @@ export async function createVerification(
       send_error: null, approved_at: null, created_at: new Date().toISOString(),
     } as VerificationRow)),
     whatsappMessageId: sent.whatsappMessageId,
+    contact: resolvedContact,
   }
 }
 

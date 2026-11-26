@@ -66,7 +66,7 @@ export const FORMS_REFERENCE = {
     autoTag: 'tag name added to every lead (created if missing); null for none',
     assignment: '{ mode: "none"|"agent"|"round_robin", agentIds: [user ids] }  (round_robin needs the forms_advanced plan feature)',
     qualification: '{ enabled, threshold, onUnqualified: "save"|"block", blockMessage }  (needs forms_advanced)',
-    rules: '{ onePerPhone, repeatWindowHours, maxSubmissions, opensAt, closesAt, closedMessage, turnstile, retentionDays, saveMessageAsNote }',
+    rules: '{ onePerPhone, repeatWindowHours, maxSubmissions, opensAt, closesAt, closedMessage, turnstile, retentionDays, saveMessageAsNote, verify: "off"|"whatsapp"|"email"|"both" (prove the visitor owns the number/email with a code before the lead is saved; needs the Advanced forms plan, a connected WhatsApp number with an approved verification template for WhatsApp codes, and a required email field for email codes) }',
     widget: 'support only: { corner: "bottom-left"|"bottom-right", offsetX, offsetY, label, color, icon: "whatsapp"|"chat"|"headset", greeting, showOn, urlContains, devices, hours }',
     pipeline: '{ pipelineId, stageId } creates a deal on submit (needs forms_advanced)',
     welcomeTemplate: '{ name, language, params } approved template sent to consenting new leads (needs forms_advanced)',

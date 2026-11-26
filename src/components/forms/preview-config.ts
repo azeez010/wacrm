@@ -77,6 +77,7 @@ export function buildPreviewConfig(
     og: {},
     success: { action: settings.success.action, message: settings.success.message, redirectUrl: settings.success.redirectUrl, followUpLine: settings.success.followUpLine },
     turnstile: false,
+    verify: kind === 'lead' ? (settings.rules.verify ?? 'off') : 'off',
     // Mirrors the server rule; the editor passes the plan in.
     showBranding: !(settings.hideBranding === true && advanced),
     widget: kind === 'support' ? { corner: w?.corner ?? 'bottom-left', offsetX: w?.offsetX ?? 20, offsetY: w?.offsetY ?? 20, icon: w?.icon ?? 'whatsapp', mode: w?.mode ?? 'whatsapp', label: w?.label, color: w?.color ?? settings.accent, greeting: w?.greeting, animation: w?.animation ?? 'pulse', sound: w?.sound ?? 'none', preMessage: w?.preMessage, preMessageDelay: w?.preMessageDelay ?? 4, preMessageRepeat: w?.preMessageRepeat ?? 'session', showOn: w?.showOn ?? 'all', devices: w?.devices ?? 'all', hours: w?.hours } : undefined,

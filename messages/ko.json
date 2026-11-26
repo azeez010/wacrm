@@ -4357,7 +4357,26 @@
       "backgroundOverlay": "덮개",
       "overlayNone": "없음",
       "overlaySoft": "연하게",
-      "overlayStrong": "진하게"
+      "overlayStrong": "진하게",
+      "verify": "방문자 확인",
+      "verifyHint": "리드를 저장하기 전에 방문자가 우리가 보낸 코드를 입력합니다. WhatsApp을 쓰지 않는 번호는 코드를 받지 못하므로 저장되지 않습니다. WhatsApp 코드 1건은 요금제의 메시지 1건으로 계산됩니다.",
+      "verifyOption": {
+        "off": "끔",
+        "whatsapp": "WhatsApp 코드",
+        "email": "이메일 코드",
+        "both": "WhatsApp 및 이메일 코드"
+      },
+      "verifyReason": {
+        "wa_no_connection": "WhatsApp 코드를 보내려면 WhatsApp 번호를 연결하세요.",
+        "wa_no_template": "WhatsApp 코드에는 승인된 인증 템플릿이 필요합니다.",
+        "wa_template_pending": "인증 템플릿이 Meta 승인을 기다리고 있습니다.",
+        "wa_template_rejected": "Meta가 인증 템플릿을 거부했습니다. 다시 만드세요.",
+        "email_field": "이메일 코드에는 이 양식에 필수 이메일 필드가 필요합니다.",
+        "email_off": "이 서버에서는 이메일 코드를 사용할 수 없습니다."
+      },
+      "verifyCreateTemplate": "인증 템플릿 만들기",
+      "verifyTemplateSent": "템플릿을 제출했습니다. Meta는 보통 몇 분에서 하루 안에 승인합니다.",
+      "verifyTemplateFailed": "템플릿을 만들지 못했습니다"
     },
     "support": {
       "askName": "이름 묻기",
@@ -4511,7 +4530,12 @@
         "desktop": "데스크톱",
         "tablet": "태블릿",
         "unknown": "알 수 없음"
-      }
+      },
+      "verified": "인증됨",
+      "verifiedWhatsapp": "인증된 WhatsApp 번호",
+      "verifiedEmail": "인증된 이메일",
+      "unverified": "인증 안 됨",
+      "unverifiedHint": "코드를 보낼 수 없어 이 리드는 인증 없이 저장되었습니다."
     }
   },
   "StarterForms": {
@@ -4709,6 +4733,13 @@
       "body": "{name}님, {plan} 요금제는 월 {limit}건의 메시지를 포함하며 {used}건을 사용했습니다.",
       "advice": "다음 달 한도가 갱신되거나 업그레이드하기 전까지 템플릿 메시지와 인증 코드가 발송되지 않습니다.",
       "cta": "요금제 업그레이드"
+    },
+    "formCode": {
+      "subject": "인증 코드: {code}",
+      "heading": "이메일 확인",
+      "body": "{form}에 입력한 정보를 확인하려면 이 코드를 사용하세요.",
+      "expires": "{minutes}분 후에 만료됩니다.",
+      "footer": "누군가 양식에 이 주소를 입력해서 이 이메일을 받으셨습니다. 본인이 아니라면 무시하셔도 됩니다."
     }
   },
   "Partner": {

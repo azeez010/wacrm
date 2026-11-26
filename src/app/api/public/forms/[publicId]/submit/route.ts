@@ -85,6 +85,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ pub
       return corsJson({ ok: false, error: 'closed', message: r.message }, 410)
     case 'gated':
       return corsJson({ ok: false, error: 'gated', message: r.message }, 200)
+    case 'verification_required':
+      return corsJson({ ok: false, error: 'verification_required' }, 400)
     case 'not_found':
       return corsJson({ ok: false, error: 'not_found' }, 404)
     default:

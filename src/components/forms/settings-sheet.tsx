@@ -6,6 +6,9 @@ import { AlignCenter, AlignLeft, AlignRight, ChevronDown } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
+import { toast } from 'sonner';
+
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet';
@@ -13,6 +16,7 @@ import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { COUNTRIES } from '@/lib/forms/countries';
 import type { FormKind, FormSettings } from '@/lib/forms/types';
+import type { VerifyAvailability } from '@/lib/forms/verify';
 import { cn } from '@/lib/utils';
 import type { FormEditorData } from './use-form-data';
 
@@ -27,6 +31,12 @@ interface Props {
   canEdit: boolean;
   /** Plan has forms_advanced: may hide the OgaDesk badge. */
   advanced: boolean;
+  /** Which verification codes can work for this account (null while loading). */
+  verifyAvailability?: VerifyAvailability | null;
+  /** The form has a required email field (needed for email codes). */
+  hasRequiredEmail?: boolean;
+  /** Called after the code template was submitted, so the status refreshes. */
+  onVerifyTemplateCreated?: () => void;
   /** Support button in Live chat mode: only the settings the chat uses. */
   liveChat?: boolean;
   patch: (p: Record<string, unknown>) => void;
@@ -43,7 +53,7 @@ function Row({ label, hint, children }: { label: string; hint?: string; children
 }
 
 /** One side sheet. Four things up front; everything else under "More options". */
-export function SettingsSheet({ open, onOpenChange, kind, settings, data, canEdit, advanced, liveChat = false, patch }: Props) {
+export function SettingsSheet({ open, onOpenChange, kind, settings, data, canEdit, advanced, verifyAvailability = null, hasRequiredEmail = false, onVerifyTemplateCreated, liveChat = false, patch }: Props) {
   const t = useTranslations('Forms.settings');
   const [more, setMore] = useState(false);
   const s = settings;
@@ -403,6 +413,18 @@ export function SettingsSheet({ open, onOpenChange, kind, settings, data, canEdi
                     <Switch disabled={!canEdit} checked={!!s.rules.turnstile} onCheckedChange={(on) => patch({ rules: { turnstile: on } })} />
                     {t('turnstile')}
                   </label>
+                  {kind === 'lead' && (
+                    <VerifyRow
+                      t={t}
+                      canEdit={canEdit}
+                      advanced={advanced}
+                      mode={(s.rules.verify ?? 'off') as 'off' | 'whatsapp' | 'email' | 'both'}
+                      avail={verifyAvailability}
+                      hasRequiredEmail={hasRequiredEmail}
+                      onChange={(verify) => patch({ rules: { verify } })}
+                      onTemplateCreated={onVerifyTemplateCreated}
+                    />
+                  )}
                   <Row label={t('retention')} hint={t('retentionHint')}>
                     <Input type="number" min={1} max={3650} disabled={!canEdit} value={s.rules.retentionDays ?? ''} placeholder={t('retentionForever')} onChange={(e) => patch({ rules: { retentionDays: e.target.value ? Math.min(3650, Math.max(1, Number(e.target.value))) : undefined } })} />
                   </Row>
@@ -518,3 +540,81 @@ function splitTags(v: string): string[] {
 }
 const toLocal = (iso?: string) => (iso ? new Date(iso).toISOString().slice(0, 16) : '');
 const fromLocal = (v: string) => (v ? new Date(v).toISOString() : undefined);
+
+type VerifyMode = 'off' | 'whatsapp' | 'email' | 'both';
+
+/** "Verify the visitor": a code on WhatsApp and/or email before the lead is saved, only when it can work. */
+function VerifyRow({
+  t,
+  canEdit,
+  advanced,
+  mode,
+  avail,
+  hasRequiredEmail,
+  onChange,
+  onTemplateCreated,
+}: {
+  t: ReturnType<typeof useTranslations>;
+  canEdit: boolean;
+  advanced: boolean;
+  mode: VerifyMode;
+  avail: VerifyAvailability | null;
+  hasRequiredEmail: boolean;
+  onChange: (m: VerifyMode) => void;
+  onTemplateCreated?: () => void;
+}) {
+  const [busy, setBusy] = useState(false);
+  const waOk = avail?.whatsapp.ok === true;
+  const emailOk = avail?.email.ok === true && hasRequiredEmail;
+  const opts: { value: VerifyMode; ok: boolean }[] = [
+    { value: 'off', ok: true },
+    { value: 'whatsapp', ok: waOk },
+    { value: 'email', ok: emailOk },
+    { value: 'both', ok: waOk && emailOk },
+  ];
+  const reasons: string[] = [];
+  if (avail && !waOk) reasons.push(t(`verifyReason.wa_${avail.whatsapp.reason ?? 'no_connection'}`));
+  if (avail && avail.email.ok && !hasRequiredEmail) reasons.push(t('verifyReason.email_field'));
+  if (avail && !avail.email.ok) reasons.push(t('verifyReason.email_off'));
+  const canCreateTemplate = avail?.whatsapp.reason === 'no_template' || avail?.whatsapp.reason === 'template_rejected';
+
+  async function createTemplate() {
+    setBusy(true);
+    const res = await fetch('/api/forms/verify-template', { method: 'POST' });
+    setBusy(false);
+    if (!res.ok) return toast.error(((await res.json().catch(() => ({}))) as { error?: string }).error ?? t('verifyTemplateFailed'));
+    toast.success(t('verifyTemplateSent'));
+    onTemplateCreated?.();
+  }
+
+  return (
+    <div className="space-y-1.5">
+      <Label className="text-xs text-muted-foreground">{t('verify')}</Label>
+      <select
+        className={selectCls}
+        disabled={!canEdit || !advanced}
+        value={mode}
+        onChange={(e) => onChange(e.target.value as VerifyMode)}
+      >
+        {opts.map((o) => (
+          <option key={o.value} value={o.value} disabled={!o.ok && o.value !== mode}>
+            {t(`verifyOption.${o.value}`)}
+          </option>
+        ))}
+      </select>
+      <p className="text-xs text-muted-foreground">{advanced ? t('verifyHint') : t('hideBrandingLocked')}</p>
+      {advanced && reasons.length > 0 ? (
+        <ul className="list-disc space-y-0.5 pl-4 text-xs text-muted-foreground">
+          {reasons.map((r) => (
+            <li key={r}>{r}</li>
+          ))}
+        </ul>
+      ) : null}
+      {advanced && canCreateTemplate && canEdit ? (
+        <Button type="button" size="sm" variant="outline" disabled={busy} onClick={() => void createTemplate()}>
+          {t('verifyCreateTemplate')}
+        </Button>
+      ) : null}
+    </div>
+  );
+}

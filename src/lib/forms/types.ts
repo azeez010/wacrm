@@ -173,6 +173,8 @@ export const formSettingsSchema = z
         closedMessage: longText.optional(),
         turnstile: z.boolean().optional(),
         retentionDays: z.number().int().min(1).max(3650).optional(),
+        /** Prove the visitor owns the phone / email with a code before the lead is saved (needs forms_advanced). */
+        verify: z.enum(['off', 'whatsapp', 'email', 'both']).optional(),
         /** Keep the lead's message as a contact note. */
         saveMessageAsNote: z.boolean().optional(),
       })
@@ -300,6 +302,8 @@ export const submitPayloadSchema = z
     referrer: z.string().max(1000).optional(),
     pageUrl: z.string().max(1000).optional(),
     turnstileToken: z.string().max(4000).optional(),
+    /** Signed proof from /verify/confirm, required when the form verifies visitors. */
+    proof: z.string().max(2000).optional(),
     test: z.boolean().optional(),
   })
   .strict()

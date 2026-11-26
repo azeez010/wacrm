@@ -62,9 +62,9 @@ export async function createFormFromTemplate(
 }
 
 /** Settings that need the `forms_advanced` plan feature. */
-export function usesAdvancedFeatures(settings: { qualification?: { enabled?: boolean }; assignment?: { mode?: string }; pipeline?: unknown; welcomeTemplate?: unknown; hideBranding?: boolean } | undefined): boolean {
+export function usesAdvancedFeatures(settings: { qualification?: { enabled?: boolean }; assignment?: { mode?: string }; pipeline?: unknown; welcomeTemplate?: unknown; hideBranding?: boolean; rules?: { verify?: string } } | undefined): boolean {
   if (!settings) return false
-  return !!settings.qualification?.enabled || settings.assignment?.mode === 'round_robin' || !!settings.pipeline || !!settings.welcomeTemplate || settings.hideBranding === true
+  return (!!settings.rules?.verify && settings.rules.verify !== 'off') || !!settings.qualification?.enabled || settings.assignment?.mode === 'round_robin' || !!settings.pipeline || !!settings.welcomeTemplate || settings.hideBranding === true
 }
 
 export interface FormPatch {

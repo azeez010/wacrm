@@ -29,3 +29,24 @@ describe('otp code helpers', () => {
     expect(isAcceptableProvidedCode(123456)).toBe(false)
   })
 })
+
+describe('signed tokens (form verification challenge / proof)', () => {
+  it('round-trips, and cannot be read as another purpose or after tampering', async () => {
+    const { signToken, readToken } = await import('./code')
+    const tok = signToken('vp', { f: 'form-1', ph: '2348031234567' }, 60, 1_000)
+    expect(readToken('vp', tok, 2_000)).toMatchObject({ f: 'form-1', ph: '2348031234567' })
+    expect(readToken('vc', tok, 2_000)).toBeNull() // a proof is not a challenge
+    const [body, mac] = tok.split('.')
+    const forged = Buffer.from(JSON.stringify({ f: 'other', ph: '2348031234567', exp: 99_999_999 })).toString('base64url')
+    expect(readToken('vp', `${forged}.${mac}`, 2_000)).toBeNull()
+    expect(readToken('vp', `${body}.${mac}x`, 2_000)).toBeNull()
+    expect(readToken('vp', 'garbage', 2_000)).toBeNull()
+    expect(readToken('vp', undefined, 2_000)).toBeNull()
+  })
+  it('expires', async () => {
+    const { signToken, readToken } = await import('./code')
+    const tok = signToken('vp', { a: 1 }, 60, 1_000)
+    expect(readToken('vp', tok, 1_000 + 59_000)).not.toBeNull()
+    expect(readToken('vp', tok, 1_000 + 61_000)).toBeNull()
+  })
+})

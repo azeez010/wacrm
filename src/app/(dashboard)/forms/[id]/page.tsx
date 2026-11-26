@@ -19,6 +19,7 @@ import { SettingsSheet } from "@/components/forms/settings-sheet";
 import { ShareDialog } from "@/components/forms/share-dialog";
 import { previewEditAction } from "@/lib/forms/preview-edit";
 import { ThemeSelect } from "@/components/forms/theme-select";
+import type { VerifyAvailability } from "@/lib/forms/verify";
 import { SupportEditor } from "@/components/forms/support-editor";
 import { useFormEditorData } from "@/components/forms/use-form-data";
 import { useAuth } from "@/hooks/use-auth";
@@ -47,6 +48,8 @@ export default function FormEditorPage({ params }: { params: Promise<{ id: strin
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [device, setDevice] = useState<"desktop" | "mobile">("desktop");
   const [advanced, setAdvanced] = useState(false);
+  const [verifyAvail, setVerifyAvail] = useState<VerifyAvailability | null>(null);
+  const [usageTick, setUsageTick] = useState(0);
   const [playTick, setPlayTick] = useState(0);
   const searchParams = useSearchParams();
 
@@ -54,9 +57,12 @@ export default function FormEditorPage({ params }: { params: Promise<{ id: strin
   useEffect(() => {
     void fetch("/api/forms/usage")
       .then((r) => (r.ok ? r.json() : null))
-      .then((u: { advanced?: boolean } | null) => setAdvanced(!!u?.advanced))
+      .then((u: { advanced?: boolean; verify?: VerifyAvailability } | null) => {
+        setAdvanced(!!u?.advanced);
+        setVerifyAvail(u?.verify ?? null);
+      })
       .catch(() => undefined);
-  }, []);
+  }, [usageTick]);
 
   // ?settings=1 (from the list's row menu) opens the Settings sheet once.
   useEffect(() => {
@@ -205,6 +211,9 @@ export default function FormEditorPage({ params }: { params: Promise<{ id: strin
         data={data}
         canEdit={canEdit}
         advanced={advanced}
+        verifyAvailability={verifyAvail}
+        hasRequiredEmail={state.fields.some((f) => f.kind === "email" && f.required === true)}
+        onVerifyTemplateCreated={() => setUsageTick((n) => n + 1)}
         liveChat={meta.kind === 'support' && state.settings.widget?.mode === 'live_chat'}
         patch={(p) => dispatch({ type: "settings", patch: p })}
       />

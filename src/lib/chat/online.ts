@@ -1,5 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { OFFLINE_AFTER_MS } from '@/lib/presence'
+import { AGENT_COLUMNS, pickAgent, type AiAgentRow } from '@/lib/ai/agents'
 
 // ============================================================
 // "Online" badge for the live-chat widget: the visitor sees Online when we are
@@ -84,12 +85,18 @@ export async function loadChatAvailability(
   now: number = Date.now(),
 ): Promise<ChatAvailability> {
   const since = new Date(now - OFFLINE_AFTER_MS).toISOString()
-  const [ai, presence] = await Promise.all([
+  const [ai, agents, presence] = await Promise.all([
     db.from('ai_configs').select('is_active, auto_reply_enabled').eq('account_id', accountId).maybeSingle(),
+    db.from('ai_agents').select(AGENT_COLUMNS).eq('account_id', accountId),
     db.from('member_presence').select('user_id, status, last_seen_at').eq('account_id', accountId).gte('last_seen_at', since),
   ])
   const cfg = ai.data as { is_active?: boolean; auto_reply_enabled?: boolean } | null
-  const aiActive = !!cfg && cfg.is_active === true && cfg.auto_reply_enabled === true
+  // The agent a web chat would get decides whether AI answers; accounts
+  // without agents yet fall back to the workspace flag.
+  const agentRows = (agents.data as AiAgentRow[] | null) ?? []
+  const webAgent = agentRows.length > 0 ? pickAgent(agentRows, { channel: 'web_chat' }) : null
+  const autoReplies = agentRows.length > 0 ? webAgent?.auto_reply_enabled === true : cfg?.auto_reply_enabled === true
+  const aiActive = !!cfg && cfg.is_active === true && autoReplies
 
   const fresh = reachableTeammates((presence.data as PresenceLike[] | null) ?? [], now)
   let humansOnline = 0

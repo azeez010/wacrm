@@ -234,6 +234,9 @@ export interface Conversation {
   ai_autoreply_disabled?: boolean;
   ai_reply_count?: number;
   ai_handoff_summary?: string | null;
+  /** AI agent pinned to this conversation from the inbox; null = automatic
+   *  (the agent covering its channel, else the default agent). */
+  ai_agent_id?: string | null;
 }
 
 // ============================================================
@@ -313,6 +316,8 @@ export interface Message {
    * badge in the inbox. Migration 033.
    */
   ai_generated?: boolean;
+  /** The AI agent that wrote this message (AI replies only). */
+  ai_agent_id?: string | null;
   /**
    * Meta's reason for a failed send, from the `failed` status webhook's
    * `errors[0]` (code / title / error_data.details). Only set when

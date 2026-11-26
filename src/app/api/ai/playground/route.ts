@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { requireRole, toErrorResponse } from '@/lib/auth/account'
 import { checkRateLimit, rateLimitResponse, RATE_LIMITS } from '@/lib/rate-limit'
-import { loadAiConfig } from '@/lib/ai/config'
+import { loadAgentConfig } from '@/lib/ai/config'
 import { retrieveKnowledge } from '@/lib/ai/knowledge'
 import { generateReply } from '@/lib/ai/generate'
 import { buildSystemPrompt } from '@/lib/ai/defaults'
@@ -56,10 +56,16 @@ export async function POST(request: Request) {
       )
     }
 
-    const config = await loadAiConfig(supabase, accountId, {
-      requireActive: false,
-    }).catch((err) => {
-      console.error('[ai/playground] loadAiConfig error:', err)
+    // Test one agent (any state) when the body names it; otherwise the
+    // default agent.
+    const agentId = typeof body?.agent_id === 'string' && body.agent_id ? body.agent_id : null
+    const config = await loadAgentConfig(
+      supabase,
+      accountId,
+      agentId ? { agentId } : { defaultAgent: true },
+      { requireActive: false },
+    ).catch((err) => {
+      console.error('[ai/playground] loadAgentConfig error:', err)
       throw new AiError(t('ai.storedKeyUndecryptable'), {
         code: 'key_decrypt_failed',
         status: 400,
@@ -80,6 +86,7 @@ export async function POST(request: Request) {
       accountId,
       config,
       latestUserMessage(messages),
+      { sourceIds: config.knowledgeSourceIds ?? null },
     )
     const systemPrompt = buildSystemPrompt({
       userPrompt: config.systemPrompt,
@@ -88,7 +95,17 @@ export async function POST(request: Request) {
     })
 
     const { text, handoff } = await generateReply({ config, systemPrompt, messages })
-    return NextResponse.json({ reply: text, handoff })
+    return NextResponse.json({
+      reply: text,
+      handoff,
+      agent: config.agentName ?? null,
+      sources: knowledge.map((k) => ({
+        title: k.title,
+        snippet: k.content.slice(0, 280),
+        score: k.score,
+        matchedBy: k.matchedBy,
+      })),
+    })
   } catch (err) {
     if (err instanceof AiError) {
       return NextResponse.json(

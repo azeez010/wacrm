@@ -53,6 +53,8 @@ interface MessageBubbleProps {
    * stays inline and non-clickable.
    */
   onOpenMedia?: (messageId: string) => void;
+  /** Name of the AI agent that wrote this message, for the AI badge. */
+  aiAgentName?: string | null;
 }
 
 /**
@@ -380,6 +382,7 @@ export function MessageBubble({
   reactions,
   onToggleReaction,
   onOpenMedia,
+  aiAgentName = null,
 }: MessageBubbleProps) {
   const t = useTranslations("Inbox.bubble");
 
@@ -431,7 +434,7 @@ export function MessageBubble({
           {message.ai_generated && (
             <span
               className="inline-flex items-center gap-0.5 rounded-full bg-primary-foreground/20 px-1.5 py-px text-[9px] font-semibold uppercase leading-none tracking-wide text-primary-foreground"
-              title={t("aiBadgeTitle")}
+              title={aiAgentName ? t("aiBadgeTitleAgent", { name: aiAgentName }) : t("aiBadgeTitle")}
             >
               <Sparkles className="h-2.5 w-2.5" />
               {t("aiBadge")}

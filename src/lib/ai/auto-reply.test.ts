@@ -3,7 +3,7 @@ import type { AiConfig } from './types'
 
 // Shared, hoisted mock state so the module mocks can close over it.
 const h = vi.hoisted(() => ({
-  loadAiConfig: vi.fn(),
+  loadAgentConfig: vi.fn(),
   buildConversationContext: vi.fn(),
   retrieveKnowledge: vi.fn(),
   generateReply: vi.fn(),
@@ -22,7 +22,7 @@ const h = vi.hoisted(() => ({
   },
 }))
 
-vi.mock('./config', () => ({ loadAiConfig: h.loadAiConfig }))
+vi.mock('./config', () => ({ loadAgentConfig: h.loadAgentConfig }))
 vi.mock('./context', () => ({ buildConversationContext: h.buildConversationContext }))
 vi.mock('./knowledge', () => ({ retrieveKnowledge: h.retrieveKnowledge }))
 vi.mock('./generate', () => ({ generateReply: h.generateReply }))
@@ -140,7 +140,7 @@ beforeEach(() => {
   h.state.updates = []
   h.state.rpcCalls = []
   h.state.latestInbound = [{ message_id: 'wamid.inbound-1' }]
-  h.loadAiConfig.mockResolvedValue(aiConfig())
+  h.loadAgentConfig.mockResolvedValue(aiConfig())
   h.buildConversationContext.mockResolvedValue([{ role: 'user', content: 'hi' }])
   h.retrieveKnowledge.mockResolvedValue([])
   h.generateReply.mockResolvedValue({ text: 'Hello!', handoff: false })
@@ -175,11 +175,44 @@ describe('dispatchInboundToAiReply, eligibility gates', () => {
   })
 
   it('grounds the reply in retrieved knowledge', async () => {
-    h.retrieveKnowledge.mockResolvedValue(['Returns accepted within 30 days.'])
+    h.retrieveKnowledge.mockResolvedValue([
+      {
+        chunkId: 'c1',
+        sourceId: 's1',
+        documentId: 'd1',
+        title: 'Returns policy',
+        content: 'Returns accepted within 30 days.',
+        score: 0.8,
+        matchedBy: 'semantic',
+      },
+    ])
     await dispatchInboundToAiReply(ARGS)
     expect(h.retrieveKnowledge).toHaveBeenCalled()
     const systemPrompt = h.generateReply.mock.calls[0][0].systemPrompt as string
-    expect(systemPrompt).toContain('Returns accepted within 30 days.')
+    expect(systemPrompt).toContain('(Returns policy) Returns accepted within 30 days.')
+  })
+
+  it('answers as the agent for this conversation, with its knowledge only', async () => {
+    h.state.conv = { ...h.state.conv, channel: 'whatsapp', ai_agent_id: 'agent-sales' }
+    h.loadAgentConfig.mockResolvedValue(
+      aiConfig({ agentId: 'agent-sales', knowledgeSourceIds: ['src-1'] }),
+    )
+    await dispatchInboundToAiReply(ARGS)
+    expect(h.loadAgentConfig).toHaveBeenCalledWith(expect.anything(), 'acct-1', {
+      conversationAgentId: 'agent-sales',
+      channel: 'whatsapp',
+    })
+    expect(h.retrieveKnowledge.mock.calls[0][4]).toEqual({ sourceIds: ['src-1'] })
+    expect(h.engineSendText).toHaveBeenCalledWith(
+      expect.objectContaining({ aiAgentId: 'agent-sales' }),
+    )
+  })
+
+  it('stays quiet when no agent covers the conversation', async () => {
+    h.loadAgentConfig.mockResolvedValue(null)
+    await dispatchInboundToAiReply(ARGS)
+    expect(h.generateReply).not.toHaveBeenCalled()
+    expect(h.engineSendText).not.toHaveBeenCalled()
   })
 
   it('stands down when an active message-level automation exists', async () => {
@@ -220,14 +253,14 @@ describe('dispatchInboundToAiReply, eligibility gates', () => {
   })
 
   it('skips when AI is off / not configured', async () => {
-    h.loadAiConfig.mockResolvedValue(null)
+    h.loadAgentConfig.mockResolvedValue(null)
     await dispatchInboundToAiReply(ARGS)
     expect(h.generateReply).not.toHaveBeenCalled()
     expect(h.engineSendText).not.toHaveBeenCalled()
   })
 
   it('skips when auto-reply is disabled for the account', async () => {
-    h.loadAiConfig.mockResolvedValue(aiConfig({ autoReplyEnabled: false }))
+    h.loadAgentConfig.mockResolvedValue(aiConfig({ autoReplyEnabled: false }))
     await dispatchInboundToAiReply(ARGS)
     expect(h.engineSendText).not.toHaveBeenCalled()
   })
@@ -329,7 +362,7 @@ describe('dispatchInboundToAiReply, typing indicator (#527)', () => {
   })
 
   it('does not fire when a gate short-circuits before the LLM', async () => {
-    h.loadAiConfig.mockResolvedValue(aiConfig({ autoReplyEnabled: false }))
+    h.loadAgentConfig.mockResolvedValue(aiConfig({ autoReplyEnabled: false }))
     await dispatchInboundToAiReply(ARGS)
     expect(h.sendTypingIndicator).not.toHaveBeenCalled()
     expect(h.loadAccountMetaCredentials).not.toHaveBeenCalled()
@@ -351,7 +384,7 @@ describe('dispatchInboundToAiReply, handoff', () => {
   })
 
   it('routes to the configured handoff agent on handoff', async () => {
-    h.loadAiConfig.mockResolvedValue(aiConfig({ handoffAgentId: 'agent-7' }))
+    h.loadAgentConfig.mockResolvedValue(aiConfig({ handoffAgentId: 'agent-7' }))
     h.generateReply.mockResolvedValue({ text: '', handoff: true })
     await dispatchInboundToAiReply(ARGS)
     expect(h.state.updatePayload).toMatchObject({
@@ -361,7 +394,7 @@ describe('dispatchInboundToAiReply, handoff', () => {
   })
 
   it('assigns the handoff agent only while the thread is still unassigned', async () => {
-    h.loadAiConfig.mockResolvedValue(aiConfig({ handoffAgentId: 'agent-7' }))
+    h.loadAgentConfig.mockResolvedValue(aiConfig({ handoffAgentId: 'agent-7' }))
     h.generateReply.mockResolvedValue({ text: '', handoff: true })
     await dispatchInboundToAiReply(ARGS)
     const pause = h.state.updates.find((u) => 'ai_autoreply_disabled' in u.payload)

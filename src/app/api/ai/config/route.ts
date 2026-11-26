@@ -52,11 +52,27 @@ export async function GET() {
     // The keys are selected only to derive the has_* flags; neither is
     // returned to the client.
     const { api_key, embeddings_api_key, ...safe } = data
+
+    // Auto-reply is per agent now: report it on when any active agent
+    // auto-replies (the inbox banner keys off this). Accounts without
+    // agents keep the workspace flag.
+    const { data: agents } = await supabase
+      .from('ai_agents')
+      .select('is_active, auto_reply_enabled')
+      .eq('account_id', accountId)
+    const agentRows = (agents ?? []) as { is_active: boolean; auto_reply_enabled: boolean }[]
+    const autoReplyEnabled =
+      agentRows.length > 0
+        ? agentRows.some((a) => a.is_active && a.auto_reply_enabled)
+        : safe.auto_reply_enabled
+
     return NextResponse.json({
       configured: true,
       has_key: !!api_key,
       has_embeddings_key: !!embeddings_api_key,
       ...safe,
+      auto_reply_enabled: autoReplyEnabled,
+      agent_count: agentRows.length,
     })
   } catch (err) {
     return toErrorResponse(err)
@@ -227,11 +243,15 @@ export async function POST(request: Request) {
       provider,
       model,
       base_url: baseUrl,
-      system_prompt: systemPrompt,
       is_active: isActive,
-      auto_reply_enabled: autoReplyEnabled,
-      auto_reply_max_per_conversation: maxPer,
     }
+    // Per-agent settings now live on ai_agents. They are written here only
+    // when the body carries them (older clients); a DB trigger mirrors them
+    // onto the default agent. The workspace form leaves them out, so saving
+    // keys never resets an agent's prompt or auto-reply.
+    if ('system_prompt' in body) shared.system_prompt = systemPrompt
+    if ('auto_reply_enabled' in body) shared.auto_reply_enabled = autoReplyEnabled
+    if ('auto_reply_max_per_conversation' in body) shared.auto_reply_max_per_conversation = maxPer
     // Only touch the handoff target when the form actually sent the field,
     // so a partial save (e.g. flipping a toggle) doesn't wipe it.
     if (handoffProvided) shared.handoff_agent_id = handoffAgentId

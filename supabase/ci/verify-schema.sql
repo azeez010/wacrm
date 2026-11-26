@@ -124,6 +124,20 @@ BEGIN
       'an internal SECURITY DEFINER function is still executable by anon/authenticated — migration 044 did not apply';
   END IF;
 
+  -- 097: agents + knowledge library. The queue claim is service-role only.
+  IF to_regclass('public.ai_agents') IS NULL
+     OR to_regclass('public.ai_knowledge_sources') IS NULL
+     OR to_regclass('public.ai_agent_knowledge') IS NULL THEN
+    RAISE EXCEPTION 'the AI agents / knowledge library tables are missing — migration 097 did not apply';
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM storage.buckets WHERE id = 'knowledge-files' AND NOT public) THEN
+    RAISE EXCEPTION 'the private knowledge-files bucket was not created (migration 097)';
+  END IF;
+  IF has_function_privilege('authenticated', 'public.claim_ai_knowledge_documents(integer)', 'EXECUTE')
+     OR has_function_privilege('anon', 'public.claim_ai_knowledge_documents(integer)', 'EXECUTE') THEN
+    RAISE EXCEPTION 'claim_ai_knowledge_documents is executable by anon/authenticated (migration 097)';
+  END IF;
+
   -- 045 widens the automation_pending_executions status CHECK. It is a
   -- DROP + ADD by name, so a wrong constraint name would leave the old
   -- CHECK in place and every "wait for reply" park would be rejected at

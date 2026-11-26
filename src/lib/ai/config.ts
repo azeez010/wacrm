@@ -1,6 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { decrypt } from '@/lib/whatsapp/encryption'
 import type { AiConfig } from './types'
+import { AGENT_COLUMNS, pickAgent, type AgentTarget, type AiAgentRow } from './agents'
 
 interface AiConfigRow {
   provider: 'openai' | 'anthropic' | 'openai_compatible'
@@ -81,6 +82,59 @@ export async function loadAiConfig(
     autoReplyMaxPerConversation: row.auto_reply_max_per_conversation,
     handoffAgentId: row.handoff_agent_id,
     embeddingsApiKey,
+  }
+}
+
+/**
+ * Load the workspace config (provider, keys, master switch) and layer the
+ * resolved agent's settings on top: model override, prompt, auto-reply,
+ * handoff and the library sources it may search. Same null semantics as
+ * `loadAiConfig`, plus null when no agent qualifies for the target.
+ *
+ * Falls back to the legacy single-config values when the account has no
+ * agents yet (e.g. the migration that creates them is not applied).
+ */
+export async function loadAgentConfig(
+  db: SupabaseClient,
+  accountId: string,
+  target: AgentTarget = {},
+  opts: { requireActive?: boolean } = {},
+): Promise<AiConfig | null> {
+  const workspace = await loadAiConfig(db, accountId, opts)
+  if (!workspace) return null
+
+  const { data: rows, error } = await db
+    .from('ai_agents')
+    .select(AGENT_COLUMNS)
+    .eq('account_id', accountId)
+  if (error || !rows || rows.length === 0) {
+    if (error) console.error('[ai config] agents lookup failed, using the workspace config:', error)
+    return { ...workspace, agentId: null, agentName: null, knowledgeSourceIds: null }
+  }
+
+  const agent = pickAgent(rows as AiAgentRow[], target)
+  if (!agent) return null
+
+  let knowledgeSourceIds: string[] | null = null
+  if (agent.knowledge_mode === 'selected') {
+    const { data: links, error: linkErr } = await db
+      .from('ai_agent_knowledge')
+      .select('source_id')
+      .eq('agent_id', agent.id)
+    // Fail closed: an agent limited to some sources must never search all.
+    knowledgeSourceIds = linkErr ? [] : (links ?? []).map((l: { source_id: string }) => l.source_id)
+  }
+
+  return {
+    ...workspace,
+    model: agent.model?.trim() || workspace.model,
+    systemPrompt: agent.system_prompt,
+    autoReplyEnabled: agent.auto_reply_enabled,
+    autoReplyMaxPerConversation: agent.auto_reply_max_per_conversation,
+    handoffAgentId: agent.handoff_agent_id,
+    agentId: agent.id,
+    agentName: agent.name,
+    knowledgeSourceIds,
   }
 }
 

@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
-import { Bot, RotateCcw, Send, Loader2, UserCircle2, ArrowRight } from 'lucide-react';
+import { Bot, RotateCcw, Send, Loader2, UserCircle2, ArrowRight, BookOpen } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 
@@ -12,9 +12,25 @@ interface Turn {
   content: string;
   /** assistant-only: the agent signalled a human handoff on this turn. */
   handoff?: boolean;
+  /** assistant-only: the knowledge excerpts the reply was grounded in. */
+  sources?: PlaygroundSource[];
 }
 
-export function AiPlayground({ onGoToSetup }: { onGoToSetup?: () => void }) {
+interface PlaygroundSource {
+  title: string | null;
+  snippet: string;
+  score: number;
+  matchedBy: 'semantic' | 'keyword';
+}
+
+export function AiPlayground({
+  onGoToSetup,
+  agentId,
+}: {
+  onGoToSetup?: () => void;
+  /** Test this agent; omitted = the default agent. */
+  agentId?: string;
+}) {
   const t = useTranslations('Agents.playground');
   const [turns, setTurns] = useState<Turn[]>([]);
   const [input, setInput] = useState('');
@@ -40,6 +56,7 @@ export function AiPlayground({ onGoToSetup }: { onGoToSetup?: () => void }) {
         // Send only role+content - the server ignores anything else.
         body: JSON.stringify({
           messages: next.map((t) => ({ role: t.role, content: t.content })),
+          ...(agentId ? { agent_id: agentId } : {}),
         }),
       });
       const data = await res.json().catch(() => ({}));
@@ -63,6 +80,7 @@ export function AiPlayground({ onGoToSetup }: { onGoToSetup?: () => void }) {
               ? data.reply
               : '',
           handoff: Boolean(data.handoff),
+          sources: Array.isArray(data.sources) ? data.sources : [],
         },
       ]);
     } catch {
@@ -156,6 +174,9 @@ export function AiPlayground({ onGoToSetup }: { onGoToSetup?: () => void }) {
                   {t('handoff')}
                 </p>
               )}
+              {turn.role === 'assistant' && turn.sources && (
+                <SourcesUsed sources={turn.sources} />
+              )}
             </div>
             {turn.role === 'user' && (
               <UserCircle2 className="mt-1 h-5 w-5 shrink-0 text-muted-foreground" />
@@ -195,5 +216,38 @@ export function AiPlayground({ onGoToSetup }: { onGoToSetup?: () => void }) {
         </Button>
       </div>
     </div>
+  );
+}
+
+/** Collapsible list of the knowledge excerpts behind one reply. */
+function SourcesUsed({ sources }: { sources: PlaygroundSource[] }) {
+  const t = useTranslations('Agents.playground');
+  if (sources.length === 0) {
+    return (
+      <p className="mt-1.5 border-t border-border/50 pt-1.5 text-xs text-muted-foreground">
+        {t('noSources')}
+      </p>
+    );
+  }
+  return (
+    <details className="mt-1.5 border-t border-border/50 pt-1.5 text-xs">
+      <summary className="flex cursor-pointer items-center gap-1 text-muted-foreground hover:text-foreground">
+        <BookOpen className="h-3.5 w-3.5" />
+        {t('sourcesUsed', { count: sources.length })}
+      </summary>
+      <ol className="mt-1.5 space-y-1.5">
+        {sources.map((s, i) => (
+          <li key={i} className="rounded-md bg-background/60 p-2">
+            <p className="flex items-center justify-between gap-2 font-medium text-foreground">
+              <span className="truncate">{s.title || t('untitled')}</span>
+              <span className="shrink-0 font-normal text-muted-foreground">
+                {s.matchedBy === 'semantic' ? t('matchSemantic') : t('matchKeyword')} · {s.score.toFixed(2)}
+              </span>
+            </p>
+            <p className="mt-0.5 line-clamp-3 text-muted-foreground">{s.snippet}</p>
+          </li>
+        ))}
+      </ol>
+    </details>
   );
 }

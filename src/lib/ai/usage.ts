@@ -11,6 +11,8 @@ export interface LogAiUsageArgs {
   model: string
   /** Provider usage; a no-op when null (nothing worth recording). */
   usage: AiUsage | null
+  /** The AI agent that made the call, when known. */
+  agentId?: string | null
 }
 
 /**
@@ -41,6 +43,7 @@ export async function logAiUsage(
       prompt_tokens: args.usage.promptTokens,
       completion_tokens: args.usage.completionTokens,
       total_tokens: args.usage.totalTokens,
+      ...(args.agentId ? { agent_id: args.agentId } : {}),
     })
     if (error) {
       console.error('[ai usage] log insert failed:', error)

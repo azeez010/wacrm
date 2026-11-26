@@ -1,6 +1,6 @@
 import { isBlocked } from '@/lib/contacts/block-guard'
 import { supabaseAdmin } from './admin-client'
-import { loadAiConfig } from './config'
+import { loadAgentConfig } from './config'
 import { buildConversationContext } from './context'
 import { retrieveKnowledge } from './knowledge'
 import { generateReply } from './generate'
@@ -62,8 +62,25 @@ export async function dispatchInboundToAiReply(
   try {
     const db = supabaseAdmin()
 
-    const config = await loadAiConfig(db, accountId)
+    const { data: conv, error: convErr } = await db
+      .from('conversations')
+      .select('assigned_agent_id, ai_autoreply_disabled, ai_reply_count, channel, ai_agent_id')
+      .eq('id', conversationId)
+      .maybeSingle()
+    if (convErr || !conv) return
+    if (conv.assigned_agent_id) return // a human owns this thread
+    if (conv.ai_autoreply_disabled) return // handed off / turned off here
+
+    // The agent for this thread: the inbox override, else the agent that
+    // covers its channel, else the default agent.
+    const config = await loadAgentConfig(db, accountId, {
+      conversationAgentId: conv.ai_agent_id ?? null,
+      channel: conv.channel ?? 'whatsapp',
+    })
     if (!config || !config.autoReplyEnabled) return
+    // Cheap early-out; the authoritative cap check is the atomic claim
+    // below (this read can race a concurrent inbound).
+    if (conv.ai_reply_count >= config.autoReplyMaxPerConversation) return
 
     // Blocked contacts get no AI reply (and no LLM spend / typing indicator).
     const { data: blockedRow } = await db
@@ -90,18 +107,6 @@ export async function dispatchInboundToAiReply(
       .in('trigger_type', ['new_message_received', 'keyword_match'])
       .limit(1)
     if (autoResponders && autoResponders.length > 0) return
-
-    const { data: conv, error: convErr } = await db
-      .from('conversations')
-      .select('assigned_agent_id, ai_autoreply_disabled, ai_reply_count')
-      .eq('id', conversationId)
-      .maybeSingle()
-    if (convErr || !conv) return
-    if (conv.assigned_agent_id) return // a human owns this thread
-    if (conv.ai_autoreply_disabled) return // handed off / turned off here
-    // Cheap early-out; the authoritative cap check is the atomic claim
-    // below (this read can race a concurrent inbound).
-    if (conv.ai_reply_count >= config.autoReplyMaxPerConversation) return
 
     const messages = await buildConversationContext(db, conversationId)
     if (messages.length === 0) return
@@ -132,12 +137,13 @@ export async function dispatchInboundToAiReply(
       await showTypingIndicator(db, accountId, inboundMessageId)
     }
 
-    // Ground the reply in the account's knowledge base (best-effort).
+    // Ground the reply in the agent's knowledge (best-effort).
     const knowledge = await retrieveKnowledge(
       db,
       accountId,
       config,
       latestUserMessage(messages),
+      { sourceIds: config.knowledgeSourceIds ?? null },
     )
 
     const systemPrompt = buildSystemPrompt({
@@ -164,6 +170,7 @@ export async function dispatchInboundToAiReply(
       provider: config.provider,
       model: config.model,
       usage,
+      agentId: config.agentId ?? null,
     })
 
     if (handoff || !text) {
@@ -230,6 +237,7 @@ export async function dispatchInboundToAiReply(
       contactId,
       text,
       aiGenerated: true,
+      aiAgentId: config.agentId ?? null,
     })
   } catch (err) {
     console.error('[ai auto-reply] dispatch failed:', err)

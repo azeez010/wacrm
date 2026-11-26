@@ -1,9 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const h = vi.hoisted(() => ({
-  docs: [] as { id: string; content: string }[],
+  queued: [] as { source_id: string }[],
   corrupt: false,
-  ingest: vi.fn(),
+  run: vi.fn(),
+  sourceUpdates: [] as string[][],
 }))
 
 vi.mock('next/server', () => ({
@@ -16,18 +17,7 @@ vi.mock('next/server', () => ({
 }))
 
 vi.mock('@/lib/auth/account', () => ({
-  requireRole: async () => ({
-    accountId: 'acc-1',
-    userId: 'user-1',
-    role: 'admin',
-    supabase: {
-      from: () => ({
-        select: () => ({
-          eq: async () => ({ data: h.docs, error: null }),
-        }),
-      }),
-    },
-  }),
+  requireRole: async () => ({ accountId: 'acc-1', userId: 'user-1', role: 'admin', supabase: {} }),
   toErrorResponse: (err: unknown) => ({
     body: { error: err instanceof Error ? err.message : 'error' },
     status: 500,
@@ -35,10 +25,28 @@ vi.mock('@/lib/auth/account', () => ({
 }))
 
 vi.mock('@/lib/ai/config', () => ({
-  loadEmbeddingsKey: async () => ({ key: 'sk-embed', corrupt: h.corrupt }),
+  loadEmbeddingsKey: async () => ({ key: h.corrupt ? null : 'sk-embed', corrupt: h.corrupt }),
 }))
 
-vi.mock('@/lib/ai/knowledge', () => ({ ingestDocument: h.ingest }))
+vi.mock('@/lib/ai/admin-client', () => ({
+  supabaseAdmin: () => ({
+    from: (table: string) => ({
+      update: () => {
+        if (table === 'ai_knowledge_documents') {
+          return { eq: () => ({ select: async () => ({ data: h.queued, error: null }) }) }
+        }
+        return {
+          in: async (_col: string, ids: string[]) => {
+            h.sourceUpdates.push(ids)
+            return { error: null }
+          },
+        }
+      },
+    }),
+  }),
+}))
+
+vi.mock('@/lib/ai/ingest/pipeline', () => ({ runKnowledgeQueue: h.run }))
 
 import { POST } from './route'
 import { __resetRateLimitForTests } from '@/lib/rate-limit'
@@ -50,62 +58,30 @@ function reindex() {
 beforeEach(() => {
   __resetRateLimitForTests()
   h.corrupt = false
-  h.docs = [
-    { id: 'doc-1', content: 'one' },
-    { id: 'doc-2', content: 'two' },
-    { id: 'doc-3', content: 'three' },
-  ]
-  h.ingest.mockReset()
-  h.ingest.mockResolvedValue({ keywordOnly: false, embedError: null })
-  vi.spyOn(console, 'error').mockImplementation(() => {})
+  h.queued = [{ source_id: 's1' }, { source_id: 's1' }, { source_id: 's2' }]
+  h.sourceUpdates = []
+  h.run.mockReset()
+  h.run.mockResolvedValue({ synced: 0, discovered: 0, indexed: 3, unchanged: 0, failed: 0 })
 })
 
 describe('POST /api/ai/knowledge/reindex', () => {
-  it('reindexes every document', async () => {
+  it("queues the account's documents and indexes them in-request", async () => {
     const res = await reindex()
-    expect(res.body).toEqual({
-      success: true,
-      reindexed: 3,
-      total: 3,
-      failed: [],
-      keyword_only: [],
-    })
+    expect(res.body).toEqual({ success: true, semantic: true, total: 3, indexed: 3, failed: 0, remaining: 0 })
+    expect(h.sourceUpdates).toEqual([['s1', 's2']])
+    expect(h.run).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({ onlyAccountId: 'acc-1' }))
   })
 
-  it('keeps going past a failing document and reports it', async () => {
-    h.ingest.mockImplementation(async (_db, _acct, _cfg, id: string) => {
-      if (id === 'doc-1') throw new Error('insert failed')
-      return { keywordOnly: false, embedError: null }
-    })
+  it('reports failures and what the cron will finish', async () => {
+    h.run.mockResolvedValue({ synced: 0, discovered: 0, indexed: 1, unchanged: 0, failed: 1 })
     const res = await reindex()
-    expect(h.ingest).toHaveBeenCalledTimes(3)
-    expect(res.body).toMatchObject({
-      success: false,
-      reindexed: 2,
-      total: 3,
-      failed: ['doc-1'],
-    })
+    expect(res.body).toMatchObject({ success: false, indexed: 1, failed: 1, remaining: 1 })
   })
 
-  it('reports keyword-only documents separately from failures', async () => {
-    h.ingest.mockImplementation(async (_db, _acct, _cfg, id: string) =>
-      id === 'doc-2'
-        ? { keywordOnly: true, embedError: new Error('rate limited') }
-        : { keywordOnly: false, embedError: null },
-    )
-    const res = await reindex()
-    expect(res.body).toMatchObject({
-      success: true,
-      reindexed: 3,
-      failed: [],
-      keyword_only: ['doc-2'],
-    })
-  })
-
-  it('stops before indexing when the embeddings key is corrupt', async () => {
+  it('stops without indexing when the stored embeddings key is corrupt', async () => {
     h.corrupt = true
     const res = await reindex()
-    expect(h.ingest).not.toHaveBeenCalled()
-    expect(res.body).toMatchObject({ success: false, reindexed: 0 })
+    expect(res.body).toMatchObject({ success: false, queued: 0 })
+    expect(h.run).not.toHaveBeenCalled()
   })
 })

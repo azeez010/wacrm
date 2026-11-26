@@ -55,6 +55,7 @@ import {
 import { deleteAccountMedia } from "@/lib/storage/upload-media";
 import { TemplatePicker } from "./template-picker";
 import { AiThreadBanner } from "./ai-thread-banner";
+import { AiAgentPicker, useAiAgents } from "./ai-agent-picker";
 import { buildReplyPreview } from "./reply-quote";
 import {
   renderTemplateBody,
@@ -199,6 +200,11 @@ export function MessageThread({
   const tQuote = useTranslations("Inbox.replyQuote");
 
   const { user } = useAuth();
+  const aiAgents = useAiAgents();
+  // Local mirror of the conversation's pinned AI agent, so the picker
+  // updates at once (the realtime UPDATE reconciles it).
+  const [aiAgentId, setAiAgentId] = useState<string | null>(conversation?.ai_agent_id ?? null);
+  useEffect(() => setAiAgentId(conversation?.ai_agent_id ?? null), [conversation?.id, conversation?.ai_agent_id]);
   const { getPresence, getRow, now } = usePresence();
   // Blocked contacts can't be messaged; unblocking here updates the banner
   // immediately without waiting for the contact to be refetched.
@@ -1178,6 +1184,13 @@ export function MessageThread({
             </DropdownMenuContent>
           </DropdownMenu>
 
+          <AiAgentPicker
+            conversationId={conversation.id}
+            value={aiAgentId}
+            agents={aiAgents}
+            onChange={setAiAgentId}
+          />
+
           {/* Assign dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger
@@ -1331,6 +1344,11 @@ export function MessageThread({
                           reactions={msgReactions}
                           onToggleReaction={handlePillToggle}
                           onOpenMedia={handleMediaChange}
+                          aiAgentName={
+                            msg.ai_agent_id
+                              ? (aiAgents.find((a) => a.id === msg.ai_agent_id)?.name ?? null)
+                              : null
+                          }
                         />
                       </MessageActions>
                     );

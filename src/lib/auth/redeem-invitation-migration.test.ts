@@ -34,6 +34,12 @@ const tablesWithoutDomainData = new Set([
   // Admin console's daily MRR snapshot (admin schema, 088): derived numbers, no
   // user-entered data, and the rows cascade with the account.
   "metrics_snapshots",
+  // Agent <-> knowledge links (097) only exist between an ai_agents row and an
+  // ai_knowledge_sources row, both checked, so data here implies data there.
+  "ai_agent_knowledge",
+  // Admin console's per-business AI switch (admin schema, 096): set by platform
+  // admins, not user-entered data, and the row cascades with the account.
+  "ai_overrides",
 ]);
 
 function accountScopedTables(): Set<string> {

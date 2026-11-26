@@ -39,6 +39,8 @@ export const CRON_JOBS: readonly CronJob[] = [
   { name: 'flows', path: '/api/flows/cron', method: 'GET', secret: 'AUTOMATION_CRON_SECRET' },
   // Pre-compute the views / leads / conversion shown on the forms list.
   { name: 'form-stats', path: '/api/forms/stats/cron', method: 'GET', secret: 'AUTOMATION_CRON_SECRET' },
+  // AI knowledge library: index queued pages / documents, scheduled re-syncs.
+  { name: 'knowledge', path: '/api/ai/knowledge/cron', method: 'POST', secret: 'AUTOMATION_CRON_SECRET' },
 ]
 
 export type CronOutcome = { job: string; result: number | 'skipped' | 'error' }

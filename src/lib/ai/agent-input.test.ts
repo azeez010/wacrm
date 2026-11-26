@@ -1,0 +1,44 @@
+import { describe, it, expect } from 'vitest'
+import { parseAgentInput, parseIdList } from './agent-input'
+
+describe('parseAgentInput', () => {
+  it('fills defaults on create and requires a name', () => {
+    expect(parseAgentInput({}, { partial: false })).toEqual({ error: 'name_required' })
+    expect(parseAgentInput({ name: ' Sales ' }, { partial: false })).toEqual({
+      data: {
+        name: 'Sales',
+        description: null,
+        is_active: true,
+        model: null,
+        system_prompt: null,
+        auto_reply_enabled: false,
+        auto_reply_max_per_conversation: 3,
+        handoff_agent_id: null,
+        channels: ['whatsapp', 'web_chat'],
+        priority: 0,
+        knowledge_mode: 'selected',
+      },
+    })
+  })
+
+  it('keeps only the fields sent on update', () => {
+    expect(parseAgentInput({ priority: 7, channels: ['web_chat', 'fax'] }, { partial: true })).toEqual({
+      data: { priority: 7, channels: ['web_chat'] },
+    })
+  })
+
+  it('clamps numbers and rejects bad values', () => {
+    const out = parseAgentInput({ auto_reply_max_per_conversation: 99, priority: -500 }, { partial: true })
+    expect(out).toEqual({ data: { auto_reply_max_per_conversation: 20, priority: -100 } })
+    expect(parseAgentInput({ knowledge_mode: 'some' }, { partial: true })).toEqual({ error: 'knowledge_mode_invalid' })
+    expect(parseAgentInput({ name: 'x'.repeat(81) }, { partial: true })).toEqual({ error: 'name_too_long' })
+    expect(parseAgentInput({ name: '   ' }, { partial: true })).toEqual({ error: 'name_required' })
+  })
+})
+
+describe('parseIdList', () => {
+  it('dedupes strings and rejects non-arrays', () => {
+    expect(parseIdList(['a', 'a', 3, '', 'b'])).toEqual(['a', 'b'])
+    expect(parseIdList('a')).toBeNull()
+  })
+})

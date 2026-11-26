@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { requireRole, toErrorResponse } from '@/lib/auth/account'
 import { checkRateLimit, rateLimitResponse, RATE_LIMITS } from '@/lib/rate-limit'
-import { loadAiConfig } from '@/lib/ai/config'
+import { loadAgentConfig } from '@/lib/ai/config'
 import { buildConversationContext } from '@/lib/ai/context'
 import { retrieveKnowledge } from '@/lib/ai/knowledge'
 import { generateReply } from '@/lib/ai/generate'
@@ -50,7 +50,7 @@ export async function POST(request: Request) {
     // row means "not yours / not found" either way.
     const { data: conversation, error: convErr } = await supabase
       .from('conversations')
-      .select('id')
+      .select('id, channel, ai_agent_id')
       .eq('id', conversationId)
       .maybeSingle()
     if (convErr) {
@@ -61,9 +61,14 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: t('common.conversationNotFound') }, { status: 404 })
     }
 
-    const config = await loadAiConfig(supabase, accountId).catch((err) => {
+    // Draft as the agent that handles this conversation (override →
+    // channel → default), with that agent's prompt and knowledge.
+    const config = await loadAgentConfig(supabase, accountId, {
+      conversationAgentId: conversation.ai_agent_id ?? null,
+      channel: conversation.channel ?? 'whatsapp',
+    }).catch((err) => {
       // Decrypt failure - surface distinctly from "not configured".
-      console.error('[ai/draft] loadAiConfig error:', err)
+      console.error('[ai/draft] loadAgentConfig error:', err)
       throw new AiError(t('ai.storedKeyUndecryptable'), {
         code: 'key_decrypt_failed',
         status: 400,
@@ -99,6 +104,7 @@ export async function POST(request: Request) {
       accountId,
       config,
       latestUserMessage(messages),
+      { sourceIds: config.knowledgeSourceIds ?? null },
     )
 
     const systemPrompt = buildSystemPrompt({
@@ -124,12 +130,13 @@ export async function POST(request: Request) {
         provider: config.provider,
         model: config.model,
         usage,
+        agentId: config.agentId ?? null,
       })
     } catch (logErr) {
       console.error('[ai/draft] usage log skipped:', logErr)
     }
 
-    return NextResponse.json({ draft: text })
+    return NextResponse.json({ draft: text, agent: config.agentName ?? null })
   } catch (err) {
     if (err instanceof AiError) {
       return NextResponse.json(

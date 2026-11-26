@@ -76,6 +76,8 @@ interface SendTextEngineArgs {
    *  badges it as an AI reply. Only the auto-reply bot sets this;
    *  deterministic Flow/automation sends leave it false. */
   aiGenerated?: boolean
+  /** The AI agent that wrote the message (stored as `ai_agent_id`). */
+  aiAgentId?: string | null
 }
 
 /**
@@ -166,6 +168,7 @@ export async function engineSendText(
     message_id: waMessageId,
     status: 'sent',
     ai_generated: args.aiGenerated ?? false,
+    ...(args.aiAgentId ? { ai_agent_id: args.aiAgentId } : {}),
   })
   if (msgErr) {
     throw new Error(t('send.dbInsertFailed', { message: msgErr.message }))

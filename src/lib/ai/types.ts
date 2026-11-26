@@ -31,6 +31,25 @@ export interface AiConfig {
    *  knowledge base is embedded and semantic retrieval turns on; when
    *  null, retrieval falls back to lexical full-text search. */
   embeddingsApiKey: string | null
+  /** The AI agent this config was resolved for (see `loadAgentConfig`).
+   *  Absent/null for the legacy single-config path. */
+  agentId?: string | null
+  agentName?: string | null
+  /** Library sources the agent may search. null = the whole library
+   *  (knowledge_mode 'all', or the legacy path); [] = none linked. */
+  knowledgeSourceIds?: string[] | null
+}
+
+/** One retrieved knowledge excerpt, with where it came from. */
+export interface KnowledgeHit {
+  chunkId: string
+  sourceId: string | null
+  documentId: string | null
+  title: string | null
+  content: string
+  /** Semantic similarity (0-1) or full-text rank; higher is better. */
+  score: number
+  matchedBy: 'semantic' | 'keyword'
 }
 
 /** A single conversation turn in the shape both providers accept. */

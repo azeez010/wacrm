@@ -244,3 +244,70 @@ export function subscribeBrowserNotifyPref(onChange: () => void): () => void {
     window.removeEventListener("storage", onStorage);
   };
 }
+
+// ---------------------------------------------------------------------
+// Bell items as desktop alerts (new lead, support request, assignment...).
+// ---------------------------------------------------------------------
+
+export interface NotifiableBellItem {
+  id: string;
+  user_id: string;
+  conversation_id?: string | null;
+  contact_id?: string | null;
+}
+
+/**
+ * Should a new `notifications` row become a desktop alert? Only the signed-in user's own rows, never
+ * the same id twice (Realtime can replay), and not while this tab is visible: the bell badge already
+ * shows it there. `seen` is mutated like the message path's map.
+ */
+export function shouldAlertForNotification(
+  n: Pick<NotifiableBellItem, "id" | "user_id">,
+  opts: { userId: string | null; documentVisible: boolean; seen: Map<string, number>; now?: number },
+): boolean {
+  if (!opts.userId || n.user_id !== opts.userId) return false;
+  const now = opts.now ?? Date.now();
+  for (const [id, at] of opts.seen) {
+    if (now - at > DEDUPE_WINDOW_MS) opts.seen.delete(id);
+  }
+  if (opts.seen.has(n.id)) return false;
+  opts.seen.set(n.id, now);
+  return !opts.documentVisible;
+}
+
+/** Where clicking the alert goes (same targets as the bell). */
+export function bellItemHref(n: Pick<NotifiableBellItem, "conversation_id" | "contact_id">): string {
+  if (n.conversation_id) return conversationHref(n.conversation_id);
+  if (n.contact_id) return `/contacts?open=${encodeURIComponent(n.contact_id)}`;
+  return "/notifications";
+}
+
+// ---------------------------------------------------------------------
+// Help for "the browser allowed it but I see nothing" (the OS is hiding the banner).
+// ---------------------------------------------------------------------
+
+export type BrowserName = "safari" | "chrome" | "edge" | "firefox" | "other";
+export type OsName = "mac" | "windows" | "other";
+
+/** Which browser and OS, from the user agent. Order matters: Chrome and Edge also say "Safari". */
+export function detectBrowserAndOs(ua: string): { browser: BrowserName; os: OsName } {
+  const browser: BrowserName = /Edg\//.test(ua)
+    ? "edge"
+    : /Firefox\//.test(ua)
+      ? "firefox"
+      : /Chrome\/|CriOS\//.test(ua)
+        ? "chrome"
+        : /Safari\//.test(ua)
+          ? "safari"
+          : "other";
+  const os: OsName = /Windows/.test(ua) ? "windows" : /Macintosh|Mac OS X/.test(ua) ? "mac" : "other";
+  return { browser, os };
+}
+
+export const BROWSER_LABEL: Record<BrowserName, string> = {
+  safari: "Safari",
+  chrome: "Chrome",
+  edge: "Edge",
+  firefox: "Firefox",
+  other: "your browser",
+};

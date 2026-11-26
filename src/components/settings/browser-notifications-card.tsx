@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useSyncExternalStore } from 'react';
+import { useMemo, useState, useSyncExternalStore } from 'react';
 import { Bell, BellRing, CircleAlert, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
@@ -16,7 +16,9 @@ import {
 import { Switch } from '@/components/ui/switch';
 import { useBrowserNotifyPref } from '@/hooks/use-browser-notifications';
 import {
+  BROWSER_LABEL,
   BROWSER_NOTIFY_CHANGE_EVENT,
+  detectBrowserAndOs,
   getNotificationPermission,
   writeBrowserNotifyPref,
   type BrowserNotifyPermission,
@@ -57,6 +59,13 @@ export function BrowserNotificationsCard({ className }: { className?: string }) 
   const [requesting, setRequesting] = useState(false);
 
   const supported = permission !== 'unsupported';
+  // "I allowed it but see nothing" is almost always the computer hiding the banner: tell them where to look.
+  const help = useMemo(() => {
+    if (typeof navigator === 'undefined') return '';
+    const { browser, os } = detectBrowserAndOs(navigator.userAgent);
+    const key = os === 'mac' ? (browser === 'safari' ? 'macSafari' : 'mac') : os === 'windows' ? 'windows' : 'other';
+    return t(`osHelp.${key}`, { browser: BROWSER_LABEL[browser] });
+  }, [t]);
   const checked = enabled && permission === 'granted';
 
   const onToggle = async (next: boolean) => {
@@ -107,7 +116,7 @@ export function BrowserNotificationsCard({ className }: { className?: string }) 
       notification.onshow = () => {
         shown = true;
         window.clearTimeout(hidden);
-        toast.success(t('testSent'));
+        toast.success(t('testSent'), { description: help, duration: 10_000 });
       };
       notification.onerror = () => {
         window.clearTimeout(hidden);
@@ -181,6 +190,7 @@ export function BrowserNotificationsCard({ className }: { className?: string }) 
               <BellRing className="size-4" />
               {t('sendTest')}
             </Button>
+            {checked && help ? <p className="text-xs text-muted-foreground">{help}</p> : null}
           </>
         )}
       </CardContent>

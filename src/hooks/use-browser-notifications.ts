@@ -4,14 +4,18 @@ import { useEffect, useRef, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
-import type { Message } from "@/types";
+import { useAuth } from "@/hooks/use-auth";
+import { notificationText } from "@/lib/notifications/notification-text";
+import type { Message, Notification as BellNotification } from "@/types";
 import {
   DEFAULT_NOTIFICATION_LABELS,
+  bellItemHref,
   buildNotificationContent,
   conversationHref,
   getNotificationPermission,
   pickContactDisplayName,
   readBrowserNotifyPref,
+  shouldAlertForNotification,
   shouldNotifyForMessage,
   subscribeBrowserNotifyPref,
   viewedConversationFromLocation,
@@ -72,6 +76,9 @@ export function useBrowserNotifications(): void {
   const enabled = notifyEnabled || soundEnabled;
   const router = useRouter();
   const t = useTranslations("Settings.browserNotifications.labels");
+  const tn = useTranslations("Notifications");
+  const { user, accountId } = useAuth();
+  const userId = user?.id ?? null;
 
   // Translated labels, read inside the async Realtime callback. Kept in
   // a ref (assigned in an effect, not during render) so a locale change
@@ -188,4 +195,68 @@ export function useBrowserNotifications(): void {
       supabase.removeChannel(channel);
     };
   }, [enabled, router]);
+
+  // Bell items (new lead, support request, assignment...) as desktop alerts too, while a tab is open.
+  // Realtime only streams this user's own rows (RLS); the tab being visible stays silent (the bell shows it).
+  const seenBellRef = useRef<Map<string, number>>(new Map());
+  const tnRef = useRef(tn);
+  useEffect(() => {
+    tnRef.current = tn;
+  });
+  useEffect(() => {
+    if (!notifyEnabled || !userId || !accountId) return;
+    const supabase = createClient();
+    let cancelled = false;
+
+    const channel = supabase
+      .channel(`bell-desktop-alerts:${userId}`)
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "notifications", filter: `account_id=eq.${accountId}` },
+        async (payload) => {
+          const n = payload.new as BellNotification;
+          const show = shouldAlertForNotification(n, {
+            userId,
+            documentVisible: document.visibilityState === "visible",
+            seen: seenBellRef.current,
+          });
+          if (!show || getNotificationPermission() !== "granted") return;
+
+          // Names for the localized assignment text; a failure just means the generic wording.
+          let actor: string | undefined;
+          let contact: string | undefined;
+          if (n.type === "conversation_assigned") {
+            const [a, c] = await Promise.all([
+              n.actor_user_id ? supabase.from("profiles").select("full_name").eq("user_id", n.actor_user_id).maybeSingle() : null,
+              n.contact_id ? supabase.from("contacts").select("name, phone").eq("id", n.contact_id).maybeSingle() : null,
+            ]);
+            actor = (a?.data as { full_name?: string | null } | null)?.full_name ?? undefined;
+            const ct = c?.data as { name?: string | null; phone?: string | null } | null | undefined;
+            contact = ct?.name || ct?.phone || undefined;
+          }
+          if (cancelled) return;
+          const copy = notificationText(n, { actor, contact }, tnRef.current);
+          try {
+            const notification = new Notification(copy.title, {
+              body: copy.body,
+              tag: `notif-${n.id}`,
+              icon: "/android-chrome-192x192.png",
+            });
+            notification.onclick = () => {
+              window.focus();
+              router.push(bellItemHref(n));
+              notification.close();
+            };
+          } catch (err) {
+            console.error("[useBrowserNotifications] failed to show a bell alert:", err);
+          }
+        },
+      )
+      .subscribe();
+
+    return () => {
+      cancelled = true;
+      supabase.removeChannel(channel);
+    };
+  }, [notifyEnabled, userId, accountId, router]);
 }

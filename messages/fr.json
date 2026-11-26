@@ -2370,9 +2370,9 @@
     },
     "browserNotifications": {
       "title": "Notifications du navigateur",
-      "description": "Recevez une alerte sur le bureau pour chaque nouveau message client, même lorsque vous êtes sur une autre page. Enregistré sur cet appareil.",
-      "toggleLabel": "Me notifier des nouveaux messages clients",
-      "toggleDesc": "Fonctionne uniquement tant que l'application est ouverte dans un onglet du navigateur.",
+      "description": "Recevez une alerte de bureau pour chaque nouveau message client, nouveau lead et attribution, même sur une autre page. Enregistré sur cet appareil.",
+      "toggleLabel": "Me prévenir des nouveaux messages, leads et attributions",
+      "toggleDesc": "Fonctionne tant qu'OgaDesk est ouvert dans un onglet du navigateur.",
       "statusGranted": "Autorisé par votre navigateur.",
       "statusDefault": "L'activation demandera la permission à votre navigateur.",
       "statusDenied": "Bloqué dans les paramètres du navigateur",
@@ -2393,7 +2393,13 @@
       },
       "testSent": "Test envoyé. Si vous ne l'avez pas vu, vérifiez les réglages de notifications de votre ordinateur.",
       "osBlockedTitle": "Votre navigateur l'autorise, mais votre ordinateur la masque peut-être",
-      "osBlockedHint": "Activez les notifications de votre navigateur (ex. Chrome) dans Réglages Système → Notifications et désactivez Concentration / Ne pas déranger."
+      "osBlockedHint": "Activez les notifications de votre navigateur (ex. Chrome) dans Réglages Système → Notifications et désactivez Concentration / Ne pas déranger.",
+      "osHelp": {
+        "mac": "Pas de bannière ? Sur votre Mac, ouvrez Réglages Système > Notifications > {browser}, activez Autoriser les notifications avec le style Bannières, et désactivez le mode Concentration / Ne pas déranger.",
+        "macSafari": "Pas de bannière ? Sur votre Mac, ouvrez Réglages Système > Notifications > Safari, activez Autoriser les notifications avec le style Bannières, et désactivez le mode Concentration / Ne pas déranger. Dans Safari > Réglages > Sites web > Notifications, ce site doit être sur Autoriser.",
+        "windows": "Pas de bannière ? Ouvrez Paramètres > Système > Notifications, vérifiez que les notifications et {browser} sont activés, et désactivez l'assistant de concentration / Ne pas déranger.",
+        "other": "Pas de bannière ? Vérifiez les réglages de notifications de votre ordinateur pour {browser} et désactivez Ne pas déranger."
+      }
     },
     "messageSound": {
       "title": "Son des messages",

@@ -2370,9 +2370,9 @@
     },
     "browserNotifications": {
       "title": "Browser notifications",
-      "description": "Get a desktop alert for every new customer message, even while you're on another page. Saved to this device.",
-      "toggleLabel": "Notify me about new customer messages",
-      "toggleDesc": "Works only while the app is open in a browser tab.",
+      "description": "Get a desktop alert for every new customer message, new lead and assignment, even while you're on another page. Saved to this device.",
+      "toggleLabel": "Notify me about new messages, leads and assignments",
+      "toggleDesc": "Works while OgaDesk is open in a browser tab.",
       "statusGranted": "Allowed by your browser.",
       "statusDefault": "Turning this on will ask your browser for permission.",
       "statusDenied": "Blocked in browser settings",
@@ -2393,7 +2393,13 @@
       },
       "testSent": "Test sent. If you didn't see it, check your computer's notification settings.",
       "osBlockedTitle": "Your browser allowed it, but your computer may be hiding it",
-      "osBlockedHint": "Turn on notifications for your browser (e.g. Chrome) in System Settings → Notifications, and turn off Focus / Do Not Disturb."
+      "osBlockedHint": "Turn on notifications for your browser (e.g. Chrome) in System Settings → Notifications, and turn off Focus / Do Not Disturb.",
+      "osHelp": {
+        "mac": "No banner? On your Mac open System Settings > Notifications > {browser}, turn on Allow notifications with the Banners style, and turn off Focus / Do Not Disturb.",
+        "macSafari": "No banner? On your Mac open System Settings > Notifications > Safari, turn on Allow notifications with the Banners style, and turn off Focus / Do Not Disturb. Safari > Settings > Websites > Notifications should list this site as Allow.",
+        "windows": "No banner? Open Settings > System > Notifications, make sure notifications and {browser} are on, and turn off Focus assist / Do Not Disturb.",
+        "other": "No banner? Check your computer's notification settings for {browser} and turn off Do Not Disturb."
+      }
     },
     "messageSound": {
       "title": "Message sound",

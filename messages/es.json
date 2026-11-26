@@ -2370,9 +2370,9 @@
     },
     "browserNotifications": {
       "title": "Notificaciones del navegador",
-      "description": "Recibe una alerta de escritorio por cada nuevo mensaje de cliente, incluso cuando estés en otra página. Se guarda en este dispositivo.",
-      "toggleLabel": "Avisarme de nuevos mensajes de clientes",
-      "toggleDesc": "Solo funciona mientras la app esté abierta en una pestaña del navegador.",
+      "description": "Recibe una alerta de escritorio por cada mensaje de cliente, lead nuevo y asignación, incluso mientras estás en otra página. Se guarda en este dispositivo.",
+      "toggleLabel": "Avisarme de mensajes, leads y asignaciones nuevos",
+      "toggleDesc": "Funciona mientras OgaDesk está abierto en una pestaña del navegador.",
       "statusGranted": "Permitido por tu navegador.",
       "statusDefault": "Al activarlo, tu navegador pedirá permiso.",
       "statusDenied": "Bloqueado en la configuración del navegador",
@@ -2393,7 +2393,13 @@
       },
       "testSent": "Prueba enviada. Si no la viste, revisa los ajustes de notificaciones de tu ordenador.",
       "osBlockedTitle": "Tu navegador lo permitió, pero tu ordenador puede estar ocultándola",
-      "osBlockedHint": "Activa las notificaciones de tu navegador (p. ej., Chrome) en Ajustes del sistema → Notificaciones y desactiva Concentración / No molestar."
+      "osBlockedHint": "Activa las notificaciones de tu navegador (p. ej., Chrome) en Ajustes del sistema → Notificaciones y desactiva Concentración / No molestar.",
+      "osHelp": {
+        "mac": "¿No ves el aviso? En tu Mac abre Ajustes del Sistema > Notificaciones > {browser}, activa Permitir notificaciones con el estilo Banners y desactiva el modo Concentración / No molestar.",
+        "macSafari": "¿No ves el aviso? En tu Mac abre Ajustes del Sistema > Notificaciones > Safari, activa Permitir notificaciones con el estilo Banners y desactiva el modo Concentración / No molestar. En Safari > Ajustes > Sitios web > Notificaciones este sitio debe figurar como Permitir.",
+        "windows": "¿No ves el aviso? Abre Configuración > Sistema > Notificaciones, comprueba que las notificaciones y {browser} estén activados y desactiva la Asistencia de concentración / No molestar.",
+        "other": "¿No ves el aviso? Revisa los ajustes de notificaciones de tu equipo para {browser} y desactiva No molestar."
+      }
     },
     "messageSound": {
       "title": "Sonido de mensajes",

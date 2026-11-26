@@ -315,3 +315,43 @@ describe("browser-only helpers without a window", () => {
     expect(getNotificationPermission()).toBe("unsupported");
   });
 });
+
+import { bellItemHref, detectBrowserAndOs, shouldAlertForNotification } from "./browser-notify";
+
+describe("shouldAlertForNotification", () => {
+  const base = { userId: "u1", documentVisible: false };
+  it("alerts once for the user's own row when the tab is hidden", () => {
+    const seen = new Map<string, number>();
+    expect(shouldAlertForNotification({ id: "n1", user_id: "u1" }, { ...base, seen, now: 1000 })).toBe(true);
+    // a replayed INSERT stays silent
+    expect(shouldAlertForNotification({ id: "n1", user_id: "u1" }, { ...base, seen, now: 2000 })).toBe(false);
+  });
+  it("ignores other people's rows and a signed-out state", () => {
+    const seen = new Map<string, number>();
+    expect(shouldAlertForNotification({ id: "n2", user_id: "u2" }, { ...base, seen })).toBe(false);
+    expect(shouldAlertForNotification({ id: "n3", user_id: "u1" }, { ...base, userId: null, seen })).toBe(false);
+  });
+  it("is silent while the tab is visible (the bell shows it), but remembers the id", () => {
+    const seen = new Map<string, number>();
+    expect(shouldAlertForNotification({ id: "n4", user_id: "u1" }, { ...base, documentVisible: true, seen })).toBe(false);
+    expect(seen.has("n4")).toBe(true);
+  });
+});
+
+describe("bellItemHref", () => {
+  it("goes to the conversation, else the contact, else the list", () => {
+    expect(bellItemHref({ conversation_id: "c1" })).toBe("/inbox?c=c1");
+    expect(bellItemHref({ contact_id: "k1" })).toBe("/contacts?open=k1");
+    expect(bellItemHref({})).toBe("/notifications");
+  });
+});
+
+describe("detectBrowserAndOs", () => {
+  it("tells Safari from Chrome and Edge (which also say Safari) and finds the OS", () => {
+    expect(detectBrowserAndOs("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Safari/605.1.15")).toEqual({ browser: "safari", os: "mac" });
+    expect(detectBrowserAndOs("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36")).toEqual({ browser: "chrome", os: "mac" });
+    expect(detectBrowserAndOs("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/126.0.0.0 Safari/537.36 Edg/126.0.0.0")).toEqual({ browser: "edge", os: "windows" });
+    expect(detectBrowserAndOs("Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:127.0) Gecko/20100101 Firefox/127.0")).toEqual({ browser: "firefox", os: "windows" });
+    expect(detectBrowserAndOs("curl/8")).toEqual({ browser: "other", os: "other" });
+  });
+});

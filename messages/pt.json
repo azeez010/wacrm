@@ -2370,9 +2370,9 @@
     },
     "browserNotifications": {
       "title": "Notificações do navegador",
-      "description": "Receba um alerta na área de trabalho para cada nova mensagem de cliente, mesmo quando estiver em outra página. Salvo neste dispositivo.",
-      "toggleLabel": "Avisar sobre novas mensagens de clientes",
-      "toggleDesc": "Funciona apenas enquanto o app estiver aberto em uma aba do navegador.",
+      "description": "Receba um alerta de desktop para cada nova mensagem de cliente, novo lead e atribuição, mesmo em outra página. Salvo neste dispositivo.",
+      "toggleLabel": "Avisar-me de novas mensagens, leads e atribuições",
+      "toggleDesc": "Funciona enquanto o OgaDesk está aberto em uma aba do navegador.",
       "statusGranted": "Permitido pelo seu navegador.",
       "statusDefault": "Ao ativar, seu navegador pedirá permissão.",
       "statusDenied": "Bloqueado nas configurações do navegador",
@@ -2393,7 +2393,13 @@
       },
       "testSent": "Teste enviado. Se não o viu, verifique as definições de notificações do computador.",
       "osBlockedTitle": "O navegador permitiu, mas o computador pode estar a ocultá-la",
-      "osBlockedHint": "Ative as notificações do navegador (ex.: Chrome) em Definições do Sistema → Notificações e desative o modo Foco / Não incomodar."
+      "osBlockedHint": "Ative as notificações do navegador (ex.: Chrome) em Definições do Sistema → Notificações e desative o modo Foco / Não incomodar.",
+      "osHelp": {
+        "mac": "Não aparece o banner? No seu Mac abra Ajustes do Sistema > Notificações > {browser}, ative Permitir notificações com o estilo Banners e desative o modo Foco / Não perturbe.",
+        "macSafari": "Não aparece o banner? No seu Mac abra Ajustes do Sistema > Notificações > Safari, ative Permitir notificações com o estilo Banners e desative o modo Foco / Não perturbe. Em Safari > Ajustes > Sites > Notificações este site deve estar como Permitir.",
+        "windows": "Não aparece o banner? Abra Configurações > Sistema > Notificações, confirme que as notificações e o {browser} estão ativos e desative o Assistente de foco / Não incomodar.",
+        "other": "Não aparece o banner? Confira as configurações de notificação do seu computador para {browser} e desative o Não perturbe."
+      }
     },
     "messageSound": {
       "title": "Som de mensagem",

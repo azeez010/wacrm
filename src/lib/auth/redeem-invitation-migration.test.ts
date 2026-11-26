@@ -43,6 +43,9 @@ const tablesWithoutDomainData = new Set([
   // Admin console's business suspension (admin schema, 107): set by platform admins on a
   // real business, not user-entered data, and the row cascades with the account.
   "account_suspensions",
+  // Admin console announcement audiences (admin schema, 108): a frozen list of which businesses see a
+  // banner, written by platform admins; the rows cascade with the account.
+  "announcement_targets",
   // Browser/phone push registrations (105): per-device, re-created by one tap,
   // and they cascade with the account.
   "push_subscriptions",

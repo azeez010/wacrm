@@ -8,6 +8,7 @@ import { Sidebar } from "@/components/layout/sidebar";
 import { Header } from "@/components/layout/header";
 import { AccountAccessAlert } from "@/components/layout/account-access-alert";
 import { SuspensionGate } from "@/components/layout/suspension-gate";
+import { DashboardAnnouncements } from "@/components/announcements/dashboard-announcements";
 import { PresenceHeartbeat } from "@/components/presence/presence-heartbeat";
 import { DefaultsSeeder } from "@/components/automations/defaults-seeder";
 import { OnboardingDialog } from "@/components/onboarding/onboarding-dialog";
@@ -99,6 +100,8 @@ function SignedInShell({
           {/* Above every page: writes are being rejected and here's why.
               Renders nothing unless the account/role failed to resolve. */}
           <AccountAccessAlert />
+          {/* Announcements from the platform admin console (migration 108). */}
+          <DashboardAnnouncements />
           {children}
         </main>
       </div>

@@ -3884,7 +3884,10 @@
       "terms": "Conditions",
       "dataDeletion": "Suppression des données",
       "apiDocs": "Documentation API",
-      "partner": "Devenir partenaire"
+      "partner": "Devenir partenaire",
+      "blog": "Blog",
+      "changelog": "Nouveautés",
+      "help": "Aide"
     }
   },
   "CustomFields": {
@@ -4927,5 +4930,68 @@
   },
   "PhoneField": {
     "searchCountry": "Rechercher un pays ou un indicatif"
+  },
+  "Blog": {
+    "title": "Blog {brand}",
+    "description": "Guides et actualités sur la vente, le support et le marketing sur WhatsApp, par l'équipe {brand}.",
+    "blog": "Blog",
+    "changelog": "Nouveautés",
+    "help": "Aide",
+    "login": "Connexion",
+    "dashboard": "Tableau de bord",
+    "getStarted": "Commencer",
+    "rss": "RSS",
+    "partners": "Partenaires",
+    "privacy": "Confidentialité",
+    "terms": "Conditions",
+    "home": "Accueil",
+    "all": "Tous",
+    "categories": "Catégories",
+    "categoryIntro": "Tout ce que nous avons écrit sur {name}.",
+    "categorySuffix": "articles",
+    "noPosts": "Aucun article pour le moment. Revenez bientôt.",
+    "minRead": "{n} min de lecture",
+    "page": "page {n}",
+    "newer": "Plus récents",
+    "older": "Plus anciens",
+    "share": "Partager :",
+    "faq": "Questions fréquentes",
+    "by": "Par",
+    "updated": "Mis à jour",
+    "onThisPage": "Sur cette page",
+    "tags": "Étiquettes",
+    "previous": "Précédent",
+    "next": "Suivant",
+    "keepReading": "À lire aussi",
+    "ctaTitle": "Gérez vos ventes et votre support WhatsApp depuis une seule boîte de réception",
+    "ctaBody": "{brand} réunit votre équipe, vos contacts, vos diffusions et vos automatisations. Essai gratuit, sans carte.",
+    "ctaButton": "Commencer gratuitement",
+    "pagination": "Pagination"
+  },
+  "Changelog": {
+    "title": "Nouveautés",
+    "description": "Nouvelles fonctionnalités, améliorations et corrections de {brand}, les plus récentes d'abord.",
+    "tryFree": "Essayer {brand} gratuitement",
+    "New": "Nouveau",
+    "Improved": "Amélioré",
+    "Fixed": "Corrigé"
+  },
+  "Help": {
+    "metaTitle": "Centre d'aide",
+    "metaDescription": "Guides pour configurer et utiliser {brand} : prise en main, boîte de réception, diffusions, facturation et API.",
+    "heading": "Bonjour, comment pouvons-nous vous aider ?",
+    "sub": "Cherchez dans les guides ou parcourez par thème.",
+    "search": "Rechercher des articles",
+    "noResults": "Aucun article ne correspond à votre recherche.",
+    "browse": "Parcourir par thème",
+    "articles": "{n, plural, one {# article} other {# articles}}",
+    "more": "Ouvrir",
+    "popular": "Articles populaires",
+    "helpful": "Toujours bloqué ?",
+    "contact": "Écrire à notre support",
+    "back": "Centre d'aide",
+    "readNext": "À lire ensuite",
+    "home": "Accueil",
+    "website": "Site"
   }
 }

@@ -8,7 +8,7 @@ import { buttonVariants } from '@/components/ui/button'
 import { BrandLogo } from '@/components/brand-logo'
 import { LanguageSwitcher } from '@/components/language-switcher'
 import { HREFLANG, isLocale } from '@/i18n/locales'
-import { localizedAlternates, localizedUrl, organizationJsonLd } from '@/lib/seo'
+import { localizedAlternates, localizedPath, localizedUrl, organizationJsonLd } from '@/lib/seo'
 import { cn } from '@/lib/utils'
 import { BRAND_NAME } from '@/lib/brand'
 import { getPublicPlans } from '@/lib/billing/public-plans'
@@ -181,13 +181,14 @@ export default async function LandingPage({
     .then(({ data }) => !!data.user)
     .catch(() => false)
 
-  const [plans, locale, t, tb, fx] = await Promise.all([
+  const [plans, rawLocale, t, tb, fx] = await Promise.all([
     getPublicPlans(),
     getLocale(),
     getTranslations('Landing'),
     getTranslations('Settings.billing'),
     getDisplayCurrency(),
   ])
+  const locale = isLocale(rawLocale) ? rawLocale : 'en'
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -198,9 +199,11 @@ export default async function LandingPage({
           <a href="#pricing" className={cn(buttonVariants({ variant: 'ghost' }), 'hidden sm:inline-flex')}>
             {t('nav.pricing')}
           </a>
-          {/* The blog is English-only, so the label isn't translated. */}
-          <Link href="/blog" className={cn(buttonVariants({ variant: 'ghost' }), 'hidden sm:inline-flex')}>
-            Blog
+          <Link href={localizedPath(locale, '/blog')} className={cn(buttonVariants({ variant: 'ghost' }), 'hidden sm:inline-flex')}>
+            {t('footer.blog')}
+          </Link>
+          <Link href={localizedPath(locale, '/help')} className={cn(buttonVariants({ variant: 'ghost' }), 'hidden sm:inline-flex')}>
+            {t('footer.help')}
           </Link>
           <LanguageSwitcher mode="path" iconOnly />
           <CurrencySwitcher current={fx.current} options={fx.options} />
@@ -271,12 +274,16 @@ export default async function LandingPage({
           {signedIn ? t('nav.dashboard') : t('footer.login')}
         </Link>
         {' · '}
-        <Link href="/blog" className="underline">
-          Blog
+        <Link href={localizedPath(locale, '/blog')} className="underline">
+          {t('footer.blog')}
         </Link>
         {' · '}
-        <Link href="/changelog" className="underline">
-          Changelog
+        <Link href={localizedPath(locale, '/help')} className="underline">
+          {t('footer.help')}
+        </Link>
+        {' · '}
+        <Link href={localizedPath(locale, '/changelog')} className="underline">
+          {t('footer.changelog')}
         </Link>
         {' · '}
         <Link href="/docs" className="underline">

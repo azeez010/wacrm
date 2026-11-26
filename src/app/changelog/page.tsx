@@ -1,14 +1,25 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { BrandLogo } from '@/components/brand-logo'
+import { getTranslations } from 'next-intl/server'
+import { BlogShell } from '@/components/blog/blog-shell'
+import { pageLocale } from '@/components/blog/parts'
+import { HREFLANG } from '@/i18n/locales'
 import { BRAND_NAME } from '@/lib/brand'
-import { CHANGELOG, type ChangeKind } from '@/lib/changelog'
+import { CHANGELOG, changeText, type ChangeKind } from '@/lib/changelog'
+import { localizedAlternates, localizedUrl } from '@/lib/seo'
 import { cn } from '@/lib/utils'
 
-export const metadata: Metadata = {
-  title: `Changelog | ${BRAND_NAME}`,
-  description: `What's new in ${BRAND_NAME}: new features, improvements and fixes.`,
-  robots: { index: true, follow: true },
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await pageLocale()
+  const t = await getTranslations('Changelog')
+  const title = `${t('title')} | ${BRAND_NAME}`
+  return {
+    title: { absolute: title },
+    description: t('description', { brand: BRAND_NAME }),
+    robots: { index: true, follow: true },
+    alternates: localizedAlternates(locale, '/changelog'),
+    openGraph: { type: 'website', siteName: BRAND_NAME, title, url: localizedUrl(locale, '/changelog'), locale: HREFLANG[locale].replace('-', '_') },
+  }
 }
 
 const kindStyle: Record<ChangeKind, string> = {
@@ -17,23 +28,16 @@ const kindStyle: Record<ChangeKind, string> = {
   Fixed: 'bg-amber-500/15 text-amber-700 dark:text-amber-300',
 }
 
-const fmt = (iso: string) =>
-  new Date(`${iso}T00:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })
-
-export default function ChangelogPage() {
+export default async function ChangelogPage() {
+  const locale = await pageLocale()
+  const t = await getTranslations('Changelog')
+  const fmt = (iso: string) =>
+    new Date(`${iso}T00:00:00Z`).toLocaleDateString(locale === 'en' ? 'en-GB' : locale, { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <header className="mx-auto flex max-w-3xl items-center justify-between px-4 py-5 sm:px-6">
-        <Link href="/" aria-label={BRAND_NAME}>
-          <BrandLogo className="text-lg" markClassName="h-9 w-9" />
-        </Link>
-        <Link href="/signup" className="text-sm underline">
-          Try {BRAND_NAME} free
-        </Link>
-      </header>
-      <main className="mx-auto max-w-3xl px-4 pb-20 sm:px-6">
-        <h1 className="mt-8 text-3xl font-bold tracking-tight sm:text-4xl">Changelog</h1>
-        <p className="mt-2 text-muted-foreground">New features, improvements and fixes, newest first.</p>
+    <BlogShell>
+      <div className="mx-auto max-w-3xl">
+        <h1 className="mt-8 text-3xl font-bold tracking-tight sm:text-4xl">{t('title')}</h1>
+        <p className="mt-2 text-muted-foreground">{t('description', { brand: BRAND_NAME })}</p>
         <div className="mt-10 space-y-10">
           {CHANGELOG.map((e) => (
             <section key={e.date} id={e.date} className="border-t pt-6">
@@ -41,15 +45,18 @@ export default function ChangelogPage() {
               <ul className="mt-4 space-y-3">
                 {e.changes.map((c, i) => (
                   <li key={i} className="flex items-start gap-3 text-sm">
-                    <span className={cn('mt-0.5 shrink-0 rounded px-2 py-0.5 text-xs font-medium', kindStyle[c.kind])}>{c.kind}</span>
-                    <span>{c.text}</span>
+                    <span className={cn('mt-0.5 shrink-0 rounded px-2 py-0.5 text-xs font-medium', kindStyle[c.kind])}>{t(c.kind)}</span>
+                    <span>{changeText(c.text, locale)}</span>
                   </li>
                 ))}
               </ul>
             </section>
           ))}
         </div>
-      </main>
-    </div>
+        <p className="mt-12 text-sm">
+          <Link href="/signup" className="underline">{t('tryFree', { brand: BRAND_NAME })}</Link>
+        </p>
+      </div>
+    </BlogShell>
   )
 }

@@ -172,3 +172,22 @@ describe("middleware, referral cookie", () => {
     expect(without.cookies.get("ogadesk_ref")).toBeUndefined();
   });
 });
+
+describe("middleware, localized blog, changelog and help", () => {
+  it("serves /<lang>/blog from the one blog route and tells next-intl the language", async () => {
+    const res = await middleware(new NextRequest("https://app.test/fr/blog/page/2"));
+    expect(res.headers.get("x-middleware-rewrite")).toBe("https://app.test/blog/page/2");
+    expect(res.headers.get("x-middleware-request-x-next-intl-locale")).toBe("fr");
+  });
+
+  it("pins an unprefixed URL to the default language whatever the cookie says", async () => {
+    const res = await middleware(new NextRequest("https://app.test/help/getting-started", { headers: { cookie: "NEXT_LOCALE=ko" } }));
+    expect(res.headers.get("x-middleware-request-x-next-intl-locale")).toBe("en");
+  });
+
+  it("redirects the explicit default-language prefix to the bare URL", async () => {
+    const res = await middleware(new NextRequest("https://app.test/en/changelog"));
+    expect(res.status).toBe(308);
+    expect(res.headers.get("location")).toBe("https://app.test/changelog");
+  });
+});

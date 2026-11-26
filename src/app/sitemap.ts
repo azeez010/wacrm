@@ -2,6 +2,7 @@ import type { MetadataRoute } from 'next'
 import { HREFLANG, LOCALES } from '@/i18n/locales'
 import { routing } from '@/i18n/routing'
 import { blogEntries } from '@/lib/blog/sitemap'
+import { getHelp } from '@/lib/help'
 import { SITE_URL, localizedUrl } from '@/lib/seo'
 
 // Built on each request (not at build time), so new blog posts appear without a redeploy.
@@ -20,10 +21,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: l === routing.defaultLocale ? 1 : 0.9,
     alternates: { languages },
   }))
-  const legal = ['/docs', '/partners', '/changelog', '/privacy', '/terms', '/data-deletion'].map((p) => ({
+  const legal = ['/docs', '/partners', '/privacy', '/terms', '/data-deletion'].map((p) => ({
     url: `${SITE_URL}${p}`,
     changeFrequency: 'yearly' as const,
     priority: 0.3,
   }))
-  return [...landing, ...legal, ...(await blogEntries())]
+  const changelog = LOCALES.map((l) => ({
+    url: localizedUrl(l, '/changelog'),
+    changeFrequency: 'weekly' as const,
+    priority: 0.4,
+    alternates: { languages: Object.fromEntries([...LOCALES.map((x) => [HREFLANG[x], localizedUrl(x, '/changelog')]), ['x-default', localizedUrl(routing.defaultLocale, '/changelog')]]) },
+  }))
+  const helpUrls = (path: string) => ({
+    languages: Object.fromEntries([...LOCALES.map((x) => [HREFLANG[x], localizedUrl(x, path)]), ['x-default', localizedUrl(routing.defaultLocale, path)]]),
+  })
+  const helpPaths = ['/help', ...getHelp('en').flatMap((c) => [`/help/${c.id}`, ...c.articles.map((a) => `/help/${c.id}/${a.slug}`)])]
+  const help = helpPaths.flatMap((path) =>
+    LOCALES.map((l) => ({ url: localizedUrl(l, path), changeFrequency: 'monthly' as const, priority: path === '/help' ? 0.6 : 0.5, alternates: helpUrls(path) })),
+  )
+  return [...landing, ...legal, ...changelog, ...help, ...(await blogEntries())]
 }

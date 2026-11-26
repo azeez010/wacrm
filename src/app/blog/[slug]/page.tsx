@@ -2,13 +2,14 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound, permanentRedirect } from 'next/navigation'
 import { cache } from 'react'
+import { getTranslations } from 'next-intl/server'
 import { BlogShell } from '@/components/blog/blog-shell'
-import { ARTICLE_CLASS, Breadcrumbs, Faq, fmtDate, PostCard, ShareLinks } from '@/components/blog/parts'
+import { ARTICLE_CLASS, Breadcrumbs, Faq, fmtDate, pageLocale, PostCard, ShareLinks } from '@/components/blog/parts'
 import { buttonVariants } from '@/components/ui/button'
 import { cardImageUrl, fetchPost, imageUrl } from '@/lib/blog/api'
 import { hardenLinks, injectHeadingIdsAndBuildToc, lazyImages } from '@/lib/blog/toc'
 import { BRAND_NAME } from '@/lib/brand'
-import { blogPostingJsonLd, breadcrumbJsonLd, faqJsonLd, graph, jsonLd, SITE_URL } from '@/lib/seo'
+import { blogPostingJsonLd, breadcrumbJsonLd, faqJsonLd, graph, jsonLd, localizedPath, SITE_URL } from '@/lib/seo'
 import { cn } from '@/lib/utils'
 
 export const dynamic = 'force-dynamic'
@@ -62,7 +63,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function BlogPostPage({ params }: Props) {
   const { slug } = await params
   const r = await load(slug)
-  if (r.kind === 'moved') permanentRedirect(`/blog/${r.slug}`)
+  const locale = await pageLocale()
+  const t = await getTranslations('Blog')
+  const to = (path: string) => localizedPath(locale, path)
+  if (r.kind === 'moved') permanentRedirect(to(`/blog/${r.slug}`))
   if (r.kind !== 'post') notFound()
   const { post: p, related, previous, next } = r
   const url = `${SITE_URL}/blog/${p.slug}`
@@ -71,10 +75,10 @@ export default async function BlogPostPage({ params }: Props) {
   const body = lazyImages(hardenLinks(html, siteHost))
   const cover = imageUrl(p.cover_image_url)
   const crumbs = [
-    { name: 'Home', path: '/' },
-    { name: 'Blog', path: '/blog' },
-    ...(p.category && p.category_slug ? [{ name: p.category, path: `/blog/category/${p.category_slug}` }] : []),
-    { name: p.title, path: `/blog/${p.slug}` },
+    { name: t('home'), path: to('/') },
+    { name: t('blog'), path: to('/blog') },
+    ...(p.category && p.category_slug ? [{ name: p.category, path: to(`/blog/category/${p.category_slug}`) }] : []),
+    { name: p.title, path: to(`/blog/${p.slug}`) },
   ]
   const updated = new Date(p.updated_at).getTime() - new Date(p.published_at).getTime() > 86_400_000
   const ld = graph(
@@ -93,14 +97,14 @@ export default async function BlogPostPage({ params }: Props) {
       <Breadcrumbs items={crumbs.map((c, i) => ({ name: c.name, href: i < crumbs.length - 1 ? c.path : undefined }))} />
       <article className="mx-auto max-w-3xl">
         <header className="pt-4">
-          {p.category && p.category_slug && <Link href={`/blog/category/${p.category_slug}`} className="text-sm font-medium uppercase tracking-wide text-primary hover:underline">{p.category}</Link>}
+          {p.category && p.category_slug && <Link href={to(`/blog/category/${p.category_slug}`)} className="text-sm font-medium uppercase tracking-wide text-primary hover:underline">{p.category}</Link>}
           <h1 className="mt-2 text-3xl font-bold leading-tight tracking-tight sm:text-4xl">{p.title}</h1>
           {p.excerpt && <p className="mt-4 text-lg text-muted-foreground">{p.excerpt}</p>}
           <p className="mt-4 text-sm text-muted-foreground">
-            {p.author && <>By <span className="font-medium text-foreground">{p.author}</span> · </>}
-            <time dateTime={p.published_at}>{fmtDate(p.published_at)}</time>
-            {updated && <> · Updated <time dateTime={p.updated_at}>{fmtDate(p.updated_at)}</time></>}
-            {' · '}{p.reading_minutes} min read
+            {p.author && <>{t('by')} <span className="font-medium text-foreground">{p.author}</span> · </>}
+            <time dateTime={p.published_at}>{fmtDate(p.published_at, locale)}</time>
+            {updated && <> · {t('updated')} <time dateTime={p.updated_at}>{fmtDate(p.updated_at, locale)}</time></>}
+            {' · '}{t('minRead', { n: p.reading_minutes })}
           </p>
         </header>
 
@@ -111,8 +115,8 @@ export default async function BlogPostPage({ params }: Props) {
         )}
 
         {toc.length >= 3 && (
-          <nav aria-label="Table of contents" className="mt-8 rounded-xl border bg-muted/40 p-5">
-            <p className="text-sm font-semibold">On this page</p>
+          <nav aria-label={t('onThisPage')} className="mt-8 rounded-xl border bg-muted/40 p-5">
+            <p className="text-sm font-semibold">{t('onThisPage')}</p>
             <ol className="mt-3 space-y-1.5 text-sm">
               {toc.map((t) => (
                 <li key={t.id} className={t.level === 3 ? 'pl-4' : ''}><a href={`#${t.id}`} className="text-muted-foreground hover:text-foreground hover:underline">{t.text}</a></li>
@@ -127,7 +131,7 @@ export default async function BlogPostPage({ params }: Props) {
         <Faq items={p.faq} />
 
         {p.tags.length > 0 && (
-          <ul className="mt-10 flex flex-wrap gap-2" aria-label="Tags">
+          <ul className="mt-10 flex flex-wrap gap-2" aria-label={t('tags')}>
             {p.tags.map((t) => <li key={t} className="rounded-full bg-muted px-3 py-1 text-xs text-muted-foreground">#{t}</li>)}
           </ul>
         )}
@@ -135,22 +139,22 @@ export default async function BlogPostPage({ params }: Props) {
         <div className="mt-8 border-t pt-6"><ShareLinks url={url} title={p.title} /></div>
 
         <aside className="mt-10 rounded-xl bg-primary p-6 text-primary-foreground sm:p-8">
-          <p className="text-xl font-semibold">Run your WhatsApp sales and support from one inbox</p>
-          <p className="mt-2 opacity-90">{BRAND_NAME} brings your team, contacts, broadcasts and automations together. Start free, no card needed.</p>
-          <Link href="/signup" className={cn(buttonVariants({ variant: 'secondary' }), 'mt-5')}>Start free</Link>
+          <p className="text-xl font-semibold">{t('ctaTitle')}</p>
+          <p className="mt-2 opacity-90">{t('ctaBody', { brand: BRAND_NAME })}</p>
+          <Link href="/signup" className={cn(buttonVariants({ variant: 'secondary' }), 'mt-5')}>{t('ctaButton')}</Link>
         </aside>
 
         {(previous || next) && (
-          <nav aria-label="More posts" className="mt-10 grid gap-4 sm:grid-cols-2">
-            {previous ? <Link href={`/blog/${previous.slug}`} className="rounded-xl border p-4 hover:bg-accent"><span className="text-xs text-muted-foreground">Previous</span><span className="mt-1 block font-medium">{previous.title}</span></Link> : <span />}
-            {next && <Link href={`/blog/${next.slug}`} className="rounded-xl border p-4 text-right hover:bg-accent"><span className="text-xs text-muted-foreground">Next</span><span className="mt-1 block font-medium">{next.title}</span></Link>}
+          <nav aria-label={t('keepReading')} className="mt-10 grid gap-4 sm:grid-cols-2">
+            {previous ? <Link href={to(`/blog/${previous.slug}`)} className="rounded-xl border p-4 hover:bg-accent"><span className="text-xs text-muted-foreground">{t('previous')}</span><span className="mt-1 block font-medium">{previous.title}</span></Link> : <span />}
+            {next && <Link href={to(`/blog/${next.slug}`)} className="rounded-xl border p-4 text-right hover:bg-accent"><span className="text-xs text-muted-foreground">{t('next')}</span><span className="mt-1 block font-medium">{next.title}</span></Link>}
           </nav>
         )}
       </article>
 
       {related.length > 0 && (
         <section aria-labelledby="related-heading" className="mt-16">
-          <h2 id="related-heading" className="text-2xl font-semibold tracking-tight">Keep reading</h2>
+          <h2 id="related-heading" className="text-2xl font-semibold tracking-tight">{t('keepReading')}</h2>
           <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">{related.map((rp) => <PostCard key={rp.slug} post={rp} />)}</div>
         </section>
       )}

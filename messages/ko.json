@@ -3898,7 +3898,10 @@
       "terms": "약관",
       "dataDeletion": "데이터 삭제",
       "apiDocs": "API 문서",
-      "partner": "파트너 되기"
+      "partner": "파트너 되기",
+      "blog": "블로그",
+      "changelog": "업데이트 소식",
+      "help": "도움말"
     }
   },
   "CustomFields": {
@@ -4927,5 +4930,68 @@
   },
   "PhoneField": {
     "searchCountry": "국가 또는 코드 검색"
+  },
+  "Blog": {
+    "title": "{brand} 블로그",
+    "description": "{brand} 팀이 전하는 WhatsApp 판매, 지원, 마케팅 가이드와 소식.",
+    "blog": "블로그",
+    "changelog": "업데이트 소식",
+    "help": "도움말",
+    "login": "로그인",
+    "dashboard": "대시보드",
+    "getStarted": "시작하기",
+    "rss": "RSS",
+    "partners": "파트너",
+    "privacy": "개인정보",
+    "terms": "약관",
+    "home": "홈",
+    "all": "전체",
+    "categories": "카테고리",
+    "categoryIntro": "{name}에 대해 작성한 모든 글.",
+    "categorySuffix": "글",
+    "noPosts": "아직 글이 없습니다. 곧 다시 확인해 주세요.",
+    "minRead": "{n}분 읽기",
+    "page": "{n}페이지",
+    "newer": "최신",
+    "older": "이전",
+    "share": "공유:",
+    "faq": "자주 묻는 질문",
+    "by": "작성자",
+    "updated": "업데이트",
+    "onThisPage": "이 페이지 내용",
+    "tags": "태그",
+    "previous": "이전",
+    "next": "다음",
+    "keepReading": "계속 읽기",
+    "ctaTitle": "WhatsApp 판매와 지원을 하나의 받은편지함에서",
+    "ctaBody": "{brand}는 팀, 연락처, 브로드캐스트, 자동화를 한곳에 모읍니다. 카드 없이 무료로 시작하세요.",
+    "ctaButton": "무료로 시작",
+    "pagination": "페이지 이동"
+  },
+  "Changelog": {
+    "title": "업데이트 소식",
+    "description": "{brand}의 새 기능, 개선 사항, 수정 사항을 최신순으로 확인하세요.",
+    "tryFree": "{brand} 무료로 사용해 보기",
+    "New": "신규",
+    "Improved": "개선",
+    "Fixed": "수정"
+  },
+  "Help": {
+    "metaTitle": "도움말 센터",
+    "metaDescription": "{brand} 설정과 사용 가이드: 시작하기, 받은편지함, 브로드캐스트, 결제, API.",
+    "heading": "무엇을 도와드릴까요?",
+    "sub": "가이드를 검색하거나 주제별로 둘러보세요.",
+    "search": "문서 검색",
+    "noResults": "검색과 일치하는 문서가 없습니다.",
+    "browse": "주제별로 보기",
+    "articles": "문서 {n}개",
+    "more": "열기",
+    "popular": "인기 문서",
+    "helpful": "아직 해결이 안 되었나요?",
+    "contact": "지원팀에 이메일 보내기",
+    "back": "도움말 센터",
+    "readNext": "다음 읽을거리",
+    "home": "홈",
+    "website": "웹사이트"
   }
 }

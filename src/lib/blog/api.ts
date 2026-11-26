@@ -67,9 +67,11 @@ export function imageUrl(u: string | null | undefined): string | null {
 /** The branded 1200x630 social card rendered by the API for a published post. */
 export const cardImageUrl = (slug: string) => `${BLOG_API_URL}/card/blog/${encodeURIComponent(slug)}`
 
-export function fetchPosts(opts: { page?: number; category?: string; limit?: number } = {}) {
+export function fetchPosts(opts: { page?: number; category?: string; limit?: number; lang?: string } = {}) {
   const q = new URLSearchParams({ page: String(opts.page ?? 1), limit: String(opts.limit ?? PAGE_SIZE) })
   if (opts.category) q.set('category', opts.category)
+  // Not read by the API yet (posts are single-language); passed so per-post languages work once it is.
+  if (opts.lang && opts.lang !== 'en') q.set('lang', opts.lang)
   return json<Paged<BlogCard>>(`/blog?${q.toString()}`)
 }
 

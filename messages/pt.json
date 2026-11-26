@@ -3898,7 +3898,10 @@
       "terms": "Termos",
       "dataDeletion": "Exclusão de dados",
       "apiDocs": "Documentação da API",
-      "partner": "Seja parceiro"
+      "partner": "Seja parceiro",
+      "blog": "Blog",
+      "changelog": "Novidades",
+      "help": "Ajuda"
     }
   },
   "CustomFields": {
@@ -4927,5 +4930,68 @@
   },
   "PhoneField": {
     "searchCountry": "Pesquisar país ou código"
+  },
+  "Blog": {
+    "title": "Blog {brand}",
+    "description": "Guias e novidades sobre vendas, suporte e marketing no WhatsApp, da equipe {brand}.",
+    "blog": "Blog",
+    "changelog": "Novidades",
+    "help": "Ajuda",
+    "login": "Entrar",
+    "dashboard": "Painel",
+    "getStarted": "Começar",
+    "rss": "RSS",
+    "partners": "Parceiros",
+    "privacy": "Privacidade",
+    "terms": "Termos",
+    "home": "Início",
+    "all": "Todos",
+    "categories": "Categorias",
+    "categoryIntro": "Tudo o que escrevemos sobre {name}.",
+    "categorySuffix": "artigos",
+    "noPosts": "Ainda não há artigos. Volte em breve.",
+    "minRead": "{n} min de leitura",
+    "page": "página {n}",
+    "newer": "Mais recentes",
+    "older": "Mais antigos",
+    "share": "Compartilhar:",
+    "faq": "Perguntas frequentes",
+    "by": "Por",
+    "updated": "Atualizado",
+    "onThisPage": "Nesta página",
+    "tags": "Tags",
+    "previous": "Anterior",
+    "next": "Próximo",
+    "keepReading": "Continue lendo",
+    "ctaTitle": "Gerencie suas vendas e suporte no WhatsApp em uma só caixa de entrada",
+    "ctaBody": "{brand} reúne equipe, contatos, transmissões e automações. Comece grátis, sem cartão.",
+    "ctaButton": "Começar grátis",
+    "pagination": "Paginação"
+  },
+  "Changelog": {
+    "title": "Novidades",
+    "description": "Novos recursos, melhorias e correções do {brand}, os mais recentes primeiro.",
+    "tryFree": "Experimente o {brand} grátis",
+    "New": "Novo",
+    "Improved": "Melhorado",
+    "Fixed": "Corrigido"
+  },
+  "Help": {
+    "metaTitle": "Central de ajuda",
+    "metaDescription": "Guias para configurar e usar o {brand}: primeiros passos, caixa de entrada, transmissões, cobrança e a API.",
+    "heading": "Olá, como podemos ajudar?",
+    "sub": "Pesquise nos guias ou navegue por tema.",
+    "search": "Pesquisar artigos",
+    "noResults": "Nenhum artigo corresponde à sua busca.",
+    "browse": "Navegar por tema",
+    "articles": "{n, plural, one {# artigo} other {# artigos}}",
+    "more": "Abrir",
+    "popular": "Artigos populares",
+    "helpful": "Ainda com dúvida?",
+    "contact": "Fale com nosso suporte",
+    "back": "Central de ajuda",
+    "readNext": "Leia a seguir",
+    "home": "Início",
+    "website": "Site"
   }
 }

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { Bullets, LegalLayout, Section } from '@/components/legal/legal-layout'
-import { BRAND_NAME, COMPANY_ADDRESS, COMPANY_LEGAL_LINE, COMPANY_NAME, SUPPORT_EMAIL } from '@/lib/brand'
+import { BRAND_NAME, COMPANY_ADDRESS, COMPANY_NAME, SUPPORT_EMAIL } from '@/lib/brand'
 
 export const metadata: Metadata = {
   title: 'Terms of Service',
@@ -102,7 +102,7 @@ export default function TermsPage() {
 
       <Section title="12. Contact">
         <p>
-          {COMPANY_LEGAL_LINE}. Registered office: {COMPANY_ADDRESS}. Email:{' '}
+          {COMPANY_NAME}. Registered office: {COMPANY_ADDRESS}. Email:{' '}
           <a href={`mailto:${SUPPORT_EMAIL}`} className="text-primary underline">
             {SUPPORT_EMAIL}
           </a>

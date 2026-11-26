@@ -3898,7 +3898,10 @@
       "terms": "Terms",
       "dataDeletion": "Data deletion",
       "apiDocs": "API docs",
-      "partner": "Become a partner"
+      "partner": "Become a partner",
+      "blog": "Blog",
+      "changelog": "Changelog",
+      "help": "Help"
     }
   },
   "CustomFields": {
@@ -4927,5 +4930,68 @@
   },
   "PhoneField": {
     "searchCountry": "Search country or code"
+  },
+  "Blog": {
+    "title": "{brand} Blog",
+    "description": "Guides and updates on selling, support and marketing over WhatsApp, from the {brand} team.",
+    "blog": "Blog",
+    "changelog": "Changelog",
+    "help": "Help",
+    "login": "Log in",
+    "dashboard": "Dashboard",
+    "getStarted": "Get started",
+    "rss": "RSS",
+    "partners": "Partners",
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "home": "Home",
+    "all": "All",
+    "categories": "Categories",
+    "categoryIntro": "Everything we've written about {name}.",
+    "categorySuffix": "articles",
+    "noPosts": "No posts yet. Check back soon.",
+    "minRead": "{n} min read",
+    "page": "page {n}",
+    "newer": "Newer",
+    "older": "Older",
+    "share": "Share:",
+    "faq": "Frequently asked questions",
+    "by": "By",
+    "updated": "Updated",
+    "onThisPage": "On this page",
+    "tags": "Tags",
+    "previous": "Previous",
+    "next": "Next",
+    "keepReading": "Keep reading",
+    "ctaTitle": "Run your WhatsApp sales and support from one inbox",
+    "ctaBody": "{brand} brings your team, contacts, broadcasts and automations together. Start free, no card needed.",
+    "ctaButton": "Start free",
+    "pagination": "Pagination"
+  },
+  "Changelog": {
+    "title": "Changelog",
+    "description": "New features, improvements and fixes in {brand}, newest first.",
+    "tryFree": "Try {brand} free",
+    "New": "New",
+    "Improved": "Improved",
+    "Fixed": "Fixed"
+  },
+  "Help": {
+    "metaTitle": "Help center",
+    "metaDescription": "Guides for setting up and using {brand}: getting started, inbox, broadcasts, billing and the API.",
+    "heading": "Hey, how can we help you?",
+    "sub": "Search the guides or browse by topic.",
+    "search": "Search articles",
+    "noResults": "No articles match your search.",
+    "browse": "Browse by topic",
+    "articles": "{n, plural, one {# article} other {# articles}}",
+    "more": "Open",
+    "popular": "Popular articles",
+    "helpful": "Still stuck?",
+    "contact": "Email our support team",
+    "back": "Help center",
+    "readNext": "Read next",
+    "home": "Home",
+    "website": "Website"
   }
 }

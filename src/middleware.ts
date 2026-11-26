@@ -15,6 +15,14 @@ function isLocalizedLandingPath(pathname: string): boolean {
   return (pathname.replace(LOCALE_PREFIX, '') || '/') === '/'
 }
 
+/**
+ * Public content pages (blog, changelog, help centre) are readable in every language at
+ * `/<lang>/...` (the default language is unprefixed). The files live once under /blog, /changelog
+ * and /help; this rewrites to them and tells next-intl which language the URL asked for, so an
+ * unprefixed URL is always the default language whatever the visitor's cookie says.
+ */
+const CONTENT_ROUTE = new RegExp(`^(?:/(${LOCALES.join('|')}))?(/(?:blog|changelog|help)(?:/.*)?)$`)
+
 /** Public blog: anonymous, so skip the auth round trip (and keep it fast for crawlers). */
 const BLOG_PATH = /^\/blog(\/|$)/
 
@@ -59,8 +67,23 @@ async function handle(request: NextRequest) {
   if (PUBLIC_FORM_PATH.test(request.nextUrl.pathname)) {
     return NextResponse.next({ request })
   }
-  if (BLOG_PATH.test(request.nextUrl.pathname)) {
-    return (await blogGone(request.nextUrl.pathname)) ?? NextResponse.next({ request })
+  const content = CONTENT_ROUTE.exec(request.nextUrl.pathname)
+  if (content) {
+    const [, prefix, bare] = content
+    if (prefix === routing.defaultLocale) {
+      const url = request.nextUrl.clone()
+      url.pathname = bare!
+      return NextResponse.redirect(url, 308)
+    }
+    if (BLOG_PATH.test(bare!)) {
+      const gone = await blogGone(bare!)
+      if (gone) return gone
+    }
+    const headers = new Headers(request.headers)
+    headers.set('X-NEXT-INTL-LOCALE', prefix ?? routing.defaultLocale)
+    const url = request.nextUrl.clone()
+    url.pathname = bare!
+    return NextResponse.rewrite(url, { request: { headers } })
   }
   if (isLocalizedLandingPath(request.nextUrl.pathname)) {
     return intlMiddleware(request)

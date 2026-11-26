@@ -3898,7 +3898,10 @@
       "terms": "Términos",
       "dataDeletion": "Eliminación de datos",
       "apiDocs": "Documentación de la API",
-      "partner": "Hazte socio"
+      "partner": "Hazte socio",
+      "blog": "Blog",
+      "changelog": "Novedades",
+      "help": "Ayuda"
     }
   },
   "CustomFields": {
@@ -4927,5 +4930,68 @@
   },
   "PhoneField": {
     "searchCountry": "Buscar país o código"
+  },
+  "Blog": {
+    "title": "Blog de {brand}",
+    "description": "Guías y novedades sobre ventas, soporte y marketing por WhatsApp, del equipo de {brand}.",
+    "blog": "Blog",
+    "changelog": "Novedades",
+    "help": "Ayuda",
+    "login": "Iniciar sesión",
+    "dashboard": "Panel",
+    "getStarted": "Empezar",
+    "rss": "RSS",
+    "partners": "Socios",
+    "privacy": "Privacidad",
+    "terms": "Términos",
+    "home": "Inicio",
+    "all": "Todos",
+    "categories": "Categorías",
+    "categoryIntro": "Todo lo que hemos escrito sobre {name}.",
+    "categorySuffix": "artículos",
+    "noPosts": "Aún no hay artículos. Vuelve pronto.",
+    "minRead": "{n} min de lectura",
+    "page": "página {n}",
+    "newer": "Más recientes",
+    "older": "Más antiguos",
+    "share": "Compartir:",
+    "faq": "Preguntas frecuentes",
+    "by": "Por",
+    "updated": "Actualizado",
+    "onThisPage": "En esta página",
+    "tags": "Etiquetas",
+    "previous": "Anterior",
+    "next": "Siguiente",
+    "keepReading": "Sigue leyendo",
+    "ctaTitle": "Gestiona tus ventas y soporte de WhatsApp desde una sola bandeja",
+    "ctaBody": "{brand} reúne a tu equipo, contactos, difusiones y automatizaciones. Empieza gratis, sin tarjeta.",
+    "ctaButton": "Empezar gratis",
+    "pagination": "Paginación"
+  },
+  "Changelog": {
+    "title": "Novedades",
+    "description": "Nuevas funciones, mejoras y correcciones de {brand}, las más recientes primero.",
+    "tryFree": "Prueba {brand} gratis",
+    "New": "Nuevo",
+    "Improved": "Mejorado",
+    "Fixed": "Corregido"
+  },
+  "Help": {
+    "metaTitle": "Centro de ayuda",
+    "metaDescription": "Guías para configurar y usar {brand}: primeros pasos, bandeja, difusiones, facturación y la API.",
+    "heading": "Hola, ¿en qué podemos ayudarte?",
+    "sub": "Busca en las guías o explora por tema.",
+    "search": "Buscar artículos",
+    "noResults": "Ningún artículo coincide con tu búsqueda.",
+    "browse": "Explorar por tema",
+    "articles": "{n, plural, one {# artículo} other {# artículos}}",
+    "more": "Abrir",
+    "popular": "Artículos populares",
+    "helpful": "¿Sigues atascado?",
+    "contact": "Escribe a nuestro soporte",
+    "back": "Centro de ayuda",
+    "readNext": "Sigue leyendo",
+    "home": "Inicio",
+    "website": "Sitio web"
   }
 }

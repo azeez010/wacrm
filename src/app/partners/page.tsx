@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { getTranslations } from 'next-intl/server'
 import { Gift, Link2, Users, Wallet } from 'lucide-react'
+import { SiteBanner } from '@/components/announcements/site-banner'
 import { BrandLogo } from '@/components/brand-logo'
 import { buttonVariants } from '@/components/ui/button'
 import { BRAND_NAME } from '@/lib/brand'
@@ -44,6 +45,7 @@ export default async function PartnersPage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <SiteBanner />
       <header className="mx-auto flex max-w-4xl items-center justify-between px-4 py-5 sm:px-6">
         <Link href="/" aria-label={BRAND_NAME}>
           <BrandLogo className="text-lg" markClassName="h-9 w-9" />

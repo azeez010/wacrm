@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import type { ReactNode } from 'react'
+import { SiteBanner } from '@/components/announcements/site-banner'
 import { BrandLogo } from '@/components/brand-logo'
 import { BRAND_NAME, LEGAL_LAST_UPDATED } from '@/lib/brand'
 
@@ -15,6 +16,7 @@ export function LegalLayout({
 }) {
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <SiteBanner />
       <header className="mx-auto flex max-w-3xl items-center justify-between px-4 py-5 sm:px-6">
         <Link href="/" aria-label={BRAND_NAME}>
           <BrandLogo className="text-lg" markClassName="h-9 w-9" />

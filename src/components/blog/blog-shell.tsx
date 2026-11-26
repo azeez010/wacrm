@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { getLocale, getTranslations } from 'next-intl/server'
+import { SiteBanner } from '@/components/announcements/site-banner'
 import { AuthButtons } from '@/components/blog/blog-auth-buttons'
 import { BrandLogo } from '@/components/brand-logo'
 import { LanguageSwitcher } from '@/components/language-switcher'
@@ -16,6 +17,7 @@ export async function BlogShell({ children }: { children: React.ReactNode }) {
   const to = (path: string) => localizedPath(locale, path)
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <SiteBanner locale={locale} />
       <header className="border-b">
         <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-4 sm:px-6">
           <Link href={to('/')} aria-label={`${BRAND_NAME} ${t('home')}`}>

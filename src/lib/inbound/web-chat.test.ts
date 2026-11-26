@@ -169,10 +169,11 @@ describe('recordVisitorMessage', () => {
     const r = await recordVisitorMessage(db(), { ...args, content: { text: '  hello  ' } })
     expect(r.duplicate).toBe(false)
     expect(r.message).toMatchObject({ id: 'm1', sender_type: 'customer', content_text: 'hello' })
-    expect(h.calls.find((c) => c.table === 'messages' && c.op === 'insert')!.payload).toMatchObject({ sender_type: 'customer', content_type: 'text', content_text: 'hello', message_id: null })
+    expect(h.calls.find((c) => c.table === 'messages' && c.op === 'insert')!.payload).toMatchObject({ sender_type: 'customer', content_type: 'text', content_text: 'hello', message_id: expect.stringMatching(/^web:/) })
     expect(h.rpcs[0]).toEqual({ name: 'bump_conversation_on_inbound', args: { p_conversation_id: 'conv-1', p_last_message_text: 'hello' } })
     expect(h.pushed).toHaveLength(1)
     expect(h.webhooks[0]).toMatchObject({ event: 'message.received', data: { channel: 'web_chat', conversation_id: 'conv-1' } })
+    expect(r.react).toMatchObject({ text: 'hello', replyId: null, messageId: expect.stringMatching(/^web:/) })
   })
 
   it('stores an image as an image message', async () => {
@@ -205,8 +206,9 @@ describe('recordVisitorMessage', () => {
     h.responses['messages.insert'] = { data: [stored] }
     h.responses['conversations.select'] = { data: { id: 'conv-1', status: 'open', first_inbound_at: 'x' } }
     h.responses['contacts.select'] = { data: { blocked_at: '2026-01-01T00:00:00Z' } }
-    await recordVisitorMessage(db(), { ...args, content: { text: 'hi' } })
+    const r = await recordVisitorMessage(db(), { ...args, content: { text: 'hi' } })
     expect(h.webhooks).toHaveLength(0)
+    expect(r.react).toBeUndefined() // no flow, automation or AI reply either
   })
 
   it('notifies the team when a chat begins', async () => {

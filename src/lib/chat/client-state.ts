@@ -67,3 +67,37 @@ export function chatSocketUrl(origin: string, conversationId: string, token: str
   u.search = `?t=${encodeURIComponent(token)}`
   return u.toString()
 }
+
+export interface QuickReply {
+  id: string
+  title: string
+}
+
+/**
+ * The options a bot message offers (buttons, or every row of a list), shown
+ * as tappable chips while it is the newest message in the chat.
+ */
+export function quickReplies(payload: unknown): QuickReply[] {
+  if (!payload || typeof payload !== 'object') return []
+  const p = payload as { kind?: unknown; buttons?: unknown; sections?: unknown }
+  const pick = (v: unknown): QuickReply | null => {
+    const o = v as { id?: unknown; title?: unknown } | null
+    return o && typeof o.id === 'string' && typeof o.title === 'string' && o.id && o.title ? { id: o.id, title: o.title } : null
+  }
+  const out: QuickReply[] = []
+  if (p.kind === 'buttons' && Array.isArray(p.buttons)) {
+    for (const b of p.buttons) {
+      const r = pick(b)
+      if (r) out.push(r)
+    }
+  } else if (p.kind === 'list' && Array.isArray(p.sections)) {
+    for (const s of p.sections) {
+      const rows = (s as { rows?: unknown } | null)?.rows
+      if (Array.isArray(rows)) for (const row of rows) {
+        const r = pick(row)
+        if (r) out.push(r)
+      }
+    }
+  }
+  return out.slice(0, 20)
+}

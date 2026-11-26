@@ -18,9 +18,10 @@ import type { ChatMessageView } from '@/lib/chat/protocol'
 // it. Everything runs through the service-role client with the account
 // resolved from the widget, never from anything the visitor sends.
 //
-// Flows, automations and AI replies are not dispatched from here yet: their
-// senders talk to Meta directly and must become channel-aware first (sending
-// to a visitor's typed phone number over WhatsApp would be a bug).
+// Flows, automations and AI replies react to these messages through
+// reactToWebChatMessage (web-chat-react.ts), which the routes run from after();
+// their senders are channel-aware (src/lib/channels/engine-route.ts), so
+// nothing is ever sent to the phone number a visitor typed.
 // ============================================================
 
 export interface VisitorDetails {
@@ -55,6 +56,9 @@ export function normalizeVisitorPhone(raw: string | null | undefined): string | 
   const digits = raw.trim()
   return /^\d+$/.test(digits) && isValidE164(digits) ? digits : null
 }
+
+/** A reply id is a short token we issued; anything else is dropped. */
+export const cleanReplyId = (v: string | null | undefined): string | null => (v && /^[\w.:-]{1,64}$/.test(v) ? v : null)
 
 const cleanText = (v: string | null | undefined, max: number): string | null => {
   const t = (v ?? '').replace(/[\u0000-\u001f\u007f]/g, ' ').trim().slice(0, max)
@@ -254,6 +258,8 @@ export interface InboundContent {
   imageMime?: string | null
   /** Client-generated id, so a retried send does not create a second message. */
   clientId?: string | null
+  /** The id of the quick-reply option the visitor tapped, when they tapped one. */
+  replyId?: string | null
 }
 
 export interface InboundResult {
@@ -261,6 +267,8 @@ export interface InboundResult {
   duplicate: boolean
   /** The chat was closed and this message reopened it. */
   reopened?: boolean
+  /** What the routes hand to reactToWebChatMessage; absent for a replay or a blocked contact. */
+  react?: { messageId: string; text: string; replyId: string | null; isFirstInbound: boolean }
 }
 
 /**
@@ -286,7 +294,7 @@ export async function recordVisitorMessage(
     content_text: text,
     media_url: isImage ? content.imageUrl : null,
     media_type: isImage ? (content.imageMime ?? null) : null,
-    message_id: clientId,
+    message_id: clientId ?? `web:${crypto.randomUUID()}`,
   }
   const inserted = clientId
     ? await db.from('messages').upsert(row, { onConflict: 'conversation_id,message_id', ignoreDuplicates: true }).select(CHAT_MESSAGE_COLUMNS)
@@ -304,7 +312,7 @@ export async function recordVisitorMessage(
 
   const { data: conv } = await db.from('conversations').select('id, status, first_inbound_at').eq('id', conversationId).maybeSingle()
   const conversation = (conv as { id: string; status: string | null; first_inbound_at: string | null } | null) ?? { id: conversationId, status: null, first_inbound_at: null }
-  await claimFirstInboundMessage(db, conversation, receivedAt)
+  const isFirstInbound = await claimFirstInboundMessage(db, conversation, receivedAt)
   const { error: bumpErr } = await db.rpc('bump_conversation_on_inbound', {
     p_conversation_id: conversationId,
     p_last_message_text: text ?? '[image]',
@@ -319,7 +327,8 @@ export async function recordVisitorMessage(
 
   // A blocked contact's message is stored and visible, but nothing reacts to it.
   const { data: blockedRow } = await db.from('contacts').select('blocked_at').eq('id', contactId).eq('account_id', accountId).maybeSingle()
-  if (!isBlocked(blockedRow)) {
+  const blocked = isBlocked(blockedRow)
+  if (!blocked) {
     await dispatchWebhookEvent(db, accountId, 'message.received', {
       conversation_id: conversationId,
       contact_id: contactId,
@@ -328,7 +337,12 @@ export async function recordVisitorMessage(
       text,
     })
   }
-  return { message: view, duplicate: false, reopened }
+  return {
+    message: view,
+    duplicate: false,
+    reopened,
+    react: blocked ? undefined : { messageId: row.message_id, text: text ?? '', replyId: cleanReplyId(content.replyId), isFirstInbound },
+  }
 }
 
 /** One in-app notification per teammate who handles conversations, when a chat begins. */

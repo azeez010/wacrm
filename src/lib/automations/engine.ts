@@ -1076,19 +1076,31 @@ async function resolveConversationId(args: ExecuteArgs): Promise<string> {
     return data.id as string
   }
   if (!args.contactId) throw new Error(tErr('noContactForConversation'))
-  const { data, error } = await supabaseAdmin()
+  // A contact can have a WhatsApp thread and a website-chat thread. With no
+  // inbound to say which one, a send goes over WhatsApp when there is a
+  // WhatsApp thread, otherwise into the newest chat.
+  const { data: rows, error } = await supabaseAdmin()
     .from('conversations')
-    .select('id')
+    .select('id, channel, created_at')
     .eq('account_id', args.automation.account_id)
     .eq('contact_id', args.contactId)
-    .maybeSingle()
   if (error) throw new Error(getT('LibErrors.send')('conversationLookupFailed', { message: error.message }))
+  const data = pickContactConversation((rows ?? []) as { id: string; channel?: string | null; created_at: string }[])
   if (!data?.id) {
     throw new Error(
       tErr(args.triggerEvent === 'tag_added' ? 'tagAddedNoConversation' : 'noConversation'),
     )
   }
   return data.id as string
+}
+
+/** WhatsApp thread first, then the newest one. Exported for tests. */
+export function pickContactConversation<T extends { id: string; channel?: string | null; created_at: string }>(rows: T[]): T | null {
+  if (rows.length === 0) return null
+  return [...rows].sort((a, b) => {
+    const wa = Number((b.channel ?? 'whatsapp') === 'whatsapp') - Number((a.channel ?? 'whatsapp') === 'whatsapp')
+    return wa || b.created_at.localeCompare(a.created_at)
+  })[0]
 }
 
 /** Letter, digit or underscore in any script - the "inside a word" test. */

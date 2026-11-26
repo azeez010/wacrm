@@ -32,6 +32,7 @@ export interface ChannelSendParams {
   /** Set for automated senders (flows, AI); a human leaves it false. */
   bot?: boolean
   aiGenerated?: boolean
+  aiAgentId?: string | null
 }
 
 /** Send into a website live-chat conversation: store it, bump the thread, push it to the visitor. */
@@ -40,7 +41,7 @@ export async function sendWebChatMessage(
   accountId: string,
   conversationId: string,
   params: ChannelSendParams,
-): Promise<{ messageId: string }> {
+): Promise<{ messageId: string; externalId: string }> {
   const caps = channelCapabilities('web_chat' satisfies ChannelId)
   const type = params.messageType
   if (type === 'template') {
@@ -71,12 +72,15 @@ export async function sendWebChatMessage(
       media_url: type === 'image' ? params.mediaUrl : null,
       interactive_payload: type === 'interactive' ? params.interactivePayload : null,
       ai_generated: params.aiGenerated === true,
+      ai_agent_id: params.aiAgentId ?? null,
+      // Our own id, so the flow / automation engines can find the row they just sent.
+      message_id: `web:out:${crypto.randomUUID()}`,
       status: 'sent',
     })
-    .select(CHAT_MESSAGE_COLUMNS)
+    .select(`${CHAT_MESSAGE_COLUMNS}, message_id`)
     .single()
   if (error || !data) throw new ChannelSendError('db_error', `Failed to save the message: ${error?.message ?? 'unknown'}`, 500)
-  const row = data as ChatMessageRow
+  const row = data as ChatMessageRow & { message_id: string }
 
   const preview = type === 'interactive' ? interactivePayloadPreviewText(params.interactivePayload!) : text || `[${type}]`
   await db
@@ -87,7 +91,7 @@ export async function sendWebChatMessage(
 
   const names = await loadSenderNames(db, accountId, [row])
   await pushToRoom(conversationId, { type: 'message', message: toChatMessageView(row, row.sender_id ? names.get(row.sender_id) : null) }, 'visitor')
-  return { messageId: row.id }
+  return { messageId: row.id, externalId: row.message_id }
 }
 
 /** One centred "<name> just joined the chat" line per teammate per conversation. Best-effort: never blocks the reply. */

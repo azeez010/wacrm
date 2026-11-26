@@ -14,6 +14,7 @@ import {
 } from '@/lib/flows/meta-send'
 import { sendTypingIndicator } from '@/lib/whatsapp/meta-api'
 import { checkRateLimit, RATE_LIMITS } from '@/lib/rate-limit'
+import { pushToRoom } from '@/lib/chat/room'
 
 interface DispatchArgs {
   /** Tenancy key - drives config, contact, and whatsapp_config lookups. */
@@ -133,7 +134,10 @@ export async function dispatchInboundToAiReply(
     // 25 s or when our reply lands, whichever is first, so there's
     // nothing to undo on the handoff / no-text path. Strictly
     // best-effort: a failed indicator must never cost us the reply.
-    if (inboundMessageId) {
+    if (conv.channel === 'web_chat') {
+      // Website chat: show the visitor "typing…" over their socket instead.
+      await pushToRoom(conversationId, { type: 'typing', from: 'agent', on: true }, 'visitor').catch(() => undefined)
+    } else if (inboundMessageId) {
       await showTypingIndicator(db, accountId, inboundMessageId)
     }
 

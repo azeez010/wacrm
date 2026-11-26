@@ -2,7 +2,7 @@
 // GET /api/v1/conversations - list conversations (scope: conversations:read)
 //
 // Keyset-paginated (newest first). Filters: `?status=` (open/pending/
-// closed) and `?contact_id=`. Each conversation embeds its contact +
+// closed), `?contact_id=` and `?channel=` (whatsapp/web_chat). Each conversation embeds its contact +
 // tags via the shared CONVERSATION_SELECT.
 // ============================================================
 
@@ -19,6 +19,7 @@ import {
   normalizeConversation,
 } from '@/lib/inbox/conversations';
 import { serializeConversation } from '@/lib/api/v1/conversations';
+import { isChannelId } from '@/lib/channels/registry';
 import type { Conversation } from '@/types';
 
 export async function GET(request: Request) {
@@ -31,6 +32,10 @@ export async function GET(request: Request) {
     if (contactId && !isUuid(contactId)) {
       return fail('bad_request', "'contact_id' must be a contact id (UUID)", 400);
     }
+    const channel = url.searchParams.get('channel');
+    if (channel && !isChannelId(channel)) {
+      return fail('bad_request', "'channel' must be 'whatsapp' or 'web_chat'", 400);
+    }
 
     let query = ctx.supabase
       .from('conversations')
@@ -39,6 +44,7 @@ export async function GET(request: Request) {
 
     if (status) query = query.eq('status', status);
     if (contactId) query = query.eq('contact_id', contactId);
+    if (channel) query = query.eq('channel', channel);
 
     query = query
       .order('created_at', { ascending: false })

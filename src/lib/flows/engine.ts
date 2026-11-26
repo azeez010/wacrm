@@ -1000,6 +1000,15 @@ export async function dispatchInboundToFlows(
     // Idempotency - only matters if there's already a run for this
     // contact. For new runs, the partial unique index catches duplicate
     // starts at INSERT time.
+    // A run lives in one conversation. If the contact writes on another
+    // channel (website chat while a WhatsApp run waits, or the reverse), this
+    // message is not an answer to it: leave the run alone and let the other
+    // responders handle the message. Only one run per contact can be active,
+    // so no new run starts here either.
+    if (activeRun && activeRun.conversation_id && activeRun.conversation_id !== input.conversationId) {
+      return { consumed: false, outcome: "no_match" };
+    }
+
     if (activeRun) {
       ownedRunId = activeRun.id;
       const dupe = await isDuplicateInbound(

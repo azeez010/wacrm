@@ -56,3 +56,16 @@ describe('reconnect and socket url', () => {
     expect(chatSocketUrl('http://localhost:3000', 'abc', 'x')).toBe('ws://localhost:3000/ws/chat/abc?t=x')
   })
 })
+
+describe('quickReplies', () => {
+  it('reads buttons and list rows, ignores junk', async () => {
+    const { quickReplies } = await import('./client-state')
+    expect(quickReplies({ kind: 'buttons', body: 'x', buttons: [{ id: 'a', title: 'A' }, { id: '', title: 'B' }] })).toEqual([{ id: 'a', title: 'A' }])
+    expect(quickReplies({ kind: 'list', body: 'x', sections: [{ rows: [{ id: 'r1', title: 'One' }] }, { rows: [{ id: 'r2', title: 'Two' }] }] })).toEqual([
+      { id: 'r1', title: 'One' },
+      { id: 'r2', title: 'Two' },
+    ])
+    expect(quickReplies(null)).toEqual([])
+    expect(quickReplies({ kind: 'buttons', buttons: 'nope' })).toEqual([])
+  })
+})

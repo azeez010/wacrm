@@ -1,6 +1,7 @@
 import { addContactTags } from '@/lib/api/v1/contacts'
 import { slugTag } from '@/lib/forms/submit'
 import { validateEmail, validateMessage, validateName, validatePhone } from '@/lib/forms/client-validate'
+import { after } from 'next/server'
 import { z } from 'zod'
 
 import { chatJson, chatPreflight, loadChatForm } from '@/lib/chat/http'
@@ -10,6 +11,7 @@ import { signChatToken, VISITOR_TOKEN_TTL_S } from '@/lib/chat/token'
 import { getLimit } from '@/lib/billing/entitlements'
 import { getClientIp, checkRateLimit, RATE_LIMITS } from '@/lib/rate-limit'
 import { openVisitorThread, recordVisitorMessage } from '@/lib/inbound/web-chat'
+import { reactToWebChatMessage } from '@/lib/inbound/web-chat-react'
 import { chatTicketTarget, chatTicketTitle, ensureOpenTicket } from '@/lib/tickets/ensure-ticket'
 import { parseInternationalPhone } from '@/lib/whatsapp/phone-utils'
 
@@ -104,7 +106,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ pub
       console.error('[chat/start] tagging failed:', err instanceof Error ? err.message : err)
     }
     const label = name || email || phone || 'Website visitor'
-    await recordVisitorMessage(db, {
+    const first = await recordVisitorMessage(db, {
       accountId: form.account_id,
       contactId: thread.contactId,
       conversationId: thread.conversationId,
@@ -125,6 +127,12 @@ export async function POST(request: Request, { params }: { params: Promise<{ pub
         title: chatTicketTitle(name || email || phone, form.name),
         notes: body.message,
       })
+    }
+
+    // Flows, automations and the AI reply, once the visitor has their answer back.
+    if (first.react) {
+      const react = first.react
+      after(() => reactToWebChatMessage(db, { accountId: form.account_id, contactId: thread.contactId, conversationId: thread.conversationId, ...react, contactCreated: thread.contactCreated }))
     }
 
     const token = await signChatToken(

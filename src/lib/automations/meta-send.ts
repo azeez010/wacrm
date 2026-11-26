@@ -11,6 +11,7 @@ import {
   isRecipientNotAllowedError,
 } from '@/lib/whatsapp/phone-utils'
 import { resolveContactSendTarget } from '@/lib/whatsapp/wa-identity'
+import { isWebChatConversation, sendEngineWebChat } from '@/lib/channels/engine-route'
 import { assertConversationInAccount } from '@/lib/whatsapp/conversation-scope'
 import {
   resolveTemplateRow,
@@ -142,6 +143,11 @@ async function sendViaMeta(input: SendInput): Promise<{ whatsapp_message_id: str
   // Same for the conversation the message lands in - see
   // conversation-scope.ts (GHSA-m4fx-g6pr-hrw8).
   await assertConversationInAccount(db, input.conversationId, input.accountId)
+
+  if (await isWebChatConversation(db, input.accountId, input.conversationId)) {
+    if (input.kind === 'template') throw new Error('Templates are WhatsApp only; this is a website chat.')
+    return sendEngineWebChat(db, input.accountId, input.conversationId, { type: 'text', text: input.text })
+  }
 
   // Phone number, or the business-scoped user ID when Meta has never
   // given us a number for this customer (issue #519).

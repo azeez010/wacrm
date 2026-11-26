@@ -69,10 +69,11 @@ export function createWacrmMcpServer(
       'list_conversations',
       {
         title: 'List conversations',
-        description: 'List conversations, newest first. Filter by status (open/pending/closed) or contact id. Paginated.',
+        description: 'List conversations, newest first. Filter by status (open/pending/closed), contact id or channel (whatsapp, or web_chat for website live chat). Each conversation says its channel. Paginated.',
         inputSchema: {
           status: z.enum(['open', 'pending', 'closed']).optional(),
           contact_id: z.string().optional().describe('Only conversations for this contact.'),
+          channel: z.enum(['whatsapp', 'web_chat']).optional().describe('Only conversations on this channel.'),
           limit,
           cursor,
         },

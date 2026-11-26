@@ -1,7 +1,10 @@
+import { after } from 'next/server'
+
 import { validateMessage } from '@/lib/forms/client-validate'
 import { authorizeVisitor, chatJson, chatPreflight } from '@/lib/chat/http'
 import { CHAT_IMAGE_MAX_BYTES, CHAT_UPLOAD_LIMITS, checkChatImage, chatImagePath } from '@/lib/chat/upload'
 import { recordVisitorMessage } from '@/lib/inbound/web-chat'
+import { reactToWebChatMessage } from '@/lib/inbound/web-chat-react'
 import { resolveAuditUserId } from '@/lib/api/v1/contacts'
 import { chatTicketTarget, chatTicketTitle, ensureOpenTicket } from '@/lib/tickets/ensure-ticket'
 import { checkRateLimit, RATE_LIMITS } from '@/lib/rate-limit'
@@ -26,6 +29,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ pub
 
   let text: string | null = null
   let clientId: string | null = null
+  let replyId: string | null = null
   let file: File | null = null
 
   const type = request.headers.get('content-type') ?? ''
@@ -42,9 +46,10 @@ export async function POST(request: Request, { params }: { params: Promise<{ pub
     const raw = await request.text().catch(() => '')
     if (raw.length > MAX_JSON) return chatJson({ ok: false, error: 'too_large' }, 413)
     try {
-      const j = JSON.parse(raw || '{}') as { text?: unknown; clientId?: unknown }
+      const j = JSON.parse(raw || '{}') as { text?: unknown; clientId?: unknown; replyId?: unknown }
       text = typeof j.text === 'string' ? j.text : null
       clientId = typeof j.clientId === 'string' ? j.clientId : null
+      replyId = typeof j.replyId === 'string' ? j.replyId : null
     } catch {
       return chatJson({ ok: false, error: 'bad_json' }, 400)
     }
@@ -84,8 +89,12 @@ export async function POST(request: Request, { params }: { params: Promise<{ pub
       accountId: form.account_id,
       contactId: conversation.contact_id,
       conversationId: conversation.id,
-      content: { text, imageUrl, imageMime, clientId },
+      content: { text, imageUrl, imageMime, clientId, replyId },
     })
+    const react = result.duplicate ? undefined : result.react
+    if (react) {
+      after(() => reactToWebChatMessage(db, { accountId: form.account_id, contactId: conversation.contact_id, conversationId: conversation.id, ...react, contactCreated: false }))
+    }
     // A closed chat the visitor writes to again gets a fresh ticket.
     const ticket = result.reopened ? chatTicketTarget(settings) : null
     if (ticket) {

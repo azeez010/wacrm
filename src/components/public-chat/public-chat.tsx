@@ -14,6 +14,7 @@ import {
   reconnectDelay,
   retryLocal,
   type LocalMessage,
+  quickReplies,
 } from '@/lib/chat/client-state';
 import type { ChatMessageView, ServerFrame } from '@/lib/chat/protocol';
 import { CHAT_IMAGE_MAX_BYTES } from '@/lib/chat/upload';
@@ -160,7 +161,7 @@ export function PublicChat({
   const sessionRef = useRef<Session | null>(null);
   const messagesRef = useRef<LocalMessage[]>([]);
   const inFlight = useRef(0);
-  const pendingSends = useRef(new Map<string, { text: string; file: File | null }>());
+  const pendingSends = useRef(new Map<string, { text: string; file: File | null; replyId?: string }>());
   const socket = useRef<WebSocket | null>(null);
   const typingTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastTypingSent = useRef(0);
@@ -362,7 +363,7 @@ export function PublicChat({
   );
 
   const postMessage = useCallback(
-    async (clientId: string, text: string, file: File | null) => {
+    async (clientId: string, text: string, file: File | null, replyId?: string) => {
       inFlight.current += 1;
       try {
         let res: Response;
@@ -373,7 +374,7 @@ export function PublicChat({
           body.set('clientId', clientId);
           res = await fetch(`${api}/message`, { method: 'POST', headers: authHeaders(), body });
         } else {
-          res = await fetch(`${api}/message`, { method: 'POST', headers: { ...authHeaders(), 'Content-Type': 'application/json' }, body: JSON.stringify({ text, clientId }) });
+          res = await fetch(`${api}/message`, { method: 'POST', headers: { ...authHeaders(), 'Content-Type': 'application/json' }, body: JSON.stringify(replyId ? { text, clientId, replyId } : { text, clientId }) });
         }
         if (res.status === 401) return endSession();
         const j = (await res.json().catch(() => ({}))) as { ok?: boolean; message?: ChatMessageView; error?: string };
@@ -394,9 +395,9 @@ export function PublicChat({
   );
 
   const send = useCallback(
-    (text: string, file: File | null) => {
+    (text: string, file: File | null, replyId?: string) => {
       const clientId = randomId();
-      pendingSends.current.set(clientId, { text, file });
+      pendingSends.current.set(clientId, { text, file, replyId });
       const local: LocalMessage = {
         id: localId(clientId),
         clientId,
@@ -408,7 +409,7 @@ export function PublicChat({
         created_at: new Date().toISOString(),
       };
       setMessages((cur) => addLocal(cur, local));
-      void postMessage(clientId, text, file);
+      void postMessage(clientId, text, file, replyId);
     },
     [postMessage],
   );
@@ -418,7 +419,7 @@ export function PublicChat({
       const p = pendingSends.current.get(clientId);
       if (!p) return;
       setMessages((cur) => retryLocal(cur, clientId));
-      void postMessage(clientId, p.text, p.file);
+      void postMessage(clientId, p.text, p.file, p.replyId);
     },
     [postMessage],
   );
@@ -551,13 +552,30 @@ export function PublicChat({
             <p className="bg-[var(--og-warn-bg)] px-4 py-2 text-xs text-[color:var(--og-warn-fg)]">{status.offlineText}</p>
           ) : null}
           <div ref={scroller} className="flex-1 space-y-2 overflow-y-auto px-3 py-3" role="log" aria-live="polite">
-            {messages.map((m) =>
+            {messages.map((m, i) =>
               m.content_type === 'event' ? (
                 <div key={m.id} className="flex justify-center py-1">
                   <span className="rounded-full bg-[var(--og-input)] px-3 py-1 text-[11px] text-[color:var(--og-muted)]">{t.chatAgentJoined.replace('{name}', m.content_text ?? '')}</span>
                 </div>
               ) : (
-              <Bubble key={m.id} m={m} accent={accent} aiLabel={t.chatAi} failedLabel={t.chatFailed} onRetry={m.clientId ? () => retry(m.clientId as string) : undefined} />
+              <div key={m.id}>
+                <Bubble m={m} accent={accent} aiLabel={t.chatAi} failedLabel={t.chatFailed} onRetry={m.clientId ? () => retry(m.clientId as string) : undefined} />
+                {m.content_type === 'interactive' && i === messages.length - 1 ? (
+                  <div className="mt-1.5 flex flex-wrap gap-1.5">
+                    {quickReplies(m.interactive_payload).map((o) => (
+                      <button
+                        key={o.id}
+                        type="button"
+                        onClick={() => send(o.title, null, o.id)}
+                        className="rounded-full border px-3 py-1 text-xs font-medium"
+                        style={{ borderColor: accent, color: accent }}
+                      >
+                        {o.title}
+                      </button>
+                    ))}
+                  </div>
+                ) : null}
+              </div>
             )
             )}
             {agentTyping ? <p className="px-1 text-xs text-[color:var(--og-muted)]">{t.chatTyping}</p> : null}

@@ -15,6 +15,7 @@ import {
   isRecipientNotAllowedError,
 } from '@/lib/whatsapp/phone-utils'
 import { resolveContactSendTarget } from '@/lib/whatsapp/wa-identity'
+import { isWebChatConversation, sendEngineWebChat } from '@/lib/channels/engine-route'
 import { assertConversationInAccount } from '@/lib/whatsapp/conversation-scope'
 import { supabaseAdmin } from './admin-client'
 import { getT } from '@/lib/i18n/translate'
@@ -114,6 +115,10 @@ export async function engineSendText(
   // Same for the conversation the message lands in - see
   // conversation-scope.ts (GHSA-m4fx-g6pr-hrw8).
   await assertConversationInAccount(db, args.conversationId, args.accountId)
+
+  if (await isWebChatConversation(db, args.accountId, args.conversationId)) {
+    return sendEngineWebChat(db, args.accountId, args.conversationId, { type: 'text', text: args.text, aiGenerated: args.aiGenerated, aiAgentId: args.aiAgentId })
+  }
 
   // Phone number, or the business-scoped user ID when Meta has never
   // given us a number for this customer (issue #519).
@@ -232,6 +237,13 @@ export async function engineSendMedia(
   // Same for the conversation the message lands in - see
   // conversation-scope.ts (GHSA-m4fx-g6pr-hrw8).
   await assertConversationInAccount(db, args.conversationId, args.accountId)
+
+  if (await isWebChatConversation(db, args.accountId, args.conversationId)) {
+    if (args.kind !== 'image') {
+      throw new Error('Website chat carries text and images only.')
+    }
+    return sendEngineWebChat(db, args.accountId, args.conversationId, { type: 'image', url: args.link, caption: args.caption })
+  }
 
   // Phone number, or the business-scoped user ID when Meta has never
   // given us a number for this customer (issue #519).
@@ -391,6 +403,14 @@ async function sendInteractiveViaMeta(
   // Same for the conversation the message lands in - see
   // conversation-scope.ts (GHSA-m4fx-g6pr-hrw8).
   await assertConversationInAccount(db, input.conversationId, input.accountId)
+
+  if (await isWebChatConversation(db, input.accountId, input.conversationId)) {
+    const payload: InteractiveMessagePayload =
+      input.kind === 'buttons'
+        ? { kind: 'buttons', body: input.bodyText, header: input.headerText, footer: input.footerText, buttons: input.buttons }
+        : { kind: 'list', body: input.bodyText, button_label: input.buttonLabel, header: input.headerText, footer: input.footerText, sections: input.sections }
+    return sendEngineWebChat(db, input.accountId, input.conversationId, { type: 'interactive', payload })
+  }
 
   // Phone number, or the business-scoped user ID when Meta has never
   // given us a number for this customer (issue #519).

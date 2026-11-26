@@ -2,16 +2,25 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { ArrowRight, BookOpen, Bot, Globe, Loader2, MessageCircle, Plus, Star } from 'lucide-react';
+import { ArrowLeft, ArrowRight, BookOpen, Bot, Globe, LifeBuoy, Loader2, Megaphone, MessageCircle, Plus, ShieldCheck, Star, TrendingUp, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/use-auth';
 import { canEditSettings } from '@/lib/auth/roles';
 import { Button } from '@/components/ui/button';
-import { AgentEditor } from './agent-editor';
+import { AgentEditor, type AgentPreset } from './agent-editor';
+import { AGENT_TEMPLATE_IDS, AGENT_TEMPLATES, type AgentTemplateId } from '@/lib/ai/agent-templates';
 import { fetchAccountMembers } from '@/lib/account/members';
 import { fetchAgents, invalidateAgents, type AgentDto } from '@/lib/ai/agents-client';
 import { invalidateAiAccountStatus } from '@/lib/ai/account-status-cache';
 import type { AccountMember } from '@/types';
+
+const TEMPLATE_ICONS: Record<AgentTemplateId, typeof Bot> = {
+  blank: FileText,
+  support: LifeBuoy,
+  sales: TrendingUp,
+  marketing: Megaphone,
+  admin: ShieldCheck,
+};
 
 export function AgentsPanel({ configured, workspaceModel, onGoToSettings }: {
   /** The workspace has a provider key. */
@@ -27,6 +36,21 @@ export function AgentsPanel({ configured, workspaceModel, onGoToSettings }: {
   // undefined = list, null = new agent, string = editing that agent.
   const [editing, setEditing] = useState<string | null | undefined>(undefined);
   const [editorTab, setEditorTab] = useState<'setup' | 'knowledge' | 'playground'>('setup');
+  // "New agent" first shows the template picker.
+  const [picking, setPicking] = useState(false);
+  const [preset, setPreset] = useState<AgentPreset | null>(null);
+  const tt = useTranslations('Agents.templates');
+  const startNew = () => setPicking(true);
+  const pick = (id: AgentTemplateId) => {
+    setPreset(
+      id === 'blank'
+        ? null
+        : { ...AGENT_TEMPLATES[id], name: tt(`${id}.agentName`), description: tt(`${id}.description`) },
+    );
+    setPicking(false);
+    setEditorTab('setup');
+    setEditing(null);
+  };
 
   const load = useCallback(async () => {
     if (!accountId) return;
@@ -53,6 +77,7 @@ export function AgentsPanel({ configured, workspaceModel, onGoToSettings }: {
         canEdit={canEdit}
         workspaceModel={workspaceModel}
         initialTab={editorTab}
+        preset={editing ? null : preset}
         onBack={() => setEditing(undefined)}
         onSaved={(saved) => {
           changed();
@@ -68,6 +93,41 @@ export function AgentsPanel({ configured, workspaceModel, onGoToSettings }: {
           setEditing(undefined);
         }}
       />
+    );
+  }
+
+  if (picking) {
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center gap-2">
+          <Button size="sm" variant="ghost" onClick={() => setPicking(false)}>
+            <ArrowLeft className="mr-1 h-4 w-4" /> {tt('back')}
+          </Button>
+        </div>
+        <div>
+          <h2 className="text-base font-semibold text-foreground">{tt('title')}</h2>
+          <p className="mt-0.5 max-w-2xl text-sm text-muted-foreground">{tt('description')}</p>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          {AGENT_TEMPLATE_IDS.map((id) => {
+            const Icon = TEMPLATE_ICONS[id];
+            return (
+              <button
+                key={id}
+                type="button"
+                onClick={() => pick(id)}
+                className="flex flex-col items-start gap-2 rounded-xl border border-border bg-card p-4 text-left transition-colors hover:border-primary/50 hover:bg-muted/50"
+              >
+                <span className="flex size-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <Icon className="size-4" />
+                </span>
+                <span className="font-medium text-foreground">{tt(`${id}.name`)}</span>
+                <span className="text-xs text-muted-foreground">{tt(`${id}.description`)}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
     );
   }
 
@@ -90,7 +150,7 @@ export function AgentsPanel({ configured, workspaceModel, onGoToSettings }: {
           <p className="mt-0.5 max-w-2xl text-sm text-muted-foreground">{t('description')}</p>
         </div>
         {canEdit && (
-          <Button size="sm" onClick={() => { setEditorTab('setup'); setEditing(null); }}>
+          <Button size="sm" onClick={startNew}>
             <Plus className="mr-1.5 h-4 w-4" /> {t('newAgent')}
           </Button>
         )}
@@ -106,7 +166,7 @@ export function AgentsPanel({ configured, workspaceModel, onGoToSettings }: {
           <p className="font-medium text-foreground">{t('emptyTitle')}</p>
           <p className="mt-1 max-w-md text-sm text-muted-foreground">{configured ? t('emptyDesc') : t('emptyDescSetup')}</p>
           {canEdit && configured && (
-            <Button className="mt-4" size="sm" onClick={() => { setEditorTab('setup'); setEditing(null); }}>
+            <Button className="mt-4" size="sm" onClick={startNew}>
               <Plus className="mr-1.5 h-4 w-4" /> {t('newAgent')}
             </Button>
           )}

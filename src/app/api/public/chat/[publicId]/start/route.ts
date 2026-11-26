@@ -10,6 +10,7 @@ import { signChatToken, VISITOR_TOKEN_TTL_S } from '@/lib/chat/token'
 import { getLimit } from '@/lib/billing/entitlements'
 import { getClientIp, checkRateLimit, RATE_LIMITS } from '@/lib/rate-limit'
 import { openVisitorThread, recordVisitorMessage } from '@/lib/inbound/web-chat'
+import { chatTicketTarget, chatTicketTitle, ensureOpenTicket } from '@/lib/tickets/ensure-ticket'
 import { parseInternationalPhone } from '@/lib/whatsapp/phone-utils'
 
 const MAX_BODY = 30_000
@@ -110,6 +111,21 @@ export async function POST(request: Request, { params }: { params: Promise<{ pub
       content: { text: body.message, clientId: body.clientId },
       announceNew: { widgetName: form.name, label },
     })
+
+    // Support ticket for the chat, when the widget asks for one. No-op if
+    // the chat already has an open ticket; never blocks the chat.
+    const ticket = chatTicketTarget(settings)
+    if (ticket) {
+      await ensureOpenTicket(db, {
+        accountId: form.account_id,
+        userId: thread.ownerUserId,
+        ...ticket,
+        contactId: thread.contactId,
+        conversationId: thread.conversationId,
+        title: chatTicketTitle(name || email || phone, form.name),
+        notes: body.message,
+      })
+    }
 
     const token = await signChatToken(
       { cid: thread.conversationId, aid: form.account_id, sub: body.visitorId, role: 'visitor', exp: Math.floor(Date.now() / 1000) + VISITOR_TOKEN_TTL_S },

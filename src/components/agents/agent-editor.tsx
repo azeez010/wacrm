@@ -22,6 +22,7 @@ import type { AccountMember } from '@/types';
 import type { AgentDto } from '@/lib/ai/agents-client';
 import type { AgentChannel, KnowledgeMode } from '@/lib/ai/agents';
 import type { SourceDto } from '@/lib/ai/knowledge-client';
+import type { AgentTemplate } from '@/lib/ai/agent-templates';
 
 // Base UI Select can't use an empty value, so "shared queue" gets a sentinel.
 const HANDOFF_QUEUE = '__queue__';
@@ -42,17 +43,21 @@ interface Form {
   priority: number;
 }
 
-function toForm(a: AgentDto | null): Form {
+/** A template pre-fills a NEW agent; its name/description are already translated. */
+export type AgentPreset = AgentTemplate & { name: string; description: string };
+
+function toForm(a: AgentDto | null, preset?: AgentPreset | null): Form {
   return {
-    name: a?.name ?? '',
-    description: a?.description ?? '',
+    name: a?.name ?? preset?.name ?? '',
+    description: a?.description ?? preset?.description ?? '',
     is_active: a?.is_active ?? true,
     model: a?.model ?? '',
-    system_prompt: a?.system_prompt ?? '',
+    system_prompt: a?.system_prompt ?? preset?.system_prompt ?? '',
     auto_reply_enabled: a?.auto_reply_enabled ?? false,
-    auto_reply_max_per_conversation: a?.auto_reply_max_per_conversation ?? 3,
+    auto_reply_max_per_conversation:
+      a?.auto_reply_max_per_conversation ?? preset?.auto_reply_max_per_conversation ?? 3,
     handoff_agent_id: a?.handoff_agent_id ?? '',
-    channels: a?.channels ?? ['whatsapp', 'web_chat'],
+    channels: a?.channels ?? preset?.channels ?? ['whatsapp', 'web_chat'],
     priority: a?.priority ?? 0,
   };
 }
@@ -63,6 +68,7 @@ export function AgentEditor({
   canEdit,
   workspaceModel,
   initialTab = 'setup',
+  preset,
   onBack,
   onSaved,
   onDeleted,
@@ -74,13 +80,15 @@ export function AgentEditor({
   /** The workspace model, shown as the default. */
   workspaceModel: string | null;
   initialTab?: SubTab;
+  /** Template to start a new agent from. */
+  preset?: AgentPreset | null;
   onBack: () => void;
   onSaved: (agent: AgentDto) => void;
   onDeleted: (id: string) => void;
 }) {
   const t = useTranslations('Agents.editor');
   const [tab, setTab] = useState<SubTab>(agent ? initialTab : 'setup');
-  const [form, setForm] = useState<Form>(() => toForm(agent));
+  const [form, setForm] = useState<Form>(() => toForm(agent, agent ? null : preset));
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
 

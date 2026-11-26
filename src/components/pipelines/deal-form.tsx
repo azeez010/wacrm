@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, type ReactNode } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
@@ -15,9 +15,12 @@ import type {
   Conversation,
   Deal,
   DealStatus,
+  PipelineKind,
   PipelineStage,
   Profile,
+  TicketPriority,
 } from "@/types";
+import { isFinalStage } from "@/lib/pipelines/kinds";
 import {
   Sheet,
   SheetContent,
@@ -39,14 +42,27 @@ import {
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 
+const PRIORITIES: readonly TicketPriority[] = ["low", "normal", "high", "urgent"];
+
 interface DealFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   deal?: Deal | null;
   pipelineId: string;
+  /** 'support' = ticket form (subject, priority; no value/close date). */
+  kind?: PipelineKind;
   stages: PipelineStage[];
   defaultStageId?: string;
   onSaved: () => void;
+  /** Prefill for a NEW card (e.g. "Create ticket" from the inbox). */
+  prefill?: {
+    contact?: Contact | null;
+    conversationId?: string | null;
+    title?: string;
+    notes?: string;
+  };
+  /** Rendered above the fields (the inbox uses it for a pipeline picker). */
+  headerSlot?: ReactNode;
 }
 
 export function DealForm({
@@ -54,11 +70,19 @@ export function DealForm({
   onOpenChange,
   deal,
   pipelineId,
+  kind = "sales",
   stages,
   defaultStageId,
   onSaved,
+  prefill,
+  headerSlot,
 }: DealFormProps) {
   const t = useTranslations("Pipelines.form");
+  const isTicket = kind === "support";
+  const finalStages = stages.filter((s) => isFinalStage(s));
+  const firstOpenStage = [...stages]
+    .filter((s) => !isFinalStage(s))
+    .sort((a, b) => a.position - b.position)[0];
   const supabase = createClient();
   const { accountId, defaultCurrency } = useAuth();
 
@@ -70,6 +94,7 @@ export function DealForm({
   const [assignedTo, setAssignedTo] = useState("");
   const [expectedCloseDate, setExpectedCloseDate] = useState("");
   const [notes, setNotes] = useState("");
+  const [priority, setPriority] = useState<TicketPriority | "">("");
 
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [contactSearch, setContactSearch] = useState("");
@@ -80,7 +105,7 @@ export function DealForm({
     useState<Conversation | null>(null);
 
   const [saving, setSaving] = useState(false);
-  const [statusAction, setStatusAction] = useState<DealStatus | null>(null);
+  const [statusAction, setStatusAction] = useState<DealStatus | string | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
@@ -92,7 +117,7 @@ export function DealForm({
     if (!open) return;
     setConfirmDelete(false);
     setContactSearch("");
-    setPickedContact(deal?.contact ?? null);
+    setPickedContact(deal?.contact ?? prefill?.contact ?? null);
     if (deal) {
       setTitle(deal.title);
       setValue(String(deal.value ?? ""));
@@ -104,17 +129,19 @@ export function DealForm({
       setAssignedTo(deal.assigned_to ?? "");
       setExpectedCloseDate(deal.expected_close_date ?? "");
       setNotes(deal.notes ?? "");
+      setPriority(deal.priority ?? "");
     } else {
-      setTitle("");
+      setTitle(prefill?.title ?? "");
       setValue("");
       setCurrency(defaultCurrency);
-      setContactId("");
+      setContactId(prefill?.contact?.id ?? "");
       setStageId(defaultStageId || stages[0]?.id || "");
       setAssignedTo("");
       setExpectedCloseDate("");
-      setNotes("");
+      setNotes(prefill?.notes ?? "");
+      setPriority(isTicket ? "normal" : "");
     }
-  }, [open, deal, defaultStageId, stages, defaultCurrency]);
+  }, [open, deal, defaultStageId, stages, defaultCurrency, prefill, isTicket]);
   /* eslint-enable react-hooks/set-state-in-effect */
 
   // Load supporting data once the sheet is open
@@ -166,21 +193,23 @@ export function DealForm({
       return;
     }
     let cancelled = false;
+    const ownConversationId = deal?.conversation_id ?? prefill?.conversationId ?? null;
     (async () => {
-      const { data } = await supabase
-        .from("conversations")
-        .select("*")
-        .eq("contact_id", contactId)
-        .order("last_message_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
+      const base = supabase.from("conversations").select("*");
+      const { data } = ownConversationId
+        ? await base.eq("id", ownConversationId).maybeSingle()
+        : await base
+            .eq("contact_id", contactId)
+            .order("last_message_at", { ascending: false })
+            .limit(1)
+            .maybeSingle();
       if (cancelled) return;
       setLinkedConversation((data as Conversation | null) ?? null);
     })();
     return () => {
       cancelled = true;
     };
-  }, [open, contactId, supabase]);
+  }, [open, contactId, supabase, deal?.conversation_id, prefill?.conversationId]);
 
   async function handleSave() {
     if (!title.trim() || !contactId || !stageId) {
@@ -191,14 +220,15 @@ export function DealForm({
 
     const payload = {
       title: title.trim(),
-      value: parseFloat(value) || 0,
+      value: isTicket ? 0 : parseFloat(value) || 0,
       currency,
       contact_id: contactId,
       pipeline_id: pipelineId,
       stage_id: stageId,
       assigned_to: assignedTo || null,
       notes: notes.trim() || null,
-      expected_close_date: expectedCloseDate || null,
+      expected_close_date: isTicket ? null : expectedCloseDate || null,
+      priority: isTicket ? priority || null : null,
     };
 
     if (deal) {
@@ -228,7 +258,13 @@ export function DealForm({
       }
       const { error } = await supabase
         .from("deals")
-        .insert({ ...payload, user_id: user.id, account_id: accountId, status: "open" });
+        .insert({
+          ...payload,
+          user_id: user.id,
+          account_id: accountId,
+          status: "open",
+          conversation_id: prefill?.conversationId ?? null,
+        });
       if (error) {
         toast.error(t("toastFailedCreate"));
         setSaving(false);
@@ -237,7 +273,15 @@ export function DealForm({
     }
 
     setSaving(false);
-    toast.success(deal ? t("toastUpdated") : t("toastCreated"));
+    toast.success(
+      isTicket
+        ? deal
+          ? t("toastTicketUpdated")
+          : t("toastTicketCreated")
+        : deal
+          ? t("toastUpdated")
+          : t("toastCreated"),
+    );
     onOpenChange(false);
     onSaved();
   }
@@ -257,6 +301,25 @@ export function DealForm({
     toast.success(
       status === "won" ? t("toastMarkedWon") : status === "lost" ? t("toastMarkedLost") : t("toastReopened"),
     );
+    onOpenChange(false);
+    onSaved();
+  }
+
+  // Pipelines with final stages: finishing = moving to that stage (the
+  // DB trigger sets the status, and for tickets closes the chat).
+  async function moveToStage(target: PipelineStage) {
+    if (!deal) return;
+    setStatusAction(target.id);
+    const { error } = await supabase
+      .from("deals")
+      .update({ stage_id: target.id })
+      .eq("id", deal.id);
+    setStatusAction(null);
+    if (error) {
+      toast.error(t("toastFailedStatus"));
+      return;
+    }
+    toast.success(t("toastMovedTo", { stage: target.name }));
     onOpenChange(false);
     onSaved();
   }
@@ -285,17 +348,26 @@ export function DealForm({
         <div className="flex h-full flex-col">
           <SheetHeader className="border-b border-border/50 p-4">
             <SheetTitle className="text-popover-foreground">
-              {deal ? t("editDeal") : t("newDeal")}
+              {isTicket
+                ? deal
+                  ? t("editTicket")
+                  : t("newTicket")
+                : deal
+                  ? t("editDeal")
+                  : t("newDeal")}
             </SheetTitle>
           </SheetHeader>
 
           <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            {headerSlot}
             <div className="grid gap-2">
-              <Label className="text-muted-foreground">{t("title")}</Label>
+              <Label className="text-muted-foreground">
+                {isTicket ? t("subject") : t("title")}
+              </Label>
               <Input
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder={t("titlePlaceholder")}
+                placeholder={isTicket ? t("subjectPlaceholder") : t("titlePlaceholder")}
                 className="border-border bg-muted text-foreground"
               />
             </div>
@@ -328,7 +400,7 @@ export function DealForm({
 
               {linkedConversation && (
                 <Link
-                  href="/inbox"
+                  href={`/inbox?c=${encodeURIComponent(linkedConversation.id)}`}
                   className="mt-1 inline-flex items-center gap-1.5 self-start rounded-md bg-primary/10 px-2 py-1 text-xs text-primary hover:bg-primary/20"
                 >
                   <MessageSquare className="h-3 w-3" />
@@ -337,6 +409,24 @@ export function DealForm({
               )}
             </div>
 
+            {isTicket ? (
+              <div className="grid gap-2">
+                <Label className="text-muted-foreground">{t("priority")}</Label>
+                <select
+                  value={priority}
+                  onChange={(e) => setPriority(e.target.value as TicketPriority | "")}
+                  className="h-9 w-full rounded-lg border border-border bg-muted px-2.5 text-sm text-foreground outline-none focus:border-primary"
+                >
+                  <option value="">{t("priorityNone")}</option>
+                  {PRIORITIES.map((p) => (
+                    <option key={p} value={p}>
+                      {t(`priorities.${p}`)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            ) : (
+            <>
             <div className="grid grid-cols-[1fr_110px] gap-3">
               <div className="grid gap-2">
                 <Label className="text-muted-foreground">{t("value")}</Label>
@@ -376,6 +466,8 @@ export function DealForm({
                 className="border-border bg-muted text-foreground"
               />
             </div>
+            </>
+            )}
 
             <div className="grid gap-2">
               <Label className="text-muted-foreground">{t("stage")}</Label>
@@ -386,7 +478,7 @@ export function DealForm({
               >
                 {stages.map((s) => (
                   <option key={s.id} value={s.id}>
-                    {s.name}
+                    {s.outcome ? `${s.name} ✓` : s.name}
                   </option>
                 ))}
               </select>
@@ -418,7 +510,54 @@ export function DealForm({
               />
             </div>
 
-            {deal && (
+            {deal && finalStages.length > 0 && (
+              <div className="space-y-2 rounded-lg border border-border bg-muted/50 p-3">
+                <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  {t("finishAs")}
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {finalStages.map((fs) => (
+                    <Button
+                      key={fs.id}
+                      type="button"
+                      onClick={() => void moveToStage(fs)}
+                      disabled={!!statusAction || deal.stage_id === fs.id}
+                      className={`flex-1 disabled:opacity-50 ${
+                        fs.outcome === "won"
+                          ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                          : "bg-muted-foreground text-background hover:bg-muted-foreground/90"
+                      }`}
+                    >
+                      {statusAction === fs.id ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <>
+                          {fs.outcome === "won" ? (
+                            <Check className="mr-1 h-4 w-4" />
+                          ) : (
+                            <X className="mr-1 h-4 w-4" />
+                          )}
+                          {fs.name}
+                        </>
+                      )}
+                    </Button>
+                  ))}
+                </div>
+                {isFinalStage(stages.find((s) => s.id === deal.stage_id)) && firstOpenStage && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={() => void moveToStage(firstOpenStage)}
+                    disabled={!!statusAction}
+                    className="w-full text-muted-foreground hover:text-foreground"
+                  >
+                    {isTicket ? t("reopenTicket") : t("reopenDeal")}
+                  </Button>
+                )}
+              </div>
+            )}
+
+            {deal && finalStages.length === 0 && (
               <div className="space-y-2 rounded-lg border border-border bg-muted/50 p-3">
                 <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
                   {t("status")}
@@ -484,14 +623,22 @@ export function DealForm({
                 disabled={saving || !title.trim() || !contactId || !stageId}
                 className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
               >
-                {saving ? t("saving") : deal ? t("saveChanges") : t("createDeal")}
+                {saving
+                  ? t("saving")
+                  : deal
+                    ? t("saveChanges")
+                    : isTicket
+                      ? t("createTicket")
+                      : t("createDeal")}
               </Button>
             </div>
 
             {deal &&
               (confirmDelete ? (
                 <div className="mt-3 flex items-center justify-between gap-2 rounded-md border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs">
-                  <span className="text-red-700 dark:text-red-300">{t("deletePrompt")}</span>
+                  <span className="text-red-700 dark:text-red-300">
+                    {isTicket ? t("deleteTicketPrompt") : t("deletePrompt")}
+                  </span>
                   <div className="flex gap-1">
                     <button
                       type="button"
@@ -518,7 +665,7 @@ export function DealForm({
                   className="mt-3 flex w-full items-center justify-center gap-1 text-xs text-red-400 hover:text-red-700 dark:hover:text-red-300"
                 >
                   <Trash2 className="h-3 w-3" />
-                  {t("deleteDeal")}
+                  {isTicket ? t("deleteTicket") : t("deleteDeal")}
                 </button>
               ))}
           </div>

@@ -17,8 +17,7 @@ import {
   StickyNote,
   Plus,
   X,
-  Ban,
-} from "lucide-react";
+  Ban, LifeBuoy } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -71,7 +70,7 @@ export function ContactSidebar({ contact }: ContactSidebarProps) {
     const [dealsRes, notesRes, tagsRes, allTagsRes] = await Promise.all([
       supabase
         .from("deals")
-        .select("*, stage:pipeline_stages(*)")
+        .select("*, stage:pipeline_stages(*), pipeline:pipelines(kind, name)")
         .eq("contact_id", contact.id)
         .order("created_at", { ascending: false }),
       supabase
@@ -375,10 +374,17 @@ export function ContactSidebar({ contact }: ContactSidebarProps) {
                       {deal.title}
                     </p>
                     <div className="mt-1 flex items-center justify-between text-xs text-muted-foreground">
-                      <span>
-                        {deal.currency ?? "$"}
-                        {deal.value.toLocaleString()}
-                      </span>
+                      {deal.pipeline?.kind === "support" ? (
+                        <span className="inline-flex items-center gap-1">
+                          <LifeBuoy className="h-3 w-3" />
+                          {tSidebar("ticket")}
+                        </span>
+                      ) : (
+                        <span>
+                          {deal.currency ?? "$"}
+                          {deal.value.toLocaleString()}
+                        </span>
+                      )}
                       {deal.stage && (
                         <span
                           className="rounded-full px-1.5 py-0.5 text-[10px]"

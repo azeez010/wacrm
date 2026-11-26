@@ -1,10 +1,12 @@
 "use client";
 
 import { useUrlAction } from "@/hooks/use-url-action";
-import { Suspense, useState, useEffect, useRef, useCallback } from "react";
+import { Suspense, useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import type { Pipeline, PipelineStage, Deal } from "@/types";
+import type { Pipeline, PipelineKind, PipelineStage, Deal } from "@/types";
+import { DEFAULT_STAGES_BY_KIND, pipelineKind } from "@/lib/pipelines/kinds";
+import { SegmentedControl } from "@/components/ui/segmented-control";
 import { PipelineBoard } from "@/components/pipelines/pipeline-board";
 import { PipelineSettings } from "@/components/pipelines/pipeline-settings";
 import { DealForm } from "@/components/pipelines/deal-form";
@@ -26,7 +28,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { GitBranch, Plus, ChevronDown, Settings } from "lucide-react";
+import { GitBranch, Plus, ChevronDown, Settings, LifeBuoy, TrendingUp } from "lucide-react";
 import { toast } from "sonner";
 import { useCan } from "@/hooks/use-can";
 import { useAuth } from "@/hooks/use-auth";
@@ -38,16 +40,9 @@ import { useTranslations } from "next-intl";
 // agent+. The two CTAs gate on different `useCan` capabilities,
 // not on different copy.
 
-// Spec-defined seed - name and color per the product spec. Names are
-// message keys under `Pipelines.page.defaultStages` so the seeded
-// stages come out in the UI language.
-const SPEC_DEFAULT_STAGES = [
-  { nameKey: "newLead", color: "#3b82f6", position: 0 }, // blue
-  { nameKey: "qualified", color: "#eab308", position: 1 }, // yellow
-  { nameKey: "proposalSent", color: "#f97316", position: 2 }, // orange
-  { nameKey: "negotiation", color: "#8b5cf6", position: 3 }, // purple
-  { nameKey: "won", color: "#22c55e", position: 4 }, // green
-] as const;
+// Default stages per pipeline kind come from src/lib/pipelines/kinds.ts;
+// names are message keys under `Pipelines.page.defaultStages` so the
+// seeded stages come out in the UI language.
 
 // `useSearchParams` needs a Suspense boundary (see settings/page.tsx).
 export default function PipelinesPage() {
@@ -67,6 +62,18 @@ function PipelinesPageInner() {
   const canEditSettings = useCan("edit-settings");
   const canCreateDeals = useCan("send-messages");
   const { accountId } = useAuth();
+  // Sales (deals) or Support (tickets); kept in the URL (?kind=support).
+  const kind: PipelineKind = searchParams.get("kind") === "support" ? "support" : "sales";
+  const setKind = useCallback(
+    (next: PipelineKind) => {
+      const params = new URLSearchParams(searchParams.toString());
+      if (next === "support") params.set("kind", "support");
+      else params.delete("kind");
+      const qs = params.toString();
+      router.replace(qs ? `/pipelines?${qs}` : "/pipelines");
+    },
+    [router, searchParams],
+  );
 
   const [pipelines, setPipelines] = useState<Pipeline[]>([]);
   const [selectedPipelineId, setSelectedPipelineId] = useState<string>("");
@@ -77,6 +84,7 @@ function PipelinesPageInner() {
   // Dialog / sheet state
   const [newPipelineOpen, setNewPipelineOpen] = useState(false);
   const [newPipelineName, setNewPipelineName] = useState("");
+  const [newPipelineKind, setNewPipelineKind] = useState<PipelineKind>("sales");
   const [creating, setCreating] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
 
@@ -125,6 +133,18 @@ function PipelinesPageInner() {
     [supabase],
   );
 
+  const defaultStagesPayload = useCallback(
+    (pipelineId: string, k: PipelineKind) =>
+      DEFAULT_STAGES_BY_KIND[k].map((s, position) => ({
+        pipeline_id: pipelineId,
+        name: t(`defaultStages.${s.key}`),
+        color: s.color,
+        outcome: s.outcome,
+        position,
+      })),
+    [t],
+  );
+
   const seedDefaultPipeline = useCallback(async (): Promise<Pipeline | null> => {
     const {
       data: { session },
@@ -136,7 +156,7 @@ function PipelinesPageInner() {
 
     const { data: pipeline, error } = await supabase
       .from("pipelines")
-      .insert({ user_id: user.id, account_id: accountId, name: t("defaultPipelineName") })
+      .insert({ user_id: user.id, account_id: accountId, name: t("defaultPipelineName"), kind: "sales" })
       .select()
       .single();
 
@@ -145,16 +165,10 @@ function PipelinesPageInner() {
       return null;
     }
 
-    const stagesPayload = SPEC_DEFAULT_STAGES.map((s) => ({
-      pipeline_id: pipeline.id,
-      name: t(`defaultStages.${s.nameKey}`),
-      color: s.color,
-      position: s.position,
-    }));
-    await supabase.from("pipeline_stages").insert(stagesPayload);
+    await supabase.from("pipeline_stages").insert(defaultStagesPayload(pipeline.id, "sales"));
 
     return pipeline as Pipeline;
-  }, [supabase, accountId, t]);
+  }, [supabase, accountId, t, defaultStagesPayload]);
 
   // Initial load + seed-if-empty
   useEffect(() => {
@@ -171,13 +185,6 @@ function PipelinesPageInner() {
 
       if (cancelled) return;
       setPipelines(list);
-      if (list.length > 0) {
-        setSelectedPipelineId((prev) =>
-          prev && list.some((p) => p.id === prev) ? prev : list[0].id,
-        );
-      } else {
-        setSelectedPipelineId("");
-      }
       setLoading(false);
     })();
     return () => {
@@ -212,13 +219,31 @@ function PipelinesPageInner() {
     };
   }, [selectedPipelineId, loadStages, loadDeals]);
 
+  // Pipelines of the current tab; the selection always stays inside it.
+  const visiblePipelines = useMemo(
+    () => pipelines.filter((p) => pipelineKind(p) === kind),
+    [pipelines, kind],
+  );
+  const firstVisibleId = visiblePipelines[0]?.id ?? "";
+  const selectionValid = visiblePipelines.some((p) => p.id === selectedPipelineId);
+  // A just-created pipeline (possibly of the other kind) wins once it
+  // shows up in the visible list.
+  const pendingSelectRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (loading) return;
+    const pending = pendingSelectRef.current;
+    if (pending && visiblePipelines.some((p) => p.id === pending)) {
+      pendingSelectRef.current = null;
+      setSelectedPipelineId(pending);
+      return;
+    }
+    if (selectionValid) return;
+    setSelectedPipelineId(firstVisibleId);
+  }, [loading, selectionValid, firstVisibleId, visiblePipelines]);
+
   const refreshPipelines = useCallback(async () => {
-    const list = await loadPipelines();
-    setPipelines(list);
-    if (list.length === 0) setSelectedPipelineId("");
-    else if (!list.some((p) => p.id === selectedPipelineId))
-      setSelectedPipelineId(list[0].id);
-  }, [loadPipelines, selectedPipelineId]);
+    setPipelines(await loadPipelines());
+  }, [loadPipelines]);
 
   const refreshStages = useCallback(async () => {
     if (!selectedPipelineId) return;
@@ -233,8 +258,16 @@ function PipelinesPageInner() {
   const handleDealMoved = useCallback(
     async (dealId: string, newStageId: string) => {
       // Optimistic update - board already animated; just persist.
+      // Mirror the DB trigger (migration 110): a final stage sets the
+      // status to its outcome; leaving a final stage reopens the card.
       setDeals((prev) =>
-        prev.map((d) => (d.id === dealId ? { ...d, stage_id: newStageId } : d)),
+        prev.map((d) => {
+          if (d.id !== dealId) return d;
+          const to = stages.find((s) => s.id === newStageId);
+          const from = stages.find((s) => s.id === d.stage_id);
+          const status = to?.outcome ? to.outcome : from?.outcome ? "open" : d.status;
+          return { ...d, stage_id: newStageId, status };
+        }),
       );
       const { error } = await supabase
         .from("deals")
@@ -245,7 +278,7 @@ function PipelinesPageInner() {
         refreshDeals();
       }
     },
-    [supabase, refreshDeals, t],
+    [supabase, refreshDeals, t, stages],
   );
 
   const handleAddDeal = useCallback(
@@ -268,7 +301,11 @@ function PipelinesPageInner() {
   }, [wantsNew, loading, canCreateDeals, stages, handleAddDeal, router]);
 
   // Command palette "New pipeline" links here with ?newPipeline=1.
-  useUrlAction("newPipeline", () => setNewPipelineOpen(true), !loading && canEditSettings);
+  const openNewPipeline = useCallback(() => {
+    setNewPipelineKind(kind);
+    setNewPipelineOpen(true);
+  }, [kind]);
+  useUrlAction("newPipeline", openNewPipeline, !loading && canEditSettings);
 
   const handleEditDeal = useCallback((deal: Deal) => {
     setEditingDeal(deal);
@@ -298,7 +335,7 @@ function PipelinesPageInner() {
 
     const { data: pipeline, error } = await supabase
       .from("pipelines")
-      .insert({ user_id: user.id, account_id: accountId, name })
+      .insert({ user_id: user.id, account_id: accountId, name, kind: newPipelineKind })
       .select()
       .single();
 
@@ -308,23 +345,21 @@ function PipelinesPageInner() {
       return;
     }
 
-    const stagesPayload = SPEC_DEFAULT_STAGES.map((s) => ({
-      pipeline_id: pipeline.id,
-      name: t(`defaultStages.${s.nameKey}`),
-      color: s.color,
-      position: s.position,
-    }));
-    await supabase.from("pipeline_stages").insert(stagesPayload);
+    await supabase
+      .from("pipeline_stages")
+      .insert(defaultStagesPayload(pipeline.id, newPipelineKind));
 
     setNewPipelineName("");
     setNewPipelineOpen(false);
-    setSelectedPipelineId(pipeline.id);
+    pendingSelectRef.current = pipeline.id;
     await refreshPipelines();
+    if (newPipelineKind !== kind) setKind(newPipelineKind);
     setCreating(false);
     toast.success(t("toastPipelineCreated"));
   }
 
-  const selectedPipeline = pipelines.find((p) => p.id === selectedPipelineId);
+  const selectedPipeline = visiblePipelines.find((p) => p.id === selectedPipelineId);
+  const isSupport = kind === "support";
 
   if (loading) {
     return (
@@ -346,7 +381,17 @@ function PipelinesPageInner() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
+          <SegmentedControl<PipelineKind>
+            value={kind}
+            onChange={setKind}
+            aria-label={t("kindLabel")}
+            className="w-auto"
+            options={[
+              { value: "sales", label: t("kindSales"), icon: <TrendingUp className="size-3.5" /> },
+              { value: "support", label: t("kindSupport"), icon: <LifeBuoy className="size-3.5" /> },
+            ]}
+          />
           {/* Pipeline selector dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger
@@ -362,12 +407,12 @@ function PipelinesPageInner() {
               align="start"
               className="w-64 border-border bg-popover text-popover-foreground"
             >
-              {pipelines.length === 0 && (
+              {visiblePipelines.length === 0 && (
                 <DropdownMenuItem disabled className="text-muted-foreground">
                   {t("noPipelinesYet")}
                 </DropdownMenuItem>
               )}
-              {pipelines.map((p) => (
+              {visiblePipelines.map((p) => (
                 <DropdownMenuItem
                   key={p.id}
                   onClick={() => setSelectedPipelineId(p.id)}
@@ -400,7 +445,7 @@ function PipelinesPageInner() {
             variant="outline"
             canAct={canEditSettings}
             gateReason={tGate("reasons.createPipelines")}
-            onClick={() => setNewPipelineOpen(true)}
+            onClick={openNewPipeline}
             className="border-border bg-card text-foreground hover:bg-muted"
           >
             <Plus className="mr-1 h-4 w-4" />
@@ -414,25 +459,25 @@ function PipelinesPageInner() {
             className="bg-primary text-primary-foreground hover:bg-primary/90"
           >
             <Plus className="mr-1 h-4 w-4" />
-            {t("addDeal")}
+            {isSupport ? t("addTicket") : t("addDeal")}
           </GatedButton>
         </div>
       </div>
 
       {/* Board */}
-      {pipelines.length === 0 ? (
+      {visiblePipelines.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border py-20">
           <GitBranch className="h-12 w-12 text-muted-foreground" />
           <h3 className="mt-4 text-lg font-medium text-foreground">
-            {t("noPipelinesYet")}
+            {isSupport ? t("noSupportPipelinesYet") : t("noPipelinesYet")}
           </h3>
-          <p className="mt-2 text-sm text-muted-foreground">
-            {t("createToStartTracking")}
+          <p className="mt-2 max-w-md text-center text-sm text-muted-foreground">
+            {isSupport ? t("createSupportToStart") : t("createToStartTracking")}
           </p>
           <GatedButton
             canAct={canEditSettings}
             gateReason={tGate("reasons.createPipelines")}
-            onClick={() => setNewPipelineOpen(true)}
+            onClick={openNewPipeline}
             className="mt-4 bg-primary text-primary-foreground hover:bg-primary/90"
           >
             <Plus className="mr-1 h-4 w-4" />
@@ -441,8 +486,9 @@ function PipelinesPageInner() {
         </div>
       ) : (
         <>
-          <PipelineAnalytics stages={stages} deals={deals} />
+          <PipelineAnalytics stages={stages} deals={deals} kind={kind} />
           <PipelineBoard
+            kind={kind}
             stages={stages}
             deals={deals}
             onDealMoved={handleDealMoved}
@@ -458,19 +504,35 @@ function PipelinesPageInner() {
           <DialogHeader>
             <DialogTitle className="text-popover-foreground">{t("newPipeline")}</DialogTitle>
           </DialogHeader>
-          <div className="py-2">
-            <Label className="text-muted-foreground">{t("pipelineName")}</Label>
+          <div className="space-y-2 py-2">
+            <Label className="text-muted-foreground">{t("kindLabel")}</Label>
+            <SegmentedControl<PipelineKind>
+              value={newPipelineKind}
+              onChange={setNewPipelineKind}
+              aria-label={t("kindLabel")}
+              options={[
+                { value: "sales", label: t("kindSales"), icon: <TrendingUp className="size-3.5" /> },
+                { value: "support", label: t("kindSupport"), icon: <LifeBuoy className="size-3.5" /> },
+              ]}
+            />
+            <Label className="pt-2 text-muted-foreground">{t("pipelineName")}</Label>
             <Input
               value={newPipelineName}
               onChange={(e) => setNewPipelineName(e.target.value)}
-              placeholder={t("pipelineNamePlaceholder")}
-              className="mt-2 bg-muted border-border text-foreground"
+              placeholder={
+                newPipelineKind === "support"
+                  ? t("supportPipelineNamePlaceholder")
+                  : t("pipelineNamePlaceholder")
+              }
+              className="bg-muted border-border text-foreground"
               onKeyDown={(e) => {
                 if (e.key === "Enter") handleCreatePipeline();
               }}
             />
             <p className="mt-2 text-xs text-muted-foreground">
-              {t("defaultStagesDesc")}
+              {newPipelineKind === "support"
+                ? t("defaultSupportStagesDesc")
+                : t("defaultStagesDesc")}
             </p>
           </div>
           <DialogFooter className="bg-popover/50 border-border">
@@ -503,7 +565,7 @@ function PipelinesPageInner() {
           onStagesChanged={refreshStages}
           onCreateNewPipeline={() => {
             setSettingsOpen(false);
-            setNewPipelineOpen(true);
+            openNewPipeline();
           }}
         />
       )}
@@ -514,6 +576,7 @@ function PipelinesPageInner() {
         onOpenChange={setDealFormOpen}
         deal={editingDeal}
         pipelineId={selectedPipelineId}
+        kind={kind}
         stages={stages}
         defaultStageId={defaultStageId}
         onSaved={refreshDeals}

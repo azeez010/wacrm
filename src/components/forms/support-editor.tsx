@@ -12,6 +12,8 @@ import { Volume2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import type { EditorAction } from './editor-state';
+import type { FormEditorData } from './use-form-data';
+import Link from 'next/link';
 import { ThemeSelect } from './theme-select';
 
 const selectCls = 'h-9 w-full rounded-lg border border-border bg-muted px-2 text-sm text-foreground disabled:opacity-60';
@@ -24,7 +26,10 @@ export function SupportEditor({
   canEdit,
   dispatch,
   onPlaySound,
+  pipelines = [],
 }: {
+  /** The account's pipelines (support ones are offered for live-chat tickets). */
+  pipelines?: FormEditorData['pipelines'];
   fields: FormField[];
   settings: FormSettings;
   canEdit: boolean;
@@ -100,6 +105,12 @@ export function SupportEditor({
             {t('showTyping')}
             <Switch disabled={!canEdit} checked={chat.showTyping !== false} onCheckedChange={(on) => patchChat({ showTyping: on })} />
           </label>
+          <ChatTicketSettings
+            canEdit={canEdit}
+            ticket={chat.ticket}
+            pipelines={pipelines.filter((p) => p.kind === 'support')}
+            onChange={(ticket) => patchChat({ ticket })}
+          />
         </div>
       ) : null}
       {liveChat ? (
@@ -283,3 +294,78 @@ export function SupportEditor({
 }
 
 const clamp = (v: string) => Math.min(400, Math.max(0, Number(v) || 0));
+
+type ChatTicket = NonNullable<NonNullable<FormSettings['chat']>['ticket']>;
+
+/** "Create a ticket for each new chat" + support pipeline/stage pickers. */
+function ChatTicketSettings({
+  canEdit,
+  ticket,
+  pipelines,
+  onChange,
+}: {
+  canEdit: boolean;
+  ticket: ChatTicket | undefined;
+  pipelines: FormEditorData['pipelines'];
+  onChange: (t: ChatTicket) => void;
+}) {
+  const t = useTranslations('Forms.support');
+  const enabled = ticket?.enabled === true;
+  const pipeline = pipelines.find((p) => p.id === ticket?.pipelineId) ?? pipelines[0];
+  const stageId =
+    pipeline?.stages.some((s) => s.id === ticket?.stageId) ? ticket?.stageId : pipeline?.stages[0]?.id;
+  const set = (patch: Partial<ChatTicket>) =>
+    onChange({ enabled, pipelineId: pipeline?.id, stageId, ...patch });
+
+  return (
+    <div className="space-y-2 border-t border-border pt-3">
+      <label className="flex items-center justify-between gap-2 text-sm">
+        {t('chatTicket')}
+        <Switch
+          disabled={!canEdit || pipelines.length === 0}
+          checked={enabled && pipelines.length > 0}
+          onCheckedChange={(on) => set({ enabled: on })}
+        />
+      </label>
+      {pipelines.length === 0 ? (
+        <p className="text-xs text-muted-foreground">
+          {t('chatTicketNoPipeline')}{' '}
+          <Link href="/pipelines?kind=support" className="text-primary underline-offset-2 hover:underline">
+            {t('chatTicketCreatePipeline')}
+          </Link>
+        </p>
+      ) : enabled ? (
+        <>
+          <div className="grid grid-cols-2 gap-2">
+            <select
+              className={selectCls}
+              disabled={!canEdit}
+              aria-label={t('chatTicketPipeline')}
+              value={pipeline?.id ?? ''}
+              onChange={(e) => {
+                const p = pipelines.find((x) => x.id === e.target.value);
+                set({ pipelineId: p?.id, stageId: p?.stages[0]?.id });
+              }}
+            >
+              {pipelines.map((p) => (
+                <option key={p.id} value={p.id}>{p.name}</option>
+              ))}
+            </select>
+            <select
+              className={selectCls}
+              disabled={!canEdit}
+              aria-label={t('chatTicketStage')}
+              value={stageId ?? ''}
+              onChange={(e) => set({ stageId: e.target.value })}
+            >
+              {(pipeline?.stages ?? []).map((s) => (
+                <option key={s.id} value={s.id}>{s.name}</option>
+              ))}
+            </select>
+          </div>
+          <p className="text-xs text-muted-foreground">{t('chatTicketHint')}</p>
+        </>
+      ) : null}
+    </div>
+  );
+}

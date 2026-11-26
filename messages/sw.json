@@ -1041,7 +1041,8 @@
       "addNotePlaceholder": "Ongeza kidokezo...",
       "blocked": "Imezuiwa",
       "blockContact": "Zuia anwani",
-      "unblockContact": "Ondoa kizuizi cha anwani"
+      "unblockContact": "Ondoa kizuizi cha anwani",
+      "ticket": "Tiketi"
     },
     "aiBanner": {
       "pausedTitle": "Msaidizi wa AI amesitishwa hapa",
@@ -1058,6 +1059,13 @@
       "automatic": "Kiotomatiki",
       "inactive": "(imezimwa)",
       "updateFailed": "Imeshindwa kubadilisha wakala wa AI."
+    },
+    "ticket": {
+      "create": "Unda tiketi",
+      "openTicket": "Fungua tiketi ya mazungumzo haya",
+      "current": "Tiketi: {stage}",
+      "noPipeline": "Unda kwanza mfumo wa msaada (Mifumo → Msaada)",
+      "pipeline": "Mfumo wa msaada"
     }
   },
   "Pipelines": {
@@ -1087,17 +1095,44 @@
         "qualified": "Amehitimu",
         "proposalSent": "Pendekezo limetumwa",
         "negotiation": "Majadiliano",
-        "won": "Imeshinda"
-      }
+        "won": "Imeshinda",
+        "lost": "Imepotea",
+        "ticketNew": "Mpya",
+        "inProgress": "Inashughulikiwa",
+        "waitingOnCustomer": "Inamsubiri mteja",
+        "resolved": "Imetatuliwa",
+        "closed": "Imefungwa"
+      },
+      "kindLabel": "Aina",
+      "kindSales": "Mauzo",
+      "kindSupport": "Msaada",
+      "addTicket": "Ongeza tiketi",
+      "noSupportPipelinesYet": "Bado hakuna mfumo wa msaada",
+      "createSupportToStart": "Fuatilia matatizo ya wateja kama tiketi: Mpya → Inashughulikiwa → Imetatuliwa. Kufunga tiketi hufunga mazungumzo yake.",
+      "supportPipelineNamePlaceholder": "mf., Huduma kwa Wateja",
+      "defaultSupportStagesDesc": "Hatua za kawaida (Mpya → Inashughulikiwa → Inamsubiri mteja → Imetatuliwa, Imefungwa) zitaundwa. Imetatuliwa na Imefungwa ni hatua za mwisho."
     },
     "board": {
       "dropDealHere": "Dondosha dili hapa",
-      "addDeal": "Ongeza dili"
+      "addDeal": "Ongeza dili",
+      "finalSuccess": "Hatua ya mwisho: imefanikiwa",
+      "finalFailure": "Hatua ya mwisho: haikufanikiwa",
+      "finalStageHint": "Hatua ya mwisho",
+      "dropTicketHere": "Weka tiketi hapa",
+      "addTicket": "Ongeza tiketi"
     },
     "card": {
       "noContact": "Hakuna anwani",
       "won": "Imeshinda",
-      "lost": "Imepotea"
+      "lost": "Imepotea",
+      "resolved": "Imetatuliwa",
+      "closed": "Imefungwa",
+      "priority": {
+        "low": "Chini",
+        "normal": "Kawaida",
+        "high": "Juu",
+        "urgent": "Dharura"
+      }
     },
     "form": {
       "editDeal": "Hariri dili",
@@ -1140,7 +1175,27 @@
       "toastMarkedLost": "Imewekwa kama imepotea",
       "toastReopened": "Dili imefunguliwa tena",
       "toastFailedDelete": "Imeshindwa kufuta dili",
-      "toastDeleted": "Dili imefutwa"
+      "toastDeleted": "Dili imefutwa",
+      "priorities": {
+        "low": "Chini",
+        "normal": "Kawaida",
+        "high": "Juu",
+        "urgent": "Dharura"
+      },
+      "newTicket": "Tiketi mpya",
+      "editTicket": "Hariri tiketi",
+      "subject": "Mada",
+      "subjectPlaceholder": "Tatizo ni nini?",
+      "priority": "Kipaumbele",
+      "priorityNone": "Bila kipaumbele",
+      "finishAs": "Maliza kama",
+      "reopenTicket": "Fungua tiketi tena",
+      "createTicket": "Unda tiketi",
+      "deleteTicket": "Futa tiketi",
+      "deleteTicketPrompt": "Futa tiketi hii?",
+      "toastTicketCreated": "Tiketi imeundwa",
+      "toastTicketUpdated": "Tiketi imesasishwa",
+      "toastMovedTo": "Imehamishiwa {stage}"
     },
     "settings": {
       "managePipeline": "Simamia mkondo wa mauzo",
@@ -1165,7 +1220,13 @@
       "toastFailedDeleteStage": "Imeshindwa kufuta hatua",
       "toastFailedDeletePipeline": "Imeshindwa kufuta mkondo wa mauzo",
       "toastDeleted": "Mkondo wa mauzo umefutwa",
-      "pickColor": "Chagua rangi {color}"
+      "pickColor": "Chagua rangi {color}",
+      "finalStage": "Hatua ya mwisho",
+      "outcomeNone": "Si ya mwisho",
+      "outcomeWon": "Mwisho: imefanikiwa",
+      "outcomeLost": "Mwisho: haikufanikiwa",
+      "finalStageHintSales": "Weka hatua yoyote kuwa ya mwisho (mf. Imeshinda, Imepotea, Imerejeshewa). Kuhamishia dili huko huifunga kama imeshinda au imepotea.",
+      "finalStageHintSupport": "Weka hatua yoyote kuwa ya mwisho (mf. Imetatuliwa, Imefungwa). Kuhamishia tiketi huko huifunga pamoja na mazungumzo yake; kufunga mazungumzo huhamisha tiketi kwenye hatua ya kwanza ya mafanikio."
     },
     "analytics": {
       "totalDeals": "Jumla ya dili",
@@ -1180,7 +1241,20 @@
       "wonThisMonthTooltip": "Dili zilizowekwa kama Imeshinda tangu siku ya kwanza ya mwezi huu.",
       "lostThisMonth": "Zilizopotea mwezi huu",
       "lostThisMonthTooltip": "Dili zilizowekwa kama Imepotea tangu siku ya kwanza ya mwezi huu.",
-      "howCalculated": "Jinsi {label} inavyohesabiwa"
+      "howCalculated": "Jinsi {label} inavyohesabiwa",
+      "openTickets": "Tiketi zilizo wazi",
+      "openTicketsTooltip": "Tiketi ambazo haziko kwenye hatua ya mwisho.",
+      "highPriority": "Kipaumbele cha juu",
+      "highPriorityTooltip": "Tiketi zilizo wazi zenye kipaumbele cha Juu au Dharura.",
+      "resolvedThisMonth": "Zilizotatuliwa mwezi huu",
+      "resolvedThisMonthTooltip": "Tiketi zilizohamishiwa hatua ya mwisho ya mafanikio tangu siku ya kwanza ya mwezi huu.",
+      "closedThisMonth": "Zilizofungwa mwezi huu",
+      "closedThisMonthTooltip": "Tiketi zilizohamishiwa hatua ya mwisho isiyofanikiwa (mf. Imefungwa) mwezi huu.",
+      "avgResolveTime": "Wastani wa muda wa kutatua",
+      "avgResolveTimeTooltip": "Wastani wa muda tangu tiketi kuundwa hadi kufikia hatua ya mwisho ya mafanikio.",
+      "minutes": "dak {n}",
+      "hours": "saa {n}",
+      "days": "siku {n}"
     }
   },
   "Contacts": {
@@ -2624,6 +2698,36 @@
       "hide": "Ficha",
       "noText": "(hakuna maandishi)",
       "noPagesYet": "Bado hakuna kurasa."
+    },
+    "templates": {
+      "title": "Anza na kiolezo",
+      "description": "Kila kiolezo hujaza jina na maelekezo. Unaweza kubadilisha kila kitu kabla ya kuhifadhi, kisha unganisha maarifa inayopaswa kutumia.",
+      "back": "Rudi",
+      "blank": {
+        "name": "Tupu",
+        "description": "Anza mwanzo na uandike maelekezo yako mwenyewe.",
+        "agentName": ""
+      },
+      "support": {
+        "name": "Wakala wa msaada",
+        "description": "Hujibu maswali na kutatua matatizo kutoka kwa maarifa yako; hupeleka marejesho, malalamiko na yasiyojulikana kwa timu yako.",
+        "agentName": "Wakala wa msaada"
+      },
+      "sales": {
+        "name": "Wakala wa mauzo",
+        "description": "Huchuja wateja watarajiwa, hupendekeza bidhaa na bei kutoka kwa maarifa yako, na hupeleka wanunuzi walio tayari kwa timu yako.",
+        "agentName": "Wakala wa mauzo"
+      },
+      "marketing": {
+        "name": "Wakala wa masoko",
+        "description": "Hujibu maswali kuhusu ofa, promosheni na kampeni, hushiriki viungo sahihi na kunasa wanaovutiwa.",
+        "agentName": "Wakala wa masoko"
+      },
+      "admin": {
+        "name": "Wakala wa utawala",
+        "description": "Mapokezi kwa malipo, uhifadhi, akaunti na hali ya oda; hukusanya maelezo na kupeleka mabadiliko yoyote kwa timu yako.",
+        "agentName": "Wakala wa utawala"
+      }
     }
   },
   "Settings": {
@@ -4682,7 +4786,13 @@
       "onlineAlways": "Mtandaoni kila wakati",
       "onlineAlwaysHint": "Beji husema Mtandaoni kila wakati, hata nje ya saa za kazi.",
       "showTyping": "Onyesha nukta za kuandika kabla ya kuomba maelezo",
-      "askPhone": "Omba nambari ya simu"
+      "askPhone": "Omba nambari ya simu",
+      "chatTicket": "Unda tiketi kwa kila mazungumzo mapya",
+      "chatTicketNoPipeline": "Unahitaji mfumo wa msaada kwa hili.",
+      "chatTicketCreatePipeline": "Unda mmoja",
+      "chatTicketPipeline": "Mfumo wa msaada",
+      "chatTicketStage": "Hatua ya kwanza",
+      "chatTicketHint": "Mgeni anayerudi hupata tiketi mpya tu tiketi yake ya awali ikiwa imekamilika. Kutatua tiketi hufunga mazungumzo, na kufunga mazungumzo hutatua tiketi."
     },
     "share": {
       "title": "Shiriki",

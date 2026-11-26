@@ -2,6 +2,8 @@ import { validateMessage } from '@/lib/forms/client-validate'
 import { authorizeVisitor, chatJson, chatPreflight } from '@/lib/chat/http'
 import { CHAT_IMAGE_MAX_BYTES, CHAT_UPLOAD_LIMITS, checkChatImage, chatImagePath } from '@/lib/chat/upload'
 import { recordVisitorMessage } from '@/lib/inbound/web-chat'
+import { resolveAuditUserId } from '@/lib/api/v1/contacts'
+import { chatTicketTarget, chatTicketTitle, ensureOpenTicket } from '@/lib/tickets/ensure-ticket'
 import { checkRateLimit, RATE_LIMITS } from '@/lib/rate-limit'
 
 const BUCKET = 'chat-media'
@@ -16,7 +18,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ pub
   const { publicId } = await params
   const auth = await authorizeVisitor(request, publicId)
   if (!auth.ok) return auth.res
-  const { db, token, conversation, form } = auth.value
+  const { db, token, conversation, form, settings } = auth.value
 
   if (!checkRateLimit(`chat-msg:${token.cid}`, RATE_LIMITS.chatMessage).success) {
     return chatJson({ ok: false, error: 'rate_limited' }, 429, { 'Retry-After': '30' })
@@ -84,6 +86,27 @@ export async function POST(request: Request, { params }: { params: Promise<{ pub
       conversationId: conversation.id,
       content: { text, imageUrl, imageMime, clientId },
     })
+    // A closed chat the visitor writes to again gets a fresh ticket.
+    const ticket = result.reopened ? chatTicketTarget(settings) : null
+    if (ticket) {
+      try {
+        const [{ data: contact }, userId] = await Promise.all([
+          db.from('contacts').select('name').eq('id', conversation.contact_id).maybeSingle(),
+          resolveAuditUserId(db, form.account_id),
+        ])
+        await ensureOpenTicket(db, {
+          accountId: form.account_id,
+          userId,
+          ...ticket,
+          contactId: conversation.contact_id,
+          conversationId: conversation.id,
+          title: chatTicketTitle((contact as { name?: string | null } | null)?.name, form.name),
+          notes: text,
+        })
+      } catch (err) {
+        console.error('[chat/message] ticket failed:', err instanceof Error ? err.message : err)
+      }
+    }
     // A replayed send must not leave a second copy of the image behind.
     if (result.duplicate && storedPath) await db.storage.from(BUCKET).remove([storedPath]).catch(() => undefined)
     return chatJson({ ok: true, message: result.message, duplicate: result.duplicate })

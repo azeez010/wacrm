@@ -18,7 +18,7 @@ export interface FormEditorData {
   tableColumns: TableColumnOption[];
   tags: { id: string; name: string }[];
   agents: { id: string; name: string }[];
-  pipelines: { id: string; name: string; stages: { id: string; name: string }[] }[];
+  pipelines: { id: string; name: string; kind: 'sales' | 'support'; stages: { id: string; name: string }[] }[];
   templates: { name: string; language: string }[];
   /** The account's WhatsApp numbers (a form can send from a specific one). */
   connections: { id: string; name: string }[];
@@ -50,7 +50,7 @@ export function useFormEditorData(accountId: string | null): FormEditorData {
           .order('sort_order'),
         db.from('tags').select('id, name').eq('account_id', accountId).order('name'),
         db.from('profiles').select('user_id, full_name, account_role').eq('account_id', accountId),
-        db.from('pipelines').select('id, name, pipeline_stages(id, name, position)').eq('account_id', accountId),
+        db.from('pipelines').select('id, name, kind, pipeline_stages(id, name, position)').eq('account_id', accountId),
         db.from('message_templates').select('name, language, status').eq('account_id', accountId).eq('status', 'APPROVED'),
         db.from('whatsapp_config').select('id, label, display_phone_number, verified_name').eq('account_id', accountId),
       ]);
@@ -78,9 +78,10 @@ export function useFormEditorData(accountId: string | null): FormEditorData {
         agents: ((agents.data ?? []) as { user_id: string; full_name: string | null; account_role: string }[])
           .filter((p) => p.account_role !== 'viewer')
           .map((p) => ({ id: p.user_id, name: p.full_name?.trim() || p.user_id.slice(0, 6) })),
-        pipelines: ((pipelines.data ?? []) as { id: string; name: string; pipeline_stages?: { id: string; name: string; position: number }[] }[]).map((p) => ({
+        pipelines: ((pipelines.data ?? []) as { id: string; name: string; kind?: string | null; pipeline_stages?: { id: string; name: string; position: number }[] }[]).map((p) => ({
           id: p.id,
           name: p.name,
+          kind: p.kind === 'support' ? ('support' as const) : ('sales' as const),
           stages: [...(p.pipeline_stages ?? [])].sort((a, b) => a.position - b.position),
         })),
         templates: ((templates.data ?? []) as { name: string; language: string }[]).map((x) => ({ name: x.name, language: x.language })),

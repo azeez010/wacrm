@@ -1,7 +1,8 @@
 "use client";
 
 import { useMemo } from "react";
-import type { Deal, PipelineStage } from "@/types";
+import type { Deal, PipelineKind, PipelineStage } from "@/types";
+import { stageProbability } from "@/lib/pipelines/kinds";
 import {
   DollarSign,
   TrendingUp,
@@ -10,6 +11,10 @@ import {
   Trophy,
   XCircle,
   Info,
+  Inbox,
+  CheckCircle2,
+  Clock,
+  AlertTriangle,
 } from "lucide-react";
 import {
   Tooltip,
@@ -22,31 +27,98 @@ import { formatCurrency } from "@/lib/currency";
 import { useTranslations } from "next-intl";
 
 interface PipelineAnalyticsProps {
+  kind?: PipelineKind;
   stages: PipelineStage[];
   deals: Deal[];
 }
 
-/**
- * Weighted pipeline value: value × per-stage probability.
- * First stage ≈ 10%, stages interpolate up to 90% before the final stage,
- * final stage (Won) = 100%. Lost deals excluded.
- */
-function computeStageProbability(
-  stage: PipelineStage,
-  sortedStages: PipelineStage[],
-): number {
-  const n = sortedStages.length;
-  if (n <= 1) return 1;
-  const index = sortedStages.findIndex((s) => s.id === stage.id);
-  if (index < 0) return 0;
-  if (index === n - 1) return 1;
-  const slots = n - 1;
-  if (slots <= 1) return 0.1;
-  const t = index / (slots - 1);
-  return 0.1 + t * (0.9 - 0.1);
+export function PipelineAnalytics({ kind = "sales", stages, deals }: PipelineAnalyticsProps) {
+  if (kind === "support") return <SupportAnalytics deals={deals} />;
+  return <SalesAnalytics stages={stages} deals={deals} />;
 }
 
-export function PipelineAnalytics({ stages, deals }: PipelineAnalyticsProps) {
+/** Closed (won/lost) since this month started; closed_at when known. */
+function closedThisMonth(d: Deal, monthStart: Date): boolean {
+  const ts = d.closed_at ?? d.updated_at ?? d.created_at;
+  return ts ? new Date(ts) >= monthStart : false;
+}
+
+function SupportAnalytics({ deals }: { deals: Deal[] }) {
+  const t = useTranslations("Pipelines.analytics");
+  const stats = useMemo(() => {
+    const open = deals.filter((d) => (d.status ?? "open") === "open");
+    const now = new Date();
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const resolvedThisMonth = deals.filter(
+      (d) => d.status === "won" && closedThisMonth(d, monthStart),
+    ).length;
+    const closedNotResolved = deals.filter(
+      (d) => d.status === "lost" && closedThisMonth(d, monthStart),
+    ).length;
+    const durations = deals
+      .filter((d) => d.status === "won" && d.closed_at)
+      .map((d) => new Date(d.closed_at as string).getTime() - new Date(d.created_at).getTime())
+      .filter((ms) => ms >= 0);
+    const avgMs = durations.length
+      ? durations.reduce((a, b) => a + b, 0) / durations.length
+      : null;
+    const urgent = open.filter((d) => d.priority === "urgent" || d.priority === "high").length;
+    return { open: open.length, resolvedThisMonth, closedNotResolved, avgMs, urgent };
+  }, [deals]);
+
+  const avgLabel =
+    stats.avgMs === null
+      ? "—"
+      : stats.avgMs < 3_600_000
+        ? t("minutes", { n: Math.max(1, Math.round(stats.avgMs / 60_000)) })
+        : stats.avgMs < 86_400_000
+          ? t("hours", { n: Math.round(stats.avgMs / 3_600_000) })
+          : t("days", { n: Math.round((stats.avgMs / 86_400_000) * 10) / 10 });
+
+  return (
+    <TooltipProvider>
+      <div className="grid grid-cols-2 gap-3 rounded-xl border border-border bg-card/60 p-4 sm:grid-cols-3 xl:grid-cols-5">
+        <Metric
+          icon={<Inbox className="h-4 w-4 text-muted-foreground" />}
+          label={t("openTickets")}
+          value={String(stats.open)}
+          tooltip={t("openTicketsTooltip")}
+          t={t}
+        />
+        <Metric
+          icon={<AlertTriangle className="h-4 w-4 text-amber-500" />}
+          label={t("highPriority")}
+          value={String(stats.urgent)}
+          tooltip={t("highPriorityTooltip")}
+          t={t}
+        />
+        <Metric
+          icon={<CheckCircle2 className="h-4 w-4 text-primary" />}
+          label={t("resolvedThisMonth")}
+          value={String(stats.resolvedThisMonth)}
+          tooltip={t("resolvedThisMonthTooltip")}
+          t={t}
+        />
+        <Metric
+          icon={<XCircle className="h-4 w-4 text-muted-foreground" />}
+          label={t("closedThisMonth")}
+          value={String(stats.closedNotResolved)}
+          tooltip={t("closedThisMonthTooltip")}
+          t={t}
+        />
+        <Metric
+          icon={<Clock className="h-4 w-4 text-blue-400" />}
+          label={t("avgResolveTime")}
+          value={avgLabel}
+          tooltip={t("avgResolveTimeTooltip")}
+          t={t}
+        />
+      </div>
+    </TooltipProvider>
+  );
+}
+
+function SalesAnalytics({ stages, deals }: { stages: PipelineStage[]; deals: Deal[] }) {
   const t = useTranslations("Pipelines.analytics");
   const { defaultCurrency } = useAuth();
   const sortedStages = useMemo(
@@ -62,20 +134,14 @@ export function PipelineAnalytics({ stages, deals }: PipelineAnalyticsProps) {
     const totalValue = active.reduce((sum, d) => sum + Number(d.value || 0), 0);
     const avgValue = totalCount > 0 ? totalValue / totalCount : 0;
 
-    const stageById = new Map(sortedStages.map((s) => [s.id, s]));
     const weightedValue = openDeals.reduce((sum, d) => {
-      const stage = stageById.get(d.stage_id);
-      if (!stage) return sum;
-      const prob = computeStageProbability(stage, sortedStages);
-      return sum + Number(d.value || 0) * prob;
+      if (!sortedStages.some((s) => s.id === d.stage_id)) return sum;
+      return sum + Number(d.value || 0) * stageProbability(sortedStages, d.stage_id);
     }, 0);
 
     const now = new Date();
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-    const thisMonth = (d: Deal) => {
-      const ts = d.updated_at ?? d.created_at;
-      return ts ? new Date(ts) >= monthStart : false;
-    };
+    const thisMonth = (d: Deal) => closedThisMonth(d, monthStart);
     const wonThisMonth = deals.filter(
       (d) => d.status === "won" && thisMonth(d),
     ).length;

@@ -195,6 +195,15 @@ export const formSettingsSchema = z
         showTyping: z.boolean().default(true),
         /** Let the visitor skip the details card and start the chat with just their message. */
         allowSkip: z.boolean().default(false),
+        /** Open a ticket in a support pipeline for each new (or reopened) chat. Server-side only. */
+        ticket: z
+          .object({
+            enabled: z.boolean().default(false),
+            pipelineId: z.string().uuid().optional(),
+            stageId: z.string().uuid().optional(),
+          })
+          .strict()
+          .optional(),
       })
       .strict()
       .optional(),

@@ -1041,7 +1041,8 @@
       "addNotePlaceholder": "नोट जोड़ें...",
       "blocked": "ब्लॉक",
       "blockContact": "संपर्क ब्लॉक करें",
-      "unblockContact": "संपर्क अनब्लॉक करें"
+      "unblockContact": "संपर्क अनब्लॉक करें",
+      "ticket": "टिकट"
     },
     "aiBanner": {
       "pausedTitle": "यहाँ AI असिस्टेंट रुका हुआ है",
@@ -1058,6 +1059,13 @@
       "automatic": "स्वचालित",
       "inactive": "(बंद)",
       "updateFailed": "AI एजेंट बदला नहीं जा सका।"
+    },
+    "ticket": {
+      "create": "टिकट बनाएं",
+      "openTicket": "इस चैट का टिकट खोलें",
+      "current": "टिकट: {stage}",
+      "noPipeline": "पहले एक सपोर्ट पाइपलाइन बनाएं (पाइपलाइन → सपोर्ट)",
+      "pipeline": "सपोर्ट पाइपलाइन"
     }
   },
   "Pipelines": {
@@ -1087,17 +1095,44 @@
         "qualified": "योग्य",
         "proposalSent": "प्रस्ताव भेजा गया",
         "negotiation": "बातचीत",
-        "won": "जीती"
-      }
+        "won": "जीती",
+        "lost": "हारा",
+        "ticketNew": "नया",
+        "inProgress": "प्रगति में",
+        "waitingOnCustomer": "ग्राहक की प्रतीक्षा",
+        "resolved": "हल हुआ",
+        "closed": "बंद"
+      },
+      "kindLabel": "प्रकार",
+      "kindSales": "सेल्स",
+      "kindSupport": "सपोर्ट",
+      "addTicket": "टिकट जोड़ें",
+      "noSupportPipelinesYet": "अभी कोई सपोर्ट पाइपलाइन नहीं है",
+      "createSupportToStart": "ग्राहकों की समस्याओं को टिकट के रूप में ट्रैक करें: नया → प्रगति में → हल हुआ। टिकट बंद करने पर उसकी चैट भी बंद हो जाती है।",
+      "supportPipelineNamePlaceholder": "उदा., ग्राहक सहायता",
+      "defaultSupportStagesDesc": "डिफ़ॉल्ट चरण (नया → प्रगति में → ग्राहक की प्रतीक्षा → हल हुआ, बंद) बनाए जाएंगे। हल हुआ और बंद अंतिम चरण हैं।"
     },
     "board": {
       "dropDealHere": "डील यहाँ छोड़ें",
-      "addDeal": "डील जोड़ें"
+      "addDeal": "डील जोड़ें",
+      "finalSuccess": "अंतिम चरण: सफल",
+      "finalFailure": "अंतिम चरण: असफल",
+      "finalStageHint": "अंतिम चरण",
+      "dropTicketHere": "टिकट यहाँ छोड़ें",
+      "addTicket": "टिकट जोड़ें"
     },
     "card": {
       "noContact": "कोई संपर्क नहीं",
       "won": "जीती",
-      "lost": "हारी"
+      "lost": "हारी",
+      "resolved": "हल हुआ",
+      "closed": "बंद",
+      "priority": {
+        "low": "कम",
+        "normal": "सामान्य",
+        "high": "उच्च",
+        "urgent": "अत्यावश्यक"
+      }
     },
     "form": {
       "editDeal": "डील बदलें",
@@ -1140,7 +1175,27 @@
       "toastMarkedLost": "हारी चिह्नित हुई",
       "toastReopened": "डील फिर खुल गई",
       "toastFailedDelete": "डील हट नहीं सकी",
-      "toastDeleted": "डील हट गई"
+      "toastDeleted": "डील हट गई",
+      "priorities": {
+        "low": "कम",
+        "normal": "सामान्य",
+        "high": "उच्च",
+        "urgent": "अत्यावश्यक"
+      },
+      "newTicket": "नया टिकट",
+      "editTicket": "टिकट संपादित करें",
+      "subject": "विषय",
+      "subjectPlaceholder": "समस्या क्या है?",
+      "priority": "प्राथमिकता",
+      "priorityNone": "कोई प्राथमिकता नहीं",
+      "finishAs": "इस रूप में समाप्त करें",
+      "reopenTicket": "टिकट फिर से खोलें",
+      "createTicket": "टिकट बनाएं",
+      "deleteTicket": "टिकट हटाएं",
+      "deleteTicketPrompt": "यह टिकट हटाएं?",
+      "toastTicketCreated": "टिकट बनाया गया",
+      "toastTicketUpdated": "टिकट अपडेट किया गया",
+      "toastMovedTo": "{stage} में ले जाया गया"
     },
     "settings": {
       "managePipeline": "पाइपलाइन प्रबंधित करें",
@@ -1165,7 +1220,13 @@
       "toastFailedDeleteStage": "चरण हटाया नहीं जा सका",
       "toastFailedDeletePipeline": "पाइपलाइन हट नहीं सकी",
       "toastDeleted": "पाइपलाइन हट गई",
-      "pickColor": "रंग {color} चुनें"
+      "pickColor": "रंग {color} चुनें",
+      "finalStage": "अंतिम चरण",
+      "outcomeNone": "अंतिम नहीं",
+      "outcomeWon": "अंतिम: सफल",
+      "outcomeLost": "अंतिम: असफल",
+      "finalStageHintSales": "किसी भी चरण को अंतिम चिह्नित करें (जैसे जीता, हारा, रिफ़ंड)। डील को वहाँ ले जाने पर वह जीती या हारी के रूप में बंद हो जाती है।",
+      "finalStageHintSupport": "किसी भी चरण को अंतिम चिह्नित करें (जैसे हल हुआ, बंद)। टिकट को वहाँ ले जाने पर टिकट और उससे जुड़ी चैट बंद हो जाती है; चैट बंद करने पर टिकट पहले सफल चरण में चला जाता है।"
     },
     "analytics": {
       "totalDeals": "कुल डील",
@@ -1180,7 +1241,20 @@
       "wonThisMonthTooltip": "चालू महीने के पहले दिन से \"जीती\" चिह्नित डील।",
       "lostThisMonth": "इस महीने हारी",
       "lostThisMonthTooltip": "चालू महीने के पहले दिन से \"हारी\" चिह्नित डील।",
-      "howCalculated": "{label} की गणना कैसे होती है"
+      "howCalculated": "{label} की गणना कैसे होती है",
+      "openTickets": "खुले टिकट",
+      "openTicketsTooltip": "वे टिकट जो किसी अंतिम चरण में नहीं हैं।",
+      "highPriority": "उच्च प्राथमिकता",
+      "highPriorityTooltip": "उच्च या अत्यावश्यक चिह्नित खुले टिकट।",
+      "resolvedThisMonth": "इस महीने हल हुए",
+      "resolvedThisMonthTooltip": "इस महीने के पहले दिन से सफल अंतिम चरण में ले जाए गए टिकट।",
+      "closedThisMonth": "इस महीने बंद हुए",
+      "closedThisMonthTooltip": "इस महीने असफल अंतिम चरण (जैसे बंद) में ले जाए गए टिकट।",
+      "avgResolveTime": "हल करने का औसत समय",
+      "avgResolveTimeTooltip": "टिकट बनने से लेकर सफल अंतिम चरण तक पहुँचने का औसत समय।",
+      "minutes": "{n} मिनट",
+      "hours": "{n} घंटे",
+      "days": "{n} दिन"
     }
   },
   "Contacts": {
@@ -2624,6 +2698,36 @@
       "hide": "छिपाएँ",
       "noText": "(कोई टेक्स्ट नहीं)",
       "noPagesYet": "अभी कोई पेज नहीं।"
+    },
+    "templates": {
+      "title": "टेम्पलेट से शुरू करें",
+      "description": "हर टेम्पलेट नाम और निर्देश भर देता है। सेव करने से पहले आप सब कुछ बदल सकते हैं, फिर उसे उपयोग करने के लिए ज्ञान जोड़ें।",
+      "back": "वापस",
+      "blank": {
+        "name": "खाली",
+        "description": "शुरुआत से शुरू करें और अपने निर्देश खुद लिखें।",
+        "agentName": ""
+      },
+      "support": {
+        "name": "सपोर्ट एजेंट",
+        "description": "आपके ज्ञान से सवालों के जवाब देता है और समस्याएं सुलझाता है; रिफ़ंड, शिकायतें और अनजान बातें आपकी टीम को सौंपता है।",
+        "agentName": "सपोर्ट एजेंट"
+      },
+      "sales": {
+        "name": "सेल्स एजेंट",
+        "description": "लीड्स को परखता है, आपके ज्ञान से प्रोडक्ट और कीमतें सुझाता है, और खरीदने को तैयार ग्राहकों को आपकी टीम को सौंपता है।",
+        "agentName": "सेल्स एजेंट"
+      },
+      "marketing": {
+        "name": "मार्केटिंग एजेंट",
+        "description": "ऑफ़र, प्रोमो और कैंपेन के सवालों के जवाब देता है, सही लिंक भेजता है और रुचि दर्ज करता है।",
+        "agentName": "मार्केटिंग एजेंट"
+      },
+      "admin": {
+        "name": "एडमिन एजेंट",
+        "description": "बिलिंग, बुकिंग, अकाउंट और ऑर्डर स्टेटस के लिए फ्रंट डेस्क; जानकारी जुटाता है और हर बदलाव आपकी टीम को सौंपता है।",
+        "agentName": "एडमिन एजेंट"
+      }
     }
   },
   "Settings": {
@@ -4682,7 +4786,13 @@
       "onlineAlways": "हमेशा ऑनलाइन",
       "onlineAlwaysHint": "बैज हमेशा ऑनलाइन दिखाता है, कामकाज के घंटों के बाहर भी।",
       "showTyping": "जानकारी माँगने से पहले टाइपिंग डॉट दिखाएँ",
-      "askPhone": "फ़ोन नंबर पूछें"
+      "askPhone": "फ़ोन नंबर पूछें",
+      "chatTicket": "हर नई चैट के लिए टिकट बनाएं",
+      "chatTicketNoPipeline": "इसके लिए आपको एक सपोर्ट पाइपलाइन चाहिए।",
+      "chatTicketCreatePipeline": "एक बनाएं",
+      "chatTicketPipeline": "सपोर्ट पाइपलाइन",
+      "chatTicketStage": "पहला चरण",
+      "chatTicketHint": "लौटने वाले विज़िटर को नया टिकट तभी मिलता है जब उसका पिछला टिकट पूरा हो चुका हो। टिकट हल करने पर चैट बंद होती है, और चैट बंद करने पर टिकट हल हो जाता है।"
     },
     "share": {
       "title": "साझा करें",

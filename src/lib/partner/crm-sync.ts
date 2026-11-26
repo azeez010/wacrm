@@ -26,12 +26,19 @@ export async function isAccountPaid(db: Db, accountId: string | null): Promise<b
   return Boolean(s && s.plan_id !== 'free' && (s.status === 'active' || s.status === 'trialing'))
 }
 
-/** The pipeline's Won stage: one named "Won", else the last stage. */
+/**
+ * The pipeline's Won stage: the first final stage with outcome 'won'
+ * (migration 110), else one named "Won", else the last stage.
+ */
 export async function findWonStageId(db: Db, pipelineId: string): Promise<string | null> {
-  const { data } = await db.from('pipeline_stages').select('id, name, position').eq('pipeline_id', pipelineId).order('position', { ascending: true })
-  const stages = (data ?? []) as Array<{ id: string; name: string; position: number }>
+  const { data } = await db.from('pipeline_stages').select('id, name, position, outcome').eq('pipeline_id', pipelineId).order('position', { ascending: true })
+  const stages = (data ?? []) as Array<{ id: string; name: string; position: number; outcome?: string | null }>
   if (stages.length === 0) return null
-  return (stages.find((s) => s.name.trim().toLowerCase() === 'won') ?? stages[stages.length - 1]).id
+  return (
+    stages.find((s) => s.outcome === 'won') ??
+    stages.find((s) => s.name.trim().toLowerCase() === 'won') ??
+    stages[stages.length - 1]
+  ).id
 }
 
 async function safeAddTag(db: Db, accountId: string, contactId: string, tagId: string | null | undefined) {

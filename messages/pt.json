@@ -544,7 +544,8 @@
       "addNotePlaceholder": "Adicionar uma nota...",
       "blocked": "Bloqueado",
       "blockContact": "Bloquear contato",
-      "unblockContact": "Desbloquear contato"
+      "unblockContact": "Desbloquear contato",
+      "ticket": "Ticket"
     },
     "aiBanner": {
       "pausedTitle": "O assistente de IA está pausado aqui",
@@ -561,6 +562,13 @@
       "automatic": "Automático",
       "inactive": "(desligado)",
       "updateFailed": "Não foi possível trocar o agente de IA."
+    },
+    "ticket": {
+      "create": "Criar ticket",
+      "openTicket": "Abrir o ticket desta conversa",
+      "current": "Ticket: {stage}",
+      "noPipeline": "Crie primeiro um pipeline de suporte (Pipelines → Suporte)",
+      "pipeline": "Pipeline de suporte"
     }
   },
   "Contacts": {
@@ -1044,17 +1052,44 @@
         "qualified": "Qualificado",
         "proposalSent": "Proposta enviada",
         "negotiation": "Negociação",
-        "won": "Ganho"
-      }
+        "won": "Ganho",
+        "lost": "Perdido",
+        "ticketNew": "Novo",
+        "inProgress": "Em andamento",
+        "waitingOnCustomer": "Aguardando cliente",
+        "resolved": "Resolvido",
+        "closed": "Fechado"
+      },
+      "kindLabel": "Tipo",
+      "kindSales": "Vendas",
+      "kindSupport": "Suporte",
+      "addTicket": "Adicionar ticket",
+      "noSupportPipelinesYet": "Ainda não há pipeline de suporte",
+      "createSupportToStart": "Acompanhe os problemas dos clientes como tickets: Novo → Em andamento → Resolvido. Fechar um ticket fecha a conversa.",
+      "supportPipelineNamePlaceholder": "ex.: Suporte ao cliente",
+      "defaultSupportStagesDesc": "Serão criadas as etapas padrão (Novo → Em andamento → Aguardando cliente → Resolvido, Fechado). Resolvido e Fechado são etapas finais."
     },
     "board": {
       "dropDealHere": "Solte um negócio aqui",
-      "addDeal": "Adicionar negócio"
+      "addDeal": "Adicionar negócio",
+      "finalSuccess": "Etapa final: sucesso",
+      "finalFailure": "Etapa final: sem sucesso",
+      "finalStageHint": "Etapa final",
+      "dropTicketHere": "Solte um ticket aqui",
+      "addTicket": "Adicionar ticket"
     },
     "card": {
       "noContact": "Sem contato",
       "won": "Ganho",
-      "lost": "Perdido"
+      "lost": "Perdido",
+      "resolved": "Resolvido",
+      "closed": "Fechado",
+      "priority": {
+        "low": "Baixa",
+        "normal": "Normal",
+        "high": "Alta",
+        "urgent": "Urgente"
+      }
     },
     "form": {
       "editDeal": "Editar negócio",
@@ -1097,7 +1132,27 @@
       "toastMarkedLost": "Marcado como perdido",
       "toastReopened": "Negócio reaberto",
       "toastFailedDelete": "Falha ao excluir o negócio",
-      "toastDeleted": "Negócio excluído"
+      "toastDeleted": "Negócio excluído",
+      "priorities": {
+        "low": "Baixa",
+        "normal": "Normal",
+        "high": "Alta",
+        "urgent": "Urgente"
+      },
+      "newTicket": "Novo ticket",
+      "editTicket": "Editar ticket",
+      "subject": "Assunto",
+      "subjectPlaceholder": "Qual é o problema?",
+      "priority": "Prioridade",
+      "priorityNone": "Sem prioridade",
+      "finishAs": "Concluir como",
+      "reopenTicket": "Reabrir ticket",
+      "createTicket": "Criar ticket",
+      "deleteTicket": "Excluir ticket",
+      "deleteTicketPrompt": "Excluir este ticket?",
+      "toastTicketCreated": "Ticket criado",
+      "toastTicketUpdated": "Ticket atualizado",
+      "toastMovedTo": "Movido para {stage}"
     },
     "settings": {
       "managePipeline": "Gerenciar pipeline",
@@ -1122,7 +1177,13 @@
       "toastFailedDeleteStage": "Falha ao excluir a etapa",
       "toastFailedDeletePipeline": "Falha ao excluir o pipeline",
       "toastDeleted": "Pipeline excluído",
-      "pickColor": "Escolher a cor {color}"
+      "pickColor": "Escolher a cor {color}",
+      "finalStage": "Etapa final",
+      "outcomeNone": "Não final",
+      "outcomeWon": "Final: sucesso",
+      "outcomeLost": "Final: sem sucesso",
+      "finalStageHintSales": "Marque quaisquer etapas como finais (ex.: Ganho, Perdido, Reembolsado). Mover um negócio para lá o fecha como ganho ou perdido.",
+      "finalStageHintSupport": "Marque quaisquer etapas como finais (ex.: Resolvido, Fechado). Mover um ticket para lá o fecha e fecha a conversa vinculada; fechar a conversa move o ticket para a primeira etapa de sucesso."
     },
     "analytics": {
       "totalDeals": "Total de negócios",
@@ -1137,7 +1198,20 @@
       "wonThisMonthTooltip": "Negócios marcados como ganhos desde o primeiro dia do mês atual.",
       "lostThisMonth": "Perdidos neste mês",
       "lostThisMonthTooltip": "Negócios marcados como perdidos desde o primeiro dia do mês atual.",
-      "howCalculated": "Como {label} é calculado"
+      "howCalculated": "Como {label} é calculado",
+      "openTickets": "Tickets abertos",
+      "openTicketsTooltip": "Tickets que não estão em uma etapa final.",
+      "highPriority": "Alta prioridade",
+      "highPriorityTooltip": "Tickets abertos marcados como Alta ou Urgente.",
+      "resolvedThisMonth": "Resolvidos este mês",
+      "resolvedThisMonthTooltip": "Tickets movidos para uma etapa final de sucesso desde o primeiro dia deste mês.",
+      "closedThisMonth": "Fechados este mês",
+      "closedThisMonthTooltip": "Tickets movidos para uma etapa final sem sucesso (ex.: Fechado) este mês.",
+      "avgResolveTime": "Tempo médio de resolução",
+      "avgResolveTimeTooltip": "Tempo médio entre a criação de um ticket e a chegada a uma etapa final de sucesso.",
+      "minutes": "{n} min",
+      "hours": "{n} h",
+      "days": "{n} dias"
     }
   },
   "Broadcasts": {
@@ -3232,6 +3306,36 @@
       "hide": "Ocultar",
       "noText": "(sem texto)",
       "noPagesYet": "Nenhuma página ainda."
+    },
+    "templates": {
+      "title": "Comece com um modelo",
+      "description": "Cada modelo preenche o nome e as instruções. Você pode alterar tudo antes de salvar e depois vincular o conhecimento que ele deve usar.",
+      "back": "Voltar",
+      "blank": {
+        "name": "Em branco",
+        "description": "Comece do zero e escreva suas próprias instruções.",
+        "agentName": ""
+      },
+      "support": {
+        "name": "Agente de suporte",
+        "description": "Responde perguntas e resolve problemas com base no seu conhecimento; passa reembolsos, reclamações e o que não souber para a equipe.",
+        "agentName": "Agente de suporte"
+      },
+      "sales": {
+        "name": "Agente de vendas",
+        "description": "Qualifica leads, recomenda produtos e preços com base no seu conhecimento e passa compradores prontos para a equipe.",
+        "agentName": "Agente de vendas"
+      },
+      "marketing": {
+        "name": "Agente de marketing",
+        "description": "Responde perguntas sobre ofertas, promoções e campanhas, compartilha os links certos e capta interesse.",
+        "agentName": "Agente de marketing"
+      },
+      "admin": {
+        "name": "Agente administrativo",
+        "description": "Recepção para cobrança, reservas, contas e status de pedidos; coleta os detalhes e passa qualquer alteração para a equipe.",
+        "agentName": "Agente administrativo"
+      }
     }
   },
   "Interactive": {
@@ -4470,7 +4574,13 @@
       "onlineAlways": "Sempre online",
       "onlineAlwaysHint": "O selo sempre mostra Online, mesmo fora do horário.",
       "showTyping": "Mostrar indicador de digitação antes de pedir os dados",
-      "askPhone": "Pedir um telefone"
+      "askPhone": "Pedir um telefone",
+      "chatTicket": "Criar um ticket para cada nova conversa",
+      "chatTicketNoPipeline": "Você precisa de um pipeline de suporte para isso.",
+      "chatTicketCreatePipeline": "Criar um",
+      "chatTicketPipeline": "Pipeline de suporte",
+      "chatTicketStage": "Etapa inicial",
+      "chatTicketHint": "Um visitante que retorna recebe um novo ticket apenas quando o anterior estiver concluído. Resolver o ticket fecha a conversa, e fechar a conversa resolve o ticket."
     },
     "share": {
       "title": "Compartilhar",

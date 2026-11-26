@@ -176,7 +176,7 @@ export default function FormEditorPage({ params }: { params: Promise<{ id: strin
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
           <div>
             {isSupport ? (
-              <SupportEditor fields={state.fields} settings={state.settings} canEdit={canEdit} dispatch={dispatch} onPlaySound={() => setPlayTick((n) => n + 1)} />
+              <SupportEditor fields={state.fields} settings={state.settings} canEdit={canEdit} dispatch={dispatch} onPlaySound={() => setPlayTick((n) => n + 1)} pipelines={data.pipelines} />
             ) : (
               <div className="mb-4 max-w-[12rem]">
                 <ThemeSelect value={state.settings.theme} canEdit={canEdit} onChange={(theme) => dispatch({ type: "settings", patch: { theme } })} />

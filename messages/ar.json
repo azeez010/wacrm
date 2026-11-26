@@ -1041,7 +1041,8 @@
       "addNotePlaceholder": "أضف ملاحظة...",
       "blocked": "محظورة",
       "blockContact": "حظر جهة الاتصال",
-      "unblockContact": "إلغاء حظر جهة الاتصال"
+      "unblockContact": "إلغاء حظر جهة الاتصال",
+      "ticket": "تذكرة"
     },
     "aiBanner": {
       "pausedTitle": "مساعد الذكاء الاصطناعي متوقف هنا",
@@ -1058,6 +1059,13 @@
       "automatic": "تلقائي",
       "inactive": "(متوقف)",
       "updateFailed": "تعذّر تغيير وكيل الذكاء الاصطناعي."
+    },
+    "ticket": {
+      "create": "إنشاء تذكرة",
+      "openTicket": "افتح تذكرة هذه المحادثة",
+      "current": "التذكرة: {stage}",
+      "noPipeline": "أنشئ مسار دعم أولًا (المسارات ← الدعم)",
+      "pipeline": "مسار الدعم"
     }
   },
   "Pipelines": {
@@ -1087,17 +1095,44 @@
         "qualified": "مؤهَّل",
         "proposalSent": "تم إرسال العرض",
         "negotiation": "التفاوض",
-        "won": "مكسوبة"
-      }
+        "won": "مكسوبة",
+        "lost": "خسارة",
+        "ticketNew": "جديدة",
+        "inProgress": "قيد المعالجة",
+        "waitingOnCustomer": "بانتظار العميل",
+        "resolved": "تم الحل",
+        "closed": "مغلقة"
+      },
+      "kindLabel": "النوع",
+      "kindSales": "المبيعات",
+      "kindSupport": "الدعم",
+      "addTicket": "إضافة تذكرة",
+      "noSupportPipelinesYet": "لا يوجد مسار دعم بعد",
+      "createSupportToStart": "تابع مشكلات العملاء كتذاكر: جديدة ← قيد المعالجة ← تم الحل. إغلاق التذكرة يغلق محادثتها.",
+      "supportPipelineNamePlaceholder": "مثال: دعم العملاء",
+      "defaultSupportStagesDesc": "سيتم إنشاء المراحل الافتراضية (جديدة ← قيد المعالجة ← بانتظار العميل ← تم الحل، مغلقة). «تم الحل» و«مغلقة» مرحلتان نهائيتان."
     },
     "board": {
       "dropDealHere": "أفلت صفقة هنا",
-      "addDeal": "إضافة صفقة"
+      "addDeal": "إضافة صفقة",
+      "finalSuccess": "مرحلة نهائية: نجاح",
+      "finalFailure": "مرحلة نهائية: غير ناجحة",
+      "finalStageHint": "مرحلة نهائية",
+      "dropTicketHere": "أفلت تذكرة هنا",
+      "addTicket": "إضافة تذكرة"
     },
     "card": {
       "noContact": "لا جهة اتصال",
       "won": "مكسوبة",
-      "lost": "خاسرة"
+      "lost": "خاسرة",
+      "resolved": "تم الحل",
+      "closed": "مغلقة",
+      "priority": {
+        "low": "منخفضة",
+        "normal": "عادية",
+        "high": "عالية",
+        "urgent": "عاجلة"
+      }
     },
     "form": {
       "editDeal": "تعديل الصفقة",
@@ -1140,7 +1175,27 @@
       "toastMarkedLost": "تم التحديد كخاسرة",
       "toastReopened": "أُعيد فتح الصفقة",
       "toastFailedDelete": "فشل حذف الصفقة",
-      "toastDeleted": "تم حذف الصفقة"
+      "toastDeleted": "تم حذف الصفقة",
+      "priorities": {
+        "low": "منخفضة",
+        "normal": "عادية",
+        "high": "عالية",
+        "urgent": "عاجلة"
+      },
+      "newTicket": "تذكرة جديدة",
+      "editTicket": "تعديل التذكرة",
+      "subject": "الموضوع",
+      "subjectPlaceholder": "ما المشكلة؟",
+      "priority": "الأولوية",
+      "priorityNone": "بدون أولوية",
+      "finishAs": "إنهاء كـ",
+      "reopenTicket": "إعادة فتح التذكرة",
+      "createTicket": "إنشاء تذكرة",
+      "deleteTicket": "حذف التذكرة",
+      "deleteTicketPrompt": "حذف هذه التذكرة؟",
+      "toastTicketCreated": "تم إنشاء التذكرة",
+      "toastTicketUpdated": "تم تحديث التذكرة",
+      "toastMovedTo": "تم النقل إلى {stage}"
     },
     "settings": {
       "managePipeline": "إدارة المسار",
@@ -1165,7 +1220,13 @@
       "toastFailedDeleteStage": "فشل حذف المرحلة",
       "toastFailedDeletePipeline": "فشل حذف المسار",
       "toastDeleted": "تم حذف المسار",
-      "pickColor": "اختر اللون {color}"
+      "pickColor": "اختر اللون {color}",
+      "finalStage": "مرحلة نهائية",
+      "outcomeNone": "غير نهائية",
+      "outcomeWon": "نهائية: نجاح",
+      "outcomeLost": "نهائية: غير ناجحة",
+      "finalStageHintSales": "حدّد أي مراحل كمراحل نهائية (مثل: ربح، خسارة، مُستردّ). نقل الصفقة إليها يغلقها كرابحة أو خاسرة.",
+      "finalStageHintSupport": "حدّد أي مراحل كمراحل نهائية (مثل: تم الحل، مغلقة). نقل التذكرة إليها يغلقها ويغلق محادثتها؛ وإغلاق المحادثة ينقل تذكرتها إلى أول مرحلة نجاح."
     },
     "analytics": {
       "totalDeals": "إجمالي الصفقات",
@@ -1180,7 +1241,20 @@
       "wonThisMonthTooltip": "الصفقات المحددة كمكسوبة منذ أول يوم في الشهر الحالي.",
       "lostThisMonth": "خاسرة هذا الشهر",
       "lostThisMonthTooltip": "الصفقات المحددة كخاسرة منذ أول يوم في الشهر الحالي.",
-      "howCalculated": "كيف يُحسب {label}"
+      "howCalculated": "كيف يُحسب {label}",
+      "openTickets": "التذاكر المفتوحة",
+      "openTicketsTooltip": "التذاكر غير الموجودة في مرحلة نهائية.",
+      "highPriority": "أولوية عالية",
+      "highPriorityTooltip": "التذاكر المفتوحة ذات الأولوية العالية أو العاجلة.",
+      "resolvedThisMonth": "تم حلها هذا الشهر",
+      "resolvedThisMonthTooltip": "التذاكر التي نُقلت إلى مرحلة نهائية ناجحة منذ أول يوم في هذا الشهر.",
+      "closedThisMonth": "أُغلقت هذا الشهر",
+      "closedThisMonthTooltip": "التذاكر التي نُقلت إلى مرحلة نهائية غير ناجحة (مثل: مغلقة) هذا الشهر.",
+      "avgResolveTime": "متوسط وقت الحل",
+      "avgResolveTimeTooltip": "متوسط الوقت من إنشاء التذكرة حتى وصولها إلى مرحلة نهائية ناجحة.",
+      "minutes": "{n} د",
+      "hours": "{n} س",
+      "days": "{n} يوم"
     }
   },
   "Contacts": {
@@ -2624,6 +2698,36 @@
       "hide": "إخفاء",
       "noText": "(لا نص)",
       "noPagesYet": "لا صفحات بعد."
+    },
+    "templates": {
+      "title": "ابدأ من قالب",
+      "description": "يملأ كل قالب الاسم والتعليمات. يمكنك تغيير كل شيء قبل الحفظ، ثم ربط المعرفة التي يجب أن يستخدمها.",
+      "back": "رجوع",
+      "blank": {
+        "name": "فارغ",
+        "description": "ابدأ من الصفر واكتب تعليماتك الخاصة.",
+        "agentName": ""
+      },
+      "support": {
+        "name": "وكيل الدعم",
+        "description": "يجيب عن الأسئلة ويحل المشكلات من معرفتك؛ ويحيل الاستردادات والشكاوى وأي أمر غير معروف إلى فريقك.",
+        "agentName": "وكيل الدعم"
+      },
+      "sales": {
+        "name": "وكيل المبيعات",
+        "description": "يؤهل العملاء المحتملين، ويوصي بالمنتجات والأسعار من معرفتك، ويحيل المشترين الجاهزين إلى فريقك.",
+        "agentName": "وكيل المبيعات"
+      },
+      "marketing": {
+        "name": "وكيل التسويق",
+        "description": "يجيب عن أسئلة العروض والحملات الترويجية، ويشارك الروابط المناسبة ويجمع المهتمين.",
+        "agentName": "وكيل التسويق"
+      },
+      "admin": {
+        "name": "الوكيل الإداري",
+        "description": "مكتب استقبال للفواتير والحجوزات والحسابات وحالة الطلبات؛ يجمع التفاصيل ويحيل أي تغيير إلى فريقك.",
+        "agentName": "الوكيل الإداري"
+      }
     }
   },
   "Settings": {
@@ -4682,7 +4786,13 @@
       "onlineAlways": "متصل دائمًا",
       "onlineAlwaysHint": "تعرض الشارة «متصل» دائمًا، حتى خارج ساعات العمل.",
       "showTyping": "عرض نقاط الكتابة قبل طلب البيانات",
-      "askPhone": "اطلب رقم هاتف"
+      "askPhone": "اطلب رقم هاتف",
+      "chatTicket": "إنشاء تذكرة لكل محادثة جديدة",
+      "chatTicketNoPipeline": "تحتاج إلى مسار دعم لهذا.",
+      "chatTicketCreatePipeline": "أنشئ واحدًا",
+      "chatTicketPipeline": "مسار الدعم",
+      "chatTicketStage": "المرحلة الأولى",
+      "chatTicketHint": "يحصل الزائر العائد على تذكرة جديدة فقط عند انتهاء تذكرته السابقة. حل التذكرة يغلق المحادثة، وإغلاق المحادثة يحل التذكرة."
     },
     "share": {
       "title": "مشاركة",

@@ -4,6 +4,8 @@ export interface StageLike {
   name: string;
   color: string;
   position: number;
+  /** Final-stage meaning (migration 110); null = normal stage. */
+  outcome?: 'won' | 'lost' | null;
 }
 
 export function sortByPosition<T extends StageLike>(stages: readonly T[]): T[] {
@@ -32,6 +34,7 @@ export function buildStageUpdateRows(
       pipeline_id: s.pipeline_id,
       name: s.name,
       color: s.color,
+      outcome: s.outcome ?? null,
       position: i,
     }));
 }

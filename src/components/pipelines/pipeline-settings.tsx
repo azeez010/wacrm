@@ -17,7 +17,8 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { createClient } from "@/lib/supabase/client";
-import type { Pipeline, PipelineStage } from "@/types";
+import type { Pipeline, PipelineStage, StageOutcome } from "@/types";
+import { pipelineKind } from "@/lib/pipelines/kinds";
 import {
   buildStageUpdateRows,
   reconcileStages,
@@ -271,6 +272,11 @@ export function PipelineSettings({
 
               <div className="grid gap-2">
                 <Label className="text-muted-foreground">{t("stages")}</Label>
+                <p className="text-xs text-muted-foreground">
+                  {pipelineKind(pipeline) === "support"
+                    ? t("finalStageHintSupport")
+                    : t("finalStageHintSales")}
+                </p>
                 <DndContext
                   sensors={sensors}
                   collisionDetection={closestCenter}
@@ -293,6 +299,11 @@ export function PipelineSettings({
                           onColorChange={(v) => {
                             const updated = [...localStages];
                             updated[index] = { ...updated[index], color: v };
+                            setLocalStages(updated);
+                          }}
+                          onOutcomeChange={(v) => {
+                            const updated = [...localStages];
+                            updated[index] = { ...updated[index], outcome: v };
                             setLocalStages(updated);
                           }}
                           onRemove={() => handleRemoveStage(stage.id)}
@@ -389,6 +400,7 @@ function SortableStageRow({
   stage,
   onNameChange,
   onColorChange,
+  onOutcomeChange,
   onRemove,
   colors,
   t,
@@ -396,6 +408,7 @@ function SortableStageRow({
   stage: PipelineStage;
   onNameChange: (v: string) => void;
   onColorChange: (v: string) => void;
+  onOutcomeChange: (v: StageOutcome | null) => void;
   onRemove: () => void;
   colors: string[];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -429,8 +442,27 @@ function SortableStageRow({
       <Input
         value={stage.name}
         onChange={(e) => onNameChange(e.target.value)}
-        className="h-7 flex-1 border-transparent bg-transparent text-sm text-foreground focus:border-border"
+        className="h-7 min-w-0 flex-1 border-transparent bg-transparent text-sm text-foreground focus:border-border"
       />
+      <select
+        value={stage.outcome ?? ""}
+        onChange={(e) =>
+          onOutcomeChange(e.target.value === "won" || e.target.value === "lost" ? e.target.value : null)
+        }
+        aria-label={t("finalStage")}
+        title={t("finalStage")}
+        className={`h-7 w-[7.5rem] shrink-0 rounded-md border border-border px-1.5 text-xs outline-none focus:border-primary ${
+          stage.outcome === "won"
+            ? "bg-primary/10 text-primary"
+            : stage.outcome === "lost"
+              ? "bg-muted-foreground/10 text-foreground"
+              : "bg-transparent text-muted-foreground"
+        }`}
+      >
+        <option value="">{t("outcomeNone")}</option>
+        <option value="won">{t("outcomeWon")}</option>
+        <option value="lost">{t("outcomeLost")}</option>
+      </select>
       <Button
         variant="ghost"
         size="icon-xs"

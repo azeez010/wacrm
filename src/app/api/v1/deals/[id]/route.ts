@@ -5,7 +5,7 @@
 import { requireApiKey } from '@/lib/auth/api-context';
 import { ok, fail, toApiErrorResponse } from '@/lib/api/v1/respond';
 import { isUuid } from '@/lib/api/v1/pagination';
-import { DEAL_SELECT } from '@/lib/api/v1/pipelines';
+import { DEAL_SELECT, parsePriority } from '@/lib/api/v1/pipelines';
 
 type Ctx = { params: Promise<{ id: string }> };
 
@@ -55,6 +55,9 @@ export async function PATCH(request: Request, { params }: Ctx) {
       patch.value = v;
     }
     if (b.notes !== undefined) patch.notes = typeof b.notes === 'string' ? b.notes : null;
+    const priority = parsePriority(b.priority);
+    if (priority && typeof priority === 'object') return fail('bad_request', priority.error, 400);
+    if (priority !== undefined) patch.priority = priority;
     if (b.expected_close_date !== undefined) {
       patch.expected_close_date = typeof b.expected_close_date === 'string' ? b.expected_close_date : null;
     }

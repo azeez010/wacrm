@@ -5,7 +5,7 @@ import { requireApiKey } from '@/lib/auth/api-context';
 import { ok, okList, fail, toApiErrorResponse } from '@/lib/api/v1/respond';
 import { parseListParams, keysetFilter, buildPage, isUuid } from '@/lib/api/v1/pagination';
 import { resolveAuditUserId } from '@/lib/api/v1/contacts';
-import { DEAL_SELECT } from '@/lib/api/v1/pipelines';
+import { DEAL_SELECT, parsePriority } from '@/lib/api/v1/pipelines';
 
 export async function GET(request: Request) {
   try {
@@ -58,6 +58,20 @@ export async function POST(request: Request) {
     }
     const value = b.value === undefined ? 0 : Number(b.value);
     if (!Number.isFinite(value) || value < 0) return fail('bad_request', "'value' must be a number ≥ 0", 400);
+    const priority = parsePriority(b.priority);
+    if (priority && typeof priority === 'object') return fail('bad_request', priority.error, 400);
+    if (b.conversation_id !== undefined && b.conversation_id !== null) {
+      if (typeof b.conversation_id !== 'string' || !isUuid(b.conversation_id)) {
+        return fail('bad_request', "'conversation_id' must be a UUID", 400);
+      }
+      const { data: conv } = await ctx.supabase
+        .from('conversations')
+        .select('id')
+        .eq('id', b.conversation_id)
+        .eq('account_id', ctx.accountId)
+        .maybeSingle();
+      if (!conv) return fail('not_found', 'Conversation not found', 404);
+    }
 
     // Everything referenced must belong to this account, and the stage to this pipeline.
     const [{ data: pipeline }, { data: stage }, { data: contact }, { data: acct }] = await Promise.all([
@@ -85,6 +99,8 @@ export async function POST(request: Request) {
         notes: typeof b.notes === 'string' ? b.notes : null,
         expected_close_date: typeof b.expected_close_date === 'string' ? b.expected_close_date : null,
         status: 'open',
+        priority: priority ?? null,
+        conversation_id: typeof b.conversation_id === 'string' ? b.conversation_id : null,
       })
       .select(DEAL_SELECT)
       .single();

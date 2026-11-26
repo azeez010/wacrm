@@ -544,7 +544,8 @@
       "tagUpdateFailed": "Impossible de mettre à jour les étiquettes du contact.",
       "blocked": "Bloqué",
       "blockContact": "Bloquer le contact",
-      "unblockContact": "Débloquer le contact"
+      "unblockContact": "Débloquer le contact",
+      "ticket": "Ticket"
     },
     "aiBanner": {
       "pausedTitle": "L'assistant IA est en pause ici",
@@ -561,6 +562,13 @@
       "automatic": "Automatique",
       "inactive": "(désactivé)",
       "updateFailed": "Impossible de changer l'agent IA."
+    },
+    "ticket": {
+      "create": "Créer un ticket",
+      "openTicket": "Ouvrir le ticket de cette conversation",
+      "current": "Ticket : {stage}",
+      "noPipeline": "Créez d'abord un pipeline de support (Pipelines → Support)",
+      "pipeline": "Pipeline de support"
     }
   },
   "Contacts": {
@@ -1044,17 +1052,44 @@
         "qualified": "Qualifié",
         "proposalSent": "Proposition envoyée",
         "negotiation": "Négociation",
-        "won": "Gagnée"
-      }
+        "won": "Gagnée",
+        "lost": "Perdu",
+        "ticketNew": "Nouveau",
+        "inProgress": "En cours",
+        "waitingOnCustomer": "En attente du client",
+        "resolved": "Résolu",
+        "closed": "Fermé"
+      },
+      "kindLabel": "Type",
+      "kindSales": "Ventes",
+      "kindSupport": "Support",
+      "addTicket": "Ajouter un ticket",
+      "noSupportPipelinesYet": "Pas encore de pipeline de support",
+      "createSupportToStart": "Suivez les demandes clients sous forme de tickets : Nouveau → En cours → Résolu. Fermer un ticket ferme sa conversation.",
+      "supportPipelineNamePlaceholder": "ex. : Support client",
+      "defaultSupportStagesDesc": "Les étapes par défaut (Nouveau → En cours → En attente du client → Résolu, Fermé) seront créées. Résolu et Fermé sont des étapes finales."
     },
     "board": {
       "dropDealHere": "Déposez une affaire ici",
-      "addDeal": "Ajouter une affaire"
+      "addDeal": "Ajouter une affaire",
+      "finalSuccess": "Étape finale : succès",
+      "finalFailure": "Étape finale : sans succès",
+      "finalStageHint": "Étape finale",
+      "dropTicketHere": "Déposez un ticket ici",
+      "addTicket": "Ajouter un ticket"
     },
     "card": {
       "noContact": "Aucun contact",
       "won": "Gagnée",
-      "lost": "Perdue"
+      "lost": "Perdue",
+      "resolved": "Résolu",
+      "closed": "Fermé",
+      "priority": {
+        "low": "Basse",
+        "normal": "Normale",
+        "high": "Haute",
+        "urgent": "Urgente"
+      }
     },
     "form": {
       "editDeal": "Modifier l'affaire",
@@ -1097,7 +1132,27 @@
       "toastMarkedLost": "Marquée comme perdue",
       "toastReopened": "Affaire rouverte",
       "toastFailedDelete": "Échec de la suppression de l'affaire",
-      "toastDeleted": "Affaire supprimée"
+      "toastDeleted": "Affaire supprimée",
+      "priorities": {
+        "low": "Basse",
+        "normal": "Normale",
+        "high": "Haute",
+        "urgent": "Urgente"
+      },
+      "newTicket": "Nouveau ticket",
+      "editTicket": "Modifier le ticket",
+      "subject": "Objet",
+      "subjectPlaceholder": "Quel est le problème ?",
+      "priority": "Priorité",
+      "priorityNone": "Sans priorité",
+      "finishAs": "Terminer comme",
+      "reopenTicket": "Rouvrir le ticket",
+      "createTicket": "Créer le ticket",
+      "deleteTicket": "Supprimer le ticket",
+      "deleteTicketPrompt": "Supprimer ce ticket ?",
+      "toastTicketCreated": "Ticket créé",
+      "toastTicketUpdated": "Ticket mis à jour",
+      "toastMovedTo": "Déplacé vers {stage}"
     },
     "settings": {
       "managePipeline": "Gérer le pipeline",
@@ -1122,7 +1177,13 @@
       "toastFailedDeleteStage": "Échec de la suppression de l'étape",
       "toastFailedDeletePipeline": "Échec de la suppression du pipeline",
       "toastDeleted": "Pipeline supprimé",
-      "pickColor": "Choisir la couleur {color}"
+      "pickColor": "Choisir la couleur {color}",
+      "finalStage": "Étape finale",
+      "outcomeNone": "Non finale",
+      "outcomeWon": "Finale : succès",
+      "outcomeLost": "Finale : sans succès",
+      "finalStageHintSales": "Marquez des étapes comme finales (ex. Gagné, Perdu, Remboursé). Y déplacer une affaire la clôture comme gagnée ou perdue.",
+      "finalStageHintSupport": "Marquez des étapes comme finales (ex. Résolu, Fermé). Y déplacer un ticket le clôture et ferme sa conversation ; fermer la conversation déplace son ticket vers la première étape de succès."
     },
     "analytics": {
       "totalDeals": "Total des affaires",
@@ -1137,7 +1198,20 @@
       "wonThisMonthTooltip": "Affaires marquées comme gagnées depuis le premier jour du mois en cours.",
       "lostThisMonth": "Perdues ce mois-ci",
       "lostThisMonthTooltip": "Affaires marquées comme perdues depuis le premier jour du mois en cours.",
-      "howCalculated": "Comment « {label} » est calculé"
+      "howCalculated": "Comment « {label} » est calculé",
+      "openTickets": "Tickets ouverts",
+      "openTicketsTooltip": "Tickets qui ne sont pas dans une étape finale.",
+      "highPriority": "Priorité haute",
+      "highPriorityTooltip": "Tickets ouverts marqués Haute ou Urgente.",
+      "resolvedThisMonth": "Résolus ce mois-ci",
+      "resolvedThisMonthTooltip": "Tickets passés dans une étape finale de succès depuis le premier jour du mois.",
+      "closedThisMonth": "Fermés ce mois-ci",
+      "closedThisMonthTooltip": "Tickets passés dans une étape finale sans succès (ex. Fermé) ce mois-ci.",
+      "avgResolveTime": "Délai moyen de résolution",
+      "avgResolveTimeTooltip": "Délai moyen entre la création d'un ticket et son arrivée dans une étape finale de succès.",
+      "minutes": "{n} min",
+      "hours": "{n} h",
+      "days": "{n} jours"
     }
   },
   "Broadcasts": {
@@ -3232,6 +3306,36 @@
       "hide": "Masquer",
       "noText": "(aucun texte)",
       "noPagesYet": "Pas encore de pages."
+    },
+    "templates": {
+      "title": "Partir d'un modèle",
+      "description": "Chaque modèle remplit le nom et les instructions. Vous pouvez tout modifier avant d'enregistrer, puis lier les connaissances à utiliser.",
+      "back": "Retour",
+      "blank": {
+        "name": "Vierge",
+        "description": "Partez de zéro et écrivez vos propres instructions.",
+        "agentName": ""
+      },
+      "support": {
+        "name": "Agent de support",
+        "description": "Répond aux questions et dépanne à partir de vos connaissances ; transmet remboursements, réclamations et l'inconnu à votre équipe.",
+        "agentName": "Agent de support"
+      },
+      "sales": {
+        "name": "Agent commercial",
+        "description": "Qualifie les prospects, recommande produits et prix à partir de vos connaissances et transmet les acheteurs prêts à votre équipe.",
+        "agentName": "Agent commercial"
+      },
+      "marketing": {
+        "name": "Agent marketing",
+        "description": "Répond aux questions sur les offres, promotions et campagnes, partage les bons liens et recueille les intérêts.",
+        "agentName": "Agent marketing"
+      },
+      "admin": {
+        "name": "Agent administratif",
+        "description": "Accueil pour la facturation, les réservations, les comptes et le suivi des commandes ; recueille les détails et transmet toute modification à votre équipe.",
+        "agentName": "Agent administratif"
+      }
     }
   },
   "Interactive": {
@@ -4470,7 +4574,13 @@
       "onlineAlways": "Toujours en ligne",
       "onlineAlwaysHint": "Le badge affiche toujours En ligne, même hors des horaires.",
       "showTyping": "Afficher l'indicateur de saisie avant de demander les coordonnées",
-      "askPhone": "Demander un numéro de téléphone"
+      "askPhone": "Demander un numéro de téléphone",
+      "chatTicket": "Créer un ticket pour chaque nouvelle conversation",
+      "chatTicketNoPipeline": "Il vous faut un pipeline de support pour cela.",
+      "chatTicketCreatePipeline": "En créer un",
+      "chatTicketPipeline": "Pipeline de support",
+      "chatTicketStage": "Étape de départ",
+      "chatTicketHint": "Un visiteur qui revient n'obtient un nouveau ticket que lorsque le précédent est terminé. Résoudre le ticket ferme la conversation, et fermer la conversation résout le ticket."
     },
     "share": {
       "title": "Partager",

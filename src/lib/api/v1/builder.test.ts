@@ -71,5 +71,11 @@ describe('normalizeStages', () => {
     expect(typeof normalizeStages(Array.from({ length: 21 }, (_, i) => `s${i}`))).toBe('string')
     expect(typeof normalizeStages([{ name: '  ' }])).toBe('string')
     expect(typeof normalizeStages('x')).toBe('string')
+    expect(typeof normalizeStages([{ name: 'Done', outcome: 'maybe' }])).toBe('string')
+  })
+
+  it('carries final-stage outcomes', () => {
+    const r = normalizeStages(['New', { name: 'Resolved', outcome: 'won' }, { name: 'Closed', outcome: 'lost' }])
+    expect(Array.isArray(r) && r.map((s) => s.outcome)).toEqual([null, 'won', 'lost'])
   })
 })

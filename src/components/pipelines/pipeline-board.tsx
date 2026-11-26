@@ -14,15 +14,17 @@ import {
   type DragEndEvent,
   type DragStartEvent,
 } from "@dnd-kit/core";
-import type { Deal, PipelineStage } from "@/types";
+import type { Deal, PipelineKind, PipelineStage } from "@/types";
 import { DealCard } from "./deal-card";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Check, Plus, X } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { formatCurrency } from "@/lib/currency";
 import { useTranslations } from "next-intl";
 
 interface PipelineBoardProps {
+  /** 'support' boards hold tickets: no money totals. */
+  kind?: PipelineKind;
   stages: PipelineStage[];
   deals: Deal[];
   onDealMoved: (dealId: string, newStageId: string) => void;
@@ -31,6 +33,7 @@ interface PipelineBoardProps {
 }
 
 export function PipelineBoard({
+  kind = "sales",
   stages,
   deals,
   onDealMoved,
@@ -113,6 +116,7 @@ export function PipelineBoard({
           return (
             <StageColumn
               key={stage.id}
+              kind={kind}
               stage={stage}
               deals={stageDeals}
               totalValue={totalValue}
@@ -133,6 +137,7 @@ export function PipelineBoard({
         {activeDeal ? (
           <div className="opacity-90">
             <DealCard
+              kind={kind}
               deal={activeDeal}
               stage={
                 sortedStages.find((s) => s.id === activeDeal.stage_id) ?? null
@@ -187,6 +192,7 @@ export function PipelineBoard({
 }
 
 function StageColumn({
+  kind,
   stage,
   deals,
   totalValue,
@@ -194,6 +200,7 @@ function StageColumn({
   onAddDeal,
   onEditDeal,
 }: {
+  kind: PipelineKind;
   stage: PipelineStage;
   deals: Deal[];
   totalValue: number;
@@ -217,17 +224,36 @@ function StageColumn({
         className="-mx-4 -mt-4 h-[3px] rounded-t-xl"
         style={{ backgroundColor: stage.color }}
       />
-      <div className="flex items-center justify-between pt-3">
-        <h3 className="truncate text-sm font-semibold text-foreground">
-          {stage.name}
+      <div className="flex items-center justify-between gap-2 pt-3">
+        <h3 className="flex min-w-0 items-center gap-1.5 text-sm font-semibold text-foreground">
+          <span className="truncate">{stage.name}</span>
+          {stage.outcome && (
+            <span
+              title={stage.outcome === "won" ? t("finalSuccess") : t("finalFailure")}
+              className={`inline-flex size-4 shrink-0 items-center justify-center rounded-full ${
+                stage.outcome === "won"
+                  ? "bg-primary/15 text-primary"
+                  : "bg-muted text-muted-foreground"
+              }`}
+            >
+              {stage.outcome === "won" ? <Check className="size-3" /> : <X className="size-3" />}
+              <span className="sr-only">
+                {stage.outcome === "won" ? t("finalSuccess") : t("finalFailure")}
+              </span>
+            </span>
+          )}
         </h3>
         <span className="shrink-0 rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
           {deals.length}
         </span>
       </div>
-      <p className="text-xs text-muted-foreground">
-        {formatCurrency(totalValue, currency)}
-      </p>
+      {kind === "sales" ? (
+        <p className="text-xs text-muted-foreground">
+          {formatCurrency(totalValue, currency)}
+        </p>
+      ) : stage.outcome ? (
+        <p className="text-xs text-muted-foreground">{t("finalStageHint")}</p>
+      ) : null}
 
       <div
         ref={setNodeRef}
@@ -239,12 +265,13 @@ function StageColumn({
       >
         {deals.length === 0 ? (
           <div className="flex flex-1 items-center justify-center rounded-lg border-2 border-dashed border-border py-10 text-xs text-muted-foreground">
-            {t("dropDealHere")}
+            {kind === "support" ? t("dropTicketHere") : t("dropDealHere")}
           </div>
         ) : (
           deals.map((deal) => (
             <DraggableDealCard
               key={deal.id}
+              kind={kind}
               deal={deal}
               stage={stage}
               onEdit={onEditDeal}
@@ -260,17 +287,19 @@ function StageColumn({
         className="mt-3 w-full justify-start border border-dashed border-border bg-transparent text-muted-foreground hover:border-border hover:bg-muted hover:text-foreground"
       >
         <Plus className="mr-1 h-3 w-3" />
-        {t("addDeal")}
+        {kind === "support" ? t("addTicket") : t("addDeal")}
       </Button>
     </div>
   );
 }
 
 function DraggableDealCard({
+  kind,
   deal,
   stage,
   onEdit,
 }: {
+  kind: PipelineKind;
   deal: Deal;
   stage: PipelineStage;
   onEdit: (deal: Deal) => void;
@@ -286,7 +315,7 @@ function DraggableDealCard({
       {...attributes}
       style={{ opacity: isDragging ? 0.3 : 1, touchAction: "none" }}
     >
-      <DealCard deal={deal} stage={stage} onEdit={onEdit} />
+      <DealCard kind={kind} deal={deal} stage={stage} onEdit={onEdit} />
     </div>
   );
 }

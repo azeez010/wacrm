@@ -259,6 +259,8 @@ export interface InboundContent {
 export interface InboundResult {
   message: ChatMessageView
   duplicate: boolean
+  /** The chat was closed and this message reopened it. */
+  reopened?: boolean
 }
 
 /**
@@ -308,7 +310,7 @@ export async function recordVisitorMessage(
     p_last_message_text: text ?? '[image]',
   })
   if (bumpErr) console.error('[web-chat] bump failed:', bumpErr.message)
-  await reopenClosedConversation(db, conversation)
+  const reopened = await reopenClosedConversation(db, conversation)
 
   const view = toChatMessageView(stored)
   await pushToRoom(conversationId, { type: 'message', message: view }, 'all')
@@ -326,7 +328,7 @@ export async function recordVisitorMessage(
       text,
     })
   }
-  return { message: view, duplicate: false }
+  return { message: view, duplicate: false, reopened }
 }
 
 /** One in-app notification per teammate who handles conversations, when a chat begins. */

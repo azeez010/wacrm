@@ -433,12 +433,20 @@ export interface MessageTemplate {
   created_at: string;
 }
 
+/** 'sales' = deals, 'support' = tickets (migration 110). */
+export type PipelineKind = 'sales' | 'support';
+
 export interface Pipeline {
   id: string;
   user_id: string;
   name: string;
+  /** Absent on rows read before migration 110; treat as 'sales'. */
+  kind?: PipelineKind;
   created_at: string;
 }
+
+/** A final stage's meaning; moving a card there sets deals.status. */
+export type StageOutcome = 'won' | 'lost';
 
 export interface PipelineStage {
   id: string;
@@ -446,8 +454,12 @@ export interface PipelineStage {
   name: string;
   position: number;
   color: string;
+  /** null/undefined = normal stage; set = final stage. */
+  outcome?: StageOutcome | null;
   created_at: string;
 }
+
+export type TicketPriority = 'low' | 'normal' | 'high' | 'urgent';
 
 export type DealStatus = 'open' | 'won' | 'lost';
 
@@ -469,11 +481,16 @@ export interface Deal {
   notes?: string;
   expected_close_date?: string;
   status?: DealStatus;
+  /** Tickets (support pipelines) only. */
+  priority?: TicketPriority | null;
+  closed_at?: string | null;
   created_at: string;
   updated_at?: string;
   contact?: Contact;
   stage?: PipelineStage;
   assignee?: Profile;
+  /** Joined `pipeline:pipelines(kind, name)` where a list needs it. */
+  pipeline?: { kind?: PipelineKind | null; name?: string } | null;
 }
 
 export type BroadcastStatus = 'draft' | 'scheduled' | 'sending' | 'sent' | 'failed';

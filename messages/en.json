@@ -544,7 +544,8 @@
       "addNotePlaceholder": "Add a note...",
       "blocked": "Blocked",
       "blockContact": "Block contact",
-      "unblockContact": "Unblock contact"
+      "unblockContact": "Unblock contact",
+      "ticket": "Ticket"
     },
     "aiBanner": {
       "pausedTitle": "AI assistant is paused here",
@@ -561,6 +562,13 @@
       "automatic": "Automatic",
       "inactive": "(off)",
       "updateFailed": "Couldn't change the AI agent."
+    },
+    "ticket": {
+      "create": "Create ticket",
+      "openTicket": "Open the ticket for this chat",
+      "current": "Ticket: {stage}",
+      "noPipeline": "Create a support pipeline first (Pipelines → Support)",
+      "pipeline": "Support pipeline"
     }
   },
   "Contacts": {
@@ -1044,17 +1052,44 @@
         "qualified": "Qualified",
         "proposalSent": "Proposal Sent",
         "negotiation": "Negotiation",
-        "won": "Won"
-      }
+        "won": "Won",
+        "lost": "Lost",
+        "ticketNew": "New",
+        "inProgress": "In progress",
+        "waitingOnCustomer": "Waiting on customer",
+        "resolved": "Resolved",
+        "closed": "Closed"
+      },
+      "kindLabel": "Type",
+      "kindSales": "Sales",
+      "kindSupport": "Support",
+      "addTicket": "Add Ticket",
+      "noSupportPipelinesYet": "No support pipeline yet",
+      "createSupportToStart": "Track customer issues as tickets: New → In progress → Resolved. Closing a ticket closes its chat.",
+      "supportPipelineNamePlaceholder": "e.g., Customer Support",
+      "defaultSupportStagesDesc": "Default stages (New → In progress → Waiting on customer → Resolved, Closed) will be created. Resolved and Closed are final stages."
     },
     "board": {
       "dropDealHere": "Drop a deal here",
-      "addDeal": "Add Deal"
+      "addDeal": "Add Deal",
+      "finalSuccess": "Final stage: success",
+      "finalFailure": "Final stage: not successful",
+      "finalStageHint": "Final stage",
+      "dropTicketHere": "Drop a ticket here",
+      "addTicket": "Add Ticket"
     },
     "card": {
       "noContact": "No contact",
       "won": "Won",
-      "lost": "Lost"
+      "lost": "Lost",
+      "resolved": "Resolved",
+      "closed": "Closed",
+      "priority": {
+        "low": "Low",
+        "normal": "Normal",
+        "high": "High",
+        "urgent": "Urgent"
+      }
     },
     "form": {
       "editDeal": "Edit Deal",
@@ -1097,7 +1132,27 @@
       "toastMarkedLost": "Marked as lost",
       "toastReopened": "Deal reopened",
       "toastFailedDelete": "Failed to delete deal",
-      "toastDeleted": "Deal deleted"
+      "toastDeleted": "Deal deleted",
+      "priorities": {
+        "low": "Low",
+        "normal": "Normal",
+        "high": "High",
+        "urgent": "Urgent"
+      },
+      "newTicket": "New Ticket",
+      "editTicket": "Edit Ticket",
+      "subject": "Subject",
+      "subjectPlaceholder": "What is the issue?",
+      "priority": "Priority",
+      "priorityNone": "No priority",
+      "finishAs": "Finish as",
+      "reopenTicket": "Reopen ticket",
+      "createTicket": "Create Ticket",
+      "deleteTicket": "Delete Ticket",
+      "deleteTicketPrompt": "Delete this ticket?",
+      "toastTicketCreated": "Ticket created",
+      "toastTicketUpdated": "Ticket updated",
+      "toastMovedTo": "Moved to {stage}"
     },
     "settings": {
       "managePipeline": "Manage Pipeline",
@@ -1122,7 +1177,13 @@
       "toastFailedDeleteStage": "Failed to delete stage",
       "toastFailedDeletePipeline": "Failed to delete pipeline",
       "toastDeleted": "Pipeline deleted",
-      "pickColor": "Pick color {color}"
+      "pickColor": "Pick color {color}",
+      "finalStage": "Final stage",
+      "outcomeNone": "Not final",
+      "outcomeWon": "Final: success",
+      "outcomeLost": "Final: not successful",
+      "finalStageHintSales": "Mark any stages as final (e.g. Won, Lost, Refunded). Moving a deal there closes it as won or lost.",
+      "finalStageHintSupport": "Mark any stages as final (e.g. Resolved, Closed). Moving a ticket there closes it and closes its linked chat; closing the chat moves its ticket to the first success stage."
     },
     "analytics": {
       "totalDeals": "Total Deals",
@@ -1137,7 +1198,20 @@
       "wonThisMonthTooltip": "Deals marked as Won since the first day of the current month.",
       "lostThisMonth": "Lost This Month",
       "lostThisMonthTooltip": "Deals marked as Lost since the first day of the current month.",
-      "howCalculated": "How {label} is calculated"
+      "howCalculated": "How {label} is calculated",
+      "openTickets": "Open Tickets",
+      "openTicketsTooltip": "Tickets that are not in a final stage.",
+      "highPriority": "High Priority",
+      "highPriorityTooltip": "Open tickets marked High or Urgent.",
+      "resolvedThisMonth": "Resolved This Month",
+      "resolvedThisMonthTooltip": "Tickets moved to a success final stage since the first day of this month.",
+      "closedThisMonth": "Closed This Month",
+      "closedThisMonthTooltip": "Tickets moved to a not-successful final stage (e.g. Closed) this month.",
+      "avgResolveTime": "Avg Time to Resolve",
+      "avgResolveTimeTooltip": "Average time from a ticket being created to reaching a success final stage.",
+      "minutes": "{n} min",
+      "hours": "{n} h",
+      "days": "{n} days"
     }
   },
   "Broadcasts": {
@@ -3232,6 +3306,36 @@
       "hide": "Hide",
       "noText": "(no text)",
       "noPagesYet": "No pages yet."
+    },
+    "templates": {
+      "title": "Start from a template",
+      "description": "Each template fills in the name and instructions. You can change everything before saving, then link the knowledge it should use.",
+      "back": "Back",
+      "blank": {
+        "name": "Blank",
+        "description": "Start from scratch and write your own instructions.",
+        "agentName": ""
+      },
+      "support": {
+        "name": "Support agent",
+        "description": "Answers questions and troubleshoots from your knowledge; hands refunds, complaints and anything unknown to your team.",
+        "agentName": "Support agent"
+      },
+      "sales": {
+        "name": "Sales agent",
+        "description": "Qualifies leads, recommends products and prices from your knowledge, and hands ready buyers to your team.",
+        "agentName": "Sales agent"
+      },
+      "marketing": {
+        "name": "Marketing agent",
+        "description": "Answers questions about offers, promos and campaigns, shares the right links and captures interest.",
+        "agentName": "Marketing agent"
+      },
+      "admin": {
+        "name": "Admin agent",
+        "description": "Front desk for billing, bookings, accounts and order status; collects details and hands any change to your team.",
+        "agentName": "Admin agent"
+      }
     }
   },
   "Interactive": {
@@ -4470,7 +4574,13 @@
       "onlineAlways": "Always online",
       "onlineAlwaysHint": "The badge always says Online, even outside business hours.",
       "showTyping": "Show typing dots before asking for details",
-      "askPhone": "Ask for a phone number"
+      "askPhone": "Ask for a phone number",
+      "chatTicket": "Create a ticket for each new chat",
+      "chatTicketNoPipeline": "You need a support pipeline for this.",
+      "chatTicketCreatePipeline": "Create one",
+      "chatTicketPipeline": "Support pipeline",
+      "chatTicketStage": "First stage",
+      "chatTicketHint": "A returning visitor gets a new ticket only when their previous one is finished. Resolving the ticket closes the chat, and closing the chat resolves the ticket."
     },
     "share": {
       "title": "Share",

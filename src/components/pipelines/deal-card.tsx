@@ -1,11 +1,12 @@
 "use client";
 
-import type { Deal, PipelineStage } from "@/types";
+import type { Deal, PipelineKind, PipelineStage, TicketPriority } from "@/types";
 import { Calendar, Check, X } from "lucide-react";
 import { formatCurrency } from "@/lib/currency";
 import { useLocale, useTranslations } from "next-intl";
 
 interface DealCardProps {
+  kind?: PipelineKind;
   deal: Deal;
   stage: PipelineStage | null;
   onEdit: (deal: Deal) => void;
@@ -26,7 +27,15 @@ function initials(name?: string, fallback?: string) {
   return source.charAt(0).toUpperCase();
 }
 
-export function DealCard({ deal, stage, onEdit, isOverlay }: DealCardProps) {
+const PRIORITY_STYLE: Record<TicketPriority, string> = {
+  low: "bg-muted text-muted-foreground",
+  normal: "bg-blue-500/15 text-blue-600 dark:text-blue-400",
+  high: "bg-amber-500/15 text-amber-700 dark:text-amber-400",
+  urgent: "bg-red-500/15 text-red-600 dark:text-red-400",
+};
+
+export function DealCard({ kind = "sales", deal, stage, onEdit, isOverlay }: DealCardProps) {
+  const isTicket = kind === "support";
   const t = useTranslations("Pipelines.card");
   const locale = useLocale();
   const contactLabel = deal.contact?.name || deal.contact?.phone || t("noContact");
@@ -62,13 +71,13 @@ export function DealCard({ deal, stage, onEdit, isOverlay }: DealCardProps) {
         {deal.status === "won" && (
           <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-semibold text-primary">
             <Check className="h-3 w-3" />
-            {t("won")}
+            {isTicket ? t("resolved") : t("won")}
           </span>
         )}
         {deal.status === "lost" && (
           <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-red-500/15 px-2 py-0.5 text-[10px] font-semibold text-red-400">
             <X className="h-3 w-3" />
-            {t("lost")}
+            {isTicket ? t("closed") : t("lost")}
           </span>
         )}
       </div>
@@ -82,10 +91,22 @@ export function DealCard({ deal, stage, onEdit, isOverlay }: DealCardProps) {
       </div>
 
       <div className="mt-2 flex items-center justify-between">
-        <span className="text-sm font-bold text-primary">
-          {formatCurrency(deal.value, deal.currency)}
-        </span>
-        {deal.expected_close_date && (
+        {isTicket ? (
+          deal.priority ? (
+            <span
+              className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${PRIORITY_STYLE[deal.priority]}`}
+            >
+              {t(`priority.${deal.priority}`)}
+            </span>
+          ) : (
+            <span />
+          )
+        ) : (
+          <span className="text-sm font-bold text-primary">
+            {formatCurrency(deal.value, deal.currency)}
+          </span>
+        )}
+        {!isTicket && deal.expected_close_date && (
           <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
             <Calendar className="h-3 w-3" />
             {formatDate(deal.expected_close_date, locale)}

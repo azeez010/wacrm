@@ -56,6 +56,7 @@ import { deleteAccountMedia } from "@/lib/storage/upload-media";
 import { TemplatePicker } from "./template-picker";
 import { AiThreadBanner } from "./ai-thread-banner";
 import { AiAgentPicker, useAiAgents } from "./ai-agent-picker";
+import { CreateTicketButton } from "./create-ticket-button";
 import { buildReplyPreview } from "./reply-quote";
 import {
   renderTemplateBody,
@@ -1183,6 +1184,16 @@ export function MessageThread({
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
+
+          <CreateTicketButton
+            key={conversation.id}
+            conversationId={conversation.id}
+            contact={contact}
+            suggestedTitle={
+              [...messages].reverse().find((m) => m.sender_type === "customer" && m.content_text)
+                ?.content_text ?? undefined
+            }
+          />
 
           <AiAgentPicker
             conversationId={conversation.id}

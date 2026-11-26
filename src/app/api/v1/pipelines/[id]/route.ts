@@ -1,25 +1,26 @@
 // /api/v1/pipelines/[id]
 //   GET     one pipeline + stages                     (pipelines:read)
 //   PATCH   rename and/or replace the stage list      (pipelines:write)
+//           (`kind` is fixed at creation)
 //   DELETE  delete pipeline (and its deals!)          (pipelines:write)
 import { requireApiKey } from '@/lib/auth/api-context';
 import { ok, fail, toApiErrorResponse } from '@/lib/api/v1/respond';
 import { isUuid } from '@/lib/api/v1/pagination';
-import { normalizeStages } from '@/lib/api/v1/pipelines';
+import { normalizeStages, PIPELINE_SELECT, STAGE_SELECT } from '@/lib/api/v1/pipelines';
 
 type Ctx = { params: Promise<{ id: string }> };
 
 async function load(ctx: Awaited<ReturnType<typeof requireApiKey>>, id: string) {
   const { data: pipeline } = await ctx.supabase
     .from('pipelines')
-    .select('id, name, created_at')
+    .select(PIPELINE_SELECT)
     .eq('id', id)
     .eq('account_id', ctx.accountId)
     .maybeSingle();
   if (!pipeline) return null;
   const { data: stages } = await ctx.supabase
     .from('pipeline_stages')
-    .select('id, name, color, position')
+    .select(STAGE_SELECT)
     .eq('pipeline_id', id)
     .order('position', { ascending: true });
   return { ...pipeline, stages: stages ?? [] };
@@ -89,14 +90,14 @@ export async function PATCH(request: Request, { params }: Ctx) {
         if (s.id && existingIds.has(s.id)) {
           const { error } = await ctx.supabase
             .from('pipeline_stages')
-            .update({ name: s.name, color: s.color, position: i })
+            .update({ name: s.name, color: s.color, outcome: s.outcome, position: i })
             .eq('id', s.id)
             .eq('pipeline_id', id);
           if (error) return fail('internal', 'Failed to update stages', 500);
         } else {
           const { error } = await ctx.supabase
             .from('pipeline_stages')
-            .insert({ pipeline_id: id, name: s.name, color: s.color, position: i });
+            .insert({ pipeline_id: id, name: s.name, color: s.color, outcome: s.outcome, position: i });
           if (error) return fail('internal', 'Failed to add stages', 500);
         }
       }

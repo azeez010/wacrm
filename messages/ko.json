@@ -544,7 +544,8 @@
       "addNotePlaceholder": "메모 추가...",
       "blocked": "차단됨",
       "blockContact": "연락처 차단",
-      "unblockContact": "연락처 차단 해제"
+      "unblockContact": "연락처 차단 해제",
+      "ticket": "티켓"
     },
     "aiBanner": {
       "pausedTitle": "이 대화에서 AI 어시스턴트가 일시 중지됨",
@@ -561,6 +562,13 @@
       "automatic": "자동",
       "inactive": "(꺼짐)",
       "updateFailed": "AI 에이전트를 바꾸지 못했습니다."
+    },
+    "ticket": {
+      "create": "티켓 만들기",
+      "openTicket": "이 대화의 티켓 열기",
+      "current": "티켓: {stage}",
+      "noPipeline": "먼저 지원 파이프라인을 만드세요(파이프라인 → 지원)",
+      "pipeline": "지원 파이프라인"
     }
   },
   "Contacts": {
@@ -1044,17 +1052,44 @@
         "qualified": "검증됨",
         "proposalSent": "제안서 발송",
         "negotiation": "협상",
-        "won": "성사"
-      }
+        "won": "성사",
+        "lost": "실패",
+        "ticketNew": "신규",
+        "inProgress": "진행 중",
+        "waitingOnCustomer": "고객 응답 대기",
+        "resolved": "해결됨",
+        "closed": "종료"
+      },
+      "kindLabel": "유형",
+      "kindSales": "영업",
+      "kindSupport": "지원",
+      "addTicket": "티켓 추가",
+      "noSupportPipelinesYet": "아직 지원 파이프라인이 없습니다",
+      "createSupportToStart": "고객 문의를 티켓으로 관리하세요: 신규 → 진행 중 → 해결됨. 티켓을 닫으면 대화도 닫힙니다.",
+      "supportPipelineNamePlaceholder": "예: 고객 지원",
+      "defaultSupportStagesDesc": "기본 단계(신규 → 진행 중 → 고객 응답 대기 → 해결됨, 종료)가 생성됩니다. 해결됨과 종료는 최종 단계입니다."
     },
     "board": {
       "dropDealHere": "여기에 딜을 놓으세요",
-      "addDeal": "딜 추가"
+      "addDeal": "딜 추가",
+      "finalSuccess": "최종 단계: 성공",
+      "finalFailure": "최종 단계: 실패",
+      "finalStageHint": "최종 단계",
+      "dropTicketHere": "여기에 티켓을 놓으세요",
+      "addTicket": "티켓 추가"
     },
     "card": {
       "noContact": "연락처 없음",
       "won": "성사",
-      "lost": "실패"
+      "lost": "실패",
+      "resolved": "해결됨",
+      "closed": "종료",
+      "priority": {
+        "low": "낮음",
+        "normal": "보통",
+        "high": "높음",
+        "urgent": "긴급"
+      }
     },
     "form": {
       "editDeal": "딜 수정",
@@ -1097,7 +1132,27 @@
       "toastMarkedLost": "실패로 표시했습니다",
       "toastReopened": "딜이 재개되었습니다",
       "toastFailedDelete": "딜을 삭제하지 못했습니다",
-      "toastDeleted": "딜이 삭제되었습니다"
+      "toastDeleted": "딜이 삭제되었습니다",
+      "priorities": {
+        "low": "낮음",
+        "normal": "보통",
+        "high": "높음",
+        "urgent": "긴급"
+      },
+      "newTicket": "새 티켓",
+      "editTicket": "티켓 편집",
+      "subject": "제목",
+      "subjectPlaceholder": "어떤 문제인가요?",
+      "priority": "우선순위",
+      "priorityNone": "우선순위 없음",
+      "finishAs": "다음으로 완료",
+      "reopenTicket": "티켓 다시 열기",
+      "createTicket": "티켓 만들기",
+      "deleteTicket": "티켓 삭제",
+      "deleteTicketPrompt": "이 티켓을 삭제할까요?",
+      "toastTicketCreated": "티켓이 생성되었습니다",
+      "toastTicketUpdated": "티켓이 업데이트되었습니다",
+      "toastMovedTo": "{stage}(으)로 이동했습니다"
     },
     "settings": {
       "managePipeline": "파이프라인 관리",
@@ -1122,7 +1177,13 @@
       "toastFailedDeleteStage": "단계를 삭제하지 못했습니다",
       "toastFailedDeletePipeline": "파이프라인을 삭제하지 못했습니다",
       "toastDeleted": "파이프라인이 삭제되었습니다",
-      "pickColor": "{color} 색상 선택"
+      "pickColor": "{color} 색상 선택",
+      "finalStage": "최종 단계",
+      "outcomeNone": "최종 아님",
+      "outcomeWon": "최종: 성공",
+      "outcomeLost": "최종: 실패",
+      "finalStageHintSales": "원하는 단계를 최종 단계로 지정하세요(예: 성사, 실패, 환불). 거래를 그 단계로 옮기면 성사 또는 실패로 종료됩니다.",
+      "finalStageHintSupport": "원하는 단계를 최종 단계로 지정하세요(예: 해결됨, 종료). 티켓을 그 단계로 옮기면 티켓과 연결된 대화가 닫히고, 대화를 닫으면 티켓이 첫 번째 성공 단계로 이동합니다."
     },
     "analytics": {
       "totalDeals": "전체 딜",
@@ -1137,7 +1198,20 @@
       "wonThisMonthTooltip": "이번 달 1일 이후 성사로 표시된 딜입니다.",
       "lostThisMonth": "이번 달 실패",
       "lostThisMonthTooltip": "이번 달 1일 이후 실패로 표시된 딜입니다.",
-      "howCalculated": "{label} 계산 방법"
+      "howCalculated": "{label} 계산 방법",
+      "openTickets": "열린 티켓",
+      "openTicketsTooltip": "최종 단계에 있지 않은 티켓입니다.",
+      "highPriority": "높은 우선순위",
+      "highPriorityTooltip": "높음 또는 긴급으로 표시된 열린 티켓입니다.",
+      "resolvedThisMonth": "이번 달 해결",
+      "resolvedThisMonthTooltip": "이번 달 1일 이후 성공 최종 단계로 이동한 티켓입니다.",
+      "closedThisMonth": "이번 달 종료",
+      "closedThisMonthTooltip": "이번 달 실패 최종 단계(예: 종료)로 이동한 티켓입니다.",
+      "avgResolveTime": "평균 해결 시간",
+      "avgResolveTimeTooltip": "티켓이 생성된 후 성공 최종 단계에 도달하기까지의 평균 시간입니다.",
+      "minutes": "{n}분",
+      "hours": "{n}시간",
+      "days": "{n}일"
     }
   },
   "Broadcasts": {
@@ -3232,6 +3306,36 @@
       "hide": "숨기기",
       "noText": "(텍스트 없음)",
       "noPagesYet": "아직 페이지가 없습니다."
+    },
+    "templates": {
+      "title": "템플릿으로 시작",
+      "description": "각 템플릿은 이름과 지침을 채워 줍니다. 저장하기 전에 모두 수정할 수 있으며, 이후 사용할 지식을 연결하세요.",
+      "back": "뒤로",
+      "blank": {
+        "name": "빈 에이전트",
+        "description": "처음부터 시작해 직접 지침을 작성하세요.",
+        "agentName": ""
+      },
+      "support": {
+        "name": "지원 에이전트",
+        "description": "지식을 바탕으로 질문에 답하고 문제를 해결하며, 환불·불만·모르는 내용은 팀에 넘깁니다.",
+        "agentName": "지원 에이전트"
+      },
+      "sales": {
+        "name": "영업 에이전트",
+        "description": "리드를 선별하고 지식을 바탕으로 제품과 가격을 추천하며, 구매 준비가 된 고객을 팀에 넘깁니다.",
+        "agentName": "영업 에이전트"
+      },
+      "marketing": {
+        "name": "마케팅 에이전트",
+        "description": "혜택·프로모션·캠페인 관련 질문에 답하고, 알맞은 링크를 공유하며 관심 고객을 확보합니다.",
+        "agentName": "마케팅 에이전트"
+      },
+      "admin": {
+        "name": "관리 에이전트",
+        "description": "결제·예약·계정·주문 상태를 안내하는 프런트 데스크로, 필요한 정보를 받아 변경 사항은 팀에 넘깁니다.",
+        "agentName": "관리 에이전트"
+      }
     }
   },
   "Interactive": {
@@ -4470,7 +4574,13 @@
       "onlineAlways": "항상 온라인",
       "onlineAlwaysHint": "근무 시간 외에도 배지가 항상 온라인으로 표시됩니다.",
       "showTyping": "정보를 묻기 전에 입력 중 표시",
-      "askPhone": "전화번호 요청"
+      "askPhone": "전화번호 요청",
+      "chatTicket": "새 대화마다 티켓 만들기",
+      "chatTicketNoPipeline": "이 기능에는 지원 파이프라인이 필요합니다.",
+      "chatTicketCreatePipeline": "만들기",
+      "chatTicketPipeline": "지원 파이프라인",
+      "chatTicketStage": "시작 단계",
+      "chatTicketHint": "재방문자는 이전 티켓이 완료된 경우에만 새 티켓을 받습니다. 티켓을 해결하면 대화가 닫히고, 대화를 닫으면 티켓이 해결됩니다."
     },
     "share": {
       "title": "공유",

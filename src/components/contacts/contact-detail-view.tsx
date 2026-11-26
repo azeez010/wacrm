@@ -38,8 +38,7 @@ import {
   X,
   DollarSign,
   LayoutTemplate,
-  Ban,
-} from 'lucide-react';
+  Ban, LifeBuoy } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { planTypedValueWrites } from '@/lib/custom-fields/value-writes';
 import type { FieldDef } from '@/lib/custom-fields/types';
@@ -191,7 +190,7 @@ export function ContactDetailView({
     setLoadingDeals(true);
     const { data } = await supabase
       .from('deals')
-      .select('*, stage:pipeline_stages(*)')
+      .select('*, stage:pipeline_stages(*), pipeline:pipelines(kind, name)')
       .eq('contact_id', contactId)
       .order('created_at', { ascending: false });
     setDeals((data ?? []) as Deal[]);
@@ -766,13 +765,20 @@ export function ContactDetailView({
                           )}
                         </div>
                         <div className="mt-1.5 flex items-center justify-between text-xs text-muted-foreground">
-                          <span className="flex items-center gap-1">
-                            <DollarSign className="size-3" />
-                            {formatCurrency(
-                              deal.value ?? 0,
-                              deal.currency || defaultCurrency,
-                            )}
-                          </span>
+                          {deal.pipeline?.kind === 'support' ? (
+                            <span className="flex items-center gap-1">
+                              <LifeBuoy className="size-3" />
+                              {deal.pipeline.name}
+                            </span>
+                          ) : (
+                            <span className="flex items-center gap-1">
+                              <DollarSign className="size-3" />
+                              {formatCurrency(
+                                deal.value ?? 0,
+                                deal.currency || defaultCurrency,
+                              )}
+                            </span>
+                          )}
                           {deal.status && deal.status !== 'open' && (
                             <span
                               className={

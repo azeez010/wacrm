@@ -1041,7 +1041,8 @@
       "addNotePlaceholder": "Tambahkan catatan...",
       "blocked": "Diblokir",
       "blockContact": "Blokir kontak",
-      "unblockContact": "Buka blokir kontak"
+      "unblockContact": "Buka blokir kontak",
+      "ticket": "Tiket"
     },
     "aiBanner": {
       "pausedTitle": "Asisten AI dijeda di sini",
@@ -1058,6 +1059,13 @@
       "automatic": "Otomatis",
       "inactive": "(nonaktif)",
       "updateFailed": "Tidak dapat mengganti agen AI."
+    },
+    "ticket": {
+      "create": "Buat tiket",
+      "openTicket": "Buka tiket untuk chat ini",
+      "current": "Tiket: {stage}",
+      "noPipeline": "Buat pipeline dukungan terlebih dahulu (Pipeline → Dukungan)",
+      "pipeline": "Pipeline dukungan"
     }
   },
   "Pipelines": {
@@ -1087,17 +1095,44 @@
         "qualified": "Memenuhi syarat",
         "proposalSent": "Proposal terkirim",
         "negotiation": "Negosiasi",
-        "won": "Menang"
-      }
+        "won": "Menang",
+        "lost": "Kalah",
+        "ticketNew": "Baru",
+        "inProgress": "Diproses",
+        "waitingOnCustomer": "Menunggu pelanggan",
+        "resolved": "Selesai",
+        "closed": "Ditutup"
+      },
+      "kindLabel": "Jenis",
+      "kindSales": "Penjualan",
+      "kindSupport": "Dukungan",
+      "addTicket": "Tambah tiket",
+      "noSupportPipelinesYet": "Belum ada pipeline dukungan",
+      "createSupportToStart": "Lacak masalah pelanggan sebagai tiket: Baru → Diproses → Selesai. Menutup tiket juga menutup chatnya.",
+      "supportPipelineNamePlaceholder": "mis., Dukungan Pelanggan",
+      "defaultSupportStagesDesc": "Tahap bawaan (Baru → Diproses → Menunggu pelanggan → Selesai, Ditutup) akan dibuat. Selesai dan Ditutup adalah tahap akhir."
     },
     "board": {
       "dropDealHere": "Lepas kesepakatan di sini",
-      "addDeal": "Tambah kesepakatan"
+      "addDeal": "Tambah kesepakatan",
+      "finalSuccess": "Tahap akhir: berhasil",
+      "finalFailure": "Tahap akhir: tidak berhasil",
+      "finalStageHint": "Tahap akhir",
+      "dropTicketHere": "Letakkan tiket di sini",
+      "addTicket": "Tambah tiket"
     },
     "card": {
       "noContact": "Tanpa kontak",
       "won": "Menang",
-      "lost": "Kalah"
+      "lost": "Kalah",
+      "resolved": "Selesai",
+      "closed": "Ditutup",
+      "priority": {
+        "low": "Rendah",
+        "normal": "Normal",
+        "high": "Tinggi",
+        "urgent": "Mendesak"
+      }
     },
     "form": {
       "editDeal": "Ubah kesepakatan",
@@ -1140,7 +1175,27 @@
       "toastMarkedLost": "Ditandai kalah",
       "toastReopened": "Kesepakatan dibuka kembali",
       "toastFailedDelete": "Gagal menghapus kesepakatan",
-      "toastDeleted": "Kesepakatan dihapus"
+      "toastDeleted": "Kesepakatan dihapus",
+      "priorities": {
+        "low": "Rendah",
+        "normal": "Normal",
+        "high": "Tinggi",
+        "urgent": "Mendesak"
+      },
+      "newTicket": "Tiket baru",
+      "editTicket": "Edit tiket",
+      "subject": "Subjek",
+      "subjectPlaceholder": "Apa masalahnya?",
+      "priority": "Prioritas",
+      "priorityNone": "Tanpa prioritas",
+      "finishAs": "Selesaikan sebagai",
+      "reopenTicket": "Buka kembali tiket",
+      "createTicket": "Buat tiket",
+      "deleteTicket": "Hapus tiket",
+      "deleteTicketPrompt": "Hapus tiket ini?",
+      "toastTicketCreated": "Tiket dibuat",
+      "toastTicketUpdated": "Tiket diperbarui",
+      "toastMovedTo": "Dipindahkan ke {stage}"
     },
     "settings": {
       "managePipeline": "Kelola pipeline",
@@ -1165,7 +1220,13 @@
       "toastFailedDeleteStage": "Gagal menghapus tahap",
       "toastFailedDeletePipeline": "Gagal menghapus pipeline",
       "toastDeleted": "Pipeline dihapus",
-      "pickColor": "Pilih warna {color}"
+      "pickColor": "Pilih warna {color}",
+      "finalStage": "Tahap akhir",
+      "outcomeNone": "Bukan akhir",
+      "outcomeWon": "Akhir: berhasil",
+      "outcomeLost": "Akhir: tidak berhasil",
+      "finalStageHintSales": "Tandai tahap apa pun sebagai akhir (mis. Menang, Kalah, Dikembalikan). Memindahkan deal ke sana menutupnya sebagai menang atau kalah.",
+      "finalStageHintSupport": "Tandai tahap apa pun sebagai akhir (mis. Selesai, Ditutup). Memindahkan tiket ke sana menutup tiket dan chatnya; menutup chat memindahkan tiketnya ke tahap berhasil pertama."
     },
     "analytics": {
       "totalDeals": "Total kesepakatan",
@@ -1180,7 +1241,20 @@
       "wonThisMonthTooltip": "Kesepakatan yang ditandai Menang sejak hari pertama bulan ini.",
       "lostThisMonth": "Kalah bulan ini",
       "lostThisMonthTooltip": "Kesepakatan yang ditandai Kalah sejak hari pertama bulan ini.",
-      "howCalculated": "Cara {label} dihitung"
+      "howCalculated": "Cara {label} dihitung",
+      "openTickets": "Tiket terbuka",
+      "openTicketsTooltip": "Tiket yang belum berada di tahap akhir.",
+      "highPriority": "Prioritas tinggi",
+      "highPriorityTooltip": "Tiket terbuka bertanda Tinggi atau Mendesak.",
+      "resolvedThisMonth": "Selesai bulan ini",
+      "resolvedThisMonthTooltip": "Tiket yang dipindahkan ke tahap akhir berhasil sejak hari pertama bulan ini.",
+      "closedThisMonth": "Ditutup bulan ini",
+      "closedThisMonthTooltip": "Tiket yang dipindahkan ke tahap akhir tidak berhasil (mis. Ditutup) bulan ini.",
+      "avgResolveTime": "Rata-rata waktu penyelesaian",
+      "avgResolveTimeTooltip": "Rata-rata waktu sejak tiket dibuat hingga mencapai tahap akhir berhasil.",
+      "minutes": "{n} mnt",
+      "hours": "{n} jam",
+      "days": "{n} hari"
     }
   },
   "Contacts": {
@@ -2624,6 +2698,36 @@
       "hide": "Sembunyikan",
       "noText": "(tanpa teks)",
       "noPagesYet": "Belum ada halaman."
+    },
+    "templates": {
+      "title": "Mulai dari templat",
+      "description": "Setiap templat mengisi nama dan instruksi. Anda bisa mengubah semuanya sebelum menyimpan, lalu tautkan pengetahuan yang harus digunakan.",
+      "back": "Kembali",
+      "blank": {
+        "name": "Kosong",
+        "description": "Mulai dari awal dan tulis instruksi Anda sendiri.",
+        "agentName": ""
+      },
+      "support": {
+        "name": "Agen dukungan",
+        "description": "Menjawab pertanyaan dan memecahkan masalah dari pengetahuan Anda; menyerahkan refund, keluhan, dan hal yang tidak diketahui ke tim.",
+        "agentName": "Agen dukungan"
+      },
+      "sales": {
+        "name": "Agen penjualan",
+        "description": "Menyaring prospek, merekomendasikan produk dan harga dari pengetahuan Anda, dan menyerahkan pembeli yang siap ke tim.",
+        "agentName": "Agen penjualan"
+      },
+      "marketing": {
+        "name": "Agen pemasaran",
+        "description": "Menjawab pertanyaan tentang penawaran, promo, dan kampanye, membagikan tautan yang tepat, dan menjaring minat.",
+        "agentName": "Agen pemasaran"
+      },
+      "admin": {
+        "name": "Agen admin",
+        "description": "Meja depan untuk tagihan, pemesanan, akun, dan status pesanan; mengumpulkan detail dan menyerahkan setiap perubahan ke tim.",
+        "agentName": "Agen admin"
+      }
     }
   },
   "Settings": {
@@ -4682,7 +4786,13 @@
       "onlineAlways": "Selalu online",
       "onlineAlwaysHint": "Lencana selalu menampilkan Online, bahkan di luar jam operasional.",
       "showTyping": "Tampilkan titik mengetik sebelum meminta data",
-      "askPhone": "Minta nomor telepon"
+      "askPhone": "Minta nomor telepon",
+      "chatTicket": "Buat tiket untuk setiap chat baru",
+      "chatTicketNoPipeline": "Anda memerlukan pipeline dukungan untuk ini.",
+      "chatTicketCreatePipeline": "Buat sekarang",
+      "chatTicketPipeline": "Pipeline dukungan",
+      "chatTicketStage": "Tahap awal",
+      "chatTicketHint": "Pengunjung yang kembali hanya mendapat tiket baru jika tiket sebelumnya sudah selesai. Menyelesaikan tiket menutup chat, dan menutup chat menyelesaikan tiket."
     },
     "share": {
       "title": "Bagikan",

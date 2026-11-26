@@ -126,7 +126,7 @@ export function registerBuilderTools(server: McpServer, api: ApiClient, scopes: 
       'list_pipelines',
       {
         title: 'List pipelines',
-        description: 'List sales pipelines with their ordered stages (ids included). create_deal automation steps and create_deal need pipeline_id + stage_id from here.',
+        description: 'List pipelines (kind "sales" = deals, "support" = tickets) with their ordered stages (ids included; a stage with outcome won/lost is a final stage). create_deal automation steps and create_deal need pipeline_id + stage_id from here.',
         inputSchema: {},
         annotations: { ...READ, title: 'List pipelines' },
       },
@@ -155,10 +155,22 @@ export function registerBuilderTools(server: McpServer, api: ApiClient, scopes: 
       'create_pipeline',
       {
         title: 'Create pipeline',
-        description: 'Create a pipeline with ordered stages (plain names, or {name,color}). Omit stages for the default: New lead → Qualified → Proposal → Negotiation → Won. Max 20 stages.',
+        description: 'Create a pipeline. kind "sales" (deals, default) or "support" (tickets; set once). Stages are ordered plain names or {name,color,outcome}; outcome "won"/"lost" marks a FINAL stage (moving a card there closes it as won/lost; for support tickets it also closes the linked chat). Any number of final stages. Omit stages for the defaults: sales New lead → Qualified → Proposal → Negotiation → Won (won) → Lost (lost); support New → In progress → Waiting on customer → Resolved (won) → Closed (lost). Max 20 stages.',
         inputSchema: {
           name: z.string(),
-          stages: z.array(z.union([z.string(), z.object({ name: z.string(), color: z.string().optional() })])).optional(),
+          kind: z.enum(['sales', 'support']).optional(),
+          stages: z
+            .array(
+              z.union([
+                z.string(),
+                z.object({
+                  name: z.string(),
+                  color: z.string().optional(),
+                  outcome: z.enum(['won', 'lost']).nullable().optional(),
+                }),
+              ]),
+            )
+            .optional(),
         },
         annotations: { ...WRITE, title: 'Create pipeline' },
       },
@@ -173,7 +185,14 @@ export function registerBuilderTools(server: McpServer, api: ApiClient, scopes: 
           id: z.string().describe('Pipeline id.'),
           name: z.string().optional(),
           stages: z
-            .array(z.object({ id: z.string().optional(), name: z.string(), color: z.string().optional() }))
+            .array(
+              z.object({
+                id: z.string().optional(),
+                name: z.string(),
+                color: z.string().optional(),
+                outcome: z.enum(['won', 'lost']).nullable().optional().describe('won/lost = final stage; null = normal'),
+              }),
+            )
             .optional(),
         },
         annotations: { ...WRITE, title: 'Update pipeline' },
@@ -194,7 +213,7 @@ export function registerBuilderTools(server: McpServer, api: ApiClient, scopes: 
       'create_deal',
       {
         title: 'Create deal',
-        description: 'Create a deal for an existing contact in a pipeline stage (stage must belong to that pipeline).',
+        description: 'Create a deal (sales pipeline) or ticket (support pipeline) for an existing contact in a pipeline stage (stage must belong to that pipeline). For tickets pass priority and, optionally, the conversation_id it is about.',
         inputSchema: {
           pipeline_id: z.string(),
           stage_id: z.string(),
@@ -203,6 +222,8 @@ export function registerBuilderTools(server: McpServer, api: ApiClient, scopes: 
           value: z.number().min(0).optional(),
           notes: z.string().optional(),
           expected_close_date: z.string().optional().describe('YYYY-MM-DD'),
+          priority: z.enum(['low', 'normal', 'high', 'urgent']).optional().describe('Tickets'),
+          conversation_id: z.string().optional().describe('Link a ticket to its chat'),
         },
         annotations: { ...WRITE, title: 'Create deal' },
       },
@@ -212,7 +233,7 @@ export function registerBuilderTools(server: McpServer, api: ApiClient, scopes: 
       'update_deal',
       {
         title: 'Update deal',
-        description: 'Edit a deal, move it to another stage of its pipeline (stage_id), or set status open/won/lost. Only passed fields change.',
+        description: 'Edit a deal or ticket, move it to another stage of its pipeline (stage_id; moving into a final stage sets its status automatically), or set status open/won/lost. Only passed fields change.',
         inputSchema: {
           id: z.string(),
           title: z.string().optional(),
@@ -221,6 +242,7 @@ export function registerBuilderTools(server: McpServer, api: ApiClient, scopes: 
           expected_close_date: z.string().optional(),
           stage_id: z.string().optional(),
           status: z.enum(['open', 'won', 'lost']).optional(),
+          priority: z.enum(['low', 'normal', 'high', 'urgent']).nullable().optional(),
         },
         annotations: { ...WRITE, title: 'Update deal' },
       },

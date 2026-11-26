@@ -7,7 +7,9 @@ export default function robots(): MetadataRoute.Robots {
   return {
     rules: {
       userAgent: '*',
-      allow: '/',
+      // The API reference page (/docs) loads its OpenAPI document from /api/v1/openapi.json; crawlers
+      // must be able to fetch it or they see an empty page. The longer rule wins over `/api/`.
+      allow: ['/', '/api/v1/openapi.json'],
       disallow: [
         '/api/',
         '/auth/',

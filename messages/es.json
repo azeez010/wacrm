@@ -3902,7 +3902,8 @@
       "free": "Gratis",
       "unlimited": "Ilimitado",
       "startFree": "Empezar gratis",
-      "getPlan": "Elegir {plan}"
+      "getPlan": "Elegir {plan}",
+      "showPricesIn": "Mostrar precios en"
     },
     "footer": {
       "login": "Iniciar sesión",

@@ -3888,7 +3888,8 @@
       "free": "Gratuit",
       "unlimited": "Illimité",
       "startFree": "Commencer gratuitement",
-      "getPlan": "Choisir {plan}"
+      "getPlan": "Choisir {plan}",
+      "showPricesIn": "Afficher les prix en"
     },
     "footer": {
       "login": "Se connecter",

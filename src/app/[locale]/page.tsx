@@ -206,7 +206,6 @@ export default async function LandingPage({
             {t('footer.help')}
           </Link>
           <LanguageSwitcher mode="path" iconOnly />
-          <CurrencySwitcher current={fx.current} options={fx.options} />
           {signedIn ? (
             <Link href="/dashboard" className={buttonVariants()}>
               {t('nav.dashboard')}
@@ -254,6 +253,10 @@ export default async function LandingPage({
         <section id="pricing" className="mx-auto max-w-6xl px-4 pb-24 sm:px-6">
           <h2 className="text-center text-3xl font-bold">{t('pricing.title')}</h2>
           <p className="mt-2 text-center text-muted-foreground">{t('pricing.subtitle')}</p>
+          <div className="mt-5 flex items-center justify-center gap-2 text-sm text-muted-foreground">
+            <span>{t('pricing.showPricesIn')}</span>
+            <CurrencySwitcher current={fx.current} options={fx.options} />
+          </div>
           {plans.length === 0 ? (
             <p className="mt-10 text-center text-muted-foreground">
               {t('pricing.unavailable')}

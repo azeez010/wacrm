@@ -3902,7 +3902,8 @@
       "free": "무료",
       "unlimited": "무제한",
       "startFree": "무료로 시작",
-      "getPlan": "{plan} 시작"
+      "getPlan": "{plan} 시작",
+      "showPricesIn": "가격 표시 통화"
     },
     "footer": {
       "login": "로그인",

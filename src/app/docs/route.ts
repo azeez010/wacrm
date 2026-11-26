@@ -1,11 +1,13 @@
+import { docsFallbackHtml } from '@/lib/api/v1/docs-fallback'
 import { BRAND_NAME } from '@/lib/brand'
+import { SITE_URL } from '@/lib/seo'
 
 // Interactive API reference, rendered in the browser by Scalar
 // (https://github.com/scalar/scalar, MIT) from /api/v1/openapi.json.
 // Pinned on purpose: bump the version deliberately and re-check the page.
 const SCALAR_VERSION = '1.82.1'
 
-const html = `<!doctype html>
+const html = (fallback: string) => `<!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
@@ -16,9 +18,16 @@ const html = `<!doctype html>
     <link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon-180.png" />
     <meta name="theme-color" content="#104D3C" />
+    <link rel="canonical" href="${SITE_URL}/docs" />
+    <meta name="robots" content="index, follow" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="${BRAND_NAME}" />
+    <meta property="og:title" content="API reference · ${BRAND_NAME}" />
+    <meta property="og:description" content="Send WhatsApp messages and templates, read delivery status and receive events with the ${BRAND_NAME} API." />
+    <meta property="og:url" content="${SITE_URL}/docs" />
   </head>
   <body>
-    <div id="app"></div>
+    <div id="app">${fallback}</div>
     <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference@${SCALAR_VERSION}"></script>
     <script>
       Scalar.createApiReference('#app', {
@@ -54,7 +63,7 @@ const html = `<!doctype html>
 </html>`
 
 export async function GET() {
-  return new Response(html, {
+  return new Response(html(docsFallbackHtml(SITE_URL)), {
     headers: {
       'Content-Type': 'text/html; charset=utf-8',
       'Cache-Control': 'public, max-age=300',

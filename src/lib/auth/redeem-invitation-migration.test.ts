@@ -11,6 +11,9 @@ const migrations = readdirSync(migrationsDir)
 
 const tablesWithoutDomainData = new Set([
   "profiles",
+  // Membership rows (116): who belongs to the account, not domain data. They mirror profiles
+  // and cascade with the account.
+  "account_members",
   "account_invitations",
   "member_presence",
   "pending_message_statuses",

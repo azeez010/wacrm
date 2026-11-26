@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { metaValue, splitList } from '@/lib/platform-config'
 import { parseSignedRequest } from '@/lib/meta/signed-request'
 import { publicBaseUrl, recordDeletionRequest } from '@/lib/meta/deletion-requests'
 
@@ -22,7 +23,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Invalid request' }, { status: 400 })
   }
 
-  const payload = parseSignedRequest(signedRequest)
+  const payload = parseSignedRequest(signedRequest, splitList(await metaValue('META_APP_SECRET')))
   if (!payload) return NextResponse.json({ error: 'Invalid signed_request' }, { status: 400 })
 
   try {

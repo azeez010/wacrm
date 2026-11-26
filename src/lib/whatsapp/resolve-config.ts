@@ -1,4 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { metaValue } from '@/lib/platform-config';
 import { decrypt } from './encryption';
 
 /**
@@ -84,13 +85,17 @@ export async function resolveWhatsAppConfig(
  *   Provider permission model already grants that token access to
  *   any WABA that completed Embedded Signup with us.
  */
-export function resolveWhatsAppCredentials(config: WhatsAppConfigRow): {
+export function resolveWhatsAppCredentials(
+  config: WhatsAppConfigRow,
+  /** The shared system-user token (admin console, else environment). Defaults to the environment. */
+  systemUserToken: string | undefined = process.env.META_SYSTEM_USER_ACCESS_TOKEN,
+): {
   accessToken: string;
   phoneNumberId: string;
   wabaId: string | null;
 } {
   if (config.mode === 'shared') {
-    const accessToken = process.env.META_SYSTEM_USER_ACCESS_TOKEN;
+    const accessToken = systemUserToken;
     if (!accessToken) {
       throw new Error(
         'META_SYSTEM_USER_ACCESS_TOKEN is not configured, shared WhatsApp connections cannot send.'
@@ -113,4 +118,10 @@ export function resolveWhatsAppCredentials(config: WhatsAppConfigRow): {
     phoneNumberId: config.phone_number_id,
     wabaId: config.waba_id,
   };
+}
+
+/** Same as resolveWhatsAppCredentials, with the system-user token read from the admin console first (see platform-config). */
+export async function resolveWhatsAppCredentialsAsync(config: WhatsAppConfigRow) {
+  const token = config.mode === 'shared' ? await metaValue('META_SYSTEM_USER_ACCESS_TOKEN') : undefined
+  return resolveWhatsAppCredentials(config, token)
 }

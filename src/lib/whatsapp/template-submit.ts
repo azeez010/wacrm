@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import type { SupabaseClient } from '@supabase/supabase-js'
-import { resolveWhatsAppConfig, resolveWhatsAppCredentials, AmbiguousConnectionError, NoConnectionError } from '@/lib/whatsapp/resolve-config'
+import { resolveWhatsAppConfig, resolveWhatsAppCredentialsAsync, AmbiguousConnectionError, NoConnectionError } from '@/lib/whatsapp/resolve-config'
 import { submitMessageTemplate } from '@/lib/whatsapp/meta-api'
 import {
   normalizeAuthPayload,
@@ -210,7 +210,7 @@ export async function submitTemplateForAccount(
     if (!config.waba_id) {
       return NextResponse.json({ error: t('common.wabaIdMissing') }, { status: 400 })
     }
-    const accessToken = resolveWhatsAppCredentials(config).accessToken
+    const accessToken = (await resolveWhatsAppCredentialsAsync(config)).accessToken
 
     // Media headers (image/video/document) need a Resumable-Upload
     // handle (Meta rejects a plain URL at creation). Derive it from

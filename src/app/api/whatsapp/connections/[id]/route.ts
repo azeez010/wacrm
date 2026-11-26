@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { metaValue } from '@/lib/platform-config';
 import {
   ForbiddenError,
   UnauthorizedError,
@@ -14,7 +15,7 @@ import { appSubscriptionState } from '@/lib/whatsapp/waba-pairing';
 import { encrypt } from '@/lib/whatsapp/encryption';
 import {
   resolveWhatsAppConfig,
-  resolveWhatsAppCredentials,
+  resolveWhatsAppCredentialsAsync,
   NoConnectionError,
 } from '@/lib/whatsapp/resolve-config';
 import { getT } from '@/lib/i18n/translate';
@@ -57,7 +58,7 @@ export async function GET(
 
     let accessToken: string;
     try {
-      accessToken = resolveWhatsAppCredentials(config).accessToken;
+      accessToken = (await resolveWhatsAppCredentialsAsync(config)).accessToken;
     } catch (err) {
       console.error(
         '[whatsapp/connections GET] Credential resolution failed:',
@@ -112,7 +113,7 @@ export async function GET(
           wabaId: config.waba_id,
           accessToken,
         });
-        const state = appSubscriptionState(subs, process.env.META_APP_ID);
+        const state = appSubscriptionState(subs, await metaValue('META_APP_ID'));
         wabaSubscription = {
           checked: true,
           subscribed: state.subscribed,

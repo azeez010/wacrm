@@ -1,4 +1,5 @@
 import { uploadResumableMedia } from '@/lib/whatsapp/meta-api'
+import { metaValue } from '@/lib/platform-config'
 import { MEDIA_HEADER_SPECS, isMediaHeaderKind } from '@/lib/whatsapp/media-header-types'
 import type { TemplatePayload } from '@/lib/whatsapp/template-validators'
 import { isDeliverableUrl } from '@/lib/webhooks/ssrf'
@@ -36,7 +37,7 @@ export async function ensureMediaHeaderHandle(
 
   const spec = MEDIA_HEADER_SPECS[kind]
 
-  const appId = process.env.META_APP_ID
+  const appId = await metaValue('META_APP_ID')
   if (!appId) {
     throw new Error(t('metaAppIdRequired'))
   }

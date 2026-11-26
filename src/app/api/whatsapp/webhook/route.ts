@@ -1,4 +1,5 @@
 import { inboundSourcePatch, type InboundReferral } from '@/lib/contacts/inbound-source'
+import { metaValue, splitList } from '@/lib/platform-config'
 import { isBlocked } from '@/lib/contacts/block-guard'
 import { NextResponse, after } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
@@ -36,7 +37,7 @@ import {
 } from '@/lib/whatsapp/template-webhook'
 import { applyMessageStatus } from '@/lib/whatsapp/message-status-sync'
 import { markContactActive, recordDeliveryStatus } from '@/lib/whatsapp/number-status'
-import { resolveWhatsAppCredentials } from '@/lib/whatsapp/resolve-config'
+import { resolveWhatsAppCredentialsAsync } from '@/lib/whatsapp/resolve-config'
 import {
   handleCoexistenceWebhookChange,
   isCoexistenceWebhookField,
@@ -189,7 +190,7 @@ export async function GET(request: Request) {
     // verify token configured in Meta's dashboard. Check that first;
     // it's the common case for a shared-heavy deployment and avoids a
     // DB round trip on every handshake.
-    const platformVerifyToken = process.env.META_WHATSAPP_WEBHOOK_VERIFY_TOKEN
+    const platformVerifyToken = await metaValue('META_WHATSAPP_WEBHOOK_VERIFY_TOKEN')
     if (platformVerifyToken && verifyTokenMatches(platformVerifyToken, verifyToken)) {
       return new Response(challenge, {
         status: 200,
@@ -276,7 +277,7 @@ export async function POST(request: Request) {
   }
   const signature = request.headers.get('x-hub-signature-256')
 
-  if (!verifyMetaWebhookSignature(rawBody, signature)) {
+  if (!verifyMetaWebhookSignature(rawBody, signature, splitList(await metaValue('META_APP_SECRET')))) {
     // 401 (not 200) - we want Meta's delivery dashboard to show failures
     // loudly if a misconfiguration causes signatures to stop matching,
     // rather than silently eating events.
@@ -434,7 +435,7 @@ async function processWebhook(body: { entry?: WhatsAppWebhookEntry[] }) {
 
       const config = configRows[0]
 
-      const decryptedAccessToken = resolveWhatsAppCredentials(config).accessToken
+      const decryptedAccessToken = (await resolveWhatsAppCredentialsAsync(config)).accessToken
 
       for (let i = 0; i < value.messages.length; i++) {
         const message = value.messages[i]

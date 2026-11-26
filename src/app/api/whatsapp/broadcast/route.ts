@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { requireRole, toErrorResponse } from '@/lib/auth/account'
 import { sendTemplateMessage } from '@/lib/whatsapp/meta-api'
-import { resolveWhatsAppConfig, resolveWhatsAppCredentials, AmbiguousConnectionError, NoConnectionError } from '@/lib/whatsapp/resolve-config'
+import { resolveWhatsAppConfig, resolveWhatsAppCredentialsAsync, AmbiguousConnectionError, NoConnectionError } from '@/lib/whatsapp/resolve-config'
 import type { SendTimeParams } from '@/lib/whatsapp/template-send-builder'
 import { resolveTemplateRow } from '@/lib/whatsapp/template-body'
 import {
@@ -143,7 +143,7 @@ export async function POST(request: Request) {
       throw err
     }
 
-    const accessToken = resolveWhatsAppCredentials(config).accessToken
+    const accessToken = (await resolveWhatsAppCredentialsAsync(config)).accessToken
 
     // Load the template row once so sendTemplateMessage can build
     // header + button components on each iteration. Loading inside

@@ -5,7 +5,7 @@ import {
   requireRole,
   toErrorResponse,
 } from '@/lib/auth/account'
-import { resolveWhatsAppCredentials, type WhatsAppConfigRow } from '@/lib/whatsapp/resolve-config'
+import { resolveWhatsAppCredentialsAsync, type WhatsAppConfigRow } from '@/lib/whatsapp/resolve-config'
 import { normalizeStatus } from '@/lib/whatsapp/template-status-normalize'
 import type { AuthTemplateOptions, TemplateButton, TemplateSampleValues } from '@/types'
 import { AUTH_BODY_TEXT } from '@/lib/whatsapp/template-validators'
@@ -178,7 +178,7 @@ export async function POST() {
     // with more than one WABA gets every connection's catalog synced
     // in one call, rather than requiring a separate call per connection.
     for (const config of connections) {
-      const accessToken = resolveWhatsAppCredentials(config).accessToken
+      const accessToken = (await resolveWhatsAppCredentialsAsync(config)).accessToken
 
       const metaTemplates: MetaTemplate[] = []
       let nextUrl:

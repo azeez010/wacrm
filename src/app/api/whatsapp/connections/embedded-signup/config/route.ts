@@ -6,6 +6,7 @@ import {
   toErrorResponse,
 } from '@/lib/auth/account';
 import { getT } from '@/lib/i18n/translate';
+import { metaValue } from '@/lib/platform-config';
 
 const t = getT('Api');
 
@@ -23,8 +24,8 @@ export async function GET() {
   try {
     await requireRole('admin');
 
-    const appId = process.env.META_APP_ID;
-    const configId = process.env.META_WHATSAPP_CONFIG_ID;
+    const appId = await metaValue('META_APP_ID');
+    const configId = await metaValue('META_WHATSAPP_CONFIG_ID');
     if (!appId || !configId) {
       return NextResponse.json({ configured: false });
     }
@@ -32,12 +33,12 @@ export async function GET() {
     return NextResponse.json({
       configured: true,
       appId,
-      graphApiVersion: process.env.META_GRAPH_API_VERSION || 'v21.0',
+      graphApiVersion: (await metaValue('META_GRAPH_API_VERSION')) || 'v21.0',
       configId,
       coexistenceConfigId:
-        process.env.META_WHATSAPP_COEXISTENCE_CONFIG_ID || null,
+        (await metaValue('META_WHATSAPP_COEXISTENCE_CONFIG_ID')) || null,
       coexistenceFeatureType:
-        process.env.META_WHATSAPP_COEXISTENCE_FEATURE_TYPE ||
+        (await metaValue('META_WHATSAPP_COEXISTENCE_FEATURE_TYPE')) ||
         'whatsapp_business_app_onboarding',
     });
   } catch (error) {

@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { metaValue } from '@/lib/platform-config';
 import { PlanLimitError, assertCanAddWhatsAppConnection } from '@/lib/billing/entitlements';
 import { onWhatsAppConnected } from '@/lib/onboarding/hooks';
 import { createClient as createAdminClient } from '@supabase/supabase-js';
@@ -106,9 +107,9 @@ export async function POST(request: Request) {
       );
     }
 
-    const appId = process.env.META_APP_ID;
-    const appSecret = process.env.META_APP_SECRET;
-    const systemUserToken = process.env.META_SYSTEM_USER_ACCESS_TOKEN;
+    const appId = await metaValue('META_APP_ID');
+    const appSecret = await metaValue('META_APP_SECRET');
+    const systemUserToken = await metaValue('META_SYSTEM_USER_ACCESS_TOKEN');
     if (!appId || !appSecret || !systemUserToken) {
       console.error(
         '[whatsapp/embedded-signup] Missing META_APP_ID / META_APP_SECRET / META_SYSTEM_USER_ACCESS_TOKEN'

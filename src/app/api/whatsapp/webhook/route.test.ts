@@ -263,6 +263,11 @@ vi.mock('@/lib/contacts/dedupe', () => ({
   isUniqueViolation: () => false,
 }))
 
+// Console-managed Meta settings (platform-config) fall back to the environment; keep this test environment-only.
+vi.mock('@/lib/platform-config', () => ({
+  metaValue: async (key: string) => process.env[key],
+  splitList: (v: string | undefined) => (v ?? '').split(',').map((x) => x.trim()).filter(Boolean),
+}))
 vi.mock('@/lib/whatsapp/webhook-signature', () => ({
   verifyMetaWebhookSignature: () => true,
 }))

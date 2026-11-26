@@ -54,8 +54,10 @@ function signatureMatches(rawBody: string, signatureHeader: string, secret: stri
 export function verifyMetaWebhookSignature(
   rawBody: string,
   signatureHeader: string | null,
+  /** App secrets from the admin console / environment (platform-config). Defaults to the environment. */
+  appSecrets: string[] = parseAppSecrets(process.env.META_APP_SECRET),
 ): boolean {
-  const secrets = parseAppSecrets(process.env.META_APP_SECRET)
+  const secrets = appSecrets
   if (secrets.length === 0) {
     console.error(
       '[webhook] META_APP_SECRET is not set, rejecting request. ' +

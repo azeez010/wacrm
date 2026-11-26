@@ -42,7 +42,7 @@ import { encrypt, isLegacyFormat } from '@/lib/whatsapp/encryption';
 import {
   AmbiguousConnectionError,
   resolveWhatsAppConfig,
-  resolveWhatsAppCredentials,
+  resolveWhatsAppCredentialsAsync,
 } from '@/lib/whatsapp/resolve-config';
 import { supabaseAdmin } from '@/lib/flows/admin-client';
 import {
@@ -362,7 +362,7 @@ export async function sendMessageToConversation(
       .eq('id', conversationId);
   }
 
-  const accessToken = resolveWhatsAppCredentials(config).accessToken;
+  const accessToken = (await resolveWhatsAppCredentialsAsync(config)).accessToken;
 
   // Self-heal legacy CBC ciphertexts (custom connections only - shared
   // connections store no token). Fire-and-forget; idempotent.

@@ -6,6 +6,7 @@ import {
 } from '@/lib/auth/account'
 import { checkRateLimit, rateLimitResponse, RATE_LIMITS } from '@/lib/rate-limit'
 import { encrypt, decrypt } from '@/lib/whatsapp/encryption'
+import { checkAiAdminGate } from '@/lib/ai/admin-gate'
 import { validateAiCredentials } from '@/lib/ai/validate'
 import { embedTexts } from '@/lib/ai/embeddings'
 import { AiError, type AiProvider } from '@/lib/ai/types'
@@ -66,12 +67,17 @@ export async function GET() {
         ? agentRows.some((a) => a.is_active && a.auto_reply_enabled)
         : safe.auto_reply_enabled
 
+    // A platform admin can pause AI for everyone or for this business. Report auto-reply as off so the
+    // inbox banner doesn't promise replies that won't come, and say why via `admin_paused`.
+    const gate = await checkAiAdminGate(supabase, accountId)
+
     return NextResponse.json({
       configured: true,
       has_key: !!api_key,
       has_embeddings_key: !!embeddings_api_key,
       ...safe,
-      auto_reply_enabled: autoReplyEnabled,
+      admin_paused: !gate.allowed,
+      auto_reply_enabled: gate.allowed && autoReplyEnabled,
       agent_count: agentRows.length,
     })
   } catch (err) {

@@ -2,6 +2,7 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import { decrypt } from '@/lib/whatsapp/encryption'
 import type { AiConfig } from './types'
 import { AGENT_COLUMNS, pickAgent, type AgentTarget, type AiAgentRow } from './agents'
+import { checkAiAdminGate } from './admin-gate'
 
 interface AiConfigRow {
   provider: 'openai' | 'anthropic' | 'openai_compatible'
@@ -22,8 +23,8 @@ const CONFIG_COLUMNS =
 /**
  * Load and decrypt the account's AI config for *use* (draft or
  * auto-reply). Returns `null` when there's no row or the master switch
- * (`is_active`) is off - both mean "AI is not available", which callers
- * treat identically. Throws only if the stored key can't be decrypted
+ * (`is_active`) is off, or an admin has paused AI for the platform or this
+ * business - all mean "AI is not available", which callers treat identically. Throws only if the stored key can't be decrypted
  * (mismatched `ENCRYPTION_KEY`), so that distinct failure surfaces
  * rather than looking like "not configured".
  *
@@ -36,6 +37,9 @@ export async function loadAiConfig(
   opts: { requireActive?: boolean } = {},
 ): Promise<AiConfig | null> {
   const { requireActive = true } = opts
+  // The platform admin can pause AI platform-wide or per business. That applies to every use of the
+  // model (drafts, auto-replies and the playground), whatever `requireActive` says.
+  if (!(await checkAiAdminGate(db, accountId)).allowed) return null
   const { data, error } = await db
     .from('ai_configs')
     .select(CONFIG_COLUMNS)

@@ -1,5 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { OFFLINE_AFTER_MS } from '@/lib/presence'
+import { checkAiAdminGate } from '@/lib/ai/admin-gate'
 import { AGENT_COLUMNS, pickAgent, type AiAgentRow } from '@/lib/ai/agents'
 
 // ============================================================
@@ -96,7 +97,8 @@ export async function loadChatAvailability(
   const agentRows = (agents.data as AiAgentRow[] | null) ?? []
   const webAgent = agentRows.length > 0 ? pickAgent(agentRows, { channel: 'web_chat' }) : null
   const autoReplies = agentRows.length > 0 ? webAgent?.auto_reply_enabled === true : cfg?.auto_reply_enabled === true
-  const aiActive = !!cfg && cfg.is_active === true && autoReplies
+  // An admin pause (platform-wide or this business) means AI will not answer, so don't promise it to visitors.
+  const aiActive = !!cfg && cfg.is_active === true && autoReplies && (await checkAiAdminGate(db, accountId)).allowed
 
   const fresh = reachableTeammates((presence.data as PresenceLike[] | null) ?? [], now)
   let humansOnline = 0

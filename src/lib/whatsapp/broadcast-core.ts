@@ -28,6 +28,7 @@ import {
 import { resolveTemplateRow } from '@/lib/whatsapp/template-body';
 import type { MessageTemplate } from '@/types';
 import { findOrCreateContact } from '@/lib/api/v1/contacts';
+import { assertAccountNotSuspended } from '@/lib/auth/suspension';
 
 /** Thrown by createBroadcast on a caller-visible failure; route maps it. */
 export class BroadcastError extends Error {
@@ -310,6 +311,9 @@ export async function deliverBroadcast(
   db: SupabaseClient,
   plan: BroadcastPlan
 ): Promise<void> {
+  // A suspended business sends nothing, including broadcasts that were already scheduled.
+  const { data: owner } = await db.from('broadcasts').select('account_id').eq('id', plan.broadcastId).maybeSingle();
+  if (owner?.account_id) await assertAccountNotSuspended(db, owner.account_id as string);
   // Re-check right before sending: a contact may have been blocked since
   // the broadcast was created (or this is a resume of an older one).
   const blockedRows = await fetchBlockedRecipientRowIds(

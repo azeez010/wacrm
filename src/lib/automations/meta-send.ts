@@ -19,6 +19,7 @@ import {
 } from '@/lib/whatsapp/template-body'
 import { supabaseAdmin } from './admin-client'
 import { getT } from '@/lib/i18n/translate'
+import { assertAccountNotSuspended } from '@/lib/auth/suspension'
 
 const t = getT('LibErrors')
 
@@ -116,6 +117,7 @@ type SendInput =
 
 async function sendViaMeta(input: SendInput): Promise<{ whatsapp_message_id: string }> {
   const db = supabaseAdmin()
+  await assertAccountNotSuspended(db, input.accountId)
 
   // Scope the contact + config lookups by account_id, not user_id.
   // The engine uses the service-role client (bypassing RLS); without

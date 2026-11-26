@@ -20,6 +20,7 @@
 // ============================================================
 
 import { isBlocked } from '@/lib/contacts/block-guard';
+import { AccountSuspendedError, assertAccountNotSuspended } from '@/lib/auth/suspension';
 import { channelOf } from '@/lib/channels/registry';
 import { ChannelSendError, sendWebChatMessage } from '@/lib/channels/dispatch';
 import type { SupabaseClient } from '@supabase/supabase-js';
@@ -216,6 +217,12 @@ export async function sendMessageToConversation(
   accountId: string,
   params: SendMessageParams
 ): Promise<SendMessageResult> {
+  try {
+    await assertAccountNotSuspended(db, accountId);
+  } catch (e) {
+    if (e instanceof AccountSuspendedError) throw new SendMessageError('account_suspended', e.message, 403);
+    throw e;
+  }
   const {
     conversationId,
     messageType,

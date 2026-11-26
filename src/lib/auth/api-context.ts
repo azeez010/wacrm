@@ -36,6 +36,7 @@ import { hasScope, type ApiScope } from '@/lib/api-keys/scopes';
 import { forbidden, rateLimited, unauthorized } from '@/lib/api/v1/respond';
 import { checkRateLimit, RATE_LIMITS } from '@/lib/rate-limit';
 import { assertFeature } from '@/lib/billing/entitlements';
+import { AccountSuspendedError, assertAccountNotSuspended } from '@/lib/auth/suspension';
 
 export interface ApiKeyContext {
   /** Discriminant - lets shared logic tell key auth from cookie auth. */
@@ -107,6 +108,14 @@ export async function requireApiKey(
 
   if (scope && !hasScope(row.scopes, scope)) {
     throw forbidden(`This API key is missing the '${scope}' scope`);
+  }
+
+  // A suspended business cannot use its API keys either.
+  try {
+    await assertAccountNotSuspended(supabaseAdmin(), row.account_id);
+  } catch (e) {
+    if (e instanceof AccountSuspendedError) throw forbidden(e.message);
+    throw e;
   }
 
   // Plan gate: the public API is a plan feature. Throws FeatureLockedError,

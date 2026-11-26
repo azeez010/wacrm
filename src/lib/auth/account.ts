@@ -31,6 +31,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 import { hasMinRole, isAccountRole, type AccountRole } from "./roles";
 import { getT } from "@/lib/i18n/translate";
+import { AccountSuspendedError, assertAccountNotSuspended } from "./suspension";
 
 const t = getT("LibErrors.auth");
 
@@ -51,8 +52,11 @@ export class UnauthorizedError extends Error {
 
 export class ForbiddenError extends Error {
   readonly status = 403 as const;
-  constructor(message = t("forbidden")) {
+  /** Machine code for callers that need to tell reasons apart, e.g. "account_suspended". */
+  readonly code?: string;
+  constructor(message = t("forbidden"), code?: string) {
     super(message);
+    this.code = code;
     this.name = "ForbiddenError";
   }
 }
@@ -71,7 +75,8 @@ export class ForbiddenError extends Error {
  */
 export function toErrorResponse(err: unknown): NextResponse {
   if (err instanceof UnauthorizedError || err instanceof ForbiddenError) {
-    return NextResponse.json({ error: err.message }, { status: err.status });
+    const code = err instanceof ForbiddenError ? err.code : undefined;
+    return NextResponse.json(code ? { error: err.message, code } : { error: err.message }, { status: err.status });
   }
   console.error("[toErrorResponse] uncategorized error:", err);
   return NextResponse.json({ error: t("internal") }, { status: 500 });
@@ -164,6 +169,14 @@ export async function getCurrentAccount(): Promise<AccountContext> {
     // account_id points at no readable account row - orphaned profile
     // or an RLS gap. Same "can't scope this user" outcome as above.
     throw new ForbiddenError(t("notLinked"));
+  }
+
+  // The admin console can suspend a business; every signed-in API call then stops here (fails open on errors).
+  try {
+    await assertAccountNotSuspended(supabase, data.account_id);
+  } catch (e) {
+    if (e instanceof AccountSuspendedError) throw new ForbiddenError(e.message, e.code);
+    throw e;
   }
 
   return {

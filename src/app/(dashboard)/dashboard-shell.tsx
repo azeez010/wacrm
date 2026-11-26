@@ -7,6 +7,7 @@ import { AuthProvider, useAuth } from "@/hooks/use-auth";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Header } from "@/components/layout/header";
 import { AccountAccessAlert } from "@/components/layout/account-access-alert";
+import { SuspensionGate } from "@/components/layout/suspension-gate";
 import { PresenceHeartbeat } from "@/components/presence/presence-heartbeat";
 import { DefaultsSeeder } from "@/components/automations/defaults-seeder";
 import { OnboardingDialog } from "@/components/onboarding/onboarding-dialog";
@@ -77,6 +78,8 @@ function SignedInShell({
       {/* Reports this tab's online/away presence once we know a user is
           signed in. Headless, renders nothing. */}
       <PresenceHeartbeat />
+      {/* Covers the app while the platform admin has this business suspended. */}
+      <SuspensionGate />
       {/* Desktop alerts for new customer messages (opt-in via Settings →
           Your profile). Headless, renders nothing. */}
       <BrowserNotificationsListener />

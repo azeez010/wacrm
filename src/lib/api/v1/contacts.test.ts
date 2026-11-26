@@ -56,6 +56,8 @@ describe('serializeContact', () => {
       first_seen_at: null,
       opt_in_at: null,
       opt_in_source: null,
+      wa_status: null,
+      wa_status_at: null,
       blocked: false,
       blocked_reason: null,
       blocked_at: null,

@@ -77,6 +77,8 @@ export interface CreatedBroadcastPlan extends BroadcastPlan {
   duplicates: number;
   /** Recipients dropped because their contact is blocked. */
   blockedSkipped?: number;
+  /** Recipients dropped because Meta reported their number undeliverable (account switch). */
+  unreachableSkipped?: number;
 }
 
 const MAX_RECIPIENTS = 1000;
@@ -205,6 +207,22 @@ export async function createBroadcast(
     }
   }
 
+  // Optional account switch: numbers Meta reported undeliverable (131026) are left out too.
+  let unreachableSkipped = 0;
+  const { data: acct } = await db.from('accounts').select('broadcast_skip_unreachable').eq('id', accountId).maybeSingle();
+  if (acct?.broadcast_skip_unreachable === true && deduped.length > 0) {
+    const ghosts = await fetchUnreachableContactIds(db, accountId, deduped.map((r) => r.contactId));
+    for (let i = deduped.length - 1; i >= 0; i--) {
+      if (ghosts.has(deduped[i].contactId)) {
+        deduped.splice(i, 1);
+        unreachableSkipped++;
+      }
+    }
+    if (deduped.length === 0) {
+      throw new BroadcastError('bad_request', 'Every recipient is unreachable on WhatsApp, so nothing was sent.', 400);
+    }
+  }
+
   if (deduped.length === 0) {
     throw new BroadcastError(
       'bad_request',
@@ -269,8 +287,9 @@ export async function createBroadcast(
     templateRow,
     planned,
     rejected,
-    duplicates: resolved.length - deduped.length - blockedSkipped,
+    duplicates: resolved.length - deduped.length - blockedSkipped - unreachableSkipped,
     blockedSkipped,
+    unreachableSkipped,
   };
 }
 
@@ -415,6 +434,25 @@ async function fetchBlockedContactIds(
       .select('id')
       .eq('account_id', accountId)
       .not('blocked_at', 'is', null)
+      .in('id', contactIds.slice(i, i + 200));
+    for (const row of data ?? []) out.add(row.id as string);
+  }
+  return out;
+}
+
+/** Of `contactIds`, the ones Meta reported undeliverable (wa_status 'unreachable'). */
+async function fetchUnreachableContactIds(
+  db: SupabaseClient,
+  accountId: string,
+  contactIds: string[]
+): Promise<Set<string>> {
+  const out = new Set<string>();
+  for (let i = 0; i < contactIds.length; i += 200) {
+    const { data } = await db
+      .from('contacts')
+      .select('id')
+      .eq('account_id', accountId)
+      .eq('wa_status', 'unreachable')
       .in('id', contactIds.slice(i, i + 200));
     for (const row of data ?? []) out.add(row.id as string);
   }

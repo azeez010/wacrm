@@ -61,6 +61,7 @@ export interface BroadcastSendOutcome {
   interruption: BroadcastSendInterruption | null;
   /** Contacts left out because they are blocked (suppression list). */
   blockedSkipped?: number;
+  unreachableSkipped?: number;
 }
 
 interface UseBroadcastSendingReturn {
@@ -190,14 +191,18 @@ export function useBroadcastSending(): UseBroadcastSendingReturn {
 
   async function resolveAudience(
     audience: AudienceConfig,
-    stats?: { blockedSkipped: number },
+    stats?: { blockedSkipped: number; unreachableSkipped?: number },
   ): Promise<Contact[]> {
     const supabase = createClient();
+    // Account switch (Settings > WhatsApp): leave numbers Meta reported undeliverable out.
+    const { data: acct } = accountId
+      ? await supabase.from('accounts').select('broadcast_skip_unreachable').eq('id', accountId).maybeSingle()
+      : { data: null };
     return resolveAudienceContacts(
       supabase,
       audience,
       (rows) => upsertCsvContacts(supabase, rows),
-      { stats },
+      { stats, skipUnreachable: acct?.broadcast_skip_unreachable === true },
     );
   }
 
@@ -331,7 +336,7 @@ export function useBroadcastSending(): UseBroadcastSendingReturn {
 
       // ── Step 1: Resolve audience contacts ─────────────────────────
       setProgress(5);
-      const audienceStats = { blockedSkipped: 0 };
+      const audienceStats = { blockedSkipped: 0, unreachableSkipped: 0 };
       const contacts = await resolveAudience(payload.audience, audienceStats);
 
       if (contacts.length === 0) {
@@ -611,6 +616,7 @@ export function useBroadcastSending(): UseBroadcastSendingReturn {
         broadcastId: broadcast.id,
         interruption,
         blockedSkipped: audienceStats.blockedSkipped,
+        unreachableSkipped: audienceStats.unreachableSkipped,
       };
     } finally {
       setIsProcessing(false);

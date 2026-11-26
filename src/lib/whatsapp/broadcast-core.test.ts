@@ -53,7 +53,9 @@ describe('createBroadcast validation', () => {
 // create_broadcast_with_recipients RPC returns.
 function makeDb(
   rpcResult: { data: unknown; error: unknown },
-  blockedContactIds: string[] = []
+  blockedContactIds: string[] = [],
+  // Account switch "skip unreachable numbers" and which contacts Meta reported undeliverable.
+  unreachable: { skip: boolean; ids: string[] } = { skip: false, ids: [] }
 ) {
   const calls = {
     rpc: [] as { name: string; args: unknown }[],
@@ -95,15 +97,28 @@ function makeDb(
           }),
         };
       }
-      if (table === 'contacts') {
-        // Blocked-contact lookup: nobody is blocked in these scenarios.
+      if (table === 'accounts') {
         const chain: Record<string, unknown> = {
           select: () => chain,
           eq: () => chain,
+          maybeSingle: () =>
+            Promise.resolve({ data: { broadcast_skip_unreachable: unreachable.skip }, error: null }),
+        };
+        return chain;
+      }
+      if (table === 'contacts') {
+        // Blocked-contact lookup (.not blocked_at) and unreachable lookup (.eq wa_status).
+        let wantUnreachable = false;
+        const chain: Record<string, unknown> = {
+          select: () => chain,
+          eq: (col: string) => {
+            if (col === 'wa_status') wantUnreachable = true;
+            return chain;
+          },
           not: () => chain,
           in: () =>
             Promise.resolve({
-              data: blockedContactIds.map((id) => ({ id })),
+              data: (wantUnreachable ? unreachable.ids : blockedContactIds).map((id) => ({ id })),
               error: null,
             }),
         };
@@ -129,6 +144,27 @@ describe('createBroadcast suppression list', () => {
       })
     ).rejects.toMatchObject({ code: 'contact_blocked', status: 400 });
     expect(calls.rpc).toHaveLength(0);
+  });
+});
+
+describe('createBroadcast unreachable numbers (account switch)', () => {
+  it('with the switch on, a recipient Meta reported undeliverable is dropped (and the request fails if none are left)', async () => {
+    const { db, calls } = makeDb({ data: [], error: null }, [], { skip: true, ids: ['c1'] });
+    await expect(
+      createBroadcast(db, 'acc', 'user', { templateName: 'promo', recipients: [{ to: '+14155550123' }] })
+    ).rejects.toMatchObject({ code: 'bad_request', status: 400 });
+    expect(calls.rpc).toHaveLength(0);
+  });
+
+  it('with the switch off (default) nothing is skipped', async () => {
+    const { db, calls } = makeDb(
+      { data: [{ broadcast_id: 'b1', recipient_id: 'r1', contact_id: 'c1' }], error: null },
+      [],
+      { skip: false, ids: ['c1'] }
+    );
+    const plan = await createBroadcast(db, 'acc', 'user', { templateName: 'promo', recipients: [{ to: '+14155550123' }] });
+    expect(plan.unreachableSkipped).toBe(0);
+    expect(calls.rpc).toHaveLength(1);
   });
 });
 

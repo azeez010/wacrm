@@ -34,6 +34,7 @@ import {
   isTemplateWebhookField,
 } from '@/lib/whatsapp/template-webhook'
 import { applyMessageStatus } from '@/lib/whatsapp/message-status-sync'
+import { markContactActive, recordDeliveryStatus } from '@/lib/whatsapp/number-status'
 import { resolveWhatsAppCredentials } from '@/lib/whatsapp/resolve-config'
 import {
   handleCoexistenceWebhookChange,
@@ -501,6 +502,11 @@ async function handleStatusUpdate(
       })
     : []
 
+  // Reachability: delivered / read = on WhatsApp; Meta 131026 = unreachable (passive, best effort).
+  if (accountId) {
+    await recordDeliveryStatus(supabaseAdmin(), accountId, status.recipient_id, status.status, failure?.code ?? null)
+  }
+
   // Webhook fan-out for this status change happens at the END of this
   // handler (after the broadcast mirror below), so a slow subscriber
   // endpoint can't delay the broadcast_recipients update.
@@ -681,6 +687,8 @@ async function processMessage(
   )
   if (!contactOutcome) return
   const contactRecord = contactOutcome.contact
+  // They messaged us, so the number is certainly on WhatsApp (clears an old "unreachable").
+  await markContactActive(supabaseAdmin(), contactRecord as never)
 
   // Where did this lead come from? Click-to-WhatsApp ads send a referral object;
   // otherwise a brand-new contact is "WhatsApp". First touch only: empty columns.

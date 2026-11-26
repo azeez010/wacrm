@@ -139,6 +139,9 @@ export interface Contact {
   blocked_at?: string | null;
   blocked_reason?: 'manual' | 'opt_out' | 'import' | 'api' | null;
   blocked_by?: string | null;
+  /** Passive WhatsApp reachability (migration 099): null = never seen either way. */
+  wa_status?: 'active' | 'unreachable' | null;
+  wa_status_at?: string | null;
   created_at: string;
   updated_at: string;
   /** Hydrated by queries that embed `contact_tags(tags(*))` (e.g. the

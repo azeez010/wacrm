@@ -39,6 +39,9 @@ export interface ApiContact {
   /** Consent captured by a form (when, where, and the text they agreed to). */
   opt_in_at: string | null;
   opt_in_source: string | null;
+  /** Passive WhatsApp reachability from Meta's delivery results: 'active', 'unreachable' (error 131026) or null (never seen). */
+  wa_status: 'active' | 'unreachable' | null;
+  wa_status_at: string | null;
   /** True when the contact is blocked: no message of any kind is sent to them. */
   blocked: boolean;
   blocked_reason: 'manual' | 'opt_out' | 'import' | 'api' | null;
@@ -83,6 +86,8 @@ export function serializeContact(row: Record<string, unknown>): ApiContact {
     first_seen_at: (row.first_seen_at as string | null) ?? null,
     opt_in_at: (row.opt_in_at as string | null) ?? null,
     opt_in_source: (row.opt_in_source as string | null) ?? null,
+    wa_status: (row.wa_status as ApiContact['wa_status']) ?? null,
+    wa_status_at: (row.wa_status_at as string | null) ?? null,
     blocked: Boolean(row.blocked_at),
     blocked_reason: (row.blocked_reason as ApiContact['blocked_reason']) ?? null,
     blocked_at: (row.blocked_at as string | null) ?? null,

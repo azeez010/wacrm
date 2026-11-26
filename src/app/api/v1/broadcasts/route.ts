@@ -165,6 +165,7 @@ export async function POST(request: Request) {
         rejected: plan.rejected,
         duplicates: plan.duplicates,
         blocked_skipped: plan.blockedSkipped ?? 0,
+        unreachable_skipped: plan.unreachableSkipped ?? 0,
       },
       202
     );

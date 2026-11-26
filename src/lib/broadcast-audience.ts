@@ -221,12 +221,15 @@ export async function resolveAudienceContacts(
   db: SupabaseClient,
   audience: AudienceConfig,
   resolveCsv: (rows: CsvAudienceRow[]) => Promise<Contact[]>,
-  opts: { accountId?: string; stats?: { blockedSkipped: number } } = {},
+  opts: { accountId?: string; skipUnreachable?: boolean; stats?: { blockedSkipped: number; unreachableSkipped?: number } } = {},
 ): Promise<Contact[]> {
   const contacts = await resolveUnfiltered(db, audience, resolveCsv, opts);
   // Blocked contacts never receive a broadcast, whatever the audience.
-  const sendable = contacts.filter((c) => !isBlocked(c));
-  if (opts.stats) opts.stats.blockedSkipped = contacts.length - sendable.length;
+  const unblocked = contacts.filter((c) => !isBlocked(c));
+  if (opts.stats) opts.stats.blockedSkipped = contacts.length - unblocked.length;
+  // Optional (account switch): numbers Meta reported undeliverable are left out too.
+  const sendable = opts.skipUnreachable ? unblocked.filter((c) => c.wa_status !== 'unreachable') : unblocked;
+  if (opts.stats) opts.stats.unreachableSkipped = unblocked.length - sendable.length;
   return sendable;
 }
 

@@ -43,6 +43,7 @@ const BUILTIN_FIELDS = [
   'tags',
   'created_at',
   'blocked',
+  'wa_unreachable',
   'lead_source',
   'utm_source',
   'utm_medium',

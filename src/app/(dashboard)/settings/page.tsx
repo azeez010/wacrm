@@ -23,6 +23,7 @@ import { DealsSettings } from '@/components/settings/deals-settings';
 import { InboxSettings } from '@/components/settings/inbox-settings';
 import { MembersTab } from '@/components/settings/members-tab';
 import { ApiKeysPanel } from '@/components/settings/api-keys-panel';
+import { ReachabilityCard } from '@/components/settings/reachability-card';
 import { WebhooksPanel } from '@/components/settings/webhooks-panel';
 import { BillingPanel } from '@/components/settings/billing-panel';
 import {
@@ -88,7 +89,10 @@ function SettingsPageInner() {
     language: <LanguagePanel />,
     timezone: <TimezonePanel />,
     whatsapp: (
-      <WhatsAppEmbeddedSignup onConnected={() => window.location.reload()} />
+      <>
+        <WhatsAppEmbeddedSignup onConnected={() => window.location.reload()} />
+        <ReachabilityCard />
+      </>
     ),
     templates: <TemplateManager />,
     'quick-replies': <QuickRepliesManager />,

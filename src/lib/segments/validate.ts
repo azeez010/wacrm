@@ -26,7 +26,7 @@ export function kindOf(
   if (BUILTIN_TEXT.has(field)) return 'builtin_text'
   if (field === 'created_at') return 'created_at'
   if (field === 'tags') return 'tags'
-  if (field === 'blocked') return 'blocked'
+  if (field === 'blocked' || field === 'wa_unreachable') return 'blocked'
   if (field.startsWith('cf:')) return customKinds[field.slice(3)] ?? null
   return null
 }

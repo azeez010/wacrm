@@ -85,3 +85,12 @@ describe('parseFilter', () => {
     expect(parseFilter({ op: 'or', rules: [{ field: 'name', operator: 'is_set' }] })).toMatchObject({ ok: true })
   })
 })
+
+describe('wa_unreachable rule (migration 099)', () => {
+  it('is a Yes/No field like blocked and survives normalization', async () => {
+    const { kindOf, normalizeFilter } = await import('./validate')
+    expect(kindOf('wa_unreachable', {})).toBe('blocked')
+    const f = normalizeFilter({ version: 1, op: 'and', rules: [{ field: 'wa_unreachable', operator: 'is_true' }] }, {})
+    expect(f.rules).toEqual([{ field: 'wa_unreachable', operator: 'is_true' }])
+  })
+})

@@ -38,7 +38,7 @@ beforeEach(async () => {
   blob = await encryptPlatformSecret(JSON.stringify({ api_key: 'sk-test' }), KEY)
 })
 
-const deps = (admin: SupabaseClient, call: RunDeps['call'], log = vi.fn(async () => undefined)): RunDeps => ({ admin: () => admin, call, now: Date.now, log })
+const deps = (admin: SupabaseClient, call: RunDeps['call'], log = vi.fn(async () => undefined), callTools: RunDeps['callTools'] = vi.fn()): RunDeps => ({ admin: () => admin, call, now: Date.now, log, callTools })
 
 describe('runGeneration: platform failover', () => {
   it('uses the first instance, logs usage with its id, cost and attempts', async () => {
@@ -125,7 +125,7 @@ describe('runGeneration: credits and gates', () => {
     const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({ choices: [{ message: { content: 'Own reply' } }], usage: { prompt_tokens: 3, completion_tokens: 2, total_tokens: 5 } }), { status: 200 }))
     vi.stubGlobal('fetch', fetchMock)
     try {
-      const r = await runGeneration({} as SupabaseClient, { ...base, config: own }, { admin: () => admin, call: vi.fn(), now: Date.now, log })
+      const r = await runGeneration({} as SupabaseClient, { ...base, config: own }, { admin: () => admin, call: vi.fn(), now: Date.now, log, callTools: vi.fn() })
       expect(r).toMatchObject({ text: 'Own reply', source: 'own', instanceId: null })
       expect(admin.rpc).not.toHaveBeenCalled()
       expect(log).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({ provider: 'openai', model: 'gpt' }))
@@ -133,5 +133,38 @@ describe('runGeneration: credits and gates', () => {
     } finally {
       vi.unstubAllGlobals()
     }
+  })
+})
+
+describe('runGeneration with tools', () => {
+  it('platform failover mid-loop: the second provider continues and the action runs once', async () => {
+    const { admin } = fakeAdmin({ route: [
+      { id: 'a', kind: 'openai', name: 'A', model: 'm1', reason: null, row: { secrets: blob } },
+      { id: 'b', kind: 'anthropic', name: 'B', model: 'm2', reason: null, row: { secrets: blob } },
+    ] })
+    const execute = vi.fn(async () => ({ content: 'booked' }))
+    const tools = { specs: [{ name: 'cal__book', description: 'Book', inputSchema: {} }], execute }
+    const callTools = vi.fn()
+      .mockResolvedValueOnce({ text: '', toolCalls: [{ id: 'x1', name: 'cal__book', arguments: { day: 'Tue' } }], usage })
+      .mockRejectedValueOnce(new AiError('timeout', { code: 'timeout' }))
+      .mockResolvedValueOnce({ text: 'Booked for Tuesday.', toolCalls: [], usage })
+    const r = await runGeneration({} as SupabaseClient, { ...base, mode: 'auto_reply', config: platformConfig, tools }, deps(admin, vi.fn(), vi.fn(async () => undefined), callTools))
+    expect(r).toMatchObject({ text: 'Booked for Tuesday.', instanceId: 'b', toolsExecuted: 1, pendingApproval: false })
+    expect(execute).toHaveBeenCalledTimes(1)
+    expect(callTools.mock.calls[2]![1].turns).toHaveLength(2) // B saw A's tool round
+    expect(callTools.mock.calls.map((c) => c[0])).toEqual(['openai', 'openai', 'anthropic'])
+  })
+
+  it('own key with tools uses the tool path and reports a pending approval', async () => {
+    const own = { source: 'own', provider: 'anthropic', model: 'claude', apiKey: 'sk-own', baseUrl: null } as unknown as AiConfig
+    const tools = { specs: [{ name: 'pay__link', description: '', inputSchema: {} }], execute: vi.fn(async () => ({ content: 'needs approval', pendingApproval: true })) }
+    const callTools = vi.fn()
+      .mockResolvedValueOnce({ text: '', toolCalls: [{ id: '1', name: 'pay__link', arguments: { amount: 5 } }], usage })
+      .mockResolvedValueOnce({ text: 'A teammate will send the link shortly.', toolCalls: [], usage })
+    const admin = { rpc: vi.fn() } as unknown as SupabaseClient
+    const r = await runGeneration({} as SupabaseClient, { ...base, mode: 'auto_reply', config: own, tools }, { admin: () => admin, call: vi.fn(), now: Date.now, log: vi.fn(async () => undefined), callTools })
+    expect(r).toMatchObject({ source: 'own', pendingApproval: true, text: 'A teammate will send the link shortly.' })
+    expect(callTools.mock.calls[0]![0]).toBe('anthropic')
+    expect(admin.rpc).not.toHaveBeenCalled()
   })
 })

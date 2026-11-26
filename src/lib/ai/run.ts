@@ -11,6 +11,10 @@ import { generateOpenAiCompatible } from './providers/openai-compatible'
 import type { ProviderArgs } from './providers/shared'
 import { AiError, type AiConfig, type AiUsage, type ChatMessage, type GenerateResult } from './types'
 import { logAiUsage, type LogAiUsageArgs } from './usage'
+import { runToolLoop, newLoopState } from './tools/loop'
+import { aiRequestTimeoutMs } from './defaults'
+import { callModelWithTools, type ToolCallArgs } from './tools/provider-tools'
+import type { ToolModelResult, ToolRuntime } from './tools/types'
 import { getT } from '@/lib/i18n/translate'
 
 const t = getT('LibErrors')
@@ -36,6 +40,8 @@ export interface RunArgs {
   conversationId: string | null
   mode: RunMode
   agentId?: string | null
+  /** Tools the model may call (integrations). Absent = plain text generation, exactly as before. */
+  tools?: ToolRuntime | null
 }
 
 export interface Attempt {
@@ -53,6 +59,10 @@ export interface RunResult extends GenerateResult {
   source: 'own' | 'platform'
   instanceId: string | null
   attempts: Attempt[]
+  /** An action is waiting for a teammate's approval: the caller should hand the conversation to a human. */
+  pendingApproval?: boolean
+  /** How many tool executions happened (0 without tools). */
+  toolsExecuted?: number
 }
 
 type RouteEntry = { id: string; kind: string; name: string; model: string; reason: string | null }
@@ -63,12 +73,15 @@ export interface RunDeps {
   call: (adapter: AiAdapter, args: ProviderArgs) => Promise<{ text: string; usage: AiUsage | null }>
   now: () => number
   log: (db: SupabaseClient, args: LogAiUsageArgs) => Promise<void>
+  /** One model call with tools (tests inject a fake). */
+  callTools: (adapter: AiAdapter, args: ToolCallArgs) => Promise<ToolModelResult>
 }
 const defaultDeps: RunDeps = {
   admin: supabaseAdmin,
   call: (adapter, args) => (adapter === 'anthropic' ? generateAnthropic(args) : adapter === 'openai' ? generateOpenAi(args) : generateOpenAiCompatible(args)),
   now: Date.now,
   log: logAiUsage,
+  callTools: (adapter, args) => callModelWithTools(adapter, args),
 }
 
 const rpc = async <T>(db: SupabaseClient, fn: string, args: Record<string, unknown>): Promise<T> => {
@@ -95,12 +108,21 @@ export function creditError(c: CreditStatus): AiError {
 
 export async function runGeneration(db: SupabaseClient, args: RunArgs, deps: RunDeps = defaultDeps): Promise<RunResult> {
   const { config, accountId, mode } = args
+  const loop = newLoopState()
   if (config.source !== 'platform') {
-    const out = await generateReply({ config, systemPrompt: args.systemPrompt, messages: args.messages })
+    const out = args.tools?.specs.length
+      ? await (async () => {
+          const r = await runToolLoop((turns, noTools) => deps.callTools(config.provider as AiAdapter, {
+            apiKey: config.apiKey, model: config.model, baseUrl: config.baseUrl, timeoutMs: aiRequestTimeoutMs(), systemPrompt: args.systemPrompt,
+            messages: args.messages, turns, tools: args.tools!.specs, noTools,
+          }), args.tools!, loop)
+          return parseGeneration(r.text, r.usage)
+        })()
+      : await generateReply({ config, systemPrompt: args.systemPrompt, messages: args.messages })
     if (mode !== 'playground') {
       void deps.log(db, { accountId, conversationId: args.conversationId, mode, provider: config.provider, model: config.model, usage: out.usage, agentId: args.agentId ?? null })
     }
-    return { ...out, source: 'own', instanceId: null, attempts: [] }
+    return { ...out, source: 'own', instanceId: null, attempts: [], pendingApproval: loop.pendingApproval, toolsExecuted: loop.executed }
   }
 
   const admin = deps.admin()
@@ -122,10 +144,13 @@ export async function runGeneration(db: SupabaseClient, args: RunArgs, deps: Run
       if (!row || !type) throw new AiError('Provider instance is not set up.', { code: 'not_configured', status: 503 })
       const secrets = await decryptSecretsObject(row.secrets)
       if (!secrets.api_key) throw new AiError('The provider key is missing.', { code: 'invalid_key', status: 401 })
-      const result = await deps.call(type.adapter, {
-        apiKey: secrets.api_key, model: row.model, systemPrompt: args.systemPrompt, messages: args.messages, timeoutMs: row.timeoutMs,
-        baseUrl: aiBaseUrl(row.kind, row.config),
-      })
+      const baseUrl = aiBaseUrl(row.kind, row.config)
+      const result = args.tools?.specs.length
+        ? await runToolLoop((turns, noTools) => deps.callTools(type.adapter, {
+            apiKey: secrets.api_key, model: row.model, baseUrl, timeoutMs: row.timeoutMs, systemPrompt: args.systemPrompt,
+            messages: args.messages, turns, tools: args.tools!.specs, noTools,
+          }), args.tools, loop)
+        : await deps.call(type.adapter, { apiKey: secrets.api_key, model: row.model, systemPrompt: args.systemPrompt, messages: args.messages, timeoutMs: row.timeoutMs, baseUrl })
       attempt.ok = true
       attempt.ms = deps.now() - started
       attempts.push(attempt)
@@ -137,7 +162,7 @@ export async function runGeneration(db: SupabaseClient, args: RunArgs, deps: Run
         accountId, conversationId: args.conversationId, mode, provider: row.kind, model: row.model, usage, agentId: args.agentId ?? null,
         source: 'platform', instanceId: inst.id, costUsd: cost, attempts,
       })
-      return { ...parseGeneration(result.text, usage), source: 'platform', instanceId: inst.id, attempts }
+      return { ...parseGeneration(result.text, usage), source: 'platform', instanceId: inst.id, attempts, pendingApproval: loop.pendingApproval, toolsExecuted: loop.executed }
     } catch (e) {
       const err = e instanceof AiError ? e : new AiError(e instanceof Error ? e.message : 'Provider failed', { code: 'provider_error' })
       attempt.error = err.message.slice(0, 200)

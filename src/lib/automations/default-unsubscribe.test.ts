@@ -32,7 +32,7 @@ describe('default Unsubscribe automation', () => {
     expect(UNSUBSCRIBE_YES_ID).not.toBe(UNSUBSCRIBE_NO_ID)
   })
 
-  it.each(['en', 'es', 'fr', 'pt', 'ko'])('%s copy fits WhatsApp limits', (loc) => {
+  it.each(['en', 'es', 'fr', 'pt', 'ko', 'ar', 'hi', 'id', 'sw'])('%s copy fits WhatsApp limits', (loc) => {
     const m = JSON.parse(readFileSync(`messages/${loc}.json`, 'utf-8')).DefaultAutomations.unsubscribe
     expect(m.yes.length).toBeLessThanOrEqual(20)
     expect(m.no.length).toBeLessThanOrEqual(20)

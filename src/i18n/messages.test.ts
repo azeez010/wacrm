@@ -11,7 +11,7 @@ import { createTranslator } from 'next-intl';
 
 const MESSAGES_DIR = join(process.cwd(), 'messages');
 const SOURCE_LOCALE = 'en';
-const TRANSLATED_LOCALES = ['ko', 'pt', 'es', 'fr'];
+const TRANSLATED_LOCALES = ['ko', 'pt', 'es', 'fr', 'ar', 'hi', 'id', 'sw'];
 // Newer languages are translated a section at a time; the app shows English for any key they
 // lack (see withFallback in request.ts). They must never carry a key English doesn't have, and
 // every key they do carry must keep its placeholders.

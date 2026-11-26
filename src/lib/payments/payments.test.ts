@@ -1,7 +1,8 @@
 import { describe, expect, it, vi } from 'vitest'
 import type { SupabaseClient } from '@supabase/supabase-js'
 
-import { paymentType, PAYMENT_TYPES } from './catalogue'
+import { COUNTRY_CURRENCY } from '@/lib/currency/supported'
+import { PAYMENT_COUNTRY_CURRENCY, paymentType, PAYMENT_TYPES } from './catalogue'
 import { applyEvent, startCheckout, type Deps } from './checkout'
 import { manualTransferDriver } from './drivers/manual-transfer'
 import { paystackDriver } from './drivers/paystack'
@@ -32,6 +33,9 @@ describe('catalogue', () => {
     const p = paymentType('paystack')!
     expect(p.validate!({}, { secret_key: 'sk_live_x' }, 'test')).toHaveLength(1)
     expect(p.validate!({}, { secret_key: 'sk_live_x' }, 'live')).toEqual([])
+  })
+  it('country currencies match the price-display map exactly', () => {
+    expect(PAYMENT_COUNTRY_CURRENCY).toEqual(COUNTRY_CURRENCY)
   })
   it('manual transfer covers its bank country and currency', () => {
     expect(paymentType('manual_transfer')!.coverage({ country: 'GH', currency: 'GHS' })).toEqual({ countries: ['GH'], currencies: ['GHS'] })

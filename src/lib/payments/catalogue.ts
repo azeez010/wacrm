@@ -100,9 +100,14 @@ export function paymentType(kind: string): PaymentTypeDef | undefined {
   return PAYMENT_TYPES.find((t) => t.kind === kind)
 }
 
-/** Countries the admin can tick (Paystack homes + the currency map), alphabetical; '*' is "everywhere else". */
-export const PAYMENT_COUNTRIES = [
-  'AE', 'AT', 'AU', 'BE', 'BF', 'BJ', 'BR', 'CA', 'CF', 'CG', 'CH', 'CI', 'CM', 'CN', 'CY', 'DE', 'DK', 'EE', 'EG', 'ES', 'FI', 'FR',
-  'GA', 'GB', 'GH', 'GQ', 'GR', 'GW', 'HK', 'HR', 'IE', 'IN', 'IT', 'JP', 'KE', 'KR', 'LT', 'LU', 'LV', 'MA', 'ML', 'MT', 'MX', 'NE',
-  'NG', 'NL', 'NO', 'NZ', 'PL', 'PT', 'RW', 'SA', 'SE', 'SG', 'SI', 'SK', 'SN', 'TD', 'TG', 'TR', 'TZ', 'UG', 'US', 'ZA',
-]
+/** Countries the admin can tick, with their usual currency (what a customer there is charged in when an
+ *  instance supports it). Kept equal to src/lib/currency/supported.ts COUNTRY_CURRENCY (tested). '*' = "everywhere else". */
+export const PAYMENT_COUNTRY_CURRENCY: Record<string, string> = {
+  AE: 'AED', AT: 'EUR', AU: 'AUD', BE: 'EUR', BF: 'XOF', BJ: 'XOF', BR: 'BRL', CA: 'CAD', CF: 'XAF', CG: 'XAF', CH: 'CHF', CI: 'XOF',
+  CM: 'XAF', CN: 'CNY', CY: 'EUR', DE: 'EUR', DK: 'DKK', EE: 'EUR', EG: 'EGP', ES: 'EUR', FI: 'EUR', FR: 'EUR', GA: 'XAF', GB: 'GBP',
+  GH: 'GHS', GQ: 'XAF', GR: 'EUR', GW: 'XOF', HK: 'HKD', HR: 'EUR', IE: 'EUR', IN: 'INR', IT: 'EUR', JP: 'JPY', KE: 'KES', KR: 'KRW',
+  LT: 'EUR', LU: 'EUR', LV: 'EUR', MA: 'MAD', ML: 'XOF', MT: 'EUR', MX: 'MXN', NE: 'XOF', NG: 'NGN', NL: 'EUR', NO: 'NOK', NZ: 'NZD',
+  PL: 'PLN', PT: 'EUR', RW: 'RWF', SA: 'SAR', SE: 'SEK', SG: 'SGD', SI: 'EUR', SK: 'EUR', SN: 'XOF', TD: 'XAF', TG: 'XOF', TR: 'TRY',
+  TZ: 'TZS', UG: 'UGX', US: 'USD', ZA: 'ZAR',
+}
+export const PAYMENT_COUNTRIES = Object.keys(PAYMENT_COUNTRY_CURRENCY)

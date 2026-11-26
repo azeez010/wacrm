@@ -705,7 +705,9 @@
         "opt_out": "Désinscrit",
         "import": "Bloqué par import",
         "api": "Bloqué via l'API"
-      }
+      },
+      "unreachableBadge": "Injoignable sur WhatsApp",
+      "unreachableHint": "Meta n'a pas pu livrer à ce numéro (pas sur WhatsApp, nouvelles conditions non acceptées ou ancienne application). Cela disparaît si la personne vous écrit ou si un message est livré."
     },
     "form": {
       "addTitle": "Ajouter un contact",
@@ -1233,7 +1235,8 @@
       "broadcastFailed": "Échec de la diffusion",
       "toastSendTakenOver": "Un autre envoi a repris cette diffusion : cet onglet a donc arrêté d'envoyer. Ouvrez la diffusion pour suivre sa progression.",
       "toastSendInterrupted": "L'envoi s'est arrêté car la connexion au serveur a été coupée. Ouvrez la diffusion et sélectionnez Reprendre l'envoi pour joindre les destinataires restants. Le bouton apparaît d'ici 5 minutes.",
-      "toastBlockedSkipped": "{count, plural, one {# contact bloqué a été ignoré} other {# contacts bloqués ont été ignorés}}"
+      "toastBlockedSkipped": "{count, plural, one {# contact bloqué a été ignoré} other {# contacts bloqués ont été ignorés}}",
+      "toastUnreachableSkipped": "{count, plural, one {# numéro injoignable a été ignoré} other {# numéros injoignables ont été ignorés}}"
     },
     "wizard": {
       "next": "Suivant",
@@ -2865,6 +2868,12 @@
       "resent": "Renvoyé avec succès",
       "resendFailed": "Impossible de renvoyer",
       "resentFailedResponse": "Renvoyé, mais le endpoint a échoué : {reason}"
+    },
+    "reachability": {
+      "title": "Ignorer les numéros injoignables dans les diffusions",
+      "hint": "Écarte les numéros que Meta a signalés comme non livrables. Évite les envois inutiles. C'est déduit des résultats de livraison : un numéro que vous n'avez jamais contacté n'est pas marqué.",
+      "saved": "Enregistré",
+      "saveFailed": "Impossible d'enregistrer"
     }
   },
   "SignupPage": {
@@ -3933,7 +3942,8 @@
       "lead_source": "Source du lead",
       "utm_source": "UTM source",
       "utm_medium": "UTM medium",
-      "utm_campaign": "UTM campaign"
+      "utm_campaign": "UTM campaign",
+      "wa_unreachable": "Injoignable sur WhatsApp"
     },
     "operators": {
       "contains": "contient",
@@ -4787,7 +4797,14 @@
       "step2Body": "Envoyez-le aux entreprises qui vendent et assurent le support client sur WhatsApp.",
       "step3Title": "Gagnez",
       "step3Body": "Gagnez {percent} % de commission sur les parrainages éligibles. Les paiements ouvrent au lancement des forfaits payants.",
-      "note": "Les taux, conditions d’éligibilité et modalités de paiement peuvent changer avant l’ouverture des paiements."
+      "note": "Les taux, conditions d’éligibilité et modalités de paiement peuvent changer avant l’ouverture des paiements.",
+      "calcTitle": "Ce que vous pourriez gagner",
+      "calcPerMonth": "/ mois",
+      "calcTotal": "{amount} sur {months} mois avec les mêmes clients",
+      "calcClients": "Clients parrainés",
+      "calcPlan": "Offre",
+      "calcNote": "Estimation à {percent} % de commission sur les prix mensuels. Ce n'est pas une promesse de paiement.",
+      "statsLine": "Commission récurrente. Gratuit. Aucun portefeuille à alimenter."
     },
     "shareTitle": "Partagez votre lien pour parrainer des personnes sur OgaDesk",
     "commissionLine": "Votre commission est de {percent} % par vente pendant {months} mois",

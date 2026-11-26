@@ -275,6 +275,10 @@ export default async function LandingPage({
           Blog
         </Link>
         {' · '}
+        <Link href="/changelog" className="underline">
+          Changelog
+        </Link>
+        {' · '}
         <Link href="/docs" className="underline">
           {t('footer.apiDocs')}
         </Link>

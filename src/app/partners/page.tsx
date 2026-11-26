@@ -8,6 +8,8 @@ import { BRAND_NAME } from '@/lib/brand'
 import { supabaseAdmin } from '@/lib/flows/admin-client'
 import { createClient } from '@/lib/supabase/server'
 import { cn } from '@/lib/utils'
+import { getPublicPlans } from '@/lib/billing/public-plans'
+import { EarningsCalculator } from '@/components/partner/earnings-calculator'
 
 export const revalidate = 300
 
@@ -16,18 +18,21 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: t('metaTitle', { brand: BRAND_NAME }), description: t('metaDescription', { brand: BRAND_NAME }), robots: { index: true, follow: true } }
 }
 
-async function commissionPercent(): Promise<number> {
+async function programTerms(): Promise<{ percent: number; months: number }> {
   try {
-    const { data } = await supabaseAdmin().from('partner_settings').select('commission_percent').eq('id', 1).maybeSingle()
-    return Number(data?.commission_percent ?? 20)
+    const { data } = await supabaseAdmin().from('partner_settings').select('commission_percent, recurring_months').eq('id', 1).maybeSingle()
+    return { percent: Number(data?.commission_percent ?? 20), months: Number(data?.recurring_months ?? 12) }
   } catch {
-    return 20
+    return { percent: 20, months: 12 }
   }
 }
 
 export default async function PartnersPage() {
   const t = await getTranslations('Partner.public')
-  const percent = await commissionPercent()
+  const { percent, months } = await programTerms()
+  const plans = (await getPublicPlans())
+    .filter((p) => p.price_monthly > 0)
+    .map((p) => ({ id: p.id, name: p.name, price: p.price_monthly, currency: p.currency }))
   const supabase = await createClient()
   const { data } = await supabase.auth.getUser()
   const signedIn = Boolean(data.user)
@@ -60,7 +65,14 @@ export default async function PartnersPage() {
               {signedIn ? t('openDashboard') : t('cta')}
             </Link>
           </div>
+          <p className="mt-4 text-sm text-muted-foreground">{t('statsLine')}</p>
         </section>
+
+        {plans.length > 0 && (
+          <section className="mx-auto mb-14 max-w-xl">
+            <EarningsCalculator plans={plans} percent={percent} months={months} />
+          </section>
+        )}
 
         <section>
           <h2 className="mb-6 text-center text-2xl font-semibold">{t('howTitle')}</h2>

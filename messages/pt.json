@@ -705,7 +705,9 @@
         "opt_out": "Cancelou a inscrição",
         "import": "Bloqueado por importação",
         "api": "Bloqueado via API"
-      }
+      },
+      "unreachableBadge": "Inalcançável no WhatsApp",
+      "unreachableHint": "A Meta não conseguiu entregar a este número (não está no WhatsApp, não aceitou os novos termos ou usa um app antigo). Some sozinho se a pessoa escrever ou uma mensagem for entregue."
     },
     "form": {
       "addTitle": "Adicionar contato",
@@ -1233,7 +1235,8 @@
       "broadcastFailed": "Falha no disparo",
       "toastSendTakenOver": "Outro envio assumiu esta transmissão, então esta aba parou de enviar. Abra a transmissão para acompanhar o progresso.",
       "toastSendInterrupted": "O envio parou porque a conexão com o servidor caiu. Abra a transmissão e use Retomar envio para enviar aos destinatários restantes. O botão aparece em até 5 minutos.",
-      "toastBlockedSkipped": "{count, plural, =1 {# contato bloqueado foi ignorado} other {# contatos bloqueados foram ignorados}}"
+      "toastBlockedSkipped": "{count, plural, =1 {# contato bloqueado foi ignorado} other {# contatos bloqueados foram ignorados}}",
+      "toastUnreachableSkipped": "{count, plural, one {# número inalcançável foi ignorado} other {# números inalcançáveis foram ignorados}}"
     },
     "wizard": {
       "next": "Avançar",
@@ -2865,6 +2868,12 @@
       "resent": "Reenviado com sucesso",
       "resendFailed": "Não foi possível reenviar",
       "resentFailedResponse": "Reenviado, mas o endpoint falhou: {reason}"
+    },
+    "reachability": {
+      "title": "Ignorar números inalcançáveis nas transmissões",
+      "hint": "Deixa de fora números que a Meta informou como não entregáveis. Evita envios inúteis. É aprendido pelos resultados de entrega, então um número que você nunca contatou não é marcado.",
+      "saved": "Salvo",
+      "saveFailed": "Não foi possível salvar"
     }
   },
   "SignupPage": {
@@ -3947,7 +3956,8 @@
       "lead_source": "Origem do lead",
       "utm_source": "UTM source",
       "utm_medium": "UTM medium",
-      "utm_campaign": "UTM campaign"
+      "utm_campaign": "UTM campaign",
+      "wa_unreachable": "Inalcançável no WhatsApp"
     },
     "operators": {
       "contains": "contém",
@@ -4787,7 +4797,14 @@
       "step2Body": "Envie a empresas que vendem e dão suporte a clientes pelo WhatsApp.",
       "step3Title": "Ganhe",
       "step3Body": "Ganhe {percent}% de comissão nas indicações elegíveis. Os pagamentos abrem quando os planos pagos forem lançados.",
-      "note": "As taxas, a elegibilidade e as condições de pagamento podem mudar antes da abertura dos pagamentos."
+      "note": "As taxas, a elegibilidade e as condições de pagamento podem mudar antes da abertura dos pagamentos.",
+      "calcTitle": "O que você pode ganhar",
+      "calcPerMonth": "/ mês",
+      "calcTotal": "{amount} em {months} meses com os mesmos clientes",
+      "calcClients": "Clientes que você indica",
+      "calcPlan": "Plano",
+      "calcNote": "Estimativa com {percent}% de comissão sobre os preços mensais. Não é promessa de pagamento.",
+      "statsLine": "Comissão recorrente. Grátis. Sem carteira para recarregar."
     },
     "shareTitle": "Partilhe o seu link para indicar o OgaDesk",
     "commissionLine": "A sua comissão é de {percent}% por venda durante {months} meses",

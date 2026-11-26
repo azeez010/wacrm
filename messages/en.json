@@ -705,7 +705,9 @@
         "opt_out": "Opted out",
         "import": "Blocked by import",
         "api": "Blocked via API"
-      }
+      },
+      "unreachableBadge": "Unreachable on WhatsApp",
+      "unreachableHint": "Meta could not deliver to this number (not on WhatsApp, has not accepted the new terms, or an old app). It clears itself if they message you or a message is delivered."
     },
     "form": {
       "addTitle": "Add Contact",
@@ -1233,7 +1235,8 @@
       "broadcastFailed": "Broadcast failed",
       "toastSendTakenOver": "Another delivery took over this broadcast, so this tab stopped sending. Open the broadcast to follow its progress.",
       "toastSendInterrupted": "Sending stopped because the connection to the server dropped. Open the broadcast and select Resume sending to reach the remaining recipients. The button appears within 5 minutes.",
-      "toastBlockedSkipped": "{count, plural, one {# blocked contact was skipped} other {# blocked contacts were skipped}}"
+      "toastBlockedSkipped": "{count, plural, one {# blocked contact was skipped} other {# blocked contacts were skipped}}",
+      "toastUnreachableSkipped": "{count, plural, one {# unreachable number was skipped} other {# unreachable numbers were skipped}}"
     },
     "wizard": {
       "next": "Next",
@@ -2865,6 +2868,12 @@
       "resent": "Resent successfully",
       "resendFailed": "Could not resend",
       "resentFailedResponse": "Resent, but the endpoint failed: {reason}"
+    },
+    "reachability": {
+      "title": "Skip unreachable numbers in broadcasts",
+      "hint": "Leave out numbers Meta reported undeliverable. Saves wasted sends. It is learned from delivery results, so a number you never messaged is not marked.",
+      "saved": "Saved",
+      "saveFailed": "Could not save"
     }
   },
   "SignupPage": {
@@ -3947,7 +3956,8 @@
       "lead_source": "Lead source",
       "utm_source": "UTM source",
       "utm_medium": "UTM medium",
-      "utm_campaign": "UTM campaign"
+      "utm_campaign": "UTM campaign",
+      "wa_unreachable": "Unreachable on WhatsApp"
     },
     "operators": {
       "contains": "contains",
@@ -4787,7 +4797,14 @@
       "step2Body": "Send it to businesses that sell and support customers on WhatsApp.",
       "step3Title": "Earn",
       "step3Body": "Earn {percent}% commission on eligible referrals. Payouts open when paid plans launch.",
-      "note": "Commission rates, eligibility and payout terms may change before payouts open."
+      "note": "Commission rates, eligibility and payout terms may change before payouts open.",
+      "calcTitle": "What you could earn",
+      "calcPerMonth": "/ month",
+      "calcTotal": "{amount} over {months} months from the same clients",
+      "calcClients": "Clients you refer",
+      "calcPlan": "Plan",
+      "calcNote": "Estimate at {percent}% commission on monthly plan prices. Not a payout promise.",
+      "statsLine": "Recurring commission. Free to join. No wallet to fund."
     },
     "shareTitle": "Share your link to refer people to OgaDesk",
     "commissionLine": "Your commission is {percent}% per sale for {months} months",

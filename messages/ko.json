@@ -705,7 +705,9 @@
         "opt_out": "수신 거부",
         "import": "가져오기로 차단됨",
         "api": "API로 차단됨"
-      }
+      },
+      "unreachableBadge": "WhatsApp에서 연락 불가",
+      "unreachableHint": "Meta가 이 번호로 전달하지 못했습니다 (WhatsApp 미사용, 새 약관 미동의 또는 오래된 앱). 상대가 메시지를 보내거나 메시지가 전달되면 자동으로 해제됩니다."
     },
     "form": {
       "addTitle": "연락처 추가",
@@ -1233,7 +1235,8 @@
       "broadcastFailed": "브로드캐스트 실패",
       "toastSendTakenOver": "다른 전송 작업이 이 브로드캐스트를 넘겨받아 이 탭에서는 전송을 중단했습니다. 브로드캐스트를 열어 진행 상황을 확인하세요.",
       "toastSendInterrupted": "서버 연결이 끊겨 전송이 중단되었습니다. 브로드캐스트를 열고 이어서 발송을 눌러 남은 수신자에게 보내세요. 버튼은 5분 이내에 표시됩니다.",
-      "toastBlockedSkipped": "{count, plural, other {차단된 연락처 #개를 건너뛰었습니다}}"
+      "toastBlockedSkipped": "{count, plural, other {차단된 연락처 #개를 건너뛰었습니다}}",
+      "toastUnreachableSkipped": "{count, plural, other {연락 불가 번호 #개를 건너뛰었습니다}}"
     },
     "wizard": {
       "next": "다음",
@@ -2865,6 +2868,12 @@
       "resent": "재전송했습니다",
       "resendFailed": "재전송하지 못했습니다",
       "resentFailedResponse": "재전송했지만 엔드포인트가 실패했습니다: {reason}"
+    },
+    "reachability": {
+      "title": "브로드캐스트에서 연락 불가 번호 건너뛰기",
+      "hint": "Meta가 전달 불가로 보고한 번호를 제외합니다. 불필요한 발송을 줄입니다. 전달 결과에서 학습하므로 한 번도 메시지를 보내지 않은 번호는 표시되지 않습니다.",
+      "saved": "저장했습니다",
+      "saveFailed": "저장하지 못했습니다"
     }
   },
   "SignupPage": {
@@ -3947,7 +3956,8 @@
       "lead_source": "리드 출처",
       "utm_source": "UTM source",
       "utm_medium": "UTM medium",
-      "utm_campaign": "UTM campaign"
+      "utm_campaign": "UTM campaign",
+      "wa_unreachable": "WhatsApp에서 연락 불가"
     },
     "operators": {
       "contains": "포함",
@@ -4787,7 +4797,14 @@
       "step2Body": "WhatsApp으로 판매하고 고객을 지원하는 기업에 보내세요.",
       "step3Title": "수익 얻기",
       "step3Body": "적격한 추천에 대해 {percent}% 수수료를 받습니다. 유료 요금제가 시작되면 정산이 열립니다.",
-      "note": "수수료율, 자격 요건 및 정산 조건은 정산이 열리기 전에 변경될 수 있습니다."
+      "note": "수수료율, 자격 요건 및 정산 조건은 정산이 열리기 전에 변경될 수 있습니다.",
+      "calcTitle": "예상 수익",
+      "calcPerMonth": "/ 월",
+      "calcTotal": "같은 고객으로 {months}개월 동안 {amount}",
+      "calcClients": "추천 고객 수",
+      "calcPlan": "요금제",
+      "calcNote": "월 요금의 {percent}% 수수료 기준 추정치입니다. 지급 약속이 아닙니다.",
+      "statsLine": "반복 수수료. 무료 가입. 충전할 지갑 없음."
     },
     "shareTitle": "링크를 공유해 OgaDesk를 추천하세요",
     "commissionLine": "수수료는 판매당 {percent}%이며 {months}개월간 적용됩니다",

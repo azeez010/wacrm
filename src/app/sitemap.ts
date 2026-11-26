@@ -20,7 +20,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: l === routing.defaultLocale ? 1 : 0.9,
     alternates: { languages },
   }))
-  const legal = ['/docs', '/partners', '/privacy', '/terms', '/data-deletion'].map((p) => ({
+  const legal = ['/docs', '/partners', '/changelog', '/privacy', '/terms', '/data-deletion'].map((p) => ({
     url: `${SITE_URL}${p}`,
     changeFrequency: 'yearly' as const,
     priority: 0.3,

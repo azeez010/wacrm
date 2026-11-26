@@ -705,7 +705,9 @@
         "opt_out": "Se dio de baja",
         "import": "Bloqueado por importación",
         "api": "Bloqueado por API"
-      }
+      },
+      "unreachableBadge": "No disponible en WhatsApp",
+      "unreachableHint": "Meta no pudo entregar a este número (no está en WhatsApp, no aceptó los nuevos términos o usa una app antigua). Se borra solo si te escribe o se entrega un mensaje."
     },
     "form": {
       "addTitle": "Agregar contacto",
@@ -1233,7 +1235,8 @@
       "broadcastFailed": "Falló la difusión",
       "toastSendTakenOver": "Otro envío tomó el control de esta difusión, así que esta pestaña dejó de enviar. Abre la difusión para seguir su progreso.",
       "toastSendInterrupted": "El envío se detuvo porque se perdió la conexión con el servidor. Abre la difusión y usa Reanudar envío para enviar a los destinatarios restantes. El botón aparece en un máximo de 5 minutos.",
-      "toastBlockedSkipped": "{count, plural, one {Se omitió # contacto bloqueado} other {Se omitieron # contactos bloqueados}}"
+      "toastBlockedSkipped": "{count, plural, one {Se omitió # contacto bloqueado} other {Se omitieron # contactos bloqueados}}",
+      "toastUnreachableSkipped": "{count, plural, one {# número no disponible se omitió} other {# números no disponibles se omitieron}}"
     },
     "wizard": {
       "next": "Siguiente",
@@ -2865,6 +2868,12 @@
       "resent": "Reenviado correctamente",
       "resendFailed": "No se pudo reenviar",
       "resentFailedResponse": "Reenviado, pero el endpoint falló: {reason}"
+    },
+    "reachability": {
+      "title": "Omitir números no disponibles en las difusiones",
+      "hint": "Deja fuera los números que Meta informó como no entregables. Evita envíos inútiles. Se aprende de los resultados de entrega, así que un número al que nunca escribiste no se marca.",
+      "saved": "Guardado",
+      "saveFailed": "No se pudo guardar"
     }
   },
   "SignupPage": {
@@ -3947,7 +3956,8 @@
       "lead_source": "Origen del lead",
       "utm_source": "UTM source",
       "utm_medium": "UTM medium",
-      "utm_campaign": "UTM campaign"
+      "utm_campaign": "UTM campaign",
+      "wa_unreachable": "No disponible en WhatsApp"
     },
     "operators": {
       "contains": "contiene",
@@ -4787,7 +4797,14 @@
       "step2Body": "Envíalo a negocios que venden y atienden clientes por WhatsApp.",
       "step3Title": "Gana",
       "step3Body": "Gana un {percent} % de comisión por las referencias elegibles. Los pagos se abren cuando se lancen los planes de pago.",
-      "note": "Las tarifas, requisitos y condiciones de pago pueden cambiar antes de que se abran los pagos."
+      "note": "Las tarifas, requisitos y condiciones de pago pueden cambiar antes de que se abran los pagos.",
+      "calcTitle": "Lo que podrías ganar",
+      "calcPerMonth": "/ mes",
+      "calcTotal": "{amount} en {months} meses con los mismos clientes",
+      "calcClients": "Clientes que refieres",
+      "calcPlan": "Plan",
+      "calcNote": "Estimación con {percent} % de comisión sobre los precios mensuales. No es una promesa de pago.",
+      "statsLine": "Comisión recurrente. Gratis. Sin monedero que recargar."
     },
     "shareTitle": "Comparte tu enlace para recomendar OgaDesk",
     "commissionLine": "Tu comisión es del {percent} % por venta durante {months} meses",

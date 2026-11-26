@@ -55,6 +55,7 @@ import {
 import { deleteAccountMedia } from "@/lib/storage/upload-media";
 import { TemplatePicker } from "./template-picker";
 import { AiThreadBanner } from "./ai-thread-banner";
+import { PendingActionsBanner } from "./pending-actions-banner";
 import { AiAgentPicker, useAiAgents } from "./ai-agent-picker";
 import { CreateTicketButton } from "./create-ticket-button";
 import { buildReplyPreview } from "./reply-quote";
@@ -1370,6 +1371,9 @@ export function MessageThread({
           </div>
         )}
       </div>
+
+      {/* Actions the AI asked to take that wait for a teammate (approve / reject). */}
+      <PendingActionsBanner conversationId={conversation.id} refreshKey={conversation.ai_handoff_summary} />
 
       {/* AI auto-reply banner - take over an active bot, or resume it
           after a handoff. Renders nothing unless the account has

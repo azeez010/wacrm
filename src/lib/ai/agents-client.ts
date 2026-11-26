@@ -24,6 +24,7 @@ export interface AgentDto {
   persona_behaviour?: string | null
   persona_avoid?: string | null
   persona_never?: string | null
+  tool_integrations?: string[] | null
   source_count: number
   created_at: string
   updated_at: string

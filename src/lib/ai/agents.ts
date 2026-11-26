@@ -29,10 +29,12 @@ export interface AiAgentRow {
   persona_behaviour?: string | null
   persona_avoid?: string | null
   persona_never?: string | null
+  /** Integrations whose tools this agent may use; null = all connected integrations. */
+  tool_integrations?: string[] | null
 }
 
 export const AGENT_COLUMNS =
-  'id, name, is_active, is_default, model, system_prompt, auto_reply_enabled, auto_reply_max_per_conversation, handoff_agent_id, channels, priority, knowledge_mode, created_at, persona_gender, persona_tone, persona_behaviour, persona_avoid, persona_never'
+  'id, name, is_active, is_default, model, system_prompt, auto_reply_enabled, auto_reply_max_per_conversation, handoff_agent_id, channels, priority, knowledge_mode, created_at, persona_gender, persona_tone, persona_behaviour, persona_avoid, persona_never, tool_integrations'
 
 export const AGENT_CHANNELS: readonly AgentChannel[] = ['whatsapp', 'web_chat']
 

@@ -7,6 +7,7 @@ import { runGeneration } from './run'
 import { loadPlatformPrompt, personaPrompt } from './persona'
 import { buildSystemPrompt } from './defaults'
 import { buildHandoffSummary } from './handoff'
+import { loadToolRuntime } from './tools/registry'
 import { buildRetrievalQuery } from './query'
 import {
   engineSendText,
@@ -158,23 +159,26 @@ export async function dispatchInboundToAiReply(
       platform,
     })
 
-    // One entry point: the business's own key, or the platform's provider chain with failover and plan credits.
-    // Token spend is logged inside (regardless of handoff - the provider call happened either way).
-    const { text, handoff } = await runGeneration(db, {
-      config, systemPrompt, messages, accountId, conversationId, mode: 'auto_reply', agentId: config.agentId ?? null,
+    // The business's connected tools (plan feature `ai_tools`, the agent's allowed integrations). null = none.
+    const tools = await loadToolRuntime(db, {
+      accountId, conversationId, agentId: config.agentId ?? null, mode: 'auto_reply', allowedIntegrations: config.toolIntegrations ?? null,
     })
 
-    if (handoff || !text) {
-      // The model can't (or shouldn't) answer - stop auto-replying on
-      // this thread and hand it to a human. We (a) pause the bot here
-      // (sticky until re-enabled), (b) route the conversation to the
-      // configured handoff agent - null leaves it in the shared queue -
-      // and (c) leave a short internal note so whoever picks it up has
-      // context. Assigning fires the `on_conversation_assigned` trigger,
-      // which notifies the agent.
+    // One entry point: the business's own key, or the platform's provider chain with failover and plan credits.
+    // Token spend is logged inside (regardless of handoff - the provider call happened either way).
+    const { text, handoff, pendingApproval } = await runGeneration(db, {
+      config, systemPrompt, messages, accountId, conversationId, mode: 'auto_reply', agentId: config.agentId ?? null, tools,
+    })
+
+    // Stop auto-replying on this thread and hand it to a human: (a) pause the bot here (sticky until re-enabled),
+    // (b) route the conversation to the configured handoff agent - null leaves it in the shared queue - and (c) leave
+    // a short internal note so whoever picks it up has context. Assigning fires the `on_conversation_assigned`
+    // trigger, which notifies the agent.
+    const handOff = async (pendingAction: boolean) => {
       const summary = buildHandoffSummary({
         messages,
         replyCount: conv.ai_reply_count ?? 0,
+        pendingAction,
       })
       await db
         .from('conversations')
@@ -189,6 +193,11 @@ export async function dispatchInboundToAiReply(
           .eq('id', conversationId)
           .is('assigned_agent_id', null)
       }
+    }
+
+    if (handoff || !text) {
+      // The model can't (or shouldn't) answer.
+      await handOff(!!pendingApproval)
       return
     }
 
@@ -196,6 +205,7 @@ export async function dispatchInboundToAiReply(
       inboundMessageId &&
       (await hasNewerInbound(db, conversationId, inboundMessageId))
     ) {
+      if (pendingApproval) await handOff(true)
       return
     }
 
@@ -219,7 +229,10 @@ export async function dispatchInboundToAiReply(
       console.error('[ai auto-reply] claim_ai_reply_slot failed:', claimErr)
       return
     }
-    if (claimed !== true) return
+    if (claimed !== true) {
+      if (pendingApproval) await handOff(true)
+      return
+    }
 
     await engineSendText({
       accountId,
@@ -231,6 +244,10 @@ export async function dispatchInboundToAiReply(
       aiAgentId: config.agentId ?? null,
       aiSources: sourceRefs(knowledge),
     })
+
+    // The AI asked for an action a teammate must approve: it has told the customer the team will confirm; now a
+    // human takes the thread (the approval banner is in the inbox).
+    if (pendingApproval) await handOff(true)
   } catch (err) {
     console.error('[ai auto-reply] dispatch failed:', err)
   }

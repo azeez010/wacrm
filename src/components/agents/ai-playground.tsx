@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
-import { Bot, RotateCcw, Send, Loader2, UserCircle2, ArrowRight, BookOpen } from 'lucide-react';
+import { Bot, RotateCcw, Send, Loader2, UserCircle2, ArrowRight, BookOpen, Wrench } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 
@@ -14,6 +14,15 @@ interface Turn {
   handoff?: boolean;
   /** assistant-only: the knowledge excerpts the reply was grounded in. */
   sources?: PlaygroundSource[];
+  /** assistant-only: tools the AI called for this reply (read tools ran; actions were only described). */
+  toolCalls?: PlaygroundToolCall[];
+}
+
+interface PlaygroundToolCall {
+  name: string;
+  arguments: Record<string, unknown>;
+  result: string;
+  isError: boolean;
 }
 
 interface PlaygroundSource {
@@ -81,6 +90,7 @@ export function AiPlayground({
               : '',
           handoff: Boolean(data.handoff),
           sources: Array.isArray(data.sources) ? data.sources : [],
+          toolCalls: Array.isArray(data.toolCalls) ? data.toolCalls : [],
         },
       ]);
     } catch {
@@ -174,6 +184,9 @@ export function AiPlayground({
                   {t('handoff')}
                 </p>
               )}
+              {turn.role === 'assistant' && turn.toolCalls && turn.toolCalls.length > 0 && (
+                <ToolsUsed calls={turn.toolCalls} />
+              )}
               {turn.role === 'assistant' && turn.sources && (
                 <SourcesUsed sources={turn.sources} />
               )}
@@ -254,4 +267,26 @@ function SourcesUsed({ sources }: { sources: PlaygroundSource[] }) {
 
 export function matchLabel(matchedBy: 'semantic' | 'keyword' | 'both', t: (key: string) => string): string {
   return matchedBy === 'both' ? t('matchBoth') : matchedBy === 'semantic' ? t('matchSemantic') : t('matchKeyword');
+}
+
+/** Collapsible list of the tools the AI called for one reply. */
+function ToolsUsed({ calls }: { calls: PlaygroundToolCall[] }) {
+  const t = useTranslations('Agents.playground');
+  return (
+    <details className="mt-1.5 border-t border-border/50 pt-1.5 text-xs">
+      <summary className="flex cursor-pointer items-center gap-1 text-muted-foreground hover:text-foreground">
+        <Wrench className="h-3.5 w-3.5" />
+        {t('toolsUsed', { count: calls.length })}
+      </summary>
+      <ol className="mt-1.5 space-y-1.5">
+        {calls.map((c, i) => (
+          <li key={i} className="rounded-md bg-background/60 p-2">
+            <p className={cn('font-mono font-medium', c.isError ? 'text-red-600 dark:text-red-400' : 'text-foreground')}>{c.name}</p>
+            <pre className="mt-0.5 overflow-auto whitespace-pre-wrap text-muted-foreground">{JSON.stringify(c.arguments)}</pre>
+            <p className="mt-0.5 line-clamp-4 whitespace-pre-wrap text-muted-foreground">{c.result}</p>
+          </li>
+        ))}
+      </ol>
+    </details>
+  );
 }

@@ -43,6 +43,8 @@ export interface AiConfig {
   /** Library sources the agent may search. null = the whole library
    *  (knowledge_mode 'all', or the legacy path); [] = none linked. */
   knowledgeSourceIds?: string[] | null
+  /** Integrations whose tools the agent may use (ai_agents.tool_integrations). null/absent = all connected. */
+  toolIntegrations?: string[] | null
 }
 
 /** Optional per-agent persona overrides (null = use the platform default). The agent's name is `agentName`. */

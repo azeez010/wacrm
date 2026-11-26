@@ -589,6 +589,16 @@
       "updateError": "Impossible de mettre à jour l'assistant IA.",
       "networkError": "Impossible de joindre le serveur."
     },
+    "pendingActions": {
+      "title": "L’IA veut : {tool}",
+      "approve": "Approuver",
+      "reject": "Refuser",
+      "approved": "Fait.",
+      "approvedSent": "Fait. L’IA a prévenu le client.",
+      "rejected": "Refusé. Rien n’a été fait.",
+      "ranWithError": "Approuvé, mais l’action a échoué. Voir Paramètres → Intégrations → Activité.",
+      "failed": "Impossible de terminer. Veuillez réessayer."
+    },
     "aiAgent": {
       "title": "Agent IA de cette conversation",
       "automatic": "Automatique",
@@ -2370,6 +2380,7 @@
       "inbox": "Boîte de réception",
       "members": "Membres de l'équipe",
       "api": "API et MCP",
+      "integrations": "Intégrations",
       "language": "Langue",
       "tables": "Tables personnalisées",
       "timezone": "Fuseau horaire",
@@ -2822,6 +2833,7 @@
         "webhook_endpoints": "Webhooks sortants",
         "ai_replies_per_month": "Réponses IA / mois",
         "ai_tokens_per_month": "Crédits IA (jetons) / mois",
+        "integrations_max": "Intégrations connectées (outils IA)",
         "storage_mb": "Stockage de médias (Mo)",
         "custom_fields_max": "Champs de contact personnalisés",
         "custom_tables_max": "Tables personnalisées",
@@ -2843,7 +2855,8 @@
         "priority_support": "Support prioritaire",
         "custom_fields": "Champs personnalisés, segments et tables",
         "forms": "Formulaires de leads et bouton de support",
-        "forms_advanced": "Score des formulaires, répartition et message de bienvenue"
+        "forms_advanced": "Score des formulaires, répartition et message de bienvenue",
+        "ai_tools": "Outils IA et intégrations (MCP, HTTP, Agenda, Paystack)"
       },
       "upgradeTo": "Passez à {plan} pour utiliser {feature}",
       "pickTitle": "Choisissez une formule",
@@ -2977,6 +2990,140 @@
       "off": "E-mails marketing désactivés",
       "error": "Impossible d’enregistrer votre choix"
     },
+    "integrations": {
+      "title": "Intégrations",
+      "description": "Connectez vos propres systèmes pour que l'IA puisse consulter des informations et agir pendant qu'elle répond : un serveur MCP, votre propre API ou des liens de paiement Paystack.",
+      "add": "Ajouter une intégration",
+      "upgradeBody": "Les outils IA et intégrations ne sont pas inclus dans votre forfait {plan}.",
+      "upgradeCta": "Voir les forfaits",
+      "usage": "{used} intégrations utilisées sur {limit}",
+      "usageUnlimited": "{used} intégrations connectées",
+      "atLimit": "La limite de votre forfait est atteinte. Supprimez-en une ou passez à un forfait supérieur.",
+      "tabConnected": "Connectées",
+      "tabActivity": "Activité",
+      "empty": "Aucune intégration pour l'instant.",
+      "emptyHint": "Connectez un serveur MCP, votre propre API ou Paystack. L'IA utilise ensuite ces outils dans ses réponses, brouillons et le bac à sable.",
+      "pickTitle": "Ajouter une intégration",
+      "pickBody": "Choisissez quoi connecter. Vous décidez, outil par outil, ce que l'IA peut faire seule.",
+      "soon": "Bientôt",
+      "kinds": {
+        "mcp": "Serveur MCP",
+        "http": "Votre API (HTTP)",
+        "google_calendar": "Google Agenda",
+        "paystack": "Liens de paiement Paystack"
+      },
+      "kindHelp": {
+        "mcp": "Tout serveur MCP accessible en HTTP. Nous listons ses outils pour vous.",
+        "http": "Décrivez des appels à votre API : vérifier une commande, ajouter un prospect, réserver un créneau.",
+        "google_calendar": "L'IA vérifie les disponibilités et prend des rendez-vous.",
+        "paystack": "L'IA crée des liens de paiement sur votre propre compte Paystack et vérifie les paiements."
+      },
+      "namePlaceholder": {
+        "mcp": "ex. Réservations",
+        "http": "ex. API de la boutique",
+        "paystack": "Paystack"
+      },
+      "addTitle": "Connecter : {kind}",
+      "name": "Nom",
+      "mcpUrl": "URL du serveur",
+      "mcpToken": "Jeton d'accès",
+      "mcpHeader": "En-tête du jeton",
+      "mcpHeaderHelp": "Laissez vide pour l'envoyer en « Authorization: Bearer … ». Indiquez un nom d'en-tête si le serveur en attend un autre (par exemple X-Api-Key).",
+      "optional": "Facultatif",
+      "headers": "En-têtes envoyés à chaque appel",
+      "headerValue": "Valeur (gardée secrète)",
+      "addHeader": "Ajouter un en-tête",
+      "headersHelp": "Utilisez les en-têtes pour les clés d'API. Les valeurs sont chiffrées et ne sont plus jamais affichées.",
+      "keepSaved": "Enregistré ({hint}). Laissez vide pour le conserver",
+      "httpAfterCreate": "Après la connexion, ajoutez les actions (points d'accès) que l'IA peut appeler.",
+      "paystackKey": "Clé secrète Paystack",
+      "paystackKeyHelp": "Dans Paystack → Paramètres → Clés API. Utilisez sk_test_… pour essayer d'abord. Les paiements arrivent directement sur votre compte.",
+      "currency": "Devise",
+      "connect": "Connecter",
+      "connectAndDiscover": "Connecter et lister les outils",
+      "connected": "Connectée",
+      "connectedTools": "Connectée. {count, plural, one {# outil trouvé} other {# outils trouvés}}.",
+      "cancel": "Annuler",
+      "close": "Fermer",
+      "save": "Enregistrer",
+      "saved": "Enregistré",
+      "saveFailed": "Enregistrement impossible. Veuillez réessayer.",
+      "loadFailed": "Impossible de charger les intégrations.",
+      "status": {
+        "connected": "Connectée",
+        "error": "Erreur",
+        "needs_reauth": "À reconnecter",
+        "disabled": "En pause"
+      },
+      "testKey": "Clé de test",
+      "liveKey": "Clé live",
+      "headersSaved": "En-têtes : {names}",
+      "noHeaders": "Aucun en-tête",
+      "toggle": "Utiliser cette intégration",
+      "more": "Plus",
+      "rediscover": "Actualiser la liste des outils",
+      "rediscovered": "Liste mise à jour : {added} ajoutés, {removed} supprimés.",
+      "addAction": "Ajouter une action",
+      "editAction": "Modifier l'action",
+      "edit": "Modifier",
+      "remove": "Supprimer",
+      "removed": "Intégration supprimée.",
+      "removeTitle": "Supprimer {name} ?",
+      "removeBody": "L'IA cesse immédiatement d'utiliser ses outils. Le journal d'activité est conservé.",
+      "editTitle": "Modifier {name}",
+      "secretsWriteOnly": "Les clés et jetons ne sont jamais affichés. Saisissez-en un nouveau uniquement pour le remplacer.",
+      "noTools": "Cette intégration n'a aucun outil.",
+      "noActions": "Aucune action pour l'instant. Ajoutez-en une depuis le menu.",
+      "toolEnabled": "L'IA peut utiliser cet outil",
+      "read": "Lecture",
+      "action": "Action",
+      "kindLabel": "Type",
+      "autoApprove": "Autoriser sans approbation",
+      "autoApproveHelp": "Désactivé : l'IA demande à un coéquipier avant d'agir. Activé : l'IA agit tout de suite.",
+      "runsAutomatically": "S'exécute automatiquement",
+      "test": "Tester",
+      "actionHelp": "Expliquez à l'IA ce que fait l'appel et quelles informations recueillir. « Lecture » ne fait que consulter ; « Action » modifie quelque chose et demande une approbation, sauf si vous l'autorisez.",
+      "actionName": "Nom (sans espaces)",
+      "actionDescription": "Quand l'IA doit-elle l'utiliser ?",
+      "actionDescriptionPlaceholder": "Consulter l'état d'une commande quand le client donne un numéro de commande.",
+      "method": "Méthode",
+      "urlHelp": "Placez un champ dans le chemin avec {example}. Les autres champs vont dans la requête (GET, DELETE) ou le corps JSON.",
+      "fields": "Informations que l'IA doit remplir",
+      "fieldType": "Type",
+      "fieldDescription": "De quoi s'agit-il (aide l'IA)",
+      "required": "Obligatoire",
+      "addField": "Ajouter un champ",
+      "fieldsHelp": "L'IA n'envoie que ces champs.",
+      "fieldTypes": {
+        "string": "Texte",
+        "number": "Nombre",
+        "integer": "Nombre entier",
+        "boolean": "Oui / non"
+      },
+      "testTitle": "Tester {name}",
+      "testActionWarning": "C'est une action : le test l'exécute réellement (par exemple, il crée un vrai lien de paiement).",
+      "testReadHelp": "Lancez l'outil avec des valeurs d'exemple et voyez ce que l'IA recevrait.",
+      "noInputs": "Cet outil ne demande aucune information.",
+      "run": "Lancer",
+      "testOk": "Réussi en {ms} ms",
+      "testFailed": "Échec après {ms} ms",
+      "noActivity": "L'IA n'a encore utilisé aucun outil.",
+      "callStatus": {
+        "ok": "Fait",
+        "error": "Échec",
+        "pending_approval": "En attente d'approbation",
+        "approved": "Approuvé",
+        "rejected": "Refusé",
+        "expired": "Expiré",
+        "proposed": "Simple suggestion"
+      },
+      "modes": {
+        "auto_reply": "Réponse auto",
+        "draft": "Brouillon",
+        "playground": "Bac à sable",
+        "manual": "Par un coéquipier"
+      }
+    },
     "webhooks": {
       "title": "Webhooks",
       "description": "Recevez un message sur votre propre URL lorsqu’un événement se produit ici, comme un nouveau message WhatsApp ou l’envoi d’un formulaire.",
@@ -3044,7 +3191,8 @@
       "hint": "Écarte les numéros que Meta a signalés comme non livrables. Évite les envois inutiles. C'est déduit des résultats de livraison : un numéro que vous n'avez jamais contacté n'est pas marqué.",
       "saved": "Enregistré",
       "saveFailed": "Impossible d'enregistrer"
-    }
+    },
+    "adminOnlySection": "Seuls les administrateurs et propriétaires peuvent gérer cette section."
   },
   "SignupPage": {
     "passwordsMismatch": "Les mots de passe ne correspondent pas",
@@ -3175,7 +3323,8 @@
       "untitled": "Sans titre",
       "matchSemantic": "sens",
       "matchKeyword": "mots-clés",
-      "matchBoth": "sens + mots-clés"
+      "matchBoth": "sens + mots-clés",
+      "toolsUsed": "{count, plural, one {# outil utilisé} other {# outils utilisés}}"
     },
     "usage": {
       "title": "Utilisation des jetons",
@@ -3232,6 +3381,7 @@
       "defaultHint": "L'agent par défaut répond quand aucun autre agent ne couvre le canal d'une conversation. Il ne peut pas être supprimé.",
       "tabSetup": "Configuration",
       "tabKnowledge": "Connaissances",
+      "tabTools": "Outils",
       "tabPlayground": "Bac à sable",
       "identity": "Agent",
       "name": "Nom",
@@ -3292,6 +3442,22 @@
       "personaNever": "À ne jamais faire",
       "personaNeverPlaceholder": "ex. promettre des remboursements, donner des prix absents de la base de connaissances",
       "personaInheritHint": "Les règles de sécurité d'OgaDesk s'appliquent toujours, quoi que vous écriviez ici."
+    },
+    "tools": {
+      "title": "Intégrations que cet agent peut utiliser",
+      "description": "Les outils viennent de Paramètres → Intégrations. Les outils de lecture s’exécutent seuls ; les actions suivent le réglage d’approbation de chaque outil.",
+      "all": "Toutes les connectées",
+      "selected": "Seulement celles-ci",
+      "allHint": "Cet agent peut utiliser les {count} intégrations connectées, y compris celles ajoutées plus tard.",
+      "none": "Aucune intégration connectée.",
+      "connect": "En connecter une",
+      "notInPlan": "Les outils IA ne sont pas inclus dans votre forfait.",
+      "toolCount": "{count, plural, one {# outil actif} other {# outils actifs}}",
+      "paused": "en pause",
+      "safetyHint": "Dans les brouillons, les actions ne sont jamais exécutées : l’IA les suggère seulement. Dans le bac à sable, les outils de lecture s’exécutent et les actions sont seulement décrites.",
+      "save": "Enregistrer",
+      "saved": "Enregistré",
+      "saveFailed": "Enregistrement impossible. Veuillez réessayer."
     },
     "library": {
       "title": "Bibliothèque de connaissances",
@@ -4220,7 +4386,8 @@
   },
   "Handoff": {
     "lastMessage": " Dernier message du client : « {message} »",
-    "summary": "🤖 L'agent IA a transféré la conversation {count, plural, =0 {sans répondre} =1 {après # réponse} other {après # réponses}}."
+    "summary": "🤖 L'agent IA a transféré la conversation {count, plural, =0 {sans répondre} =1 {après # réponse} other {après # réponses}}.",
+    "pendingAction": " Une action attend l’approbation d’un coéquipier."
   },
   "Presence": {
     "online": "En ligne, actif maintenant",

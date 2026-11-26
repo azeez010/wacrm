@@ -589,6 +589,16 @@
       "updateError": "Couldn’t update the AI assistant.",
       "networkError": "Couldn’t reach the server."
     },
+    "pendingActions": {
+      "title": "The AI wants to: {tool}",
+      "approve": "Approve",
+      "reject": "Reject",
+      "approved": "Done.",
+      "approvedSent": "Done. The AI told the customer.",
+      "rejected": "Rejected. Nothing was done.",
+      "ranWithError": "It was approved but failed. See Settings → Integrations → Activity.",
+      "failed": "Could not complete that. Please try again."
+    },
     "aiAgent": {
       "title": "AI agent for this conversation",
       "automatic": "Automatic",
@@ -2370,6 +2380,7 @@
       "inbox": "Inbox",
       "members": "Team members",
       "api": "API & MCP",
+      "integrations": "Integrations",
       "language": "Language",
       "tables": "Custom tables",
       "timezone": "Time zone",
@@ -2822,6 +2833,7 @@
         "webhook_endpoints": "Outbound webhooks",
         "ai_replies_per_month": "AI replies / month",
         "ai_tokens_per_month": "AI credits (tokens) / month",
+        "integrations_max": "Connected integrations (AI tools)",
         "storage_mb": "Media storage (MB)",
         "custom_fields_max": "Custom contact fields",
         "custom_tables_max": "Custom tables",
@@ -2843,7 +2855,8 @@
         "priority_support": "Priority support",
         "custom_fields": "Custom fields, segments and tables",
         "forms": "Lead forms and support button",
-        "forms_advanced": "Form scoring, round-robin and welcome message"
+        "forms_advanced": "Form scoring, round-robin and welcome message",
+        "ai_tools": "AI tools and integrations (MCP, HTTP, Calendar, Paystack)"
       },
       "upgradeTo": "Upgrade to {plan} to use {feature}",
       "pickTitle": "Choose a plan",
@@ -2977,6 +2990,140 @@
       "off": "Marketing emails turned off",
       "error": "Could not save your choice"
     },
+    "integrations": {
+      "title": "Integrations",
+      "description": "Connect your own systems so the AI can look things up and take actions while it replies: an MCP server, your own API, or Paystack payment links.",
+      "add": "Add integration",
+      "upgradeBody": "AI tools and integrations aren't included in your {plan} plan.",
+      "upgradeCta": "See plans",
+      "usage": "{used} of {limit} integrations used",
+      "usageUnlimited": "{used} integrations connected",
+      "atLimit": "Your plan's limit is reached. Remove one or upgrade to add more.",
+      "tabConnected": "Connected",
+      "tabActivity": "Activity",
+      "empty": "No integrations yet.",
+      "emptyHint": "Connect an MCP server, your own API or Paystack. The AI then uses these tools in replies, drafts and the playground.",
+      "pickTitle": "Add an integration",
+      "pickBody": "Choose what to connect. You decide per tool what the AI may do on its own.",
+      "soon": "Soon",
+      "kinds": {
+        "mcp": "MCP server",
+        "http": "Your API (HTTP)",
+        "google_calendar": "Google Calendar",
+        "paystack": "Paystack payment links"
+      },
+      "kindHelp": {
+        "mcp": "Any server that speaks MCP over HTTP. We list its tools for you.",
+        "http": "Describe calls to your own API: check an order, add a lead, book a slot.",
+        "google_calendar": "Let the AI check free times and book appointments.",
+        "paystack": "Let the AI create payment links on your own Paystack account and check payments."
+      },
+      "namePlaceholder": {
+        "mcp": "e.g. Bookings",
+        "http": "e.g. Our shop API",
+        "paystack": "Paystack"
+      },
+      "addTitle": "Connect {kind}",
+      "name": "Name",
+      "mcpUrl": "Server URL",
+      "mcpToken": "Access token",
+      "mcpHeader": "Header for the token",
+      "mcpHeaderHelp": "Leave empty to send it as \"Authorization: Bearer …\". Set a header name if the server expects another one (for example X-Api-Key).",
+      "optional": "Optional",
+      "headers": "Headers sent with every call",
+      "headerValue": "Value (kept secret)",
+      "addHeader": "Add header",
+      "headersHelp": "Use headers for API keys. Values are encrypted and never shown again.",
+      "keepSaved": "Saved ({hint}). Leave empty to keep it",
+      "httpAfterCreate": "After connecting, add the actions (endpoints) the AI may call.",
+      "paystackKey": "Paystack secret key",
+      "paystackKeyHelp": "From Paystack → Settings → API keys. Use sk_test_… to try it first. Payments go straight to your account.",
+      "currency": "Currency",
+      "connect": "Connect",
+      "connectAndDiscover": "Connect and list tools",
+      "connected": "Connected",
+      "connectedTools": "Connected. {count, plural, one {# tool found} other {# tools found}}.",
+      "cancel": "Cancel",
+      "close": "Close",
+      "save": "Save",
+      "saved": "Saved",
+      "saveFailed": "Could not save. Please try again.",
+      "loadFailed": "Could not load integrations.",
+      "status": {
+        "connected": "Connected",
+        "error": "Error",
+        "needs_reauth": "Reconnect needed",
+        "disabled": "Paused"
+      },
+      "testKey": "Test key",
+      "liveKey": "Live key",
+      "headersSaved": "Headers: {names}",
+      "noHeaders": "No headers",
+      "toggle": "Use this integration",
+      "more": "More",
+      "rediscover": "Refresh tool list",
+      "rediscovered": "Tool list updated: {added} added, {removed} removed.",
+      "addAction": "Add action",
+      "editAction": "Edit action",
+      "edit": "Edit",
+      "remove": "Remove",
+      "removed": "Integration removed.",
+      "removeTitle": "Remove {name}?",
+      "removeBody": "The AI stops using its tools straight away. The activity log is kept.",
+      "editTitle": "Edit {name}",
+      "secretsWriteOnly": "Keys and tokens are never shown. Type a new one only if you want to replace it.",
+      "noTools": "This integration has no tools.",
+      "noActions": "No actions yet. Use the menu to add one.",
+      "toolEnabled": "AI can use this tool",
+      "read": "Read",
+      "action": "Action",
+      "kindLabel": "Type",
+      "autoApprove": "Allow without approval",
+      "autoApproveHelp": "Off: the AI asks a teammate before doing this. On: the AI does it straight away.",
+      "runsAutomatically": "Runs automatically",
+      "test": "Test",
+      "actionHelp": "Tell the AI what the call does and which details it must collect. \"Read\" only looks things up; \"Action\" changes something and needs approval unless you allow it.",
+      "actionName": "Name (no spaces)",
+      "actionDescription": "When should the AI use it?",
+      "actionDescriptionPlaceholder": "Look up an order's status when the customer gives an order number.",
+      "method": "Method",
+      "urlHelp": "Put a field in the path with {example}. Other fields go in the query (GET, DELETE) or the JSON body.",
+      "fields": "Details the AI must fill in",
+      "fieldType": "Type",
+      "fieldDescription": "What it is (helps the AI)",
+      "required": "Required",
+      "addField": "Add field",
+      "fieldsHelp": "The AI only sends these fields.",
+      "fieldTypes": {
+        "string": "Text",
+        "number": "Number",
+        "integer": "Whole number",
+        "boolean": "Yes / no"
+      },
+      "testTitle": "Test {name}",
+      "testActionWarning": "This is an action: running the test really does it (for example it creates a real payment link).",
+      "testReadHelp": "Run the tool with sample values and see what the AI would get back.",
+      "noInputs": "This tool needs no input.",
+      "run": "Run",
+      "testOk": "Worked in {ms} ms",
+      "testFailed": "Failed after {ms} ms",
+      "noActivity": "The AI hasn't used any tools yet.",
+      "callStatus": {
+        "ok": "Done",
+        "error": "Failed",
+        "pending_approval": "Waiting for approval",
+        "approved": "Approved",
+        "rejected": "Rejected",
+        "expired": "Expired",
+        "proposed": "Suggested only"
+      },
+      "modes": {
+        "auto_reply": "Auto-reply",
+        "draft": "Draft",
+        "playground": "Playground",
+        "manual": "By a teammate"
+      }
+    },
     "webhooks": {
       "title": "Webhooks",
       "description": "Get a message sent to your own URL when something happens here, like a new WhatsApp message or a form submission.",
@@ -3044,7 +3191,8 @@
       "hint": "Leave out numbers Meta reported undeliverable. Saves wasted sends. It is learned from delivery results, so a number you never messaged is not marked.",
       "saved": "Saved",
       "saveFailed": "Could not save"
-    }
+    },
+    "adminOnlySection": "Only admins and owners can manage this section."
   },
   "SignupPage": {
     "passwordsMismatch": "Passwords do not match",
@@ -3175,7 +3323,8 @@
       "untitled": "Untitled",
       "matchSemantic": "meaning",
       "matchKeyword": "keywords",
-      "matchBoth": "meaning + keywords"
+      "matchBoth": "meaning + keywords",
+      "toolsUsed": "{count, plural, one {# tool used} other {# tools used}}"
     },
     "usage": {
       "title": "Token usage",
@@ -3232,6 +3381,7 @@
       "defaultHint": "The default agent answers when no other agent covers a conversation's channel. It can't be deleted.",
       "tabSetup": "Setup",
       "tabKnowledge": "Knowledge",
+      "tabTools": "Tools",
       "tabPlayground": "Playground",
       "identity": "Agent",
       "name": "Name",
@@ -3292,6 +3442,22 @@
       "personaNever": "Things never to do",
       "personaNeverPlaceholder": "e.g. promise refunds, share prices not in the knowledge base",
       "personaInheritHint": "OgaDesk's own safety rules always apply, whatever you write here."
+    },
+    "tools": {
+      "title": "Integrations this agent can use",
+      "description": "Tools come from Settings → Integrations. Read tools run on their own; actions follow each tool’s approval setting.",
+      "all": "All connected",
+      "selected": "Only these",
+      "allHint": "This agent can use all {count} connected integrations, including ones you add later.",
+      "none": "No integrations connected yet.",
+      "connect": "Connect one",
+      "notInPlan": "AI tools aren’t included in your plan.",
+      "toolCount": "{count, plural, one {# tool on} other {# tools on}}",
+      "paused": "paused",
+      "safetyHint": "In drafts, actions are never run; the AI only suggests them. In the playground, read tools run and actions are only described.",
+      "save": "Save",
+      "saved": "Saved",
+      "saveFailed": "Could not save. Please try again."
     },
     "library": {
       "title": "Knowledge library",
@@ -3500,7 +3666,8 @@
   },
   "Handoff": {
     "summary": "🤖 AI agent handed off {count, plural, =0 {without replying} =1 {after # reply} other {after # replies}}.",
-    "lastMessage": " Last customer message: “{message}”"
+    "lastMessage": " Last customer message: “{message}”",
+    "pendingAction": " An action is waiting for a teammate to approve it."
   },
   "Metadata": {
     "description": "WhatsApp CRM for sales, support and marketing."

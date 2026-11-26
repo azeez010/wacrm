@@ -1090,6 +1090,16 @@
       "updateError": "Imeshindwa kusasisha msaidizi wa AI.",
       "networkError": "Imeshindwa kufikia seva."
     },
+    "pendingActions": {
+      "title": "AI inataka: {tool}",
+      "approve": "Idhinisha",
+      "reject": "Kataa",
+      "approved": "Imekamilika.",
+      "approvedSent": "Imekamilika. AI imemjulisha mteja.",
+      "rejected": "Imekataliwa. Hakuna kilichofanyika.",
+      "ranWithError": "Imeidhinishwa lakini imeshindwa. Angalia Mipangilio → Miunganisho → Shughuli.",
+      "failed": "Imeshindwa kukamilisha. Tafadhali jaribu tena."
+    },
     "aiAgent": {
       "title": "Wakala wa AI wa mazungumzo haya",
       "automatic": "Kiotomatiki",
@@ -2523,7 +2533,8 @@
       "untitled": "Bila jina",
       "matchSemantic": "maana",
       "matchKeyword": "maneno muhimu",
-      "matchBoth": "maana + maneno muhimu"
+      "matchBoth": "maana + maneno muhimu",
+      "toolsUsed": "{count, plural, one {Zana # imetumika} other {Zana # zimetumika}}"
     },
     "usage": {
       "title": "Matumizi ya tokeni",
@@ -2580,6 +2591,7 @@
       "defaultHint": "Wakala chaguomsingi hujibu wakati hakuna wakala mwingine anayeshughulikia njia ya mazungumzo. Hawezi kufutwa.",
       "tabSetup": "Usanidi",
       "tabKnowledge": "Maarifa",
+      "tabTools": "Zana",
       "tabPlayground": "Uwanja wa majaribio",
       "identity": "Wakala",
       "name": "Jina",
@@ -2640,6 +2652,22 @@
       "personaNever": "Mambo ya kutofanya kamwe",
       "personaNeverPlaceholder": "mfano: kuahidi kurejeshewa pesa, kutaja bei zisizo kwenye msingi wa maarifa",
       "personaInheritHint": "Kanuni za usalama za OgaDesk hutumika kila wakati, chochote utakachoandika hapa."
+    },
+    "tools": {
+      "title": "Miunganisho ambayo wakala huyu anaweza kutumia",
+      "description": "Zana zinatoka Mipangilio → Miunganisho. Zana za kusoma zinaendeshwa zenyewe; vitendo vinafuata mpangilio wa idhini wa kila zana.",
+      "all": "Yote iliyounganishwa",
+      "selected": "Hii tu",
+      "allHint": "Wakala huyu anaweza kutumia miunganisho yote {count}, pamoja na utakayoongeza baadaye.",
+      "none": "Bado hakuna miunganisho.",
+      "connect": "Unganisha mmoja",
+      "notInPlan": "Zana za AI hazijajumuishwa kwenye mpango wako.",
+      "toolCount": "{count, plural, one {Zana # imewashwa} other {Zana # zimewashwa}}",
+      "paused": "imesitishwa",
+      "safetyHint": "Kwenye rasimu, vitendo haviendeshwi kamwe; AI inavipendekeza tu. Kwenye uwanja wa majaribio, zana za kusoma zinaendeshwa na vitendo vinaelezwa tu.",
+      "save": "Hifadhi",
+      "saved": "Imehifadhiwa",
+      "saveFailed": "Imeshindwa kuhifadhi. Tafadhali jaribu tena."
     },
     "library": {
       "title": "Maktaba ya maarifa",
@@ -2938,6 +2966,7 @@
       "inbox": "Kikasha",
       "members": "Wanachama wa timu",
       "api": "API na MCP",
+      "integrations": "Miunganisho",
       "language": "Lugha",
       "tables": "Majedwali maalum",
       "timezone": "Saa za eneo",
@@ -3651,6 +3680,7 @@
         "webhook_endpoints": "Webhook zinazotoka",
         "ai_replies_per_month": "Majibu ya AI / mwezi",
         "ai_tokens_per_month": "Krediti za AI (tokeni) / mwezi",
+        "integrations_max": "Miunganisho iliyounganishwa (zana za AI)",
         "storage_mb": "Hifadhi ya media (MB)",
         "custom_fields_max": "Sehemu maalum za anwani",
         "custom_tables_max": "Majedwali maalum",
@@ -3672,7 +3702,8 @@
         "priority_support": "Msaada wa kipaumbele",
         "custom_fields": "Sehemu maalum, makundi na majedwali",
         "forms": "Fomu za wateja watarajiwa na kitufe cha msaada",
-        "forms_advanced": "Alama za fomu, ugawaji kwa zamu na ujumbe wa kukaribisha"
+        "forms_advanced": "Alama za fomu, ugawaji kwa zamu na ujumbe wa kukaribisha",
+        "ai_tools": "Zana za AI na miunganisho (MCP, HTTP, Kalenda, Paystack)"
       },
       "upgradeTo": "Pandisha hadi {plan} ili utumie {feature}",
       "pickTitle": "Chagua mpango",
@@ -3772,6 +3803,140 @@
         "readOnly": "Unaweza kutazama jedwali hili lakini huwezi kulibadilisha."
       }
     },
+    "integrations": {
+      "title": "Miunganisho",
+      "description": "Unganisha mifumo yako ili AI iweze kutafuta taarifa na kuchukua hatua inapojibu: seva ya MCP, API yako mwenyewe, au viungo vya malipo vya Paystack.",
+      "add": "Ongeza muunganisho",
+      "upgradeBody": "Zana za AI na miunganisho hazijajumuishwa kwenye mpango wako wa {plan}.",
+      "upgradeCta": "Tazama mipango",
+      "usage": "Miunganisho {used} kati ya {limit} imetumika",
+      "usageUnlimited": "Miunganisho {used} imeunganishwa",
+      "atLimit": "Umefikia kikomo cha mpango wako. Ondoa mmoja au panda daraja ili kuongeza zaidi.",
+      "tabConnected": "Imeunganishwa",
+      "tabActivity": "Shughuli",
+      "empty": "Bado hakuna miunganisho.",
+      "emptyHint": "Unganisha seva ya MCP, API yako au Paystack. AI itatumia zana hizi kwenye majibu, rasimu na uwanja wa majaribio.",
+      "pickTitle": "Ongeza muunganisho",
+      "pickBody": "Chagua cha kuunganisha. Unaamua kwa kila zana kile AI inaweza kufanya yenyewe.",
+      "soon": "Hivi karibuni",
+      "kinds": {
+        "mcp": "Seva ya MCP",
+        "http": "API yako (HTTP)",
+        "google_calendar": "Google Kalenda",
+        "paystack": "Viungo vya malipo vya Paystack"
+      },
+      "kindHelp": {
+        "mcp": "Seva yoyote inayotumia MCP kupitia HTTP. Tunaorodhesha zana zake kwa ajili yako.",
+        "http": "Eleza miito kwa API yako: kuangalia oda, kuongeza mteja mtarajiwa, kuweka miadi.",
+        "google_calendar": "AI inaangalia nafasi zilizo wazi na kuweka miadi.",
+        "paystack": "AI inaunda viungo vya malipo kwenye akaunti yako ya Paystack na kuangalia malipo."
+      },
+      "namePlaceholder": {
+        "mcp": "mf. Uhifadhi",
+        "http": "mf. API ya duka",
+        "paystack": "Paystack"
+      },
+      "addTitle": "Unganisha {kind}",
+      "name": "Jina",
+      "mcpUrl": "URL ya seva",
+      "mcpToken": "Tokeni ya ufikiaji",
+      "mcpHeader": "Kichwa cha tokeni",
+      "mcpHeaderHelp": "Acha wazi ili kuituma kama \"Authorization: Bearer …\". Weka jina la kichwa ikiwa seva inatarajia kingine (kwa mfano X-Api-Key).",
+      "optional": "Si lazima",
+      "headers": "Vichwa vinavyotumwa kila mwito",
+      "headerValue": "Thamani (siri)",
+      "addHeader": "Ongeza kichwa",
+      "headersHelp": "Tumia vichwa kwa funguo za API. Thamani husimbwa na hazionyeshwi tena.",
+      "keepSaved": "Imehifadhiwa ({hint}). Acha wazi ili kuibakiza",
+      "httpAfterCreate": "Baada ya kuunganisha, ongeza vitendo (endpoints) ambavyo AI inaweza kuita.",
+      "paystackKey": "Ufunguo wa siri wa Paystack",
+      "paystackKeyHelp": "Kutoka Paystack → Settings → API keys. Tumia sk_test_… kujaribu kwanza. Malipo huingia moja kwa moja kwenye akaunti yako.",
+      "currency": "Sarafu",
+      "connect": "Unganisha",
+      "connectAndDiscover": "Unganisha na orodhesha zana",
+      "connected": "Imeunganishwa",
+      "connectedTools": "Imeunganishwa. {count, plural, one {Zana # imepatikana} other {Zana # zimepatikana}}.",
+      "cancel": "Ghairi",
+      "close": "Funga",
+      "save": "Hifadhi",
+      "saved": "Imehifadhiwa",
+      "saveFailed": "Imeshindwa kuhifadhi. Tafadhali jaribu tena.",
+      "loadFailed": "Imeshindwa kupakia miunganisho.",
+      "status": {
+        "connected": "Imeunganishwa",
+        "error": "Hitilafu",
+        "needs_reauth": "Inahitaji kuunganishwa upya",
+        "disabled": "Imesitishwa"
+      },
+      "testKey": "Ufunguo wa majaribio",
+      "liveKey": "Ufunguo halisi",
+      "headersSaved": "Vichwa: {names}",
+      "noHeaders": "Hakuna vichwa",
+      "toggle": "Tumia muunganisho huu",
+      "more": "Zaidi",
+      "rediscover": "Onyesha upya orodha ya zana",
+      "rediscovered": "Orodha imesasishwa: {added} zimeongezwa, {removed} zimeondolewa.",
+      "addAction": "Ongeza kitendo",
+      "editAction": "Hariri kitendo",
+      "edit": "Hariri",
+      "remove": "Ondoa",
+      "removed": "Muunganisho umeondolewa.",
+      "removeTitle": "Ondoa {name}?",
+      "removeBody": "AI inaacha kutumia zana zake mara moja. Kumbukumbu ya shughuli inabaki.",
+      "editTitle": "Hariri {name}",
+      "secretsWriteOnly": "Funguo na tokeni hazionyeshwi kamwe. Andika mpya tu ikiwa unataka kuibadilisha.",
+      "noTools": "Muunganisho huu hauna zana.",
+      "noActions": "Bado hakuna vitendo. Tumia menyu kuongeza.",
+      "toolEnabled": "AI inaweza kutumia zana hii",
+      "read": "Kusoma",
+      "action": "Kitendo",
+      "kindLabel": "Aina",
+      "autoApprove": "Ruhusu bila idhini",
+      "autoApproveHelp": "Imezimwa: AI inamuuliza mwenzako kabla ya kufanya. Imewashwa: AI inafanya mara moja.",
+      "runsAutomatically": "Inaendeshwa yenyewe",
+      "test": "Jaribu",
+      "actionHelp": "Iambie AI mwito huu unafanya nini na taarifa gani ikusanye. \"Kusoma\" inatafuta tu; \"Kitendo\" kinabadilisha kitu na kinahitaji idhini usipokiruhusu.",
+      "actionName": "Jina (bila nafasi)",
+      "actionDescription": "AI itumie lini?",
+      "actionDescriptionPlaceholder": "Angalia hali ya oda mteja anapotoa namba ya oda.",
+      "method": "Mbinu",
+      "urlHelp": "Weka sehemu kwenye njia kwa {example}. Sehemu nyingine huenda kwenye query (GET, DELETE) au mwili wa JSON.",
+      "fields": "Taarifa ambazo AI lazima ijaze",
+      "fieldType": "Aina",
+      "fieldDescription": "Ni nini (inasaidia AI)",
+      "required": "Lazima",
+      "addField": "Ongeza sehemu",
+      "fieldsHelp": "AI inatuma sehemu hizi tu.",
+      "fieldTypes": {
+        "string": "Maandishi",
+        "number": "Namba",
+        "integer": "Namba kamili",
+        "boolean": "Ndiyo / hapana"
+      },
+      "testTitle": "Jaribu {name}",
+      "testActionWarning": "Hiki ni kitendo: kukijaribu kunakifanya kweli (kwa mfano kinaunda kiungo halisi cha malipo).",
+      "testReadHelp": "Endesha zana kwa thamani za mfano uone AI ingepata nini.",
+      "noInputs": "Zana hii haihitaji taarifa.",
+      "run": "Endesha",
+      "testOk": "Imefanikiwa kwa ms {ms}",
+      "testFailed": "Imeshindwa baada ya ms {ms}",
+      "noActivity": "AI bado haijatumia zana yoyote.",
+      "callStatus": {
+        "ok": "Imekamilika",
+        "error": "Imeshindwa",
+        "pending_approval": "Inasubiri idhini",
+        "approved": "Imeidhinishwa",
+        "rejected": "Imekataliwa",
+        "expired": "Imeisha muda",
+        "proposed": "Pendekezo tu"
+      },
+      "modes": {
+        "auto_reply": "Jibu la kiotomatiki",
+        "draft": "Rasimu",
+        "playground": "Uwanja wa majaribio",
+        "manual": "Na mwenzako"
+      }
+    },
     "webhooks": {
       "title": "Webhook",
       "description": "Pata ujumbe unaotumwa kwa URL yako jambo linapotokea hapa, kama ujumbe mpya wa WhatsApp au fomu kutumwa.",
@@ -3833,7 +3998,8 @@
       "resent": "Imetumwa tena kwa mafanikio",
       "resendFailed": "Imeshindwa kutuma tena",
       "resentFailedResponse": "Imetumwa tena, lakini endpoint imeshindwa: {reason}"
-    }
+    },
+    "adminOnlySection": "Wasimamizi na wamiliki pekee ndio wanaweza kusimamia sehemu hii."
   },
   "Validation": {
     "flows": {
@@ -4328,7 +4494,8 @@
   },
   "Handoff": {
     "summary": "🤖 Wakala wa AI amekabidhi {count, plural, =0 {bila kujibu} =1 {baada ya jibu #} other {baada ya majibu #}}.",
-    "lastMessage": " Ujumbe wa mwisho wa mteja: “{message}”"
+    "lastMessage": " Ujumbe wa mwisho wa mteja: “{message}”",
+    "pendingAction": " Kuna kitendo kinachosubiri idhini ya mwenzako."
   },
   "StarterAutomations": {
     "welcome_message": {

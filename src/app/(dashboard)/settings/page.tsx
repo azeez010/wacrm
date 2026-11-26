@@ -25,6 +25,8 @@ import { MembersTab } from '@/components/settings/members-tab';
 import { ApiKeysPanel } from '@/components/settings/api-keys-panel';
 import { ReachabilityCard } from '@/components/settings/reachability-card';
 import { WebhooksPanel } from '@/components/settings/webhooks-panel';
+import { IntegrationsPanel } from '@/components/settings/integrations-panel';
+import { RequireRole } from '@/components/auth/require-role';
 import { BillingPanel } from '@/components/settings/billing-panel';
 import {
   resolveSection,
@@ -102,6 +104,11 @@ function SettingsPageInner() {
     deals: <DealsSettings />,
     members: <MembersTab />,
     api: <ApiKeysPanel />,
+    integrations: (
+      <RequireRole min="admin" fallback={<p className="text-muted-foreground text-sm">{t('adminOnlySection')}</p>}>
+        <IntegrationsPanel />
+      </RequireRole>
+    ),
     webhooks: <WebhooksPanel />,
   };
 

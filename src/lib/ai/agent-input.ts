@@ -24,6 +24,8 @@ export interface AgentWrite {
   persona_behaviour?: string | null
   persona_avoid?: string | null
   persona_never?: string | null
+  /** Integrations whose tools the agent may use; null = all connected ones. */
+  tool_integrations?: string[] | null
 }
 
 export type AgentInputError =
@@ -91,6 +93,10 @@ export function parseAgentInput(
     const mode = has('knowledge_mode') ? b.knowledge_mode : 'selected'
     if (mode !== 'all' && mode !== 'selected') return { error: 'knowledge_mode_invalid' }
     out.knowledge_mode = mode
+  }
+  // Only when sent (null = every connected integration). Ids are scoped to the account when tools are loaded.
+  if (has('tool_integrations')) {
+    out.tool_integrations = b.tool_integrations === null ? null : parseIdList(b.tool_integrations, 50) ?? null
   }
   return { data: out }
 }

@@ -589,6 +589,16 @@
       "updateError": "Não foi possível atualizar o assistente de IA.",
       "networkError": "Não foi possível conectar ao servidor."
     },
+    "pendingActions": {
+      "title": "A IA quer: {tool}",
+      "approve": "Aprovar",
+      "reject": "Recusar",
+      "approved": "Feito.",
+      "approvedSent": "Feito. A IA avisou o cliente.",
+      "rejected": "Recusado. Nada foi feito.",
+      "ranWithError": "Foi aprovado, mas falhou. Veja Configurações → Integrações → Atividade.",
+      "failed": "Não foi possível concluir. Tente novamente."
+    },
     "aiAgent": {
       "title": "Agente de IA desta conversa",
       "automatic": "Automático",
@@ -2370,6 +2380,7 @@
       "inbox": "Caixa de entrada",
       "members": "Membros da equipe",
       "api": "API e MCP",
+      "integrations": "Integrações",
       "language": "Idioma",
       "tables": "Tabelas personalizadas",
       "timezone": "Fuso horário",
@@ -2822,6 +2833,7 @@
         "webhook_endpoints": "Webhooks de saída",
         "ai_replies_per_month": "Respostas de IA / mês",
         "ai_tokens_per_month": "Créditos de IA (tokens) / mês",
+        "integrations_max": "Integrações conectadas (ferramentas de IA)",
         "storage_mb": "Armazenamento de mídia (MB)",
         "custom_fields_max": "Campos personalizados de contato",
         "custom_tables_max": "Tabelas personalizadas",
@@ -2843,7 +2855,8 @@
         "priority_support": "Suporte prioritário",
         "custom_fields": "Campos personalizados, segmentos e tabelas",
         "forms": "Formulários de leads e botão de suporte",
-        "forms_advanced": "Pontuação de formulários, rodízio e mensagem de boas-vindas"
+        "forms_advanced": "Pontuação de formulários, rodízio e mensagem de boas-vindas",
+        "ai_tools": "Ferramentas de IA e integrações (MCP, HTTP, Agenda, Paystack)"
       },
       "upgradeTo": "Faça upgrade para {plan} para usar {feature}",
       "pickTitle": "Escolha um plano",
@@ -2977,6 +2990,140 @@
       "off": "E-mails de marketing desativados",
       "error": "Não foi possível guardar a sua escolha"
     },
+    "integrations": {
+      "title": "Integrações",
+      "description": "Conecte seus próprios sistemas para que a IA possa consultar dados e executar ações enquanto responde: um servidor MCP, sua própria API ou links de pagamento do Paystack.",
+      "add": "Adicionar integração",
+      "upgradeBody": "Ferramentas de IA e integrações não estão incluídas no seu plano {plan}.",
+      "upgradeCta": "Ver planos",
+      "usage": "{used} de {limit} integrações em uso",
+      "usageUnlimited": "{used} integrações conectadas",
+      "atLimit": "O limite do seu plano foi atingido. Remova uma ou faça upgrade para adicionar mais.",
+      "tabConnected": "Conectadas",
+      "tabActivity": "Atividade",
+      "empty": "Nenhuma integração ainda.",
+      "emptyHint": "Conecte um servidor MCP, sua própria API ou o Paystack. A IA passa a usar essas ferramentas em respostas, rascunhos e no ambiente de testes.",
+      "pickTitle": "Adicionar uma integração",
+      "pickBody": "Escolha o que conectar. Você decide, ferramenta por ferramenta, o que a IA pode fazer sozinha.",
+      "soon": "Em breve",
+      "kinds": {
+        "mcp": "Servidor MCP",
+        "http": "Sua API (HTTP)",
+        "google_calendar": "Google Agenda",
+        "paystack": "Links de pagamento do Paystack"
+      },
+      "kindHelp": {
+        "mcp": "Qualquer servidor que fale MCP por HTTP. Listamos as ferramentas para você.",
+        "http": "Descreva chamadas à sua própria API: consultar um pedido, adicionar um lead, reservar um horário.",
+        "google_calendar": "A IA verifica horários livres e agenda compromissos.",
+        "paystack": "A IA cria links de pagamento na sua própria conta Paystack e verifica pagamentos."
+      },
+      "namePlaceholder": {
+        "mcp": "ex.: Reservas",
+        "http": "ex.: API da loja",
+        "paystack": "Paystack"
+      },
+      "addTitle": "Conectar: {kind}",
+      "name": "Nome",
+      "mcpUrl": "URL do servidor",
+      "mcpToken": "Token de acesso",
+      "mcpHeader": "Cabeçalho do token",
+      "mcpHeaderHelp": "Deixe vazio para enviar como \"Authorization: Bearer …\". Informe um nome de cabeçalho se o servidor esperar outro (por exemplo X-Api-Key).",
+      "optional": "Opcional",
+      "headers": "Cabeçalhos enviados em cada chamada",
+      "headerValue": "Valor (mantido em segredo)",
+      "addHeader": "Adicionar cabeçalho",
+      "headersHelp": "Use cabeçalhos para chaves de API. Os valores são criptografados e nunca mais exibidos.",
+      "keepSaved": "Salvo ({hint}). Deixe vazio para manter",
+      "httpAfterCreate": "Depois de conectar, adicione as ações (endpoints) que a IA pode chamar.",
+      "paystackKey": "Chave secreta do Paystack",
+      "paystackKeyHelp": "Em Paystack → Settings → API keys. Use sk_test_… para testar primeiro. Os pagamentos vão direto para sua conta.",
+      "currency": "Moeda",
+      "connect": "Conectar",
+      "connectAndDiscover": "Conectar e listar ferramentas",
+      "connected": "Conectada",
+      "connectedTools": "Conectada. {count, plural, one {# ferramenta encontrada} other {# ferramentas encontradas}}.",
+      "cancel": "Cancelar",
+      "close": "Fechar",
+      "save": "Salvar",
+      "saved": "Salvo",
+      "saveFailed": "Não foi possível salvar. Tente novamente.",
+      "loadFailed": "Não foi possível carregar as integrações.",
+      "status": {
+        "connected": "Conectada",
+        "error": "Erro",
+        "needs_reauth": "Reconectar",
+        "disabled": "Pausada"
+      },
+      "testKey": "Chave de teste",
+      "liveKey": "Chave de produção",
+      "headersSaved": "Cabeçalhos: {names}",
+      "noHeaders": "Sem cabeçalhos",
+      "toggle": "Usar esta integração",
+      "more": "Mais",
+      "rediscover": "Atualizar lista de ferramentas",
+      "rediscovered": "Lista atualizada: {added} adicionadas, {removed} removidas.",
+      "addAction": "Adicionar ação",
+      "editAction": "Editar ação",
+      "edit": "Editar",
+      "remove": "Remover",
+      "removed": "Integração removida.",
+      "removeTitle": "Remover {name}?",
+      "removeBody": "A IA para de usar as ferramentas imediatamente. O registro de atividade é mantido.",
+      "editTitle": "Editar {name}",
+      "secretsWriteOnly": "Chaves e tokens nunca são exibidos. Digite um novo apenas se quiser substituí-lo.",
+      "noTools": "Esta integração não tem ferramentas.",
+      "noActions": "Nenhuma ação ainda. Use o menu para adicionar.",
+      "toolEnabled": "A IA pode usar esta ferramenta",
+      "read": "Leitura",
+      "action": "Ação",
+      "kindLabel": "Tipo",
+      "autoApprove": "Permitir sem aprovação",
+      "autoApproveHelp": "Desligado: a IA pede a um colega antes de fazer. Ligado: a IA faz na hora.",
+      "runsAutomatically": "Executa automaticamente",
+      "test": "Testar",
+      "actionHelp": "Diga à IA o que a chamada faz e quais dados ela deve coletar. \"Leitura\" apenas consulta; \"Ação\" altera algo e precisa de aprovação, a menos que você permita.",
+      "actionName": "Nome (sem espaços)",
+      "actionDescription": "Quando a IA deve usá-la?",
+      "actionDescriptionPlaceholder": "Consultar o status de um pedido quando o cliente informar o número do pedido.",
+      "method": "Método",
+      "urlHelp": "Coloque um campo no caminho com {example}. Os outros campos vão na query (GET, DELETE) ou no corpo JSON.",
+      "fields": "Dados que a IA deve preencher",
+      "fieldType": "Tipo",
+      "fieldDescription": "O que é (ajuda a IA)",
+      "required": "Obrigatório",
+      "addField": "Adicionar campo",
+      "fieldsHelp": "A IA envia apenas estes campos.",
+      "fieldTypes": {
+        "string": "Texto",
+        "number": "Número",
+        "integer": "Número inteiro",
+        "boolean": "Sim / não"
+      },
+      "testTitle": "Testar {name}",
+      "testActionWarning": "Isto é uma ação: o teste a executa de verdade (por exemplo, cria um link de pagamento real).",
+      "testReadHelp": "Execute a ferramenta com valores de exemplo e veja o que a IA receberia.",
+      "noInputs": "Esta ferramenta não precisa de dados.",
+      "run": "Executar",
+      "testOk": "Funcionou em {ms} ms",
+      "testFailed": "Falhou após {ms} ms",
+      "noActivity": "A IA ainda não usou nenhuma ferramenta.",
+      "callStatus": {
+        "ok": "Concluído",
+        "error": "Falhou",
+        "pending_approval": "Aguardando aprovação",
+        "approved": "Aprovado",
+        "rejected": "Recusado",
+        "expired": "Expirado",
+        "proposed": "Apenas sugerido"
+      },
+      "modes": {
+        "auto_reply": "Resposta automática",
+        "draft": "Rascunho",
+        "playground": "Ambiente de testes",
+        "manual": "Por um colega"
+      }
+    },
     "webhooks": {
       "title": "Webhooks",
       "description": "Receba uma mensagem na sua própria URL quando algo acontecer aqui, como uma nova mensagem do WhatsApp ou o envio de um formulário.",
@@ -3044,7 +3191,8 @@
       "hint": "Deixa de fora números que a Meta informou como não entregáveis. Evita envios inúteis. É aprendido pelos resultados de entrega, então um número que você nunca contatou não é marcado.",
       "saved": "Salvo",
       "saveFailed": "Não foi possível salvar"
-    }
+    },
+    "adminOnlySection": "Somente administradores e proprietários podem gerenciar esta seção."
   },
   "SignupPage": {
     "passwordsMismatch": "As senhas não coincidem",
@@ -3175,7 +3323,8 @@
       "untitled": "Sem título",
       "matchSemantic": "significado",
       "matchKeyword": "palavras-chave",
-      "matchBoth": "significado + palavras-chave"
+      "matchBoth": "significado + palavras-chave",
+      "toolsUsed": "{count, plural, one {# ferramenta usada} other {# ferramentas usadas}}"
     },
     "usage": {
       "title": "Uso de tokens",
@@ -3232,6 +3381,7 @@
       "defaultHint": "O agente padrão responde quando nenhum outro agente cobre o canal de uma conversa. Ele não pode ser excluído.",
       "tabSetup": "Configuração",
       "tabKnowledge": "Conhecimento",
+      "tabTools": "Ferramentas",
       "tabPlayground": "Testes",
       "identity": "Agente",
       "name": "Nome",
@@ -3292,6 +3442,22 @@
       "personaNever": "O que nunca fazer",
       "personaNeverPlaceholder": "ex. prometer reembolsos, informar preços que não estão na base de conhecimento",
       "personaInheritHint": "As regras de segurança do OgaDesk sempre valem, seja o que for que você escrever aqui."
+    },
+    "tools": {
+      "title": "Integrações que este agente pode usar",
+      "description": "As ferramentas vêm de Configurações → Integrações. Ferramentas de leitura rodam sozinhas; ações seguem a configuração de aprovação de cada ferramenta.",
+      "all": "Todas as conectadas",
+      "selected": "Somente estas",
+      "allHint": "Este agente pode usar as {count} integrações conectadas, inclusive as que você adicionar depois.",
+      "none": "Nenhuma integração conectada ainda.",
+      "connect": "Conectar uma",
+      "notInPlan": "Ferramentas de IA não estão incluídas no seu plano.",
+      "toolCount": "{count, plural, one {# ferramenta ativa} other {# ferramentas ativas}}",
+      "paused": "pausada",
+      "safetyHint": "Em rascunhos, ações nunca são executadas; a IA apenas as sugere. No ambiente de testes, ferramentas de leitura rodam e ações são apenas descritas.",
+      "save": "Salvar",
+      "saved": "Salvo",
+      "saveFailed": "Não foi possível salvar. Tente novamente."
     },
     "library": {
       "title": "Biblioteca de conhecimento",
@@ -3500,7 +3666,8 @@
   },
   "Handoff": {
     "summary": "🤖 O agente de IA transferiu a conversa {count, plural, =0 {sem responder} =1 {após # resposta} other {após # respostas}}.",
-    "lastMessage": " Última mensagem do cliente: “{message}”"
+    "lastMessage": " Última mensagem do cliente: “{message}”",
+    "pendingAction": " Há uma ação aguardando a aprovação de um colega."
   },
   "Metadata": {
     "description": "CRM de WhatsApp para vendas, suporte e marketing."

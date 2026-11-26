@@ -1,4 +1,5 @@
 import {
+  Blocks,
   Clock,
   Coins,
   CreditCard,
@@ -44,6 +45,7 @@ export const SETTINGS_SECTIONS = [
   'deals',
   'members',
   'api',
+  'integrations',
   'webhooks',
 ] as const;
 
@@ -76,6 +78,7 @@ export const SECTION_META: Record<SettingsSection, SectionMeta> = {
   deals: { id: 'deals', label: 'Deals & currency', icon: Coins, group: 'workspace' },
   members: { id: 'members', label: 'Team members', icon: UsersRound, group: 'workspace' },
   api: { id: 'api', label: 'API & MCP', icon: KeyRound, group: 'workspace' },
+  integrations: { id: 'integrations', label: 'Integrations', icon: Blocks, group: 'workspace' },
   webhooks: { id: 'webhooks', label: 'Webhooks', icon: Webhook, group: 'workspace' },
 };
 

@@ -3,7 +3,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
-import { ArrowLeft, BookOpen, Loader2, Plus, Search, Settings2, Sparkles, Trash2 } from 'lucide-react';
+import { AgentTools } from './agent-tools';
+import { ArrowLeft, Blocks, BookOpen, Loader2, Plus, Search, Settings2, Sparkles, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -28,7 +29,7 @@ import type { AgentTemplate } from '@/lib/ai/agent-templates';
 const HANDOFF_QUEUE = '__queue__';
 const CHANNELS: AgentChannel[] = ['whatsapp', 'web_chat'];
 
-type SubTab = 'setup' | 'knowledge' | 'playground';
+type SubTab = 'setup' | 'knowledge' | 'tools' | 'playground';
 
 interface Form {
   name: string;
@@ -195,6 +196,9 @@ export function AgentEditor({
           </TabsTrigger>
           <TabsTrigger value="knowledge" disabled={!agent}>
             <BookOpen className="mr-1.5 h-4 w-4" /> {t('tabKnowledge')}
+          </TabsTrigger>
+          <TabsTrigger value="tools" disabled={!agent}>
+            <Blocks className="mr-1.5 h-4 w-4" /> {t('tabTools')}
           </TabsTrigger>
           <TabsTrigger value="playground" disabled={!agent}>
             <Sparkles className="mr-1.5 h-4 w-4" /> {t('tabPlayground')}
@@ -381,6 +385,12 @@ export function AgentEditor({
         {agent && (
           <TabsContent value="knowledge" className="mt-4">
             <AgentKnowledge agent={agent} canEdit={canEdit} onSaved={onSaved} />
+          </TabsContent>
+        )}
+
+        {agent && (
+          <TabsContent value="tools" className="mt-4">
+            <AgentTools agent={agent} canEdit={canEdit} onSaved={onSaved} />
           </TabsContent>
         )}
 

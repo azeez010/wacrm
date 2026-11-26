@@ -1090,6 +1090,16 @@
       "updateError": "Tidak dapat memperbarui asisten AI.",
       "networkError": "Tidak dapat menjangkau server."
     },
+    "pendingActions": {
+      "title": "AI ingin: {tool}",
+      "approve": "Setujui",
+      "reject": "Tolak",
+      "approved": "Selesai.",
+      "approvedSent": "Selesai. AI sudah memberi tahu pelanggan.",
+      "rejected": "Ditolak. Tidak ada yang dilakukan.",
+      "ranWithError": "Disetujui tetapi gagal. Lihat Pengaturan → Integrasi → Aktivitas.",
+      "failed": "Tidak dapat menyelesaikan. Silakan coba lagi."
+    },
     "aiAgent": {
       "title": "Agen AI untuk percakapan ini",
       "automatic": "Otomatis",
@@ -2523,7 +2533,8 @@
       "untitled": "Tanpa judul",
       "matchSemantic": "makna",
       "matchKeyword": "kata kunci",
-      "matchBoth": "makna + kata kunci"
+      "matchBoth": "makna + kata kunci",
+      "toolsUsed": "{count} alat dipakai"
     },
     "usage": {
       "title": "Penggunaan token",
@@ -2580,6 +2591,7 @@
       "defaultHint": "Agen bawaan menjawab saat tidak ada agen lain yang mencakup kanal percakapan. Agen ini tidak dapat dihapus.",
       "tabSetup": "Pengaturan",
       "tabKnowledge": "Pengetahuan",
+      "tabTools": "Alat",
       "tabPlayground": "Area uji",
       "identity": "Agen",
       "name": "Nama",
@@ -2640,6 +2652,22 @@
       "personaNever": "Hal yang tidak boleh dilakukan",
       "personaNeverPlaceholder": "mis. menjanjikan pengembalian dana, menyebut harga yang tidak ada di basis pengetahuan",
       "personaInheritHint": "Aturan keamanan OgaDesk selalu berlaku, apa pun yang Anda tulis di sini."
+    },
+    "tools": {
+      "title": "Integrasi yang boleh dipakai agen ini",
+      "description": "Alat berasal dari Pengaturan → Integrasi. Alat baca berjalan sendiri; tindakan mengikuti pengaturan persetujuan tiap alat.",
+      "all": "Semua yang terhubung",
+      "selected": "Hanya ini",
+      "allHint": "Agen ini bisa memakai semua {count} integrasi yang terhubung, termasuk yang ditambahkan nanti.",
+      "none": "Belum ada integrasi yang terhubung.",
+      "connect": "Hubungkan satu",
+      "notInPlan": "Alat AI tidak termasuk dalam paket Anda.",
+      "toolCount": "{count} alat aktif",
+      "paused": "dijeda",
+      "safetyHint": "Di draf, tindakan tidak pernah dijalankan; AI hanya menyarankannya. Di playground, alat baca berjalan dan tindakan hanya dijelaskan.",
+      "save": "Simpan",
+      "saved": "Tersimpan",
+      "saveFailed": "Gagal menyimpan. Silakan coba lagi."
     },
     "library": {
       "title": "Pustaka pengetahuan",
@@ -2938,6 +2966,7 @@
       "inbox": "Kotak masuk",
       "members": "Anggota tim",
       "api": "API & MCP",
+      "integrations": "Integrasi",
       "language": "Bahasa",
       "tables": "Tabel khusus",
       "timezone": "Zona waktu",
@@ -3651,6 +3680,7 @@
         "webhook_endpoints": "Webhook keluar",
         "ai_replies_per_month": "Balasan AI / bulan",
         "ai_tokens_per_month": "Kredit AI (token) / bulan",
+        "integrations_max": "Integrasi terhubung (alat AI)",
         "storage_mb": "Penyimpanan media (MB)",
         "custom_fields_max": "Kolom kontak khusus",
         "custom_tables_max": "Tabel khusus",
@@ -3672,7 +3702,8 @@
         "priority_support": "Dukungan prioritas",
         "custom_fields": "Kolom khusus, segmen, dan tabel",
         "forms": "Formulir prospek dan tombol dukungan",
-        "forms_advanced": "Skor formulir, pembagian bergiliran, dan pesan sambutan"
+        "forms_advanced": "Skor formulir, pembagian bergiliran, dan pesan sambutan",
+        "ai_tools": "Alat AI dan integrasi (MCP, HTTP, Kalender, Paystack)"
       },
       "upgradeTo": "Tingkatkan ke {plan} untuk memakai {feature}",
       "pickTitle": "Pilih paket",
@@ -3772,6 +3803,140 @@
         "readOnly": "Anda dapat melihat tabel ini tetapi tidak dapat mengubahnya."
       }
     },
+    "integrations": {
+      "title": "Integrasi",
+      "description": "Hubungkan sistem Anda sendiri agar AI bisa mencari informasi dan mengambil tindakan saat membalas: server MCP, API Anda sendiri, atau tautan pembayaran Paystack.",
+      "add": "Tambah integrasi",
+      "upgradeBody": "Alat AI dan integrasi tidak termasuk dalam paket {plan} Anda.",
+      "upgradeCta": "Lihat paket",
+      "usage": "{used} dari {limit} integrasi terpakai",
+      "usageUnlimited": "{used} integrasi terhubung",
+      "atLimit": "Batas paket Anda sudah tercapai. Hapus satu atau tingkatkan paket untuk menambah lagi.",
+      "tabConnected": "Terhubung",
+      "tabActivity": "Aktivitas",
+      "empty": "Belum ada integrasi.",
+      "emptyHint": "Hubungkan server MCP, API Anda sendiri, atau Paystack. AI lalu memakai alat ini dalam balasan, draf, dan playground.",
+      "pickTitle": "Tambah integrasi",
+      "pickBody": "Pilih yang ingin dihubungkan. Anda menentukan per alat apa yang boleh dilakukan AI sendiri.",
+      "soon": "Segera",
+      "kinds": {
+        "mcp": "Server MCP",
+        "http": "API Anda (HTTP)",
+        "google_calendar": "Google Kalender",
+        "paystack": "Tautan pembayaran Paystack"
+      },
+      "kindHelp": {
+        "mcp": "Server apa pun yang mendukung MCP lewat HTTP. Kami menampilkan daftar alatnya.",
+        "http": "Jelaskan panggilan ke API Anda: cek pesanan, tambah prospek, pesan jadwal.",
+        "google_calendar": "AI memeriksa waktu kosong dan membuat janji.",
+        "paystack": "AI membuat tautan pembayaran di akun Paystack Anda sendiri dan memeriksa pembayaran."
+      },
+      "namePlaceholder": {
+        "mcp": "mis. Pemesanan",
+        "http": "mis. API toko",
+        "paystack": "Paystack"
+      },
+      "addTitle": "Hubungkan {kind}",
+      "name": "Nama",
+      "mcpUrl": "URL server",
+      "mcpToken": "Token akses",
+      "mcpHeader": "Header untuk token",
+      "mcpHeaderHelp": "Biarkan kosong untuk mengirimnya sebagai \"Authorization: Bearer …\". Isi nama header jika server mengharapkan yang lain (misalnya X-Api-Key).",
+      "optional": "Opsional",
+      "headers": "Header yang dikirim di setiap panggilan",
+      "headerValue": "Nilai (dirahasiakan)",
+      "addHeader": "Tambah header",
+      "headersHelp": "Gunakan header untuk kunci API. Nilainya dienkripsi dan tidak ditampilkan lagi.",
+      "keepSaved": "Tersimpan ({hint}). Biarkan kosong untuk mempertahankannya",
+      "httpAfterCreate": "Setelah terhubung, tambahkan tindakan (endpoint) yang boleh dipanggil AI.",
+      "paystackKey": "Kunci rahasia Paystack",
+      "paystackKeyHelp": "Dari Paystack → Settings → API keys. Gunakan sk_test_… untuk mencoba dulu. Pembayaran langsung masuk ke akun Anda.",
+      "currency": "Mata uang",
+      "connect": "Hubungkan",
+      "connectAndDiscover": "Hubungkan dan tampilkan alat",
+      "connected": "Terhubung",
+      "connectedTools": "Terhubung. {count} alat ditemukan.",
+      "cancel": "Batal",
+      "close": "Tutup",
+      "save": "Simpan",
+      "saved": "Tersimpan",
+      "saveFailed": "Gagal menyimpan. Silakan coba lagi.",
+      "loadFailed": "Gagal memuat integrasi.",
+      "status": {
+        "connected": "Terhubung",
+        "error": "Error",
+        "needs_reauth": "Perlu dihubungkan ulang",
+        "disabled": "Dijeda"
+      },
+      "testKey": "Kunci uji",
+      "liveKey": "Kunci live",
+      "headersSaved": "Header: {names}",
+      "noHeaders": "Tanpa header",
+      "toggle": "Gunakan integrasi ini",
+      "more": "Lainnya",
+      "rediscover": "Muat ulang daftar alat",
+      "rediscovered": "Daftar alat diperbarui: {added} ditambah, {removed} dihapus.",
+      "addAction": "Tambah tindakan",
+      "editAction": "Edit tindakan",
+      "edit": "Edit",
+      "remove": "Hapus",
+      "removed": "Integrasi dihapus.",
+      "removeTitle": "Hapus {name}?",
+      "removeBody": "AI langsung berhenti memakai alatnya. Log aktivitas tetap disimpan.",
+      "editTitle": "Edit {name}",
+      "secretsWriteOnly": "Kunci dan token tidak pernah ditampilkan. Ketik yang baru hanya jika ingin menggantinya.",
+      "noTools": "Integrasi ini tidak punya alat.",
+      "noActions": "Belum ada tindakan. Gunakan menu untuk menambah.",
+      "toolEnabled": "AI boleh memakai alat ini",
+      "read": "Baca",
+      "action": "Tindakan",
+      "kindLabel": "Jenis",
+      "autoApprove": "Izinkan tanpa persetujuan",
+      "autoApproveHelp": "Mati: AI meminta rekan tim sebelum melakukannya. Hidup: AI langsung melakukannya.",
+      "runsAutomatically": "Berjalan otomatis",
+      "test": "Uji",
+      "actionHelp": "Jelaskan kepada AI apa yang dilakukan panggilan ini dan data apa yang harus dikumpulkan. \"Baca\" hanya mencari informasi; \"Tindakan\" mengubah sesuatu dan perlu persetujuan kecuali Anda mengizinkannya.",
+      "actionName": "Nama (tanpa spasi)",
+      "actionDescription": "Kapan AI harus memakainya?",
+      "actionDescriptionPlaceholder": "Cek status pesanan saat pelanggan memberikan nomor pesanan.",
+      "method": "Metode",
+      "urlHelp": "Taruh kolom di path dengan {example}. Kolom lain masuk ke query (GET, DELETE) atau body JSON.",
+      "fields": "Data yang harus diisi AI",
+      "fieldType": "Jenis",
+      "fieldDescription": "Apa ini (membantu AI)",
+      "required": "Wajib",
+      "addField": "Tambah kolom",
+      "fieldsHelp": "AI hanya mengirim kolom ini.",
+      "fieldTypes": {
+        "string": "Teks",
+        "number": "Angka",
+        "integer": "Bilangan bulat",
+        "boolean": "Ya / tidak"
+      },
+      "testTitle": "Uji {name}",
+      "testActionWarning": "Ini tindakan: menjalankan uji benar-benar melakukannya (misalnya membuat tautan pembayaran sungguhan).",
+      "testReadHelp": "Jalankan alat dengan nilai contoh dan lihat apa yang akan diterima AI.",
+      "noInputs": "Alat ini tidak butuh input.",
+      "run": "Jalankan",
+      "testOk": "Berhasil dalam {ms} md",
+      "testFailed": "Gagal setelah {ms} md",
+      "noActivity": "AI belum memakai alat apa pun.",
+      "callStatus": {
+        "ok": "Selesai",
+        "error": "Gagal",
+        "pending_approval": "Menunggu persetujuan",
+        "approved": "Disetujui",
+        "rejected": "Ditolak",
+        "expired": "Kedaluwarsa",
+        "proposed": "Hanya saran"
+      },
+      "modes": {
+        "auto_reply": "Balasan otomatis",
+        "draft": "Draf",
+        "playground": "Playground",
+        "manual": "Oleh rekan tim"
+      }
+    },
     "webhooks": {
       "title": "Webhook",
       "description": "Dapatkan pesan ke URL Anda sendiri saat sesuatu terjadi di sini, seperti pesan WhatsApp baru atau pengiriman formulir.",
@@ -3833,7 +3998,8 @@
       "resent": "Berhasil dikirim ulang",
       "resendFailed": "Tidak dapat mengirim ulang",
       "resentFailedResponse": "Dikirim ulang, tetapi endpoint gagal: {reason}"
-    }
+    },
+    "adminOnlySection": "Hanya admin dan pemilik yang dapat mengelola bagian ini."
   },
   "Validation": {
     "flows": {
@@ -4328,7 +4494,8 @@
   },
   "Handoff": {
     "summary": "🤖 Agen AI menyerahkan percakapan {count, plural, =0 {tanpa membalas} other {setelah # balasan}}.",
-    "lastMessage": " Pesan terakhir pelanggan: “{message}”"
+    "lastMessage": " Pesan terakhir pelanggan: “{message}”",
+    "pendingAction": " Ada tindakan yang menunggu persetujuan rekan tim."
   },
   "StarterAutomations": {
     "welcome_message": {

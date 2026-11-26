@@ -5,6 +5,7 @@ import { loadAgentConfig } from '@/lib/ai/config'
 import { buildConversationContext } from '@/lib/ai/context'
 import { retrieveKnowledge, sourceRefs } from '@/lib/ai/knowledge'
 import { runGeneration } from '@/lib/ai/run'
+import { loadToolRuntime } from '@/lib/ai/tools/registry'
 import { loadPlatformPrompt, personaPrompt } from '@/lib/ai/persona'
 import { buildSystemPrompt } from '@/lib/ai/defaults'
 import { buildRetrievalQuery } from '@/lib/ai/query'
@@ -117,8 +118,12 @@ export async function POST(request: Request) {
 
     // One entry point: the business's own key, or the platform's provider chain with failover and plan credits.
     // Usage is logged inside, through the service role (the log has no `authenticated` INSERT policy).
+    // Drafts may look things up with read tools; actions are never run from a draft (only suggested).
+    const tools = await loadToolRuntime(supabaseAdmin(), {
+      accountId, conversationId, agentId: config.agentId ?? null, mode: 'draft', allowedIntegrations: config.toolIntegrations ?? null,
+    })
     const { text } = await runGeneration(supabaseAdmin(), {
-      config, systemPrompt, messages, accountId, conversationId, mode: 'draft', agentId: config.agentId ?? null,
+      config, systemPrompt, messages, accountId, conversationId, mode: 'draft', agentId: config.agentId ?? null, tools,
     })
 
     return NextResponse.json({ draft: text, agent: config.agentName ?? null, sources: sourceRefs(knowledge) })

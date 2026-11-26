@@ -21,6 +21,8 @@ const MAX_QUOTE_LEN = 160
 export function buildHandoffSummary(args: {
   messages: ChatMessage[]
   replyCount: number
+  /** The AI asked to run an action that needs a teammate's approval (shown in the inbox). */
+  pendingAction?: boolean
 }, t: Translate = getT('Handoff')): string {
   const { messages, replyCount } = args
 
@@ -28,7 +30,7 @@ export function buildHandoffSummary(args: {
     .reverse()
     .find((m) => m.role === 'user' && m.content.trim())
 
-  const base = t('summary', { count: replyCount })
+  const base = t('summary', { count: replyCount }) + (args.pendingAction ? t('pendingAction') : '')
 
   if (!lastCustomer) return base
 

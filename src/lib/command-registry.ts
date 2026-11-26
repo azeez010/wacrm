@@ -83,6 +83,7 @@ export const SETTINGS_KEYWORDS: Partial<Record<SettingsSection, string>> = {
   deals: 'currency pipeline money',
   members: 'team invite users roles agents',
   api: 'api keys mcp integrations developer token claude chatgpt cursor',
+  integrations: 'integrations ai tools mcp http action paystack payment link google calendar connect',
   webhooks: 'webhook events callback integrations developer notify url',
 };
 

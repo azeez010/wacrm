@@ -4,6 +4,7 @@ import { checkRateLimit, rateLimitResponse, RATE_LIMITS } from '@/lib/rate-limit
 import { loadAgentConfig } from '@/lib/ai/config'
 import { retrieveKnowledge } from '@/lib/ai/knowledge'
 import { runGeneration } from '@/lib/ai/run'
+import { loadToolRuntime } from '@/lib/ai/tools/registry'
 import { loadPlatformPrompt, personaPrompt } from '@/lib/ai/persona'
 import { supabaseAdmin } from '@/lib/ai/admin-client'
 import { buildSystemPrompt } from '@/lib/ai/defaults'
@@ -99,12 +100,26 @@ export async function POST(request: Request) {
     })
 
     // Same path as the live bot (own key, or the platform chain). Platform playground calls use credits like real ones.
+    // Read tools really run; actions are only described ("would run"). The calls are returned so the tester sees them.
+    const toolCalls: { name: string; arguments: Record<string, unknown>; result: string; isError: boolean }[] = []
+    const runtime = await loadToolRuntime(supabaseAdmin(), {
+      accountId, conversationId: null, agentId: config.agentId ?? null, mode: 'playground', allowedIntegrations: config.toolIntegrations ?? null,
+    })
+    const tools = runtime && {
+      ...runtime,
+      execute: async (call: Parameters<typeof runtime.execute>[0]) => {
+        const out = await runtime.execute(call)
+        toolCalls.push({ name: call.name, arguments: call.arguments, result: out.content.slice(0, 1000), isError: !!out.isError })
+        return out
+      },
+    }
     const { text, handoff } = await runGeneration(supabaseAdmin(), {
-      config, systemPrompt, messages, accountId, conversationId: null, mode: 'playground', agentId: config.agentId ?? null,
+      config, systemPrompt, messages, accountId, conversationId: null, mode: 'playground', agentId: config.agentId ?? null, tools,
     })
     return NextResponse.json({
       reply: text,
       handoff,
+      toolCalls,
       agent: config.agentName ?? null,
       sources: knowledge.map((k) => ({
         title: k.title,

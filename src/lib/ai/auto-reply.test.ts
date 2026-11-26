@@ -10,6 +10,8 @@ const h = vi.hoisted(() => ({
   engineSendText: vi.fn(),
   loadAccountMetaCredentials: vi.fn(),
   sendTypingIndicator: vi.fn(),
+  loadToolRuntime: vi.fn(),
+  runOverride: null as null | ((...a: unknown[]) => unknown),
   state: {
     conv: null as Record<string, unknown> | null,
     autoResponders: [] as { id: string }[],
@@ -29,6 +31,11 @@ vi.mock('./knowledge', async (importOriginal) => ({
   retrieveKnowledge: h.retrieveKnowledge,
 }))
 vi.mock('./generate', () => ({ generateReply: h.generateReply }))
+vi.mock('./tools/registry', () => ({ loadToolRuntime: h.loadToolRuntime }))
+vi.mock('./run', async (orig) => {
+  const actual = await orig<typeof import('./run')>()
+  return { ...actual, runGeneration: (...a: Parameters<typeof actual.runGeneration>) => (h.runOverride ? h.runOverride(...a) : actual.runGeneration(...a)) }
+})
 // The platform persona layer reads the database; keep these tests about the reply flow.
 vi.mock('./persona', () => ({ loadPlatformPrompt: async () => ({}), personaPrompt: () => ({ guardrails: '', persona: '' }) }))
 vi.mock('@/lib/flows/meta-send', () => ({
@@ -155,6 +162,8 @@ beforeEach(() => {
     accessToken: 'tok',
   })
   h.sendTypingIndicator.mockResolvedValue(undefined)
+  h.loadToolRuntime.mockResolvedValue(null)
+  h.runOverride = null
 })
 
 describe('dispatchInboundToAiReply, eligibility gates', () => {
@@ -416,5 +425,34 @@ describe('dispatchInboundToAiReply, handoff', () => {
     expect(pause?.isNull).toEqual([])
     expect(assign?.payload).toEqual({ assigned_agent_id: 'agent-7' })
     expect(assign?.isNull).toEqual(['assigned_agent_id'])
+  })
+})
+
+describe('dispatchInboundToAiReply, AI tools', () => {
+  it('passes the agent\'s tools to the model', async () => {
+    const runtime = { specs: [], execute: vi.fn() }
+    h.loadToolRuntime.mockResolvedValue(runtime)
+    h.loadAgentConfig.mockResolvedValue(aiConfig({ agentId: 'ag-1', toolIntegrations: ['i1'] }))
+    const seen: unknown[] = []
+    h.runOverride = async (_db: unknown, args: unknown) => { seen.push(args); return { text: 'Hi', handoff: false } }
+    await dispatchInboundToAiReply(ARGS)
+    expect(h.loadToolRuntime).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({ mode: 'auto_reply', agentId: 'ag-1', allowedIntegrations: ['i1'], conversationId: 'conv-1' }))
+    expect(seen[0]).toMatchObject({ tools: runtime })
+  })
+
+  it('sends the holding message, then hands off when an action waits for approval', async () => {
+    h.runOverride = async () => ({ text: 'I have passed this to the team, someone will confirm shortly.', handoff: false, pendingApproval: true })
+    await dispatchInboundToAiReply(ARGS)
+    expect(h.engineSendText).toHaveBeenCalledTimes(1)
+    expect(h.state.updatePayload).toMatchObject({ ai_autoreply_disabled: true })
+    expect(String(h.state.updatePayload?.ai_handoff_summary)).toMatch(/approve/)
+  })
+
+  it('still hands off when the reply slot is lost but an action is pending', async () => {
+    h.state.claim = false
+    h.runOverride = async () => ({ text: 'One moment.', handoff: false, pendingApproval: true })
+    await dispatchInboundToAiReply(ARGS)
+    expect(h.engineSendText).not.toHaveBeenCalled()
+    expect(h.state.updatePayload).toMatchObject({ ai_autoreply_disabled: true })
   })
 })

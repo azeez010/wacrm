@@ -148,6 +148,7 @@ export async function loadAgentConfig(
     agentId: agent.id,
     agentName: agent.name,
     knowledgeSourceIds,
+    toolIntegrations: Array.isArray(agent.tool_integrations) ? agent.tool_integrations : null,
     persona: {
       gender: agent.persona_gender ?? null, tone: agent.persona_tone ?? null, behaviour: agent.persona_behaviour ?? null,
       avoid: agent.persona_avoid ?? null, never: agent.persona_never ?? null,

@@ -56,3 +56,11 @@ describe('parseIdList', () => {
     expect(parseAgentInput({ persona_tone: 'calm' }, { partial: true })).toEqual({ data: { persona_tone: 'calm' } })
   })
 })
+
+describe('parseAgentInput tool_integrations', () => {
+  it('is only written when sent; null means every integration', () => {
+    expect(parseAgentInput({ priority: 1 }, { partial: true })).toEqual({ data: { priority: 1 } })
+    expect(parseAgentInput({ tool_integrations: null }, { partial: true })).toEqual({ data: { tool_integrations: null } })
+    expect(parseAgentInput({ tool_integrations: ['a', 'a', 7, 'b'] }, { partial: true })).toEqual({ data: { tool_integrations: ['a', 'b'] } })
+  })
+})

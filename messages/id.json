@@ -973,7 +973,8 @@
         "document": "dokumen",
         "audio": "audio"
       },
-      "uploadFailed": "Unggahan gagal."
+      "uploadFailed": "Unggahan gagal.",
+      "draftBasedOn": "Berdasarkan: {sources}"
     },
     "bubble": {
       "photo": "Foto",
@@ -994,7 +995,8 @@
       "viewImage": "Lihat gambar",
       "expandVideo": "Perbesar video",
       "imageAlt": "Gambar yang dibagikan",
-      "aiBadgeTitleAgent": "Dikirim oleh agen AI \"{name}\""
+      "aiBadgeTitleAgent": "Dikirim oleh agen AI \"{name}\"",
+      "aiBadgeSources": "Sumber: {sources}"
     },
     "mediaViewer": {
       "counter": "{index} dari {total}",
@@ -2508,7 +2510,8 @@
       "sourcesUsed": "{count, plural, other {# sumber dipakai}}",
       "untitled": "Tanpa judul",
       "matchSemantic": "makna",
-      "matchKeyword": "kata kunci"
+      "matchKeyword": "kata kunci",
+      "matchBoth": "makna + kata kunci"
     },
     "usage": {
       "title": "Penggunaan token",
@@ -2732,7 +2735,16 @@
       "preview": "Pratinjau",
       "hide": "Sembunyikan",
       "noText": "(tanpa teks)",
-      "noPagesYet": "Belum ada halaman."
+      "noPagesYet": "Belum ada halaman.",
+      "testTitle": "Uji pertanyaan",
+      "testDesc": "Lihat pengetahuan mana yang akan dipakai agen untuk pertanyaan pelanggan. Tidak ada yang dikirim dan tidak ada kredit AI yang terpakai.",
+      "testPlaceholder": "mis. Bisakah saya mengembalikan barang setelah 2 minggu?",
+      "testWholeLibrary": "Seluruh pustaka",
+      "testAsAgent": "Sebagai {name}",
+      "testRun": "Cari",
+      "testKeywordOnly": "Hanya pencarian kata kunci. Tambahkan kunci embeddings di Pengaturan agar juga mencari berdasarkan makna.",
+      "testNoHits": "Tidak ada yang relevan. Agen akan meneruskan pertanyaan ini ke tim Anda.",
+      "testFailed": "Pencarian gagal dijalankan."
     },
     "templates": {
       "title": "Mulai dari templat",
@@ -5105,7 +5117,8 @@
         "pairsRequired": "Tambahkan setidaknya satu pertanyaan beserta jawabannya",
         "urlInvalid": "Masukkan alamat web http(s) yang valid",
         "fileInvalid": "Berkas yang diunggah tidak valid",
-        "fileEmpty": "Tidak ada teks di berkas"
+        "fileEmpty": "Tidak ada teks di berkas",
+        "queryRequired": "query wajib diisi"
       },
       "platformNotInPlan": "AI OgaDesk tidak termasuk dalam paket Anda. Upgrade, atau gunakan kunci API Anda sendiri."
     },

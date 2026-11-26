@@ -472,7 +472,8 @@
         "document": "document",
         "audio": "audio"
       },
-      "uploadFailed": "Upload failed."
+      "uploadFailed": "Upload failed.",
+      "draftBasedOn": "Based on: {sources}"
     },
     "bubble": {
       "photo": "Photo",
@@ -493,7 +494,8 @@
       "viewImage": "View image",
       "expandVideo": "Expand video",
       "imageAlt": "Shared image",
-      "aiBadgeTitleAgent": "Sent by the AI agent \"{name}\""
+      "aiBadgeTitleAgent": "Sent by the AI agent \"{name}\"",
+      "aiBadgeSources": "Sources: {sources}"
     },
     "mediaViewer": {
       "counter": "{index} of {total}",
@@ -3160,7 +3162,8 @@
       "sourcesUsed": "{count, plural, =1 {# source used} other {# sources used}}",
       "untitled": "Untitled",
       "matchSemantic": "meaning",
-      "matchKeyword": "keywords"
+      "matchKeyword": "keywords",
+      "matchBoth": "meaning + keywords"
     },
     "usage": {
       "title": "Token usage",
@@ -3384,7 +3387,16 @@
       "preview": "Preview",
       "hide": "Hide",
       "noText": "(no text)",
-      "noPagesYet": "No pages yet."
+      "noPagesYet": "No pages yet.",
+      "testTitle": "Test a question",
+      "testDesc": "See which knowledge an agent would use for a customer question. Nothing is sent and no AI credits are used.",
+      "testPlaceholder": "e.g. Can I return an item after 2 weeks?",
+      "testWholeLibrary": "Whole library",
+      "testAsAgent": "As {name}",
+      "testRun": "Search",
+      "testKeywordOnly": "Keyword search only. Add an embeddings key in Settings to also match by meaning.",
+      "testNoHits": "Nothing relevant was found. An agent would hand this question to your team.",
+      "testFailed": "Couldn't run the search."
     },
     "templates": {
       "title": "Start from a template",
@@ -3953,7 +3965,8 @@
         "pairsRequired": "Add at least one question with its answer",
         "urlInvalid": "Enter a valid http(s) web address",
         "fileInvalid": "The uploaded file is not valid",
-        "fileEmpty": "No text was found in the file"
+        "fileEmpty": "No text was found in the file",
+        "queryRequired": "query is required"
       },
       "platformNotInPlan": "OgaDesk AI isn't included in your plan. Upgrade, or use your own API key."
     },

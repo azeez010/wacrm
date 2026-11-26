@@ -973,7 +973,8 @@
         "document": "المستند",
         "audio": "الصوت"
       },
-      "uploadFailed": "فشل الرفع."
+      "uploadFailed": "فشل الرفع.",
+      "draftBasedOn": "استنادًا إلى: {sources}"
     },
     "bubble": {
       "photo": "صورة",
@@ -994,7 +995,8 @@
       "viewImage": "عرض الصورة",
       "expandVideo": "تكبير الفيديو",
       "imageAlt": "صورة مشتركة",
-      "aiBadgeTitleAgent": "أُرسلت بواسطة وكيل الذكاء الاصطناعي \"{name}\""
+      "aiBadgeTitleAgent": "أُرسلت بواسطة وكيل الذكاء الاصطناعي \"{name}\"",
+      "aiBadgeSources": "المصادر: {sources}"
     },
     "mediaViewer": {
       "counter": "{index} من {total}",
@@ -2508,7 +2510,8 @@
       "sourcesUsed": "{count, plural, =1 {مصدر واحد مستخدم} other {# مصادر مستخدمة}}",
       "untitled": "بلا عنوان",
       "matchSemantic": "المعنى",
-      "matchKeyword": "الكلمات المفتاحية"
+      "matchKeyword": "الكلمات المفتاحية",
+      "matchBoth": "المعنى + الكلمات المفتاحية"
     },
     "usage": {
       "title": "استهلاك الرموز",
@@ -2732,7 +2735,16 @@
       "preview": "معاينة",
       "hide": "إخفاء",
       "noText": "(لا نص)",
-      "noPagesYet": "لا صفحات بعد."
+      "noPagesYet": "لا صفحات بعد.",
+      "testTitle": "اختبر سؤالًا",
+      "testDesc": "اعرف المعرفة التي سيستخدمها الوكيل لسؤال العميل. لا يُرسل شيء ولا تُستخدم أرصدة الذكاء الاصطناعي.",
+      "testPlaceholder": "مثال: هل يمكنني إرجاع منتج بعد أسبوعين؟",
+      "testWholeLibrary": "المكتبة كاملة",
+      "testAsAgent": "بصفة {name}",
+      "testRun": "بحث",
+      "testKeywordOnly": "البحث بالكلمات المفتاحية فقط. أضف مفتاح تضمين في الإعدادات للبحث بالمعنى أيضًا.",
+      "testNoHits": "لم يُعثر على شيء ذي صلة. سيحوّل الوكيل هذا السؤال إلى فريقك.",
+      "testFailed": "تعذر تشغيل البحث."
     },
     "templates": {
       "title": "ابدأ من قالب",
@@ -5105,7 +5117,8 @@
         "pairsRequired": "أضف سؤالًا واحدًا على الأقل مع جوابه",
         "urlInvalid": "أدخل عنوان ويب http(s) صالحًا",
         "fileInvalid": "الملف المرفوع غير صالح",
-        "fileEmpty": "لم يُعثر على نص في الملف"
+        "fileEmpty": "لم يُعثر على نص في الملف",
+        "queryRequired": "الاستعلام مطلوب"
       },
       "platformNotInPlan": "ذكاء OgaDesk الاصطناعي غير مشمول في خطتك. قم بالترقية أو استخدم مفتاح API الخاص بك."
     },

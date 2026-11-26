@@ -39,6 +39,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { AddSourceDialog, QaEditor, SyncSelect } from './add-source-dialog';
+import { KnowledgeTestSearch } from './knowledge-test-search';
 import type { SourceDetailDto, SourceDocumentDto, SourceDto, SourceStatus } from '@/lib/ai/knowledge-client';
 import { KNOWLEDGE_LIMITS, type SourceType, type SyncInterval } from '@/lib/ai/ingest/limits';
 
@@ -205,6 +206,8 @@ export function KnowledgeLibrary() {
           )}
         </div>
       </div>
+
+      {(sources ?? []).length > 0 && <KnowledgeTestSearch />}
 
       {(sources ?? []).length > 0 && (
         <div className="flex flex-wrap gap-2">

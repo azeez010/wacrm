@@ -20,6 +20,7 @@ import {
   X,
   Loader2,
   Sparkles,
+  BookOpen,
   Plus,
   MessageSquareDashed,
   Zap,
@@ -151,6 +152,8 @@ export function MessageComposer({
   const [text, setText] = useState("");
   const [sending, setSending] = useState(false);
   const [drafting, setDrafting] = useState(false);
+  // Titles of the knowledge the last AI draft was based on.
+  const [draftSources, setDraftSources] = useState<string[]>([]);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // Enter-to-send only on devices with a mouse/keyboard (fine pointer).
@@ -248,6 +251,7 @@ export function MessageComposer({
     try {
       onSend(trimmed, replyTo?.id);
       setText("");
+      setDraftSources([]);
       if (textareaRef.current) {
         textareaRef.current.style.height = "auto";
       }
@@ -269,6 +273,7 @@ export function MessageComposer({
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLTextAreaElement>) => {
       setText(e.target.value);
+      if (!e.target.value.trim()) setDraftSources([]);
       adjustHeight();
     },
     [adjustHeight]
@@ -301,6 +306,13 @@ export function MessageComposer({
         return;
       }
       setText(draftText);
+      setDraftSources(
+        Array.isArray(data.sources)
+          ? (data.sources as { title?: string | null }[])
+              .map((s) => (s.title ?? "").trim())
+              .filter(Boolean)
+          : [],
+      );
       // Let the textarea grow to fit and drop the cursor at the end so
       // the agent can tweak immediately.
       requestAnimationFrame(() => {
@@ -652,6 +664,15 @@ export function MessageComposer({
         </div>
       ) : (
         <div className="flex flex-wrap items-end gap-2">
+          {draftSources.length > 0 && text.trim() && (
+            <p
+              className="order-first flex basis-full items-center gap-1 truncate text-xs text-muted-foreground"
+              title={draftSources.join(", ")}
+            >
+              <BookOpen className="h-3 w-3 shrink-0" />
+              <span className="truncate">{t("draftBasedOn", { sources: draftSources.join(", ") })}</span>
+            </p>
+          )}
           {/* Action buttons. On mobile this group wraps to its own row
               below the textarea (basis-full + order-2) so the input gets
               the full width; on sm+ it sits inline before the textarea. */}

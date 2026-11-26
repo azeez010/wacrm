@@ -434,7 +434,7 @@ export function MessageBubble({
           {message.ai_generated && (
             <span
               className="inline-flex items-center gap-0.5 rounded-full bg-primary-foreground/20 px-1.5 py-px text-[9px] font-semibold uppercase leading-none tracking-wide text-primary-foreground"
-              title={aiAgentName ? t("aiBadgeTitleAgent", { name: aiAgentName }) : t("aiBadgeTitle")}
+              title={aiBadgeTitle(message, aiAgentName, t)}
             >
               <Sparkles className="h-2.5 w-2.5" />
               {t("aiBadge")}
@@ -471,4 +471,17 @@ export function MessageBubble({
       )}
     </div>
   );
+}
+
+/** AI badge tooltip: who wrote it and which knowledge it used. */
+function aiBadgeTitle(
+  message: Message,
+  agentName: string | null,
+  t: (key: string, values?: Record<string, string>) => string,
+): string {
+  const who = agentName ? t("aiBadgeTitleAgent", { name: agentName }) : t("aiBadgeTitle");
+  const sources = (message.ai_sources ?? [])
+    .map((s) => (s?.title ?? "").trim())
+    .filter(Boolean);
+  return sources.length > 0 ? `${who}\n${t("aiBadgeSources", { sources: sources.join(", ") })}` : who;
 }

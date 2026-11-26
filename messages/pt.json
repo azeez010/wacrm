@@ -472,7 +472,8 @@
         "document": "documento",
         "audio": "áudio"
       },
-      "uploadFailed": "Falha ao enviar o arquivo."
+      "uploadFailed": "Falha ao enviar o arquivo.",
+      "draftBasedOn": "Baseado em: {sources}"
     },
     "bubble": {
       "photo": "Foto",
@@ -493,7 +494,8 @@
       "viewImage": "Ver imagem",
       "expandVideo": "Expandir vídeo",
       "imageAlt": "Imagem compartilhada",
-      "aiBadgeTitleAgent": "Enviado pelo agente de IA \"{name}\""
+      "aiBadgeTitleAgent": "Enviado pelo agente de IA \"{name}\"",
+      "aiBadgeSources": "Fontes: {sources}"
     },
     "mediaViewer": {
       "counter": "{index} de {total}",
@@ -3160,7 +3162,8 @@
       "sourcesUsed": "{count, plural, =1 {# fonte usada} other {# fontes usadas}}",
       "untitled": "Sem título",
       "matchSemantic": "significado",
-      "matchKeyword": "palavras-chave"
+      "matchKeyword": "palavras-chave",
+      "matchBoth": "significado + palavras-chave"
     },
     "usage": {
       "title": "Uso de tokens",
@@ -3384,7 +3387,16 @@
       "preview": "Ver",
       "hide": "Ocultar",
       "noText": "(sem texto)",
-      "noPagesYet": "Nenhuma página ainda."
+      "noPagesYet": "Nenhuma página ainda.",
+      "testTitle": "Testar uma pergunta",
+      "testDesc": "Veja qual conhecimento um agente usaria para a pergunta de um cliente. Nada é enviado e nenhum crédito de IA é usado.",
+      "testPlaceholder": "ex.: Posso devolver um item depois de 2 semanas?",
+      "testWholeLibrary": "Biblioteca inteira",
+      "testAsAgent": "Como {name}",
+      "testRun": "Buscar",
+      "testKeywordOnly": "Só busca por palavras-chave. Adicione uma chave de embeddings em Configurações para buscar também pelo significado.",
+      "testNoHits": "Nada relevante foi encontrado. Um agente passaria esta pergunta para sua equipe.",
+      "testFailed": "Não foi possível fazer a busca."
     },
     "templates": {
       "title": "Comece com um modelo",
@@ -3953,7 +3965,8 @@
         "pairsRequired": "Adicione pelo menos uma pergunta com resposta",
         "urlInvalid": "Digite um endereço web http(s) válido",
         "fileInvalid": "O arquivo enviado não é válido",
-        "fileEmpty": "Nenhum texto foi encontrado no arquivo"
+        "fileEmpty": "Nenhum texto foi encontrado no arquivo",
+        "queryRequired": "a consulta é obrigatória"
       },
       "platformNotInPlan": "A IA do OgaDesk não está incluída no seu plano. Faça upgrade ou use sua própria chave API."
     },

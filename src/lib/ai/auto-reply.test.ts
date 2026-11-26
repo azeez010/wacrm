@@ -24,7 +24,10 @@ const h = vi.hoisted(() => ({
 
 vi.mock('./config', () => ({ loadAgentConfig: h.loadAgentConfig }))
 vi.mock('./context', () => ({ buildConversationContext: h.buildConversationContext }))
-vi.mock('./knowledge', () => ({ retrieveKnowledge: h.retrieveKnowledge }))
+vi.mock('./knowledge', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('./knowledge')>()),
+  retrieveKnowledge: h.retrieveKnowledge,
+}))
 vi.mock('./generate', () => ({ generateReply: h.generateReply }))
 // The platform persona layer reads the database; keep these tests about the reply flow.
 vi.mock('./persona', () => ({ loadPlatformPrompt: async () => ({}), personaPrompt: () => ({ guardrails: '', persona: '' }) }))
@@ -192,6 +195,14 @@ describe('dispatchInboundToAiReply, eligibility gates', () => {
     expect(h.retrieveKnowledge).toHaveBeenCalled()
     const systemPrompt = h.generateReply.mock.calls[0][0].systemPrompt as string
     expect(systemPrompt).toContain('(Returns policy) Returns accepted within 30 days.')
+    // The reply records what it was grounded in.
+    expect(h.engineSendText).toHaveBeenCalledWith(
+      expect.objectContaining({
+        aiSources: [
+          { source_id: 's1', document_id: 'd1', title: 'Returns policy', score: 0.8, matched_by: 'semantic' },
+        ],
+      }),
+    )
   })
 
   it('answers as the agent for this conversation, with its knowledge only', async () => {

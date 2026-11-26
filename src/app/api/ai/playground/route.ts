@@ -7,7 +7,7 @@ import { runGeneration } from '@/lib/ai/run'
 import { loadPlatformPrompt, personaPrompt } from '@/lib/ai/persona'
 import { supabaseAdmin } from '@/lib/ai/admin-client'
 import { buildSystemPrompt } from '@/lib/ai/defaults'
-import { latestUserMessage } from '@/lib/ai/query'
+import { buildRetrievalQuery } from '@/lib/ai/query'
 import { AiError, type ChatMessage } from '@/lib/ai/types'
 import { getT } from '@/lib/i18n/translate'
 
@@ -87,7 +87,7 @@ export async function POST(request: Request) {
       supabase,
       accountId,
       config,
-      latestUserMessage(messages),
+      buildRetrievalQuery(messages),
       { sourceIds: config.knowledgeSourceIds ?? null },
     )
     const platform = personaPrompt(await loadPlatformPrompt(supabaseAdmin()), config.persona, config.agentName)

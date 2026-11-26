@@ -321,6 +321,8 @@ export interface Message {
   ai_generated?: boolean;
   /** The AI agent that wrote this message (AI replies only). */
   ai_agent_id?: string | null;
+  /** Knowledge the AI reply was grounded in (AI replies only). */
+  ai_sources?: { title: string | null; score?: number }[] | null;
   /**
    * Meta's reason for a failed send, from the `failed` status webhook's
    * `errors[0]` (code / title / error_data.details). Only set when

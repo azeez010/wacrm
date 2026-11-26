@@ -80,6 +80,8 @@ interface SendTextEngineArgs {
   aiGenerated?: boolean
   /** The AI agent that wrote the message (stored as `ai_agent_id`). */
   aiAgentId?: string | null
+  /** Knowledge the AI reply was grounded in (stored as `ai_sources`). */
+  aiSources?: unknown[] | null
 }
 
 /**
@@ -117,7 +119,7 @@ export async function engineSendText(
   await assertConversationInAccount(db, args.conversationId, args.accountId)
 
   if (await isWebChatConversation(db, args.accountId, args.conversationId)) {
-    return sendEngineWebChat(db, args.accountId, args.conversationId, { type: 'text', text: args.text, aiGenerated: args.aiGenerated, aiAgentId: args.aiAgentId })
+    return sendEngineWebChat(db, args.accountId, args.conversationId, { type: 'text', text: args.text, aiGenerated: args.aiGenerated, aiAgentId: args.aiAgentId, aiSources: args.aiSources })
   }
 
   // Phone number, or the business-scoped user ID when Meta has never
@@ -176,6 +178,7 @@ export async function engineSendText(
     status: 'sent',
     ai_generated: args.aiGenerated ?? false,
     ...(args.aiAgentId ? { ai_agent_id: args.aiAgentId } : {}),
+    ...(args.aiSources && args.aiSources.length > 0 ? { ai_sources: args.aiSources } : {}),
   })
   if (msgErr) {
     throw new Error(t('send.dbInsertFailed', { message: msgErr.message }))

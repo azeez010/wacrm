@@ -113,7 +113,7 @@ export async function indexDocument(
       { embeddingsApiKey },
       doc.id,
       content,
-      { chunks: chunksFor(source.type, content) },
+      { chunks: chunksFor(source.type, content), title },
     )
     await db
       .from('ai_knowledge_documents')

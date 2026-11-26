@@ -472,7 +472,8 @@
         "document": "문서",
         "audio": "오디오"
       },
-      "uploadFailed": "업로드에 실패했습니다."
+      "uploadFailed": "업로드에 실패했습니다.",
+      "draftBasedOn": "참고: {sources}"
     },
     "bubble": {
       "photo": "사진",
@@ -493,7 +494,8 @@
       "viewImage": "이미지 보기",
       "expandVideo": "동영상 확대",
       "imageAlt": "공유된 이미지",
-      "aiBadgeTitleAgent": "AI 에이전트 \"{name}\"이(가) 보냄"
+      "aiBadgeTitleAgent": "AI 에이전트 \"{name}\"이(가) 보냄",
+      "aiBadgeSources": "출처: {sources}"
     },
     "mediaViewer": {
       "counter": "{total}개 중 {index}번째",
@@ -3160,7 +3162,8 @@
       "sourcesUsed": "출처 {count}개 사용",
       "untitled": "제목 없음",
       "matchSemantic": "의미",
-      "matchKeyword": "키워드"
+      "matchKeyword": "키워드",
+      "matchBoth": "의미 + 키워드"
     },
     "usage": {
       "title": "토큰 사용량",
@@ -3384,7 +3387,16 @@
       "preview": "미리보기",
       "hide": "숨기기",
       "noText": "(텍스트 없음)",
-      "noPagesYet": "아직 페이지가 없습니다."
+      "noPagesYet": "아직 페이지가 없습니다.",
+      "testTitle": "질문 테스트",
+      "testDesc": "고객 질문에 에이전트가 어떤 지식을 쓸지 확인하세요. 아무것도 보내지 않으며 AI 크레딧도 쓰지 않습니다.",
+      "testPlaceholder": "예: 2주 뒤에도 반품할 수 있나요?",
+      "testWholeLibrary": "전체 라이브러리",
+      "testAsAgent": "{name}(으)로",
+      "testRun": "검색",
+      "testKeywordOnly": "키워드 검색만 사용 중입니다. 설정에서 임베딩 키를 추가하면 의미로도 찾습니다.",
+      "testNoHits": "관련 내용을 찾지 못했습니다. 에이전트는 이 질문을 팀에 넘깁니다.",
+      "testFailed": "검색하지 못했습니다."
     },
     "templates": {
       "title": "템플릿으로 시작",
@@ -3953,7 +3965,8 @@
         "pairsRequired": "답이 있는 질문을 하나 이상 추가하세요",
         "urlInvalid": "올바른 http(s) 웹 주소를 입력하세요",
         "fileInvalid": "업로드한 파일이 올바르지 않습니다",
-        "fileEmpty": "파일에서 텍스트를 찾지 못했습니다"
+        "fileEmpty": "파일에서 텍스트를 찾지 못했습니다",
+        "queryRequired": "검색어는 필수입니다"
       },
       "platformNotInPlan": "OgaDesk AI는 현재 요금제에 포함되어 있지 않습니다. 업그레이드하거나 내 API 키를 사용하세요."
     },

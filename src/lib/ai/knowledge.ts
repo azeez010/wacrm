@@ -2,6 +2,7 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import type { AiConfig, KnowledgeHit } from './types'
 import { chunkText } from './chunk'
 import { embedTexts, toVectorLiteral } from './embeddings'
+import { keywordQuery } from './query'
 
 // ============================================================
 // Knowledge base: ingest (chunk + optionally embed) and hybrid
@@ -37,7 +38,12 @@ export async function ingestDocument(
   config: Pick<AiConfig, 'embeddingsApiKey'>,
   documentId: string,
   content: string,
-  opts: { chunks?: string[] } = {},
+  opts: {
+    chunks?: string[]
+    /** Document title: prefixed to each chunk's embedding input (not to the
+     *  stored text) so a question that names the topic finds it. */
+    title?: string | null
+  } = {},
 ): Promise<IngestResult> {
   // Callers may pre-split (e.g. one chunk per Q&A pair); default is the
   // paragraph-aware chunker.
@@ -50,7 +56,11 @@ export async function ingestDocument(
   let embedError: unknown = null
   if (config.embeddingsApiKey && chunks.length > 0) {
     try {
-      embeddings = await embedTexts(config.embeddingsApiKey, chunks)
+      const title = opts.title?.trim()
+      embeddings = await embedTexts(
+        config.embeddingsApiKey,
+        title ? chunks.map((c) => `${title}\n\n${c}`) : chunks,
+      )
     } catch (err) {
       embedError = err
     }
@@ -92,17 +102,64 @@ export interface RetrieveOptions {
   /** Library sources to search. null/undefined = the whole library;
    *  [] = nothing (an agent with no linked knowledge). */
   sourceIds?: string[] | null
+  /** Override the semantic similarity floor (tests, test-search tuning). */
+  minSimilarity?: number
+}
+
+/** Semantic matches below this cosine similarity are dropped as noise.
+ *  Tuned for text-embedding-3-small, where unrelated text scores ~0.1-0.25
+ *  and on-topic text ~0.4+. Override with AI_KNOWLEDGE_MIN_SIMILARITY. */
+export const DEFAULT_MIN_SIMILARITY = 0.3
+
+export function minSimilarity(): number {
+  const raw = Number(process.env.AI_KNOWLEDGE_MIN_SIMILARITY)
+  return Number.isFinite(raw) && raw >= 0 && raw < 1 ? raw : DEFAULT_MIN_SIMILARITY
+}
+
+/** Reciprocal Rank Fusion constant (the usual 60). */
+const RRF_K = 60
+/** Candidates fetched from each path per result returned. */
+const CANDIDATE_FACTOR = 3
+
+/**
+ * Merge ranked lists with Reciprocal Rank Fusion: a chunk scores
+ * sum(1 / (RRF_K + rank)) over the lists it appears in, so a chunk found
+ * by both meaning and keywords outranks one found by either alone.
+ * Each list must already be best-first.
+ */
+export function fuseRankings(semantic: KnowledgeHit[], keyword: KnowledgeHit[], k: number): KnowledgeHit[] {
+  const fused = new Map<string, { hit: KnowledgeHit; rrf: number }>()
+  const add = (list: KnowledgeHit[]) =>
+    list.forEach((hit, rank) => {
+      const prev = fused.get(hit.chunkId)
+      const rrf = 1 / (RRF_K + rank + 1)
+      if (!prev) {
+        fused.set(hit.chunkId, { hit, rrf })
+      } else {
+        // Keep the semantic similarity as the displayed score; mark both.
+        prev.rrf += rrf
+        prev.hit = { ...prev.hit, matchedBy: 'both' }
+      }
+    })
+  add(semantic)
+  add(keyword)
+  return [...fused.values()]
+    .sort((a, b) => b.rrf - a.rrf)
+    .slice(0, k)
+    .map((f) => f.hit)
 }
 
 /**
  * Retrieve up to `k` knowledge excerpts relevant to `queryText`, with the
  * source, document and title each came from.
  *
- * Semantic-primary when an embeddings key is configured (embed the
- * query → cosine-nearest chunks), then topped up with lexical full-text
- * matches to fill `k`. Lexical-only when there's no key. Best-effort:
- * any failure (no KB, embedding error, RPC error) degrades to fewer or
- * zero results and never throws into the draft / auto-reply path.
+ * Hybrid: when an embeddings key is configured, the nearest chunks by
+ * meaning (minus weak matches below the similarity floor) and the best
+ * keyword matches (stopwords removed, titles weighted) are fused by rank.
+ * Keyword-only without a key. Returns [] when nothing is relevant, which
+ * lets the agent hand off instead of answering from noise. Best-effort:
+ * any failure degrades to fewer or zero results and never throws into the
+ * draft / auto-reply path.
  */
 export async function retrieveKnowledge(
   db: SupabaseClient,
@@ -133,49 +190,48 @@ export async function retrieveKnowledge(
     return []
   }
 
-  const picked = new Map<string, KnowledgeHit>() // chunk id → hit, preserves order
+  const candidates = k * CANDIDATE_FACTOR
+  const floor = opts.minSimilarity ?? minSimilarity()
+  const terms = keywordQuery(query)
 
-  // Semantic path.
-  if (config.embeddingsApiKey) {
+  const semanticSearch = async (): Promise<KnowledgeHit[]> => {
+    if (!config.embeddingsApiKey) return []
     try {
       const [queryEmbedding] = await embedTexts(config.embeddingsApiKey, [query])
-      if (queryEmbedding) {
-        const { data, error } = await db.rpc('match_ai_knowledge_semantic_v2', {
-          p_account_id: accountId,
-          p_query_embedding: toVectorLiteral(queryEmbedding),
-          p_match_count: k,
-          p_source_ids: sourceIds,
-        })
-        if (!error && Array.isArray(data)) {
-          for (const row of data as MatchRow[]) picked.set(row.id, toHit(row, 'semantic'))
-        }
-      }
+      if (!queryEmbedding) return []
+      const { data, error } = await db.rpc('match_ai_knowledge_semantic_v2', {
+        p_account_id: accountId,
+        p_query_embedding: toVectorLiteral(queryEmbedding),
+        p_match_count: candidates,
+        p_source_ids: sourceIds,
+      })
+      if (error || !Array.isArray(data)) return []
+      return (data as MatchRow[]).map((r) => toHit(r, 'semantic')).filter((h) => h.score >= floor)
     } catch (err) {
-      console.error('[ai knowledge] semantic retrieval failed, falling back to FTS:', err)
+      console.error('[ai knowledge] semantic retrieval failed, using keywords only:', err)
+      return []
     }
   }
 
-  // Lexical top-up (also the sole path when there's no embeddings key).
-  if (picked.size < k) {
+  const keywordSearch = async (): Promise<KnowledgeHit[]> => {
+    if (!terms) return []
     try {
       const { data, error } = await db.rpc('match_ai_knowledge_fts_v2', {
         p_account_id: accountId,
-        p_query: query,
-        p_match_count: k,
+        p_query: terms,
+        p_match_count: candidates,
         p_source_ids: sourceIds,
       })
-      if (!error && Array.isArray(data)) {
-        for (const row of data as MatchRow[]) {
-          if (picked.size >= k) break
-          if (!picked.has(row.id)) picked.set(row.id, toHit(row, 'keyword'))
-        }
-      }
+      if (error || !Array.isArray(data)) return []
+      return (data as MatchRow[]).map((r) => toHit(r, 'keyword'))
     } catch (err) {
-      console.error('[ai knowledge] lexical retrieval failed:', err)
+      console.error('[ai knowledge] keyword retrieval failed:', err)
+      return []
     }
   }
 
-  return Array.from(picked.values()).slice(0, k)
+  const [semantic, keyword] = await Promise.all([semanticSearch(), keywordSearch()])
+  return fuseRankings(semantic, keyword, k)
 }
 
 function toHit(row: MatchRow, matchedBy: KnowledgeHit['matchedBy']): KnowledgeHit {
@@ -188,4 +244,32 @@ function toHit(row: MatchRow, matchedBy: KnowledgeHit['matchedBy']): KnowledgeHi
     score: typeof row.score === 'number' ? row.score : 0,
     matchedBy,
   }
+}
+
+/** What a reply was grounded in, as stored on the message / returned to the UI. */
+export interface KnowledgeSourceRef {
+  source_id: string | null
+  document_id: string | null
+  title: string | null
+  score: number
+  matched_by: KnowledgeHit['matchedBy']
+}
+
+/** One reference per document (the best-scoring chunk), in hit order. */
+export function sourceRefs(hits: KnowledgeHit[]): KnowledgeSourceRef[] {
+  const seen = new Set<string>()
+  const out: KnowledgeSourceRef[] = []
+  for (const h of hits) {
+    const key = h.documentId ?? h.chunkId
+    if (seen.has(key)) continue
+    seen.add(key)
+    out.push({
+      source_id: h.sourceId,
+      document_id: h.documentId,
+      title: h.title,
+      score: Math.round(h.score * 1000) / 1000,
+      matched_by: h.matchedBy,
+    })
+  }
+  return out
 }

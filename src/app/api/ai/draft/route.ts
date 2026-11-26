@@ -3,11 +3,11 @@ import { requireRole, toErrorResponse } from '@/lib/auth/account'
 import { checkRateLimit, rateLimitResponse, RATE_LIMITS } from '@/lib/rate-limit'
 import { loadAgentConfig } from '@/lib/ai/config'
 import { buildConversationContext } from '@/lib/ai/context'
-import { retrieveKnowledge } from '@/lib/ai/knowledge'
+import { retrieveKnowledge, sourceRefs } from '@/lib/ai/knowledge'
 import { runGeneration } from '@/lib/ai/run'
 import { loadPlatformPrompt, personaPrompt } from '@/lib/ai/persona'
 import { buildSystemPrompt } from '@/lib/ai/defaults'
-import { latestUserMessage } from '@/lib/ai/query'
+import { buildRetrievalQuery } from '@/lib/ai/query'
 import { supabaseAdmin } from '@/lib/ai/admin-client'
 import { AiError } from '@/lib/ai/types'
 import { getT } from '@/lib/i18n/translate'
@@ -103,7 +103,7 @@ export async function POST(request: Request) {
       supabase,
       accountId,
       config,
-      latestUserMessage(messages),
+      buildRetrievalQuery(messages),
       { sourceIds: config.knowledgeSourceIds ?? null },
     )
 
@@ -121,7 +121,7 @@ export async function POST(request: Request) {
       config, systemPrompt, messages, accountId, conversationId, mode: 'draft', agentId: config.agentId ?? null,
     })
 
-    return NextResponse.json({ draft: text, agent: config.agentName ?? null })
+    return NextResponse.json({ draft: text, agent: config.agentName ?? null, sources: sourceRefs(knowledge) })
   } catch (err) {
     if (err instanceof AiError) {
       return NextResponse.json(

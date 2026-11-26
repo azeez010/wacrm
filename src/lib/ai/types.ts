@@ -63,7 +63,8 @@ export interface KnowledgeHit {
   content: string
   /** Semantic similarity (0-1) or full-text rank; higher is better. */
   score: number
-  matchedBy: 'semantic' | 'keyword'
+  /** Which search found it; 'both' ranks highest. */
+  matchedBy: 'semantic' | 'keyword' | 'both'
 }
 
 /** A single conversation turn in the shape both providers accept. */

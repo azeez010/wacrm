@@ -973,7 +973,8 @@
         "document": "दस्तावेज़",
         "audio": "ऑडियो"
       },
-      "uploadFailed": "अपलोड विफल।"
+      "uploadFailed": "अपलोड विफल।",
+      "draftBasedOn": "आधार: {sources}"
     },
     "bubble": {
       "photo": "फ़ोटो",
@@ -994,7 +995,8 @@
       "viewImage": "इमेज देखें",
       "expandVideo": "वीडियो बड़ा करें",
       "imageAlt": "साझा की गई इमेज",
-      "aiBadgeTitleAgent": "AI एजेंट \"{name}\" द्वारा भेजा गया"
+      "aiBadgeTitleAgent": "AI एजेंट \"{name}\" द्वारा भेजा गया",
+      "aiBadgeSources": "स्रोत: {sources}"
     },
     "mediaViewer": {
       "counter": "{total} में से {index}",
@@ -2508,7 +2510,8 @@
       "sourcesUsed": "{count, plural, =1 {# स्रोत इस्तेमाल हुआ} other {# स्रोत इस्तेमाल हुए}}",
       "untitled": "बिना शीर्षक",
       "matchSemantic": "अर्थ",
-      "matchKeyword": "कीवर्ड"
+      "matchKeyword": "कीवर्ड",
+      "matchBoth": "अर्थ + कीवर्ड"
     },
     "usage": {
       "title": "टोकन उपयोग",
@@ -2732,7 +2735,16 @@
       "preview": "पूर्वावलोकन",
       "hide": "छिपाएँ",
       "noText": "(कोई टेक्स्ट नहीं)",
-      "noPagesYet": "अभी कोई पेज नहीं।"
+      "noPagesYet": "अभी कोई पेज नहीं।",
+      "testTitle": "एक सवाल आज़माएँ",
+      "testDesc": "देखें कि ग्राहक के सवाल के लिए एजेंट कौन-सा ज्ञान इस्तेमाल करेगा। कुछ भी भेजा नहीं जाता और कोई AI क्रेडिट खर्च नहीं होता।",
+      "testPlaceholder": "उदा. क्या मैं 2 हफ़्ते बाद सामान लौटा सकता हूँ?",
+      "testWholeLibrary": "पूरी लाइब्रेरी",
+      "testAsAgent": "{name} के रूप में",
+      "testRun": "खोजें",
+      "testKeywordOnly": "सिर्फ़ कीवर्ड खोज। अर्थ से भी खोजने के लिए सेटिंग्स में एम्बेडिंग की जोड़ें।",
+      "testNoHits": "कुछ भी प्रासंगिक नहीं मिला। एजेंट यह सवाल आपकी टीम को सौंप देगा।",
+      "testFailed": "खोज नहीं चल सकी।"
     },
     "templates": {
       "title": "टेम्पलेट से शुरू करें",
@@ -5105,7 +5117,8 @@
         "pairsRequired": "कम से कम एक सवाल उसके जवाब के साथ जोड़ें",
         "urlInvalid": "मान्य http(s) वेब पता दर्ज करें",
         "fileInvalid": "अपलोड की गई फ़ाइल मान्य नहीं है",
-        "fileEmpty": "फ़ाइल में कोई टेक्स्ट नहीं मिला"
+        "fileEmpty": "फ़ाइल में कोई टेक्स्ट नहीं मिला",
+        "queryRequired": "क्वेरी ज़रूरी है"
       },
       "platformNotInPlan": "OgaDesk AI आपके प्लान में शामिल नहीं है। अपग्रेड करें या अपनी API कुंजी इस्तेमाल करें।"
     },

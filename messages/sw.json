@@ -973,7 +973,8 @@
         "document": "hati",
         "audio": "sauti"
       },
-      "uploadFailed": "Upakiaji umeshindwa."
+      "uploadFailed": "Upakiaji umeshindwa.",
+      "draftBasedOn": "Kulingana na: {sources}"
     },
     "bubble": {
       "photo": "Picha",
@@ -994,7 +995,8 @@
       "viewImage": "Tazama picha",
       "expandVideo": "Kuza video",
       "imageAlt": "Picha iliyoshirikiwa",
-      "aiBadgeTitleAgent": "Imetumwa na wakala wa AI \"{name}\""
+      "aiBadgeTitleAgent": "Imetumwa na wakala wa AI \"{name}\"",
+      "aiBadgeSources": "Vyanzo: {sources}"
     },
     "mediaViewer": {
       "counter": "{index} kati ya {total}",
@@ -2508,7 +2510,8 @@
       "sourcesUsed": "{count, plural, =1 {Chanzo # kimetumika} other {Vyanzo # vimetumika}}",
       "untitled": "Bila jina",
       "matchSemantic": "maana",
-      "matchKeyword": "maneno muhimu"
+      "matchKeyword": "maneno muhimu",
+      "matchBoth": "maana + maneno muhimu"
     },
     "usage": {
       "title": "Matumizi ya tokeni",
@@ -2732,7 +2735,16 @@
       "preview": "Hakikisho",
       "hide": "Ficha",
       "noText": "(hakuna maandishi)",
-      "noPagesYet": "Bado hakuna kurasa."
+      "noPagesYet": "Bado hakuna kurasa.",
+      "testTitle": "Jaribu swali",
+      "testDesc": "Ona maarifa ambayo wakala angetumia kwa swali la mteja. Hakuna kinachotumwa na hakuna mikopo ya AI inayotumika.",
+      "testPlaceholder": "mf. Naweza kurudisha bidhaa baada ya wiki 2?",
+      "testWholeLibrary": "Maktaba yote",
+      "testAsAgent": "Kama {name}",
+      "testRun": "Tafuta",
+      "testKeywordOnly": "Utafutaji wa maneno muhimu pekee. Ongeza ufunguo wa embeddings kwenye Mipangilio ili kutafuta pia kwa maana.",
+      "testNoHits": "Hakuna kinachohusika kilichopatikana. Wakala angepeleka swali hili kwa timu yako.",
+      "testFailed": "Imeshindwa kutafuta."
     },
     "templates": {
       "title": "Anza na kiolezo",
@@ -5105,7 +5117,8 @@
         "pairsRequired": "Ongeza angalau swali moja pamoja na jibu lake",
         "urlInvalid": "Weka anwani halali ya wavuti ya http(s)",
         "fileInvalid": "Faili iliyopakiwa si halali",
-        "fileEmpty": "Hakuna maandishi yaliyopatikana kwenye faili"
+        "fileEmpty": "Hakuna maandishi yaliyopatikana kwenye faili",
+        "queryRequired": "swali linahitajika"
       },
       "platformNotInPlan": "AI ya OgaDesk haimo kwenye mpango wako. Pandisha mpango au tumia ufunguo wako wa API."
     },

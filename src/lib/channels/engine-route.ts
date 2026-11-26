@@ -18,7 +18,7 @@ export async function isWebChatConversation(db: SupabaseClient, accountId: strin
 }
 
 export type EngineWebChatMessage =
-  | { type: 'text'; text: string; aiGenerated?: boolean; aiAgentId?: string | null }
+  | { type: 'text'; text: string; aiGenerated?: boolean; aiAgentId?: string | null; aiSources?: unknown[] | null }
   | { type: 'image'; url: string; caption?: string }
   | { type: 'interactive'; payload: InteractiveMessagePayload }
 
@@ -35,7 +35,7 @@ export async function sendEngineWebChat(
   const base = { bot: true as const }
   const r =
     msg.type === 'text'
-      ? await sendWebChatMessage(db, accountId, conversationId, { ...base, messageType: 'text', contentText: msg.text, aiGenerated: msg.aiGenerated, aiAgentId: msg.aiAgentId })
+      ? await sendWebChatMessage(db, accountId, conversationId, { ...base, messageType: 'text', contentText: msg.text, aiGenerated: msg.aiGenerated, aiAgentId: msg.aiAgentId, aiSources: msg.aiSources })
       : msg.type === 'image'
         ? await sendWebChatMessage(db, accountId, conversationId, { ...base, messageType: 'image', mediaUrl: msg.url, contentText: msg.caption })
         : await sendWebChatMessage(db, accountId, conversationId, { ...base, messageType: 'interactive', interactivePayload: msg.payload })

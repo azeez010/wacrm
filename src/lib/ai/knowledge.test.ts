@@ -7,7 +7,7 @@ vi.mock('./embeddings', () => ({
   toVectorLiteral: (v: number[]) => `[${v.join(',')}]`,
 }))
 
-import { retrieveKnowledge, ingestDocument } from './knowledge'
+import { retrieveKnowledge, ingestDocument, sourceRefs } from './knowledge'
 
 interface FakeState {
   semantic: { id: string; content: string }[]
@@ -91,6 +91,8 @@ beforeEach(() => {
   )
 })
 
+type Row = { id: string; content: string; score?: number; source_id?: string; document_id?: string; doc_title?: string }
+
 describe('retrieveKnowledge', () => {
   it('returns [] for an empty query without touching the DB', async () => {
     const { db, state } = makeDb()
@@ -101,60 +103,70 @@ describe('retrieveKnowledge', () => {
   it('short-circuits (no embed, no RPC) when the KB is empty', async () => {
     const { db, state } = makeDb()
     state.chunkCount = 0
-    const out = await retrieveKnowledge(db, 'acct', { embeddingsApiKey: 'sk-x' }, 'q')
-    expect(out).toEqual([])
+    expect(await retrieveKnowledge(db, 'acct', { embeddingsApiKey: 'sk-x' }, 'q')).toEqual([])
     expect(h.embedTexts).not.toHaveBeenCalled()
     expect(state.rpcCalls).toEqual([])
   })
 
-  it('uses lexical FTS only when there is no embeddings key', async () => {
+  it('uses keywords only when there is no embeddings key, without stopwords', async () => {
     const { db, state } = makeDb()
     state.fts = [{ id: 'f1', content: 'F1' }]
-    const out = await retrieveKnowledge(db, 'acct', { embeddingsApiKey: null }, 'q')
+    const out = await retrieveKnowledge(db, 'acct', { embeddingsApiKey: null }, 'What is the refund policy?')
     expect(out.map((h) => h.content)).toEqual(['F1'])
     expect(out[0].matchedBy).toBe('keyword')
     expect(state.rpcCalls).toEqual(['match_ai_knowledge_fts_v2'])
+    expect(state.rpcArgs[0].p_query).toBe('refund policy')
     expect(h.embedTexts).not.toHaveBeenCalled()
   })
 
-  it('uses semantic search when an embeddings key is present', async () => {
+  it('skips the keyword search when the question is only stopwords', async () => {
     const { db, state } = makeDb()
-    state.semantic = [
-      { id: 's1', content: 'S1' },
-      { id: 's2', content: 'S2' },
-      { id: 's3', content: 'S3' },
-    ]
-    const out = await retrieveKnowledge(db, 'acct', { embeddingsApiKey: 'sk-x' }, 'q', { k: 3 })
-    expect(out.map((h) => h.content)).toEqual(['S1', 'S2', 'S3'])
-    expect(h.embedTexts).toHaveBeenCalledTimes(1)
-    // Enough semantic hits → no FTS top-up.
-    expect(state.rpcCalls).toEqual(['match_ai_knowledge_semantic_v2'])
+    expect(await retrieveKnowledge(db, 'acct', { embeddingsApiKey: null }, 'what is this?')).toEqual([])
+    expect(state.rpcCalls).toEqual([])
   })
 
-  it('tops up with FTS and dedupes when semantic is short', async () => {
+  it('runs both searches and ranks chunks found by both first', async () => {
     const { db, state } = makeDb()
     state.semantic = [
-      { id: 's1', content: 'S1' },
-      { id: 's2', content: 'S2' },
-    ]
+      { id: 'a', content: 'A', score: 0.6 },
+      { id: 'b', content: 'B', score: 0.5 },
+    ] as Row[]
     state.fts = [
-      { id: 's2', content: 'S2-dup' }, // dedup by id
-      { id: 'f1', content: 'F1' },
-    ]
-    const out = await retrieveKnowledge(db, 'acct', { embeddingsApiKey: 'sk-x' }, 'q', { k: 3 })
-    expect(out.map((h) => h.content)).toEqual(['S1', 'S2', 'F1'])
-    expect(out.map((h) => h.matchedBy)).toEqual(['semantic', 'semantic', 'keyword'])
-    expect(state.rpcCalls).toEqual([
-      'match_ai_knowledge_semantic_v2',
-      'match_ai_knowledge_fts_v2',
+      { id: 'b', content: 'B', score: 0.2 },
+      { id: 'c', content: 'C', score: 0.1 },
+    ] as Row[]
+    const out = await retrieveKnowledge(db, 'acct', { embeddingsApiKey: 'sk-x' }, 'shipping cost', { k: 3 })
+    expect(out.map((h) => [h.chunkId, h.matchedBy])).toEqual([
+      ['b', 'both'],
+      ['a', 'semantic'],
+      ['c', 'keyword'],
     ])
+    // The semantic similarity is kept as the shown score.
+    expect(out[0].score).toBe(0.5)
+    expect(state.rpcCalls.sort()).toEqual(['match_ai_knowledge_fts_v2', 'match_ai_knowledge_semantic_v2'])
+  })
+
+  it('drops semantic matches below the similarity floor', async () => {
+    const { db, state } = makeDb()
+    state.semantic = [
+      { id: 'near', content: 'N', score: 0.45 },
+      { id: 'far', content: 'F', score: 0.12 },
+    ] as Row[]
+    const out = await retrieveKnowledge(db, 'acct', { embeddingsApiKey: 'sk-x' }, 'opening hours')
+    expect(out.map((h) => h.chunkId)).toEqual(['near'])
+  })
+
+  it('returns nothing when no match is relevant, so the agent can hand off', async () => {
+    const { db, state } = makeDb()
+    state.semantic = [{ id: 'x', content: 'X', score: 0.05 }] as Row[]
+    expect(await retrieveKnowledge(db, 'acct', { embeddingsApiKey: 'sk-x' }, 'quantum physics')).toEqual([])
   })
 
   it('returns where each excerpt came from', async () => {
     const { db, state } = makeDb()
     state.fts = [
       { id: 'c1', content: 'Refunds within 30 days', source_id: 'src-1', document_id: 'doc-1', doc_title: 'Returns policy', score: 0.4 },
-    ] as unknown as FakeState['fts']
+    ] as Row[]
     const [hit] = await retrieveKnowledge(db, 'acct', { embeddingsApiKey: null }, 'refund')
     expect(hit).toEqual({
       chunkId: 'c1',
@@ -170,16 +182,14 @@ describe('retrieveKnowledge', () => {
   it('searches the whole library when no sources are given', async () => {
     const { db, state } = makeDb()
     state.fts = [{ id: 'f1', content: 'F1' }]
-    await retrieveKnowledge(db, 'acct', { embeddingsApiKey: null }, 'q')
+    await retrieveKnowledge(db, 'acct', { embeddingsApiKey: null }, 'delivery')
     expect(state.countScopedTo).toBeNull()
     expect(state.rpcArgs[0].p_source_ids).toBeNull()
   })
 
   it("limits the search to an agent's linked sources", async () => {
     const { db, state } = makeDb()
-    state.semantic = [{ id: 's1', content: 'S1' }]
-    state.fts = [{ id: 'f1', content: 'F1' }]
-    await retrieveKnowledge(db, 'acct', { embeddingsApiKey: 'sk-x' }, 'q', {
+    await retrieveKnowledge(db, 'acct', { embeddingsApiKey: 'sk-x' }, 'delivery', {
       sourceIds: ['src-a', 'src-b'],
     })
     expect(state.countScopedTo).toEqual(['src-a', 'src-b'])
@@ -191,13 +201,23 @@ describe('retrieveKnowledge', () => {
 
   it('returns nothing, with no embed or RPC, for an agent with no linked sources', async () => {
     const { db, state } = makeDb()
-    const out = await retrieveKnowledge(db, 'acct', { embeddingsApiKey: 'sk-x' }, 'q', {
-      sourceIds: [],
-    })
+    const out = await retrieveKnowledge(db, 'acct', { embeddingsApiKey: 'sk-x' }, 'q', { sourceIds: [] })
     expect(out).toEqual([])
     expect(h.embedTexts).not.toHaveBeenCalled()
     expect(state.rpcCalls).toEqual([])
     expect(state.events).toEqual([])
+  })
+})
+
+describe('sourceRefs', () => {
+  it('keeps one reference per document, best first', () => {
+    const hit = (chunkId: string, documentId: string, score: number) => ({
+      chunkId, documentId, sourceId: 's', title: documentId, content: '', score, matchedBy: 'semantic' as const,
+    })
+    expect(sourceRefs([hit('c1', 'd1', 0.81234), hit('c2', 'd1', 0.5), hit('c3', 'd2', 0.4)])).toEqual([
+      { source_id: 's', document_id: 'd1', title: 'd1', score: 0.812, matched_by: 'semantic' },
+      { source_id: 's', document_id: 'd2', title: 'd2', score: 0.4, matched_by: 'semantic' },
+    ])
   })
 })
 

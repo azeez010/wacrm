@@ -2,12 +2,12 @@ import { isBlocked } from '@/lib/contacts/block-guard'
 import { supabaseAdmin } from './admin-client'
 import { loadAgentConfig } from './config'
 import { buildConversationContext } from './context'
-import { retrieveKnowledge } from './knowledge'
+import { retrieveKnowledge, sourceRefs } from './knowledge'
 import { runGeneration } from './run'
 import { loadPlatformPrompt, personaPrompt } from './persona'
 import { buildSystemPrompt } from './defaults'
 import { buildHandoffSummary } from './handoff'
-import { latestUserMessage } from './query'
+import { buildRetrievalQuery } from './query'
 import {
   engineSendText,
   loadAccountMetaCredentials,
@@ -146,7 +146,7 @@ export async function dispatchInboundToAiReply(
       db,
       accountId,
       config,
-      latestUserMessage(messages),
+      buildRetrievalQuery(messages),
       { sourceIds: config.knowledgeSourceIds ?? null },
     )
 
@@ -229,6 +229,7 @@ export async function dispatchInboundToAiReply(
       text,
       aiGenerated: true,
       aiAgentId: config.agentId ?? null,
+      aiSources: sourceRefs(knowledge),
     })
   } catch (err) {
     console.error('[ai auto-reply] dispatch failed:', err)

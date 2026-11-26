@@ -472,7 +472,8 @@
         "document": "les documents",
         "audio": "les fichiers audio"
       },
-      "uploadFailed": "Échec du téléversement."
+      "uploadFailed": "Échec du téléversement.",
+      "draftBasedOn": "Basé sur : {sources}"
     },
     "bubble": {
       "photo": "Photo",
@@ -493,7 +494,8 @@
       "viewImage": "Voir l'image",
       "expandVideo": "Agrandir la vidéo",
       "imageAlt": "Image partagée",
-      "aiBadgeTitleAgent": "Envoyé par l'agent IA « {name} »"
+      "aiBadgeTitleAgent": "Envoyé par l'agent IA « {name} »",
+      "aiBadgeSources": "Sources : {sources}"
     },
     "mediaViewer": {
       "counter": "{index} sur {total}",
@@ -3160,7 +3162,8 @@
       "sourcesUsed": "{count, plural, =1 {# source utilisée} other {# sources utilisées}}",
       "untitled": "Sans titre",
       "matchSemantic": "sens",
-      "matchKeyword": "mots-clés"
+      "matchKeyword": "mots-clés",
+      "matchBoth": "sens + mots-clés"
     },
     "usage": {
       "title": "Utilisation des jetons",
@@ -3384,7 +3387,16 @@
       "preview": "Aperçu",
       "hide": "Masquer",
       "noText": "(aucun texte)",
-      "noPagesYet": "Pas encore de pages."
+      "noPagesYet": "Pas encore de pages.",
+      "testTitle": "Tester une question",
+      "testDesc": "Voyez quelles connaissances un agent utiliserait pour la question d'un client. Rien n'est envoyé et aucun crédit IA n'est utilisé.",
+      "testPlaceholder": "ex. Puis-je retourner un article après 2 semaines ?",
+      "testWholeLibrary": "Toute la bibliothèque",
+      "testAsAgent": "Comme {name}",
+      "testRun": "Rechercher",
+      "testKeywordOnly": "Recherche par mots-clés uniquement. Ajoutez une clé d’embeddings dans Paramètres pour chercher aussi par le sens.",
+      "testNoHits": "Rien de pertinent n'a été trouvé. Un agent transférerait cette question à votre équipe.",
+      "testFailed": "Impossible de lancer la recherche."
     },
     "templates": {
       "title": "Partir d'un modèle",
@@ -3939,7 +3951,8 @@
         "pairsRequired": "Ajoutez au moins une question avec sa réponse",
         "urlInvalid": "Saisissez une adresse web http(s) valide",
         "fileInvalid": "Le fichier envoyé n'est pas valide",
-        "fileEmpty": "Aucun texte trouvé dans le fichier"
+        "fileEmpty": "Aucun texte trouvé dans le fichier",
+        "queryRequired": "la requête est obligatoire"
       },
       "platformNotInPlan": "L'IA OgaDesk n'est pas incluse dans votre offre. Passez à une offre supérieure ou utilisez votre propre clé API."
     },

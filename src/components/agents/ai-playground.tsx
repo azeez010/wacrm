@@ -20,7 +20,7 @@ interface PlaygroundSource {
   title: string | null;
   snippet: string;
   score: number;
-  matchedBy: 'semantic' | 'keyword';
+  matchedBy: 'semantic' | 'keyword' | 'both';
 }
 
 export function AiPlayground({
@@ -241,7 +241,7 @@ function SourcesUsed({ sources }: { sources: PlaygroundSource[] }) {
             <p className="flex items-center justify-between gap-2 font-medium text-foreground">
               <span className="truncate">{s.title || t('untitled')}</span>
               <span className="shrink-0 font-normal text-muted-foreground">
-                {s.matchedBy === 'semantic' ? t('matchSemantic') : t('matchKeyword')} · {s.score.toFixed(2)}
+                {matchLabel(s.matchedBy, t)} · {s.score.toFixed(2)}
               </span>
             </p>
             <p className="mt-0.5 line-clamp-3 text-muted-foreground">{s.snippet}</p>
@@ -250,4 +250,8 @@ function SourcesUsed({ sources }: { sources: PlaygroundSource[] }) {
       </ol>
     </details>
   );
+}
+
+export function matchLabel(matchedBy: 'semantic' | 'keyword' | 'both', t: (key: string) => string): string {
+  return matchedBy === 'both' ? t('matchBoth') : matchedBy === 'semantic' ? t('matchSemantic') : t('matchKeyword');
 }

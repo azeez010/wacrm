@@ -63,7 +63,7 @@ describe('indexDocument', () => {
     const { db, updates } = fakeDb()
     const out = await indexDocument(db, doc(), { type: 'website' }, 'sk', page('<title>FAQ</title><p>Hello there</p>'))
     expect(out).toBe('ready')
-    expect(h.ingest).toHaveBeenCalledWith(db, 'a1', { embeddingsApiKey: 'sk' }, 'd1', 'Hello there', { chunks: ['Hello there'] })
+    expect(h.ingest).toHaveBeenCalledWith(db, 'a1', { embeddingsApiKey: 'sk' }, 'd1', 'Hello there', { chunks: ['Hello there'], title: 'FAQ' })
     expect(updates.at(-1)).toMatchObject({ title: 'FAQ', content: 'Hello there', status: 'ready', chunk_count: 2, error: null })
     expect(updates.at(-1)!.content_hash).toBe(await sha256('Hello there'))
   })
@@ -82,7 +82,7 @@ describe('indexDocument', () => {
     const fetcher = vi.fn()
     await indexDocument(db, doc({ url: null, content: 'Q: a\nA: b' }), { type: 'qa' }, null, fetcher)
     expect(fetcher).not.toHaveBeenCalled()
-    expect(h.ingest.mock.calls[0][5]).toEqual({ chunks: ['Q: a\nA: b'] })
+    expect(h.ingest.mock.calls[0][5]).toMatchObject({ chunks: ['Q: a\nA: b'] })
   })
 
   it('records a failed fetch on the document instead of throwing', async () => {

@@ -8,8 +8,9 @@ describe('marketing content', () => {
     expect(new Set(keys).size).toBe(keys.length)
     for (const p of MARKETING_PAGES) {
       expect(p.metaDescription.length).toBeGreaterThan(80)
-      expect(p.metaDescription.length).toBeLessThanOrEqual(175)
+      expect(p.metaDescription.length).toBeLessThanOrEqual(165)
       expect(p.faq.length).toBeGreaterThanOrEqual(3)
+      expect(p.problems.length).toBe(3)
       for (const r of p.related) expect(MARKETING_PAGES.some((x) => x.slug === r)).toBe(true)
     }
   })

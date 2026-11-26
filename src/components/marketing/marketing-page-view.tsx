@@ -4,16 +4,16 @@ import { BlogShell } from '@/components/blog/blog-shell'
 import { Breadcrumbs } from '@/components/blog/parts'
 import { buttonVariants } from '@/components/ui/button'
 import { BRAND_NAME } from '@/lib/brand'
-import { getMarketingPage, type MarketingPage } from '@/lib/marketing/pages'
+import { MARKETING_PAGES, type MarketingPage } from '@/lib/marketing/pages'
 import { breadcrumbJsonLd, faqJsonLd, graph, jsonLd, SITE_URL } from '@/lib/seo'
 import { cn } from '@/lib/utils'
 
-const SECTION: Record<MarketingPage['kind'], string> = { solutions: 'Solutions', compare: 'Compare' }
+const SECTION: Record<MarketingPage['kind'], string> = { solutions: 'Solutions', compare: 'Compare', industries: 'Industries' }
 
 /** Long-form landing page: hero, problems, features, steps, optional table, FAQ and a closing call to action. */
 export function MarketingPageView({ page }: { page: MarketingPage }) {
   const url = `${SITE_URL}/${page.kind}/${page.slug}`
-  const related = page.related.map((s) => getMarketingPage('solutions', s) ?? getMarketingPage('compare', s)).filter((p): p is MarketingPage => !!p)
+  const related = page.related.map((s) => MARKETING_PAGES.find((p) => p.slug === s)).filter((p): p is MarketingPage => !!p)
   const ld = graph(
     breadcrumbJsonLd([
       { name: 'Home', path: '/' },

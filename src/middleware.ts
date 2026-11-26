@@ -21,7 +21,7 @@ function isLocalizedLandingPath(pathname: string): boolean {
  * and /help; this rewrites to them and tells next-intl which language the URL asked for, so an
  * unprefixed URL is always the default language whatever the visitor's cookie says.
  */
-const CONTENT_ROUTE = new RegExp(`^(?:/(${LOCALES.join('|')}))?(/(?:blog|changelog|help|solutions|compare|templates)(?:/.*)?)$`)
+const CONTENT_ROUTE = new RegExp(`^(?:/(${LOCALES.join('|')}))?(/(?:blog|changelog|help|solutions|compare|industries|templates)(?:/.*)?)$`)
 
 /** Public blog: anonymous, so skip the auth round trip (and keep it fast for crawlers). */
 const BLOG_PATH = /^\/blog(\/|$)/

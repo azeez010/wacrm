@@ -4,7 +4,7 @@
 
 export interface MarketingPage {
   slug: string
-  kind: 'solutions' | 'compare'
+  kind: 'solutions' | 'compare' | 'industries'
   /** Short name used in lists and breadcrumbs. */
   name: string
   metaTitle: string
@@ -210,5 +210,278 @@ export const MARKETING_PAGES: MarketingPage[] = [
     related: ['shared-whatsapp-inbox', 'whatsapp-crm', 'whatsapp-broadcast'],
   },
 ]
+
+const COUNTRY_FEATURES = (currency: string) => [
+  { title: 'Shared inbox for your team', body: 'Everyone answers customers from one WhatsApp number, with conversations assigned to the right person.' },
+  { title: `Prices you can read in ${currency}`, body: `Plans show an approximate price in ${currency} using a daily exchange rate. The amount you pay is shown at checkout.` },
+  { title: 'Broadcasts with approved templates', body: 'Reach customers by tag or segment, personalise each message and see who received and read it.' },
+  { title: 'Automations and chatbot flows', body: 'Welcome messages, out-of-hours replies, menus and AI answers from your own knowledge library.' },
+  { title: 'Use your existing number', body: 'Connect through Meta, or link the number on your WhatsApp Business app and import your chats.' },
+  { title: 'OTP and verification API', body: 'Send login and verification codes over WhatsApp from your own app.' },
+]
+const COUNTRY_STEPS = [
+  { title: 'Create your account', body: 'Sign up free, no card needed.' },
+  { title: 'Connect WhatsApp', body: 'Sign in with Meta and link your business number.' },
+  { title: 'Serve customers as a team', body: 'Invite teammates, import contacts and send your first template.' },
+]
+const countryPage = (c: { slug: string; country: string; currency: string; lead: string; problems: MarketingPage['problems']; faq: MarketingPage['faq'] }): MarketingPage => ({
+  slug: c.slug,
+  kind: 'solutions',
+  name: `WhatsApp Business API in ${c.country}`,
+  metaTitle: `WhatsApp Business API in ${c.country}`,
+  metaDescription: `Use the official WhatsApp Business API in ${c.country} with a shared inbox, broadcasts and automations. Prices shown in ${c.currency}. Free to start.`,
+  eyebrow: `Built for ${c.country}`,
+  h1: `The WhatsApp Business API for businesses in ${c.country}`,
+  lead: c.lead,
+  problems: c.problems,
+  features: COUNTRY_FEATURES(c.currency),
+  steps: COUNTRY_STEPS,
+  faq: c.faq,
+  related: ['whatsapp-crm', 'shared-whatsapp-inbox', 'whatsapp-broadcast'],
+})
+
+const industryPage = (i: { slug: string; name: string; short: string; lead: string; problems: MarketingPage['problems']; features: MarketingPage['features']; steps: MarketingPage['steps']; faq: MarketingPage['faq'] }): MarketingPage => ({
+  slug: i.slug,
+  kind: 'industries',
+  name: i.name,
+  metaTitle: `WhatsApp CRM for ${i.short}`,
+  metaDescription: `WhatsApp CRM for ${i.short}: answer customers, send updates and follow up with a shared inbox and automations. Free to start.`,
+  eyebrow: i.name,
+  h1: `WhatsApp for ${i.short}: answer faster, sell more`,
+  lead: i.lead,
+  problems: i.problems,
+  features: i.features,
+  steps: i.steps,
+  faq: i.faq,
+  related: ['whatsapp-crm', 'shared-whatsapp-inbox', 'whatsapp-broadcast'],
+})
+
+MARKETING_PAGES.push(
+  countryPage({
+    slug: 'whatsapp-business-api-ghana',
+    country: 'Ghana',
+    currency: 'cedis (GHS)',
+    lead: 'Your customers in Accra, Kumasi and beyond already chat on WhatsApp. OgaDesk gives your team one shared inbox, broadcasts and automations on the official API.',
+    problems: [
+      { title: 'Orders and questions pile up on one phone', body: 'Price checks, delivery questions and payment confirmations all arrive at once and one person cannot keep up.' },
+      { title: 'Staff changes lose customer history', body: 'When the person holding the phone leaves, the conversations and customer details go with them.' },
+      { title: 'Hard to message customers properly', body: 'Sending the same update to many people by hand is slow and can look like spam to WhatsApp.' },
+    ],
+    faq: [
+      { question: 'Can I use OgaDesk in Ghana?', answer: 'Yes. OgaDesk works with the official WhatsApp Business Platform, which is available in Ghana. Connect your number through Meta’s sign-in.' },
+      { question: 'Can I see prices in cedis?', answer: 'Yes. Plan prices show an approximate amount in Ghana cedis. The exact amount you pay is shown at checkout.' },
+      { question: 'Can I keep my current WhatsApp Business number?', answer: 'Yes. You can link the number from your WhatsApp Business app or connect a new one.' },
+      { question: 'Who pays Meta’s message fees?', answer: 'Meta’s own conversation fees are separate from OgaDesk and billed by Meta. Your OgaDesk plan covers the software.' },
+    ],
+  }),
+  countryPage({
+    slug: 'whatsapp-business-api-kenya',
+    country: 'Kenya',
+    currency: 'Kenyan shillings (KES)',
+    lead: 'From Nairobi shops to Mombasa tour operators, customers prefer WhatsApp. OgaDesk gives your team a shared inbox, broadcasts and automations on the official API.',
+    problems: [
+      { title: 'Customers expect instant replies', body: 'A message that waits an hour often becomes a lost sale. One phone cannot answer everyone in time.' },
+      { title: 'No record of who said what', body: 'Quotes, bookings and promises live in chats. When two people reply, customers get mixed messages.' },
+      { title: 'Follow-ups depend on memory', body: 'Leads go cold because nobody remembers to message them again.' },
+    ],
+    faq: [
+      { question: 'Does OgaDesk work in Kenya?', answer: 'Yes. It uses the official WhatsApp Business Platform. Connect your number with Meta’s sign-in and invite your team.' },
+      { question: 'Can I see prices in Kenyan shillings?', answer: 'Yes. Plans show an approximate price in KES. The exact amount is shown at checkout.' },
+      { question: 'Can several staff reply from one number?', answer: 'Yes. Invite teammates with roles, assign conversations and see who is handling each one.' },
+      { question: 'Can customers reach me through a link or QR code?', answer: 'Yes. Create a lead form or support button, share the link or QR code, and every enquiry lands in your contacts.' },
+    ],
+  }),
+  countryPage({
+    slug: 'whatsapp-business-api-south-africa',
+    country: 'South Africa',
+    currency: 'rand (ZAR)',
+    lead: 'WhatsApp is where South African customers already talk to businesses. OgaDesk gives your team a shared inbox, broadcasts and automations on the official API.',
+    problems: [
+      { title: 'Support and sales share one number', body: 'Enquiries, bookings and after-sales questions mix together and are hard to prioritise.' },
+      { title: 'Out-of-hours messages go unanswered', body: 'Customers write in the evening and weekends. Without an auto-reply they hear nothing until Monday.' },
+      { title: 'Consent and opt-outs need care', body: 'You should only message people who agreed, and honour requests to stop.' },
+    ],
+    faq: [
+      { question: 'Can I use OgaDesk in South Africa?', answer: 'Yes. OgaDesk uses the official WhatsApp Business Platform. Connect your number with Meta’s sign-in.' },
+      { question: 'Can I see prices in rand?', answer: 'Yes. Plans show an approximate price in ZAR. The exact amount is shown at checkout.' },
+      { question: 'How do opt-outs work?', answer: 'You can add an Unsubscribe automation that asks the customer to confirm and then blocks them, so broadcasts and automations skip them.' },
+      { question: 'Can I send automatic replies after hours?', answer: 'Yes. Use an out-of-office automation, a chatbot flow or an AI agent that answers from your own knowledge.' },
+    ],
+  }),
+  industryPage({
+    slug: 'online-stores-and-fashion',
+    name: 'Online stores and fashion',
+    short: 'online stores and fashion sellers',
+    lead: 'Most sales in a small shop start with “How much is this?” on WhatsApp. OgaDesk keeps every enquiry, order and delivery update in one shared inbox so nothing slips.',
+    problems: [
+      { title: 'Enquiries buried under orders', body: 'Price questions, size checks and payment proofs arrive together and get lost.' },
+      { title: 'Delivery questions all day', body: '“Where is my order?” takes hours when you check each chat by hand.' },
+      { title: 'Repeat customers forgotten', body: 'You cannot easily tell your best buyers about a new drop.' },
+    ],
+    features: [
+      { title: 'Catalogue replies in one tap', body: 'Save quick replies for prices, sizes, bank details and return policy.' },
+      { title: 'Order and delivery templates', body: 'Send approved order confirmation and delivery update messages in a click.' },
+      { title: 'Tag buyers and segments', body: 'Tag by item, city or spend, then send a new-arrivals broadcast to the right group.' },
+      { title: 'Deals in a pipeline', body: 'Track each order from enquiry to paid to delivered.' },
+      { title: 'Auto-reply when you are away', body: 'Greet new customers and say when you will reply, even at night.' },
+      { title: 'Lead forms and QR codes', body: 'Put a chat link on Instagram, your bio or packaging.' },
+    ],
+    steps: [
+      { title: 'Connect your number', body: 'Use the number customers already know.' },
+      { title: 'Import customers and add tags', body: 'Bring your buyer list from a spreadsheet.' },
+      { title: 'Reply, confirm and broadcast', body: 'Use templates for orders and drops.' },
+    ],
+    faq: [
+      { question: 'Can I message customers about a new collection?', answer: 'Yes, with an approved marketing template, to people who agreed to hear from you. Tag buyers and send to that group.' },
+      { question: 'Can my staff handle orders together?', answer: 'Yes. Assign each conversation to a teammate and see who is waiting for a reply.' },
+      { question: 'Do customers need to install anything?', answer: 'No. They message your WhatsApp number as usual.' },
+    ],
+  }),
+  industryPage({
+    slug: 'restaurants',
+    name: 'Restaurants and food businesses',
+    short: 'restaurants and food businesses',
+    lead: 'Orders, reservations and delivery questions all come through WhatsApp. OgaDesk helps your team handle them quickly and keeps regulars coming back.',
+    problems: [
+      { title: 'Peak hours overwhelm the phone', body: 'Orders and questions stack up exactly when the kitchen is busiest.' },
+      { title: 'Reservations get missed', body: 'Bookings made in chat are forgotten or double-booked.' },
+      { title: 'No way to reach regulars', body: 'You cannot easily tell past customers about today’s special.' },
+    ],
+    features: [
+      { title: 'Menu auto-reply', body: 'A chatbot flow shows your menu and opening hours as tappable options and hands over to a person when needed.' },
+      { title: 'Reservation reminders', body: 'Send approved booking confirmation and reminder messages.' },
+      { title: 'Shared inbox for staff', body: 'Front of house and delivery riders reply from the same number.' },
+      { title: 'Weekend offers by broadcast', body: 'Message customers who opted in with a special or a new dish.' },
+      { title: 'Out-of-hours replies', body: 'Tell customers when you open and how to order.' },
+      { title: 'Order tags', body: 'Tag dine-in, takeaway and delivery customers.' },
+    ],
+    steps: [
+      { title: 'Connect your number', body: 'Link the number printed on your menu.' },
+      { title: 'Set up the menu flow', body: 'Start from a ready flow template and edit it.' },
+      { title: 'Share the chat link or QR', body: 'Put it on tables, receipts and social pages.' },
+    ],
+    faq: [
+      { question: 'Can customers order through WhatsApp?', answer: 'They can message your number, choose from a menu flow and chat with your team. Orders are handled by your staff in the shared inbox.' },
+      { question: 'Can I send daily specials?', answer: 'Yes, with an approved marketing template to customers who agreed to receive offers.' },
+      { question: 'Will it work on my phone?', answer: 'Yes. OgaDesk runs in your browser on mobile and desktop.' },
+    ],
+  }),
+  industryPage({
+    slug: 'schools',
+    name: 'Schools and training centres',
+    short: 'schools and training centres',
+    lead: 'Parents and students prefer WhatsApp. OgaDesk gives your admin team one inbox for admissions, fee reminders and notices.',
+    problems: [
+      { title: 'Admissions enquiries slip away', body: 'Parents ask about fees and places and need quick answers.' },
+      { title: 'Notices reach people unevenly', body: 'Announcements sent one by one are slow and some parents miss them.' },
+      { title: 'Fee reminders are awkward', body: 'Chasing payments by hand takes staff time.' },
+    ],
+    features: [
+      { title: 'One inbox for the office', body: 'Several staff answer parents from the school number.' },
+      { title: 'Fee and notice templates', body: 'Send approved reminder and notice messages to a class or the whole school using tags.' },
+      { title: 'Admissions pipeline', body: 'Track each enquiry from first message to enrolled.' },
+      { title: 'FAQ answers on autopilot', body: 'An AI agent answers questions about fees, dates and uniforms from your own documents.' },
+      { title: 'Enquiry forms', body: 'Collect admissions leads from your website or a QR code.' },
+      { title: 'Roles for staff', body: 'Give teachers read-only access and the office full access.' },
+    ],
+    steps: [
+      { title: 'Connect the school number', body: 'Use the number parents already know.' },
+      { title: 'Import parent contacts', body: 'Tag by class or level.' },
+      { title: 'Send your first notice', body: 'Use an approved utility template.' },
+    ],
+    faq: [
+      { question: 'Can I message all parents at once?', answer: 'Yes, to parents who agreed to receive messages, using an approved template and a tag or segment.' },
+      { question: 'Can the AI answer admissions questions?', answer: 'You can add your fee schedule and policies to a knowledge library, and an AI agent answers from it and hands over to staff when unsure.' },
+      { question: 'Is it suitable for tutorial centres and training providers?', answer: 'Yes. The same inbox, forms and templates work for any training business.' },
+    ],
+  }),
+  industryPage({
+    slug: 'clinics-and-salons',
+    name: 'Clinics, salons and wellness',
+    short: 'clinics, salons and wellness businesses',
+    lead: 'Appointments run on WhatsApp. OgaDesk helps your front desk confirm bookings, send reminders and follow up after visits.',
+    problems: [
+      { title: 'No-shows cost money', body: 'Clients forget appointments when nobody reminds them.' },
+      { title: 'The front desk is stretched', body: 'Booking questions arrive all day while clients are being served.' },
+      { title: 'Follow-up never happens', body: 'Clients who should return are never contacted.' },
+    ],
+    features: [
+      { title: 'Appointment reminders', body: 'Send approved reminder messages with confirm or reschedule options.' },
+      { title: 'Shared front-desk inbox', body: 'More than one person can answer from the business number.' },
+      { title: 'After-visit follow-up', body: 'Check in with clients and invite repeat visits.' },
+      { title: 'Forms for new clients', body: 'Collect details and consent before the first visit.' },
+      { title: 'Tags by service', body: 'Group clients by treatment or package.' },
+      { title: 'Privacy-minded roles', body: 'Control who on your team can see conversations.' },
+    ],
+    steps: [
+      { title: 'Connect your number', body: 'Link the number on your booking cards.' },
+      { title: 'Create reminder templates', body: 'Submit them for approval in OgaDesk.' },
+      { title: 'Send reminders and follow-ups', body: 'Use tags and segments to reach the right clients.' },
+    ],
+    faq: [
+      { question: 'Can I send appointment reminders automatically?', answer: 'You can send approved reminder templates to a segment, and use automations for follow-ups. Check which steps suit your booking process.' },
+      { question: 'Is client information private?', answer: 'Access is controlled by roles, and you decide which teammates can see conversations. Follow the privacy rules that apply to your profession.' },
+      { question: 'Can clients book through a link?', answer: 'You can share a chat link or form so clients start a conversation, and your team confirms the time.' },
+    ],
+  }),
+  industryPage({
+    slug: 'real-estate',
+    name: 'Real estate and property',
+    short: 'real estate agents and property managers',
+    lead: 'Leads from listings and ads land on WhatsApp. OgaDesk helps your agents respond first and keep every viewing and deal organised.',
+    problems: [
+      { title: 'Slow replies lose leads', body: 'Buyers message several agents. The first good answer usually wins.' },
+      { title: 'Leads scattered across phones', body: 'Each agent keeps conversations on a personal phone, so nobody sees the full pipeline.' },
+      { title: 'Viewings are hard to coordinate', body: 'Times and locations are lost in long chats.' },
+    ],
+    features: [
+      { title: 'Lead forms for each listing', body: 'Collect name, budget and preferred area from a link or QR code, tagged by property.' },
+      { title: 'Deal pipeline', body: 'Move leads from enquiry to viewing to offer to closed.' },
+      { title: 'Viewing reminders', body: 'Send approved booking confirmations with the time.' },
+      { title: 'Assign by agent', body: 'Give each lead to the right person, or share them in turn.' },
+      { title: 'Broadcast new listings', body: 'Message interested buyers when a matching property arrives.' },
+      { title: 'See response times', body: 'Know which leads waited the longest.' },
+    ],
+    steps: [
+      { title: 'Connect the agency number', body: 'Everyone works from one shared inbox.' },
+      { title: 'Create a form per listing', body: 'Share the link or QR on adverts.' },
+      { title: 'Work the pipeline', body: 'Reply fast, book viewings and track offers.' },
+    ],
+    faq: [
+      { question: 'Can each agent have their own leads?', answer: 'Yes. Assign leads to agents manually or in turn, and see who owns each conversation.' },
+      { question: 'Can I send new listings to past enquiries?', answer: 'Yes, with an approved marketing template to contacts who agreed to hear from you, grouped by tags.' },
+      { question: 'Can a lead form feed the pipeline?', answer: 'Yes. Qualified form leads can create a deal in the pipeline you choose.' },
+    ],
+  }),
+  industryPage({
+    slug: 'logistics-and-delivery',
+    name: 'Logistics and delivery',
+    short: 'logistics and delivery companies',
+    lead: 'Customers want to know where their parcel is. OgaDesk lets your team send updates and answer tracking questions from one shared WhatsApp inbox.',
+    problems: [
+      { title: '“Where is my parcel?” all day', body: 'Tracking questions fill the inbox and distract dispatchers.' },
+      { title: 'Riders and office are not aligned', body: 'Customers get different answers depending on who replies.' },
+      { title: 'Failed deliveries are costly', body: 'Wrong addresses and missed handovers are found out too late.' },
+    ],
+    features: [
+      { title: 'Status update templates', body: 'Send approved pickup, in-transit and delivered messages.' },
+      { title: 'Verification codes by API', body: 'Send delivery confirmation codes over WhatsApp from your own system.' },
+      { title: 'Shared inbox for dispatch', body: 'Several staff answer from one number, with notes and assignment.' },
+      { title: 'Automatic replies', body: 'Answer common questions about rates and hours instantly.' },
+      { title: 'Customer segments', body: 'Group senders by business, city or volume.' },
+      { title: 'API and webhooks', body: 'Connect your own software to send and receive messages.' },
+    ],
+    steps: [
+      { title: 'Connect your number', body: 'Link the number printed on parcels.' },
+      { title: 'Set up status templates', body: 'Submit them for approval.' },
+      { title: 'Connect your system by API', body: 'Send updates automatically from your own tools.' },
+    ],
+    faq: [
+      { question: 'Can I send updates automatically from my own system?', answer: 'Yes. The API lets your software send messages and codes, and webhooks tell you about replies and delivery status.' },
+      { question: 'Can customers track a parcel in WhatsApp?', answer: 'They can message you, and your team or an automation can reply with status. Updates you start must use approved templates.' },
+      { question: 'Can I give riders access?', answer: 'You can invite teammates with limited roles so each person sees only what they need.' },
+    ],
+  }),
+)
 
 export const getMarketingPage = (kind: MarketingPage['kind'], slug: string) => MARKETING_PAGES.find((p) => p.kind === kind && p.slug === slug)

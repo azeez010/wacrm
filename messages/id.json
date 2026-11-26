@@ -2971,6 +2971,7 @@
       "useTheme": "Gunakan tema {name}",
       "themeId": "ID tema: {id}",
       "modes": {
+        "system": "sistem",
         "light": "terang",
         "dark": "gelap"
       },

@@ -1,9 +1,9 @@
 "use client";
 
-import { Check, Moon, Palette, SunMoon, Sun } from "lucide-react";
+import { Check, Monitor, Moon, Palette, SunMoon, Sun } from "lucide-react";
 
 import { useTheme } from "@/hooks/use-theme";
-import { MODES, THEMES, type Mode, type ThemeId } from "@/lib/themes";
+import { MODE_PREFERENCES, THEMES, type ModePreference, type ThemeId } from "@/lib/themes";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 import { SettingsPanelHead } from "./settings-panel-head";
@@ -21,7 +21,7 @@ import { SettingsPanelHead } from "./settings-panel-head";
  * loads.
  */
 export function AppearancePanel() {
-  const { theme, setTheme, mode, setMode } = useTheme();
+  const { theme, setTheme, modePreference, setModePreference } = useTheme();
   const t = useTranslations("Settings.appearance");
 
   return (
@@ -40,14 +40,14 @@ export function AppearancePanel() {
         <div
           role="radiogroup"
           aria-label={t("colorMode")}
-          className="grid max-w-md grid-cols-2 gap-3"
+          className="grid max-w-2xl grid-cols-1 gap-3 sm:grid-cols-3"
         >
-          {MODES.map((m) => (
+          {MODE_PREFERENCES.map((m) => (
             <ModeCard
               key={m}
               mode={m}
-              isActive={m === mode}
-              onPick={() => setMode(m)}
+              isActive={m === modePreference}
+              onPick={() => setModePreference(m)}
             />
           ))}
         </div>
@@ -82,13 +82,12 @@ function ModeCard({
   isActive,
   onPick,
 }: {
-  mode: Mode;
+  mode: ModePreference;
   isActive: boolean;
   onPick: () => void;
 }) {
   const t = useTranslations("Settings.appearance");
-  const isLight = mode === "light";
-  const Icon = isLight ? Sun : Moon;
+  const Icon = mode === "system" ? Monitor : mode === "light" ? Sun : Moon;
   return (
     <button
       type="button"

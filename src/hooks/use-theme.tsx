@@ -11,12 +11,15 @@ import {
 
 import {
   DEFAULT_MODE,
+  DEFAULT_MODE_PREFERENCE,
   DEFAULT_THEME,
   MODE_STORAGE_KEY,
   STORAGE_KEY,
-  isMode,
+  isModePreference,
   isThemeId,
+  resolveMode,
   type Mode,
+  type ModePreference,
   type ThemeId,
 } from "@/lib/themes";
 
@@ -40,7 +43,12 @@ import {
 interface ThemeContextValue {
   theme: ThemeId;
   setTheme: (next: ThemeId) => void;
+  /** The concrete light/dark being shown (what `data-mode` carries). */
   mode: Mode;
+  /** What the person picked: system, light or dark. */
+  modePreference: ModePreference;
+  setModePreference: (next: ModePreference) => void;
+  /** Pick an explicit light/dark (leaves "system"). */
   setMode: (next: Mode) => void;
   toggleMode: () => void;
 }
@@ -63,22 +71,34 @@ function readInitialTheme(): ThemeId {
   return DEFAULT_THEME;
 }
 
-function readInitialMode(): Mode {
-  if (typeof window === "undefined") return DEFAULT_MODE;
-  const fromAttr = document.documentElement.dataset.mode;
-  if (isMode(fromAttr)) return fromAttr;
+function systemPrefersDark(): boolean {
+  return (
+    typeof window !== "undefined" &&
+    typeof window.matchMedia === "function" &&
+    window.matchMedia("(prefers-color-scheme: dark)").matches
+  );
+}
+
+function readInitialPreference(): ModePreference {
+  if (typeof window === "undefined") return DEFAULT_MODE_PREFERENCE;
   try {
     const stored = localStorage.getItem(MODE_STORAGE_KEY);
-    if (isMode(stored)) return stored;
+    if (isModePreference(stored)) return stored;
   } catch {
     // localStorage can throw in private-browsing / sandboxed contexts.
   }
-  return DEFAULT_MODE;
+  return DEFAULT_MODE_PREFERENCE;
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<ThemeId>(readInitialTheme);
-  const [mode, setModeState] = useState<Mode>(readInitialMode);
+  const [modePreference, setPreferenceState] =
+    useState<ModePreference>(readInitialPreference);
+  const [mode, setModeState] = useState<Mode>(() =>
+    typeof window === "undefined"
+      ? DEFAULT_MODE
+      : resolveMode(readInitialPreference(), systemPrefersDark()),
+  );
 
   const setTheme = useCallback((next: ThemeId) => {
     setThemeState(next);
@@ -93,21 +113,44 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const setMode = useCallback((next: Mode) => {
-    setModeState(next);
+  const applyPreference = useCallback((next: ModePreference) => {
+    const resolved = resolveMode(next, systemPrefersDark());
+    setPreferenceState(next);
+    setModeState(resolved);
     if (typeof document !== "undefined") {
-      document.documentElement.dataset.mode = next;
-    }
-    try {
-      localStorage.setItem(MODE_STORAGE_KEY, next);
-    } catch {
-      // Same private-browsing edge case as above.
+      document.documentElement.dataset.mode = resolved;
     }
   }, []);
 
+  const setModePreference = useCallback(
+    (next: ModePreference) => {
+      applyPreference(next);
+      try {
+        localStorage.setItem(MODE_STORAGE_KEY, next);
+      } catch {
+        // Same private-browsing edge case as above.
+      }
+    },
+    [applyPreference],
+  );
+
+  const setMode = useCallback(
+    (next: Mode) => setModePreference(next),
+    [setModePreference],
+  );
+
   const toggleMode = useCallback(() => {
-    setMode(mode === "dark" ? "light" : "dark");
-  }, [mode, setMode]);
+    setModePreference(mode === "dark" ? "light" : "dark");
+  }, [mode, setModePreference]);
+
+  // While following the system, track OS changes live.
+  useEffect(() => {
+    if (modePreference !== "system" || typeof window.matchMedia !== "function") return;
+    const mq = window.matchMedia("(prefers-color-scheme: dark)");
+    const onChange = () => applyPreference("system");
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, [modePreference, applyPreference]);
 
   // Sync from other tabs - change theme or mode in tab A, tab B
   // catches up without a refresh.
@@ -121,18 +164,17 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
         return;
       }
       if (e.key === MODE_STORAGE_KEY) {
-        if (isMode(e.newValue) && e.newValue !== mode) {
-          setModeState(e.newValue);
-          document.documentElement.dataset.mode = e.newValue;
+        if (isModePreference(e.newValue) && e.newValue !== modePreference) {
+          applyPreference(e.newValue);
         }
       }
     }
     window.addEventListener("storage", onStorage);
     return () => window.removeEventListener("storage", onStorage);
-  }, [theme, mode]);
+  }, [theme, modePreference, applyPreference]);
 
   return (
-    <ThemeContext.Provider value={{ theme, setTheme, mode, setMode, toggleMode }}>
+    <ThemeContext.Provider value={{ theme, setTheme, mode, modePreference, setModePreference, setMode, toggleMode }}>
       {children}
     </ThemeContext.Provider>
   );
@@ -148,6 +190,8 @@ export function useTheme(): ThemeContextValue {
       theme: DEFAULT_THEME,
       setTheme: () => {},
       mode: DEFAULT_MODE,
+      modePreference: DEFAULT_MODE_PREFERENCE,
+      setModePreference: () => {},
       setMode: () => {},
       toggleMode: () => {},
     };

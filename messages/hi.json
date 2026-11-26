@@ -2971,6 +2971,7 @@
       "useTheme": "{name} थीम इस्तेमाल करें",
       "themeId": "थीम id: {id}",
       "modes": {
+        "system": "सिस्टम",
         "light": "लाइट",
         "dark": "डार्क"
       },

@@ -12,9 +12,10 @@ import { ThemedToaster } from "@/components/themed-toaster";
 import { ReferralClickBeacon } from "@/components/partner/referral-click-beacon";
 import {
   DEFAULT_MODE,
+  DEFAULT_MODE_PREFERENCE,
   DEFAULT_THEME,
+  MODE_PREFERENCES,
   MODE_STORAGE_KEY,
-  MODES,
   STORAGE_KEY,
   THEME_IDS,
 } from "@/lib/themes";
@@ -89,10 +90,11 @@ const THEME_BOOT_SCRIPT = `
     d.dataset.theme = THEMES.indexOf(savedTheme) !== -1 ? savedTheme : THEME_DEFAULT;
 
     var MODE_KEY = ${JSON.stringify(MODE_STORAGE_KEY)};
-    var MODE_DEFAULT = ${JSON.stringify(DEFAULT_MODE)};
-    var MODES = ${JSON.stringify(MODES)};
+    var PREFS = ${JSON.stringify(MODE_PREFERENCES)};
     var savedMode = localStorage.getItem(MODE_KEY);
-    d.dataset.mode = MODES.indexOf(savedMode) !== -1 ? savedMode : MODE_DEFAULT;
+    var pref = PREFS.indexOf(savedMode) !== -1 ? savedMode : ${JSON.stringify(DEFAULT_MODE_PREFERENCE)};
+    var dark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+    d.dataset.mode = pref === "system" ? (dark ? "dark" : "light") : pref;
   } catch (_e) {
     d.dataset.theme = ${JSON.stringify(DEFAULT_THEME)};
     d.dataset.mode = ${JSON.stringify(DEFAULT_MODE)};

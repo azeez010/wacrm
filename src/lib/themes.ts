@@ -48,6 +48,31 @@ export const DEFAULT_MODE: Mode = "dark";
 
 export const MODE_STORAGE_KEY = "wacrm.mode";
 
+/**
+ * What the person *chose*. `system` follows the OS light/dark setting and
+ * is the default for anyone with nothing saved. `MODES` stays the
+ * *resolved* value that `data-mode` carries and the CSS keys off.
+ * Stored under MODE_STORAGE_KEY (old "light"/"dark" values stay valid).
+ */
+export const MODE_PREFERENCES = ["system", "light", "dark"] as const;
+
+export type ModePreference = (typeof MODE_PREFERENCES)[number];
+
+export const DEFAULT_MODE_PREFERENCE: ModePreference = "system";
+
+export function isModePreference(value: unknown): value is ModePreference {
+  return (
+    typeof value === "string" &&
+    (MODE_PREFERENCES as ReadonlyArray<string>).includes(value)
+  );
+}
+
+/** Turn a preference into the concrete mode to paint. */
+export function resolveMode(pref: ModePreference, systemPrefersDark: boolean): Mode {
+  if (pref === "system") return systemPrefersDark ? "dark" : "light";
+  return pref;
+}
+
 export function isMode(value: unknown): value is Mode {
   return (
     typeof value === "string" && (MODES as ReadonlyArray<string>).includes(value)

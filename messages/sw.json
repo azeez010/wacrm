@@ -2971,6 +2971,7 @@
       "useTheme": "Tumia mandhari ya {name}",
       "themeId": "Kitambulisho cha mandhari: {id}",
       "modes": {
+        "system": "mfumo",
         "light": "mwanga",
         "dark": "giza"
       },

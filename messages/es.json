@@ -2430,6 +2430,7 @@
       "useTheme": "Usar el tema {name}",
       "themeId": "ID del tema: {id}",
       "modes": {
+        "system": "sistema",
         "light": "claro",
         "dark": "oscuro"
       },

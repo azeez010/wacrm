@@ -2430,6 +2430,7 @@
       "useTheme": "{name} 테마 사용",
       "themeId": "테마 ID: {id}",
       "modes": {
+        "system": "시스템",
         "light": "라이트",
         "dark": "다크"
       },

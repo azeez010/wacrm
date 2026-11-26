@@ -386,6 +386,7 @@ function PipelinesPageInner() {
             value={kind}
             onChange={setKind}
             aria-label={t("kindLabel")}
+            noTruncate
             className="w-auto"
             options={[
               { value: "sales", label: t("kindSales"), icon: <TrendingUp className="size-3.5" /> },

@@ -21,6 +21,7 @@ function SegmentedControl<T extends string>({
   onChange,
   options,
   disabled,
+  noTruncate,
   "aria-label": ariaLabel,
   className,
 }: {
@@ -28,11 +29,13 @@ function SegmentedControl<T extends string>({
   onChange: (value: T) => void
   options: readonly SegmentedOption<T>[]
   disabled?: boolean
+  /** Keep every label whole: buttons size to their text instead of shrinking. */
+  noTruncate?: boolean
   "aria-label"?: string
   className?: string
 }) {
   return (
-    <div role="radiogroup" aria-label={ariaLabel} className={cn("inline-flex w-full rounded-lg border border-border bg-muted p-0.5", className)}>
+    <div role="radiogroup" aria-label={ariaLabel} className={cn("inline-flex w-full rounded-lg border border-border bg-muted p-0.5", noTruncate && "shrink-0", className)}>
       {options.map((o) => {
         const selected = o.value === value
         return (
@@ -44,12 +47,13 @@ function SegmentedControl<T extends string>({
             disabled={disabled}
             onClick={() => onChange(o.value)}
             className={cn(
-              "flex h-8 min-w-0 flex-1 items-center justify-center gap-1.5 rounded-md px-2 text-xs font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60",
+              "flex h-8 items-center justify-center gap-1.5 rounded-md px-2 text-xs font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60",
+              noTruncate ? "shrink-0 whitespace-nowrap px-3" : "min-w-0 flex-1",
               selected ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground",
             )}
           >
             {o.icon}
-            <span className={cn("truncate", o.iconOnly && o.icon ? "sr-only" : undefined)}>{o.label}</span>
+            <span className={cn(!noTruncate && "truncate", o.iconOnly && o.icon ? "sr-only" : undefined)}>{o.label}</span>
           </button>
         )
       })}

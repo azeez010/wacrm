@@ -47,7 +47,19 @@
     "menuSettings": "Settings",
     "menuSignOut": "Sign out",
     "forms": "Forms",
-    "partner": "Partner program"
+    "partner": "Partner program",
+    "workspace": "Workspace",
+    "workspaces": "Your workspaces",
+    "workspaceSwitch": "Switch workspace",
+    "workspaceNew": "New workspace",
+    "workspaceNewTitle": "Create a workspace",
+    "workspaceNewDesc": "A separate space with its own contacts, inbox, team and plan. You'll be its owner and can switch back at any time.",
+    "workspaceName": "Workspace name",
+    "workspaceNamePlaceholder": "e.g. Lagos store",
+    "workspaceCreate": "Create workspace",
+    "workspaceCreateFailed": "Couldn't create the workspace. Please try again.",
+    "workspaceSwitchFailed": "Couldn't switch workspace. Please try again.",
+    "cancel": "Cancel"
   },
   "Header": {
     "dashboard": "Dashboard",

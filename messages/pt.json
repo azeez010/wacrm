@@ -47,7 +47,19 @@
     "menuSettings": "Configurações",
     "menuSignOut": "Sair",
     "forms": "Formulários",
-    "partner": "Programa de parceiros"
+    "partner": "Programa de parceiros",
+    "workspace": "Espaço de trabalho",
+    "workspaces": "Seus espaços de trabalho",
+    "workspaceSwitch": "Trocar de espaço de trabalho",
+    "workspaceNew": "Novo espaço de trabalho",
+    "workspaceNewTitle": "Criar um espaço de trabalho",
+    "workspaceNewDesc": "Um espaço separado com seus próprios contatos, caixa de entrada, equipe e plano. Você será o proprietário e poderá voltar a qualquer momento.",
+    "workspaceName": "Nome do espaço de trabalho",
+    "workspaceNamePlaceholder": "ex.: Loja de Lagos",
+    "workspaceCreate": "Criar espaço de trabalho",
+    "workspaceCreateFailed": "Não foi possível criar o espaço de trabalho. Tente novamente.",
+    "workspaceSwitchFailed": "Não foi possível trocar de espaço de trabalho. Tente novamente.",
+    "cancel": "Cancelar"
   },
   "Header": {
     "dashboard": "Painel",

@@ -139,7 +139,19 @@
     "menuSettings": "सेटिंग्स",
     "menuSignOut": "साइन आउट",
     "forms": "फ़ॉर्म",
-    "partner": "पार्टनर प्रोग्राम"
+    "partner": "पार्टनर प्रोग्राम",
+    "workspace": "वर्कस्पेस",
+    "workspaces": "आपके वर्कस्पेस",
+    "workspaceSwitch": "वर्कस्पेस बदलें",
+    "workspaceNew": "नया वर्कस्पेस",
+    "workspaceNewTitle": "वर्कस्पेस बनाएँ",
+    "workspaceNewDesc": "एक अलग जगह, जिसके अपने संपर्क, इनबॉक्स, टीम और प्लान होते हैं। आप इसके मालिक होंगे और कभी भी वापस जा सकते हैं।",
+    "workspaceName": "वर्कस्पेस का नाम",
+    "workspaceNamePlaceholder": "जैसे: लागोस स्टोर",
+    "workspaceCreate": "वर्कस्पेस बनाएँ",
+    "workspaceCreateFailed": "वर्कस्पेस नहीं बन सका। कृपया फिर से कोशिश करें।",
+    "workspaceSwitchFailed": "वर्कस्पेस नहीं बदल सका। कृपया फिर से कोशिश करें।",
+    "cancel": "रद्द करें"
   },
   "Header": {
     "dashboard": "डैशबोर्ड",

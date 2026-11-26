@@ -139,7 +139,19 @@
     "menuSettings": "Pengaturan",
     "menuSignOut": "Keluar",
     "forms": "Formulir",
-    "partner": "Program mitra"
+    "partner": "Program mitra",
+    "workspace": "Ruang kerja",
+    "workspaces": "Ruang kerja Anda",
+    "workspaceSwitch": "Ganti ruang kerja",
+    "workspaceNew": "Ruang kerja baru",
+    "workspaceNewTitle": "Buat ruang kerja",
+    "workspaceNewDesc": "Ruang terpisah dengan kontak, kotak masuk, tim, dan paketnya sendiri. Anda menjadi pemiliknya dan bisa kembali kapan saja.",
+    "workspaceName": "Nama ruang kerja",
+    "workspaceNamePlaceholder": "mis. Toko Lagos",
+    "workspaceCreate": "Buat ruang kerja",
+    "workspaceCreateFailed": "Gagal membuat ruang kerja. Silakan coba lagi.",
+    "workspaceSwitchFailed": "Gagal mengganti ruang kerja. Silakan coba lagi.",
+    "cancel": "Batal"
   },
   "Header": {
     "dashboard": "Dasbor",

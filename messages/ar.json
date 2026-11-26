@@ -139,7 +139,19 @@
     "menuSettings": "الإعدادات",
     "menuSignOut": "تسجيل الخروج",
     "forms": "النماذج",
-    "partner": "برنامج الشركاء"
+    "partner": "برنامج الشركاء",
+    "workspace": "مساحة العمل",
+    "workspaces": "مساحات عملك",
+    "workspaceSwitch": "تبديل مساحة العمل",
+    "workspaceNew": "مساحة عمل جديدة",
+    "workspaceNewTitle": "إنشاء مساحة عمل",
+    "workspaceNewDesc": "مساحة منفصلة لها جهات اتصالها وصندوق واردها وفريقها وباقتها. ستكون مالكها ويمكنك العودة في أي وقت.",
+    "workspaceName": "اسم مساحة العمل",
+    "workspaceNamePlaceholder": "مثال: متجر لاغوس",
+    "workspaceCreate": "إنشاء مساحة العمل",
+    "workspaceCreateFailed": "تعذّر إنشاء مساحة العمل. حاول مرة أخرى.",
+    "workspaceSwitchFailed": "تعذّر تبديل مساحة العمل. حاول مرة أخرى.",
+    "cancel": "إلغاء"
   },
   "Header": {
     "dashboard": "لوحة التحكم",

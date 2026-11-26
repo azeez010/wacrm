@@ -139,7 +139,19 @@
     "menuSettings": "Mipangilio",
     "menuSignOut": "Toka",
     "forms": "Fomu",
-    "partner": "Mpango wa washirika"
+    "partner": "Mpango wa washirika",
+    "workspace": "Eneo la kazi",
+    "workspaces": "Maeneo yako ya kazi",
+    "workspaceSwitch": "Badilisha eneo la kazi",
+    "workspaceNew": "Eneo jipya la kazi",
+    "workspaceNewTitle": "Unda eneo la kazi",
+    "workspaceNewDesc": "Eneo tofauti lenye anwani, kikasha, timu na mpango wake. Utakuwa mmiliki wake na unaweza kurudi wakati wowote.",
+    "workspaceName": "Jina la eneo la kazi",
+    "workspaceNamePlaceholder": "mf. Duka la Lagos",
+    "workspaceCreate": "Unda eneo la kazi",
+    "workspaceCreateFailed": "Imeshindikana kuunda eneo la kazi. Tafadhali jaribu tena.",
+    "workspaceSwitchFailed": "Imeshindikana kubadilisha eneo la kazi. Tafadhali jaribu tena.",
+    "cancel": "Ghairi"
   },
   "Header": {
     "dashboard": "Dashibodi",

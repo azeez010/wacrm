@@ -47,7 +47,19 @@
     "menuSettings": "Paramètres",
     "menuSignOut": "Se déconnecter",
     "forms": "Formulaires",
-    "partner": "Programme partenaire"
+    "partner": "Programme partenaire",
+    "workspace": "Espace de travail",
+    "workspaces": "Vos espaces de travail",
+    "workspaceSwitch": "Changer d'espace de travail",
+    "workspaceNew": "Nouvel espace de travail",
+    "workspaceNewTitle": "Créer un espace de travail",
+    "workspaceNewDesc": "Un espace distinct avec ses propres contacts, boîte de réception, équipe et forfait. Vous en serez le propriétaire et pourrez revenir à tout moment.",
+    "workspaceName": "Nom de l'espace de travail",
+    "workspaceNamePlaceholder": "ex. : Boutique de Lagos",
+    "workspaceCreate": "Créer l'espace de travail",
+    "workspaceCreateFailed": "Impossible de créer l'espace de travail. Veuillez réessayer.",
+    "workspaceSwitchFailed": "Impossible de changer d'espace de travail. Veuillez réessayer.",
+    "cancel": "Annuler"
   },
   "Header": {
     "dashboard": "Tableau de bord",

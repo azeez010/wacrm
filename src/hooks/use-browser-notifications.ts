@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { readPushActive } from "@/lib/push/client";
 import { notificationText } from "@/lib/notifications/notification-text";
 import type { Message, Notification as BellNotification } from "@/types";
 import {
@@ -117,6 +118,8 @@ export function useBrowserNotifications(): void {
     let cancelled = false;
 
     const notify = async (msg: Message) => {
+      // Background push is on for this device: its banner replaces this one.
+      if (readPushActive()) return;
       // One small select to put the contact's name in the title. A
       // failure here just means the generic fallback title.
       const { data } = await supabase
@@ -220,7 +223,7 @@ export function useBrowserNotifications(): void {
             documentVisible: document.visibilityState === "visible",
             seen: seenBellRef.current,
           });
-          if (!show || getNotificationPermission() !== "granted") return;
+          if (!show || getNotificationPermission() !== "granted" || readPushActive()) return;
 
           // Names for the localized assignment text; a failure just means the generic wording.
           let actor: string | undefined;

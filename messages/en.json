@@ -2399,7 +2399,13 @@
         "macSafari": "No banner? On your Mac open System Settings > Notifications > Safari, turn on Allow notifications with the Banners style, and turn off Focus / Do Not Disturb. Safari > Settings > Websites > Notifications should list this site as Allow.",
         "windows": "No banner? Open Settings > System > Notifications, make sure notifications and {browser} are on, and turn off Focus assist / Do Not Disturb.",
         "other": "No banner? Check your computer's notification settings for {browser} and turn off Do Not Disturb."
-      }
+      },
+      "pushLabel": "Also notify me when OgaDesk is closed",
+      "pushDesc": "Get alerts even with the browser tab or window closed. On iPhone and iPad, add OgaDesk to your Home Screen first.",
+      "sendTestPush": "Send test push",
+      "pushTestSent": "Test push sent. Close this tab to see it as a real alert.",
+      "pushTestNone": "No push reached this device. Turn the switch off and on again.",
+      "pushFailed": "Couldn't turn on background alerts. Try again."
     },
     "messageSound": {
       "title": "Message sound",

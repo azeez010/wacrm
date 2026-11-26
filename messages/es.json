@@ -2399,7 +2399,13 @@
         "macSafari": "¿No ves el aviso? En tu Mac abre Ajustes del Sistema > Notificaciones > Safari, activa Permitir notificaciones con el estilo Banners y desactiva el modo Concentración / No molestar. En Safari > Ajustes > Sitios web > Notificaciones este sitio debe figurar como Permitir.",
         "windows": "¿No ves el aviso? Abre Configuración > Sistema > Notificaciones, comprueba que las notificaciones y {browser} estén activados y desactiva la Asistencia de concentración / No molestar.",
         "other": "¿No ves el aviso? Revisa los ajustes de notificaciones de tu equipo para {browser} y desactiva No molestar."
-      }
+      },
+      "pushLabel": "Avisarme también cuando OgaDesk esté cerrado",
+      "pushDesc": "Recibe alertas aunque la pestaña o la ventana del navegador estén cerradas. En iPhone y iPad, añade antes OgaDesk a la pantalla de inicio.",
+      "sendTestPush": "Enviar push de prueba",
+      "pushTestSent": "Push de prueba enviado. Cierra esta pestaña para verlo como una alerta real.",
+      "pushTestNone": "Ningún push llegó a este dispositivo. Apaga y vuelve a encender el interruptor.",
+      "pushFailed": "No se pudieron activar las alertas en segundo plano. Inténtalo de nuevo."
     },
     "messageSound": {
       "title": "Sonido de mensajes",

@@ -2399,7 +2399,13 @@
         "macSafari": "Não aparece o banner? No seu Mac abra Ajustes do Sistema > Notificações > Safari, ative Permitir notificações com o estilo Banners e desative o modo Foco / Não perturbe. Em Safari > Ajustes > Sites > Notificações este site deve estar como Permitir.",
         "windows": "Não aparece o banner? Abra Configurações > Sistema > Notificações, confirme que as notificações e o {browser} estão ativos e desative o Assistente de foco / Não incomodar.",
         "other": "Não aparece o banner? Confira as configurações de notificação do seu computador para {browser} e desative o Não perturbe."
-      }
+      },
+      "pushLabel": "Avisar-me também quando o OgaDesk estiver fechado",
+      "pushDesc": "Receba alertas mesmo com a aba ou a janela do navegador fechada. No iPhone e iPad, adicione antes o OgaDesk à Tela de Início.",
+      "sendTestPush": "Enviar push de teste",
+      "pushTestSent": "Push de teste enviado. Feche esta aba para vê-lo como um alerta real.",
+      "pushTestNone": "Nenhum push chegou a este dispositivo. Desligue e ligue o interruptor novamente.",
+      "pushFailed": "Não foi possível ativar os alertas em segundo plano. Tente novamente."
     },
     "messageSound": {
       "title": "Som de mensagem",

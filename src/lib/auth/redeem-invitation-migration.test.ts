@@ -40,6 +40,9 @@ const tablesWithoutDomainData = new Set([
   // Admin console's per-business AI switch (admin schema, 096): set by platform
   // admins, not user-entered data, and the row cascades with the account.
   "ai_overrides",
+  // Browser/phone push registrations (105): per-device, re-created by one tap,
+  // and they cascade with the account.
+  "push_subscriptions",
 ]);
 
 function accountScopedTables(): Set<string> {

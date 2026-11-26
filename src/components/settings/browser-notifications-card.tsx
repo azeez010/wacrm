@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState, useSyncExternalStore } from 'react';
+import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
 import { Bell, BellRing, CircleAlert, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
@@ -24,6 +24,7 @@ import {
   type BrowserNotifyPermission,
 } from '@/lib/notifications/browser-notify';
 import { playSound, readSoundPref } from '@/lib/notifications/sound';
+import { pushSupported, urlBase64ToUint8Array, writePushActive } from '@/lib/push/client';
 
 // `Notification.permission` has no change event of its own. Re-read it
 // whenever the tab regains focus (the user may have flipped the site
@@ -67,6 +68,94 @@ export function BrowserNotificationsCard({ className }: { className?: string }) 
     return t(`osHelp.${key}`, { browser: BROWSER_LABEL[browser] });
   }, [t]);
   const checked = enabled && permission === 'granted';
+
+  // Background push (works with OgaDesk closed): this device's subscription state.
+  const vapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+  const canPush = Boolean(vapidKey) && pushSupported();
+  const [pushOn, setPushOn] = useState(false);
+  const [pushBusy, setPushBusy] = useState(false);
+  useEffect(() => {
+    if (!canPush) return;
+    let cancelled = false;
+    navigator.serviceWorker
+      .getRegistration('/sw.js')
+      .then((reg) => reg?.pushManager.getSubscription())
+      .then((sub) => {
+        if (cancelled) return;
+        setPushOn(Boolean(sub));
+        writePushActive(Boolean(sub));
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [canPush]);
+
+  const onPushToggle = async (next: boolean) => {
+    setPushBusy(true);
+    try {
+      if (next) {
+        if (permission !== 'granted') {
+          const result = await Notification.requestPermission();
+          writeBrowserNotifyPref(result === 'granted');
+          if (result !== 'granted') {
+            toast.error(t('permissionDeniedToast'), { description: t('deniedHint') });
+            return;
+          }
+        }
+        const reg = await navigator.serviceWorker.register('/sw.js');
+        await navigator.serviceWorker.ready;
+        const sub =
+          (await reg.pushManager.getSubscription()) ??
+          (await reg.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: urlBase64ToUint8Array(vapidKey!),
+          }));
+        const res = await fetch('/api/push/subscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(sub.toJSON()),
+        });
+        if (!res.ok) {
+          await sub.unsubscribe();
+          throw new Error('subscribe failed');
+        }
+        writePushActive(true);
+        setPushOn(true);
+      } else {
+        const reg = await navigator.serviceWorker.getRegistration('/sw.js');
+        const sub = await reg?.pushManager.getSubscription();
+        if (sub) {
+          await fetch('/api/push/subscribe', {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ endpoint: sub.endpoint }),
+          });
+          await sub.unsubscribe();
+        }
+        writePushActive(false);
+        setPushOn(false);
+      }
+    } catch {
+      toast.error(t('pushFailed'));
+    } finally {
+      setPushBusy(false);
+    }
+  };
+
+  const sendTestPush = async () => {
+    setPushBusy(true);
+    try {
+      const res = await fetch('/api/push/test', { method: 'POST' });
+      const data = (await res.json().catch(() => ({}))) as { sent?: number };
+      if (res.ok && (data.sent ?? 0) > 0) toast.success(t('pushTestSent'), { description: help, duration: 10_000 });
+      else toast.warning(t('pushTestNone'));
+    } catch {
+      toast.error(t('pushFailed'));
+    } finally {
+      setPushBusy(false);
+    }
+  };
 
   const onToggle = async (next: boolean) => {
     if (!next) {
@@ -171,6 +260,24 @@ export function BrowserNotificationsCard({ className }: { className?: string }) 
               </div>
             </div>
 
+            {canPush && (
+              <div className="flex items-center justify-between gap-4 rounded-md border border-border p-3">
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-foreground">{t('pushLabel')}</p>
+                  <p className="text-xs text-muted-foreground">{t('pushDesc')}</p>
+                </div>
+                <div className="flex shrink-0 items-center gap-2">
+                  {pushBusy && <Loader2 className="size-4 animate-spin text-muted-foreground" />}
+                  <Switch
+                    checked={pushOn}
+                    onCheckedChange={(next) => void onPushToggle(next)}
+                    disabled={pushBusy || permission === 'denied'}
+                    aria-label={t('pushLabel')}
+                  />
+                </div>
+              </div>
+            )}
+
             <p className="text-xs text-muted-foreground">{t(statusKey)}</p>
 
             {permission === 'denied' && (
@@ -190,6 +297,12 @@ export function BrowserNotificationsCard({ className }: { className?: string }) 
               <BellRing className="size-4" />
               {t('sendTest')}
             </Button>
+            {canPush && pushOn && (
+              <Button type="button" variant="outline" size="sm" className="ml-2" onClick={() => void sendTestPush()} disabled={pushBusy}>
+                <BellRing className="size-4" />
+                {t('sendTestPush')}
+              </Button>
+            )}
             {checked && help ? <p className="text-xs text-muted-foreground">{help}</p> : null}
           </>
         )}

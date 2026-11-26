@@ -15,6 +15,7 @@ import {
 } from '@/lib/whatsapp/wa-identity'
 import { findExistingContact, isUniqueViolation } from '@/lib/contacts/dedupe'
 import { reopenClosedConversation } from '@/lib/conversations/reopen'
+import { sendPush } from '@/lib/push/send'
 import { claimFirstInboundMessage } from '@/lib/conversations/first-inbound'
 import {
   verifyMetaWebhookSignature,
@@ -891,6 +892,24 @@ async function processMessage(
     .eq('account_id', accountId)
     .maybeSingle()
   const contactBlocked = isBlocked(blockedRow)
+
+  // Background push to agents who opted in (works with the app closed). Awaited
+  // inside `after()` like the rest; sendPush never throws.
+  if (!contactBlocked) {
+    const assignee = (conversation as { assigned_agent_id?: string | null }).assigned_agent_id ?? null
+    const who = (contactRecord as { name?: string | null; phone?: string | null }).name || (contactRecord as { phone?: string | null }).phone || 'New message'
+    await sendPush(
+      supabaseAdmin(),
+      { accountId, userIds: assignee ? [assignee] : null },
+      {
+        title: who,
+        body: (contentText || message.text?.body || `[${message.type}]`).slice(0, 140),
+        url: `/inbox?c=${conversation.id}`,
+        tag: conversation.id,
+      },
+      { urgency: 'high' },
+    )
+  }
 
   // ============================================================
   // Flow runner dispatch.

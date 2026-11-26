@@ -16,6 +16,11 @@ const LOADERS: Record<Locale, () => Promise<{ default: Record<string, unknown> }
   es: () => import('../../../messages/es.json'),
   pt: () => import('../../../messages/pt.json'),
   ko: () => import('../../../messages/ko.json'),
+  // Transactional emails for these languages are not translated yet, so they go out in English.
+  ar: () => import('../../../messages/en.json'),
+  hi: () => import('../../../messages/en.json'),
+  id: () => import('../../../messages/en.json'),
+  sw: () => import('../../../messages/en.json'),
 }
 
 export type EmailKind = 'welcome' | 'quota_80' | 'quota_100' | 'form_code'

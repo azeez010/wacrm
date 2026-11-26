@@ -7,6 +7,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/hooks/use-theme";
 import { BRAND_NAME } from "@/lib/brand";
 import { SITE_URL } from "@/lib/seo";
+import { isRtl } from "@/i18n/locales";
 import { ThemedToaster } from "@/components/themed-toaster";
 import { ReferralClickBeacon } from "@/components/partner/referral-click-beacon";
 import {
@@ -110,6 +111,7 @@ export default async function RootLayout({
   return (
     <html
       lang={locale}
+      dir={isRtl(locale) ? 'rtl' : 'ltr'}
       data-theme={DEFAULT_THEME}
       data-mode={DEFAULT_MODE}
       className={`${inter.variable} h-full antialiased`}

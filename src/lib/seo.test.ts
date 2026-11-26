@@ -13,7 +13,7 @@ describe('seo helpers', () => {
     const alt = localizedAlternates('fr')
     expect(alt.canonical).toBe(`${SITE_URL}/fr`)
     expect(Object.keys(alt.languages ?? {}).sort()).toEqual(
-      ['en', 'es', 'fr', 'ko', 'pt-BR', 'x-default'].sort(),
+      ['en', 'es', 'fr', 'ko', 'pt-BR', 'ar', 'hi', 'id', 'sw', 'x-default'].sort(),
     )
     expect((alt.languages as Record<string, string>)['x-default']).toBe(`${SITE_URL}/`)
   })

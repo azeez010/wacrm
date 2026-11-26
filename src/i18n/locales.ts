@@ -5,7 +5,7 @@
 // (NEXT_PUBLIC_APP_LOCALE, falling back to English). Each entry needs a
 // matching messages/<code>.json catalogue.
 
-export const LOCALES = ['en', 'fr', 'es', 'pt', 'ko'] as const
+export const LOCALES = ['en', 'fr', 'es', 'pt', 'ko', 'ar', 'hi', 'id', 'sw'] as const
 export type Locale = (typeof LOCALES)[number]
 
 /** Each language written in itself, so a visitor can find theirs. */
@@ -15,6 +15,10 @@ export const LOCALE_NAMES: Record<Locale, string> = {
   es: 'Español',
   pt: 'Português',
   ko: '한국어',
+  ar: 'العربية',
+  hi: 'हिन्दी',
+  id: 'Bahasa Indonesia',
+  sw: 'Kiswahili',
 }
 
 export const LOCALE_COOKIE = 'NEXT_LOCALE'
@@ -36,4 +40,12 @@ export const HREFLANG: Record<Locale, string> = {
   es: 'es',
   pt: 'pt-BR',
   ko: 'ko',
+  ar: 'ar',
+  hi: 'hi',
+  id: 'id',
+  sw: 'sw',
 }
+
+/** Languages written right to left (the page gets dir="rtl"). */
+export const RTL_LOCALES: readonly Locale[] = ['ar']
+export const isRtl = (locale: string): boolean => (RTL_LOCALES as readonly string[]).includes(locale)

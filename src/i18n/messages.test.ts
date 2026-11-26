@@ -12,6 +12,10 @@ import { createTranslator } from 'next-intl';
 const MESSAGES_DIR = join(process.cwd(), 'messages');
 const SOURCE_LOCALE = 'en';
 const TRANSLATED_LOCALES = ['ko', 'pt', 'es', 'fr'];
+// Newer languages are translated a section at a time; the app shows English for any key they
+// lack (see withFallback in request.ts). They must never carry a key English doesn't have, and
+// every key they do carry must keep its placeholders.
+const PARTIAL_LOCALES = ['ar', 'hi', 'id', 'sw'];
 
 type Catalogue = Record<string, unknown>;
 
@@ -263,6 +267,11 @@ describe('message catalogue parity', () => {
     expect(missing, `${locale}.json is missing these keys`).toEqual([]);
   });
 
+  it.each(PARTIAL_LOCALES)('%s.json (partial) has no orphaned keys', (locale) => {
+    const orphaned = [...loadKeys(locale)].filter((k) => !source.has(k)).sort();
+    expect(orphaned, `${locale}.json has keys absent from en.json`).toEqual([]);
+  });
+
   it.each(TRANSLATED_LOCALES)('%s.json has no orphaned keys', (locale) => {
     const translated = loadKeys(locale);
     const orphaned = [...translated].filter((k) => !source.has(k)).sort();
@@ -287,7 +296,7 @@ describe('message placeholder parity', () => {
     expect(withArgs.length).toBeGreaterThan(100);
   });
 
-  it.each(TRANSLATED_LOCALES)(
+  it.each([...TRANSLATED_LOCALES, ...PARTIAL_LOCALES])(
     '%s.json keeps every {argument}, plural branch and <tag> of en.json',
     (locale) => {
       const translated = loadLeaves(locale);

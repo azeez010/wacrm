@@ -98,6 +98,24 @@ describe('GET /auth/callback', () => {
     expect(res.headers.get('location')).toBe('/login?error=link_invalid');
   });
 
+  it('signs a Google return in through the code exchange and keeps next', async () => {
+    const res = await GET(request('code=g-1&flow=oauth&next=%2Fjoin%2Ftok'));
+    expect(mocks.exchangeCodeForSession).toHaveBeenCalledWith('g-1');
+    expect(res.headers.get('location')).toBe('/join/tok');
+  });
+
+  it('explains a cancelled or refused Google sign-in as oauth_failed', async () => {
+    // Cancelled at Google, or the access-token hook refused the method.
+    const refused = await GET(
+      request('flow=oauth&error=access_denied&error_description=Google+sign-in+is+currently+disabled.'),
+    );
+    expect(refused.headers.get('location')).toBe('/login?error=oauth_failed');
+
+    mocks.exchangeCodeForSession.mockResolvedValue({ error: { message: 'boom' } });
+    const failed = await GET(request('flow=oauth&code=g-2'));
+    expect(failed.headers.get('location')).toBe('/login?error=oauth_failed');
+  });
+
   it('emits a relative Location so the redirect works behind a reverse proxy', async () => {
     const res = await GET(request('code=abc&next=%2Fjoin%2Ftoken-1'));
     expect(res.headers.get('location')).toBe('/join/token-1');

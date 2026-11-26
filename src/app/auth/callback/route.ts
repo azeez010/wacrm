@@ -31,6 +31,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import {
+  isOAuthReturn,
   loginFailurePath,
   parseEmailLink,
   parseSupabaseError,
@@ -45,14 +46,22 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const next = safeNextPath(searchParams.get('next'));
 
+  // "Continue with Google" returns here too (see GoogleButton); its
+  // failures get their own message on /login.
+  const oauth = isOAuthReturn(searchParams);
+
   const upstreamError = parseSupabaseError(searchParams);
   if (upstreamError) {
-    return relativeRedirect(loginFailurePath(upstreamError));
+    return relativeRedirect(
+      loginFailurePath(oauth ? 'oauth_failed' : upstreamError),
+    );
   }
 
   const link = parseEmailLink(searchParams);
   if (!link) {
-    return relativeRedirect(loginFailurePath('link_invalid'));
+    return relativeRedirect(
+      loginFailurePath(oauth ? 'oauth_failed' : 'link_invalid'),
+    );
   }
 
   const supabase = await createClient();
@@ -71,9 +80,12 @@ export async function GET(request: Request) {
     // by Supabase, so /login's message tells the user to just sign in.
     console.warn('[GET /auth/callback] session exchange failed:', {
       kind: link.kind,
+      oauth,
       message: error.message,
     });
-    return relativeRedirect(loginFailurePath('link_invalid'));
+    return relativeRedirect(
+      loginFailurePath(oauth ? 'oauth_failed' : 'link_invalid'),
+    );
   }
 
   return relativeRedirect(next);

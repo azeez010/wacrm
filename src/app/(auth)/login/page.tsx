@@ -17,6 +17,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { BrandMark } from "@/components/brand-logo";
+import { GoogleButton, OrDivider, useLoginOptions } from "@/components/auth/google-button";
 
 // `useSearchParams` opts the component out of static prerendering
 // unless it sits under a Suspense boundary. We split the form into
@@ -46,7 +47,11 @@ function LoginPageInner() {
       ? t("linkExpired")
       : linkError === "link_invalid"
         ? t("linkInvalid")
-        : null;
+        : linkError === "oauth_failed"
+          ? t("oauthFailed")
+          : null;
+  // Sign-in methods the admin console allows (email/password, Google).
+  const options = useLoginOptions();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -65,7 +70,9 @@ function LoginPageInner() {
     });
 
     if (error) {
-      setError(error.message);
+      // 403 = the access-token hook refused it: password sign-in is
+      // switched off in the admin console.
+      setError(error.status === 403 ? t("methodDisabled") : error.message);
       setLoading(false);
       return;
     }
@@ -99,18 +106,30 @@ function LoginPageInner() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleLogin} className="flex flex-col gap-4">
-            {linkErrorMessage && !error && (
-              <div className="rounded-lg border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-700 dark:text-amber-300">
-                {linkErrorMessage}
-              </div>
-            )}
-            {error && (
-              <div className="rounded-lg border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-400">
-                {error}
-              </div>
-            )}
+          {linkErrorMessage && !error && (
+            <div className="mb-4 rounded-lg border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-700 dark:text-amber-300">
+              {linkErrorMessage}
+            </div>
+          )}
+          {error && (
+            <div className="mb-4 rounded-lg border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-400">
+              {error}
+            </div>
+          )}
 
+          {options.google && (
+            <>
+              <GoogleButton
+                label={t("continueWithGoogle")}
+                inviteToken={inviteToken}
+                onError={setError}
+              />
+              {options.password && <OrDivider label={t("orDivider")} />}
+            </>
+          )}
+
+          {options.password && (
+          <form onSubmit={handleLogin} className="flex flex-col gap-4">
             <div className="flex flex-col gap-2">
               <Label htmlFor="email" className="text-muted-foreground">
                 {t('emailLabel')}
@@ -155,6 +174,7 @@ function LoginPageInner() {
               {loading ? t('signingIn') : t('signIn')}
             </Button>
           </form>
+          )}
 
           <p className="mt-6 text-center text-sm text-muted-foreground">
             {t('noAccount')}{" "}

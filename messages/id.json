@@ -14,7 +14,11 @@
     "noAccount": "Belum punya akun?",
     "createAccount": "Buat akun",
     "linkExpired": "Tautan itu sudah kedaluwarsa. Untuk mengatur ulang kata sandi, gunakan \"Lupa kata sandi?\" untuk meminta yang baru; jika Anda sedang mengonfirmasi email, daftar lagi.",
-    "linkInvalid": "Tautan itu tidak dapat dipakai untuk memasukkan Anda. Jika Anda sedang mengonfirmasi email, mungkin sudah terverifikasi, silakan masuk di bawah. Untuk mengatur ulang kata sandi, minta tautan baru dan buka di peramban yang sama dengan yang Anda pakai untuk memintanya."
+    "linkInvalid": "Tautan itu tidak dapat dipakai untuk memasukkan Anda. Jika Anda sedang mengonfirmasi email, mungkin sudah terverifikasi, silakan masuk di bawah. Untuk mengatur ulang kata sandi, minta tautan baru dan buka di peramban yang sama dengan yang Anda pakai untuk memintanya.",
+    "continueWithGoogle": "Lanjutkan dengan Google",
+    "orDivider": "atau",
+    "methodDisabled": "Metode masuk ini dinonaktifkan. Gunakan cara lain untuk masuk.",
+    "oauthFailed": "Masuk dengan Google tidak selesai. Coba lagi atau gunakan cara lain untuk masuk."
   },
   "SignupPage": {
     "passwordsMismatch": "Kata sandi tidak cocok",
@@ -38,7 +42,9 @@
     "submit": "Buat akun",
     "haveAccount": "Sudah punya akun?",
     "signIn": "Masuk",
-    "legal": "Dengan membuat akun, Anda menyetujui <terms>Ketentuan Layanan</terms> dan <privacy>Kebijakan Privasi</privacy>."
+    "legal": "Dengan membuat akun, Anda menyetujui <terms>Ketentuan Layanan</terms> dan <privacy>Kebijakan Privasi</privacy>.",
+    "continueWithGoogle": "Lanjutkan dengan Google",
+    "orDivider": "atau"
   },
   "ForgotPasswordPage": {
     "checkEmailTitle": "Periksa email Anda",

@@ -14,7 +14,11 @@
     "noAccount": "Huna akaunti?",
     "createAccount": "Fungua akaunti",
     "linkExpired": "Kiungo hicho kimeisha muda. Kwa kuweka upya nenosiri, tumia \"Umesahau nenosiri?\" kuomba kipya; kama ulikuwa unathibitisha barua pepe, jisajili tena.",
-    "linkInvalid": "Kiungo hicho hakikuweza kutumika kukuingiza. Kama ulikuwa unathibitisha barua pepe, huenda tayari imethibitishwa, ingia tu hapa chini. Kwa kuweka upya nenosiri, omba kiungo kipya na ukifungue kwenye kivinjari kile kile ulichoombea."
+    "linkInvalid": "Kiungo hicho hakikuweza kutumika kukuingiza. Kama ulikuwa unathibitisha barua pepe, huenda tayari imethibitishwa, ingia tu hapa chini. Kwa kuweka upya nenosiri, omba kiungo kipya na ukifungue kwenye kivinjari kile kile ulichoombea.",
+    "continueWithGoogle": "Endelea na Google",
+    "orDivider": "au",
+    "methodDisabled": "Njia hii ya kuingia imezimwa. Tumia njia nyingine kuingia.",
+    "oauthFailed": "Kuingia kwa Google hakukukamilika. Jaribu tena au tumia njia nyingine kuingia."
   },
   "SignupPage": {
     "passwordsMismatch": "Manenosiri hayalingani",
@@ -38,7 +42,9 @@
     "submit": "Fungua akaunti",
     "haveAccount": "Tayari una akaunti?",
     "signIn": "Ingia",
-    "legal": "Kwa kufungua akaunti unakubali <terms>Masharti ya Huduma</terms> na <privacy>Sera ya Faragha</privacy>."
+    "legal": "Kwa kufungua akaunti unakubali <terms>Masharti ya Huduma</terms> na <privacy>Sera ya Faragha</privacy>.",
+    "continueWithGoogle": "Endelea na Google",
+    "orDivider": "au"
   },
   "ForgotPasswordPage": {
     "checkEmailTitle": "Angalia barua pepe yako",

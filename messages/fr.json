@@ -14,7 +14,11 @@
     "noAccount": "Vous n'avez pas de compte ?",
     "createAccount": "Créer un compte",
     "linkExpired": "Ce lien a expiré. Pour réinitialiser votre mot de passe, utilisez « Mot de passe oublié ? » afin d'en demander un nouveau ; si vous confirmiez votre e-mail, inscrivez-vous à nouveau.",
-    "linkInvalid": "Ce lien n'a pas pu servir à vous connecter. Si vous confirmiez votre e-mail, il est peut-être déjà vérifié : connectez-vous ci-dessous. Pour une réinitialisation de mot de passe, demandez un nouveau lien et ouvrez-le dans le même navigateur que celui de la demande."
+    "linkInvalid": "Ce lien n'a pas pu servir à vous connecter. Si vous confirmiez votre e-mail, il est peut-être déjà vérifié : connectez-vous ci-dessous. Pour une réinitialisation de mot de passe, demandez un nouveau lien et ouvrez-le dans le même navigateur que celui de la demande.",
+    "continueWithGoogle": "Continuer avec Google",
+    "orDivider": "ou",
+    "methodDisabled": "Ce mode de connexion est désactivé. Utilisez un autre moyen de vous connecter.",
+    "oauthFailed": "La connexion avec Google n'a pas abouti. Réessayez ou utilisez un autre moyen de vous connecter."
   },
   "Sidebar": {
     "title": "OgaDesk",
@@ -2910,7 +2914,9 @@
     "submit": "Créer un compte",
     "haveAccount": "Vous avez déjà un compte ?",
     "signIn": "Se connecter",
-    "legal": "En créant un compte, vous acceptez les <terms>Conditions d’utilisation</terms> et la <privacy>Politique de confidentialité</privacy>."
+    "legal": "En créant un compte, vous acceptez les <terms>Conditions d’utilisation</terms> et la <privacy>Politique de confidentialité</privacy>.",
+    "continueWithGoogle": "Continuer avec Google",
+    "orDivider": "ou"
   },
   "ForgotPasswordPage": {
     "checkEmailTitle": "Consultez votre boîte mail",

@@ -14,7 +14,11 @@
     "noAccount": "Não tem uma conta?",
     "createAccount": "Criar conta",
     "linkExpired": "Esse link expirou. Para redefinir a senha, use “Esqueceu a senha?” para pedir um novo; se estava confirmando seu e-mail, cadastre-se novamente.",
-    "linkInvalid": "Não foi possível entrar com esse link. Se estava confirmando seu e-mail, ele já pode estar verificado, basta entrar abaixo. Para redefinir a senha, peça um novo link e abra-o no mesmo navegador em que o solicitou."
+    "linkInvalid": "Não foi possível entrar com esse link. Se estava confirmando seu e-mail, ele já pode estar verificado, basta entrar abaixo. Para redefinir a senha, peça um novo link e abra-o no mesmo navegador em que o solicitou.",
+    "continueWithGoogle": "Continuar com o Google",
+    "orDivider": "ou",
+    "methodDisabled": "Este método de login está desativado. Use outra forma de entrar.",
+    "oauthFailed": "O login com o Google não foi concluído. Tente novamente ou use outra forma de entrar."
   },
   "Sidebar": {
     "title": "OgaDesk",
@@ -2910,7 +2914,9 @@
     "submit": "Criar conta",
     "haveAccount": "Já tem uma conta?",
     "signIn": "Entrar",
-    "legal": "Ao criar uma conta, você concorda com os <terms>Termos de Serviço</terms> e a <privacy>Política de Privacidade</privacy>."
+    "legal": "Ao criar uma conta, você concorda com os <terms>Termos de Serviço</terms> e a <privacy>Política de Privacidade</privacy>.",
+    "continueWithGoogle": "Continuar com o Google",
+    "orDivider": "ou"
   },
   "ForgotPasswordPage": {
     "checkEmailTitle": "Verifique seu e-mail",

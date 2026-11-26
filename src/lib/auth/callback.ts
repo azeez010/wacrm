@@ -24,7 +24,24 @@ export type CallbackFailure =
   /** Supabase itself reported the link expired (`error_code=otp_expired`). */
   | 'link_expired'
   /** No `code` / `token_hash` at all, a bad `type`, or the exchange failed. */
-  | 'link_invalid';
+  | 'link_invalid'
+  /**
+   * A "Continue with Google" round-trip did not produce a session: the
+   * person cancelled at Google, the method is switched off in the admin
+   * console (the access-token hook refused it), or the exchange failed.
+   */
+  | 'oauth_failed';
+
+/**
+ * Marker the Google button adds to its `redirectTo`, so a failure on the
+ * way back is explained as a sign-in problem rather than a bad email link.
+ */
+export const OAUTH_FLOW_PARAM = 'flow';
+export const OAUTH_FLOW_VALUE = 'oauth';
+
+export function isOAuthReturn(params: URLSearchParams): boolean {
+  return params.get(OAUTH_FLOW_PARAM) === OAUTH_FLOW_VALUE;
+}
 
 const MAX_NEXT_LENGTH = 2048;
 

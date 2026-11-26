@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/card";
 import { CheckCircle } from "lucide-react";
 import { BrandMark } from "@/components/brand-logo";
+import { GoogleButton, OrDivider, useLoginOptions } from "@/components/auth/google-button";
 
 // `useSearchParams` opts the component out of static prerendering
 // unless wrapped in Suspense - same pattern as /login.
@@ -47,6 +48,8 @@ function SignupPageInner() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const supabase = createClient();
+  // Sign-up methods the admin console allows (email/password, Google).
+  const options = useLoginOptions();
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -154,13 +157,25 @@ function SignupPageInner() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSignup} className="flex flex-col gap-4">
-            {error && (
-              <div className="rounded-lg border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-400">
-                {error}
-              </div>
-            )}
+          {error && (
+            <div className="mb-4 rounded-lg border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-400">
+              {error}
+            </div>
+          )}
 
+          {options.google && (
+            <>
+              <GoogleButton
+                label={t("continueWithGoogle")}
+                inviteToken={inviteToken}
+                onError={setError}
+              />
+              {options.password && <OrDivider label={t("orDivider")} />}
+            </>
+          )}
+
+          {options.password && (
+          <form onSubmit={handleSignup} className="flex flex-col gap-4">
             <div className="flex flex-col gap-2">
               <Label htmlFor="fullName" className="text-muted-foreground">
                 {t("fullNameLabel")}
@@ -226,7 +241,10 @@ function SignupPageInner() {
             >
               {loading ? t("creating") : t("submit")}
             </Button>
-            <p className="text-center text-xs text-muted-foreground">
+          </form>
+          )}
+
+          <p className="mt-4 text-center text-xs text-muted-foreground">
               {t.rich("legal", {
                 terms: (chunks) => (
                   <Link href="/terms" target="_blank" className="underline hover:text-foreground">
@@ -240,7 +258,6 @@ function SignupPageInner() {
                 ),
               })}
             </p>
-          </form>
 
           <p className="mt-6 text-center text-sm text-muted-foreground">
             {t("haveAccount")}{" "}

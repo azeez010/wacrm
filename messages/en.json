@@ -14,7 +14,11 @@
     "noAccount": "Don't have an account?",
     "createAccount": "Create account",
     "linkExpired": "That link has expired. For a password reset, use “Forgot password?” to request a new one; if you were confirming your email, sign up again.",
-    "linkInvalid": "That link couldn’t be used to sign you in. If you were confirming your email, it may already be verified, just sign in below. For a password reset, request a new link and open it in the same browser you requested it from."
+    "linkInvalid": "That link couldn’t be used to sign you in. If you were confirming your email, it may already be verified, just sign in below. For a password reset, request a new link and open it in the same browser you requested it from.",
+    "continueWithGoogle": "Continue with Google",
+    "orDivider": "or",
+    "methodDisabled": "This sign-in method is turned off. Use another way to sign in.",
+    "oauthFailed": "Google sign-in didn't finish. Try again, or use another way to sign in."
   },
   "Sidebar": {
     "title": "OgaDesk",
@@ -2910,7 +2914,9 @@
     "submit": "Create account",
     "haveAccount": "Already have an account?",
     "signIn": "Sign in",
-    "legal": "By creating an account you agree to the <terms>Terms of Service</terms> and <privacy>Privacy Policy</privacy>."
+    "legal": "By creating an account you agree to the <terms>Terms of Service</terms> and <privacy>Privacy Policy</privacy>.",
+    "continueWithGoogle": "Continue with Google",
+    "orDivider": "or"
   },
   "ForgotPasswordPage": {
     "checkEmailTitle": "Check your email",

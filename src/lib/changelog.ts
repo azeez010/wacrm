@@ -1,4 +1,5 @@
 import type { Locale } from '@/i18n/locales'
+import generated from './changelog.generated.json'
 
 export type ChangeKind = 'New' | 'Improved' | 'Fixed'
 
@@ -13,8 +14,12 @@ export interface ChangelogEntry {
 
 export const changeText = (text: Localized, locale: Locale): string => text[locale] ?? text.en
 
-/** Add new releases at the top. Keep each line short and about what customers can do now. */
-export const CHANGELOG: ChangelogEntry[] = [
+/**
+ * The public changelog. New entries come from git automatically: any commit with a
+ * `Changelog:` trailer (see CLAUDE.md) is added by scripts/build-changelog.mjs at build time.
+ * The hand-written entries below are the history from before that existed.
+ */
+const MANUAL: ChangelogEntry[] = [
   {
     date: '2026-11-26',
     changes: [
@@ -46,6 +51,40 @@ export const CHANGELOG: ChangelogEntry[] = [
           es: 'Un blog público y estas novedades, en los cinco idiomas.',
           pt: 'Um blog público e estas novidades, nos cinco idiomas.',
           ko: '공개 블로그와 이 업데이트 소식을 다섯 가지 언어로 제공합니다.',
+        },
+      },
+      {
+        kind: 'New',
+        text: {
+          en: 'A help center with step-by-step guides, in every language.',
+          fr: 'Un centre d’aide avec des guides pas à pas, dans toutes les langues.',
+          es: 'Un centro de ayuda con guías paso a paso, en todos los idiomas.',
+          pt: 'Uma central de ajuda com guias passo a passo, em todos os idiomas.',
+          ko: '모든 언어로 제공되는 단계별 가이드 도움말 센터.',
+        },
+      },
+      {
+        kind: 'New',
+        text: {
+          en: 'OgaDesk now speaks Arabic, Hindi, Indonesian and Swahili.',
+          fr: 'OgaDesk parle désormais arabe, hindi, indonésien et swahili.',
+          es: 'OgaDesk ahora habla árabe, hindi, indonesio y suajili.',
+          pt: 'O OgaDesk agora fala árabe, hindi, indonésio e suaíli.',
+          ko: 'OgaDesk가 이제 아랍어, 힌디어, 인도네시아어, 스와힐리어를 지원합니다.',
+          ar: 'يتحدث OgaDesk الآن العربية والهندية والإندونيسية والسواحيلية.',
+          hi: 'OgaDesk अब अरबी, हिन्दी, इंडोनेशियाई और स्वाहिली में उपलब्ध है।',
+          id: 'OgaDesk kini tersedia dalam bahasa Arab, Hindi, Indonesia, dan Swahili.',
+          sw: 'OgaDesk sasa inapatikana kwa Kiarabu, Kihindi, Kiindonesia na Kiswahili.',
+        },
+      },
+      {
+        kind: 'Improved',
+        text: {
+          en: 'Prices on the plans section show in your currency, with a picker to change it.',
+          fr: 'Les prix des offres s’affichent dans votre devise, avec un sélecteur pour la changer.',
+          es: 'Los precios de los planes se muestran en tu moneda, con un selector para cambiarla.',
+          pt: 'Os preços dos planos aparecem na sua moeda, com um seletor para trocá-la.',
+          ko: '요금제 가격이 내 통화로 표시되며 선택기로 바꿀 수 있습니다.',
         },
       },
       {
@@ -116,3 +155,10 @@ export const CHANGELOG: ChangelogEntry[] = [
     ],
   },
 ]
+
+/** Generated and hand-written entries, merged by date (newest first). */
+export const CHANGELOG: ChangelogEntry[] = (() => {
+  const byDate = new Map<string, ChangelogEntry['changes']>()
+  for (const e of [...(generated as ChangelogEntry[]), ...MANUAL]) byDate.set(e.date, [...(byDate.get(e.date) ?? []), ...e.changes])
+  return [...byDate.entries()].sort(([a], [b]) => (a < b ? 1 : -1)).map(([date, changes]) => ({ date, changes }))
+})()

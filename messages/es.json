@@ -337,6 +337,24 @@
         "hoursOnly": "{value} h",
         "days": "{value} d {remainder} h",
         "daysOnly": "{value} d"
+      },
+      "layout": {
+        "widgets": "Widgets",
+        "reset": "Restablecer diseño predeterminado",
+        "hide": "Ocultar tarjeta",
+        "dragHandle": "Mover {name}",
+        "cardMenu": "Opciones de {name}",
+        "allHidden": "Todas las tarjetas están ocultas. Vuelve a mostrarlas desde Widgets o restablece el diseño.",
+        "names": {
+          "attention": "Requiere atención",
+          "kpis": "Cifras clave",
+          "volume": "Volumen de mensajes",
+          "replyQueue": "Cola de respuestas",
+          "pipeline": "Pipeline",
+          "team": "Equipo",
+          "campaigns": "Campañas",
+          "activity": "Actividad reciente"
+        }
       }
     }
   },

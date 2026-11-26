@@ -337,6 +337,24 @@
         "hoursOnly": "{value}시간",
         "days": "{value}일 {remainder}시간",
         "daysOnly": "{value}일"
+      },
+      "layout": {
+        "widgets": "위젯",
+        "reset": "기본 레이아웃으로 재설정",
+        "hide": "카드 숨기기",
+        "dragHandle": "{name} 이동",
+        "cardMenu": "{name} 옵션",
+        "allHidden": "모든 카드가 숨겨져 있습니다. 위젯에서 다시 표시하거나 레이아웃을 재설정하세요.",
+        "names": {
+          "attention": "주의 필요",
+          "kpis": "주요 지표",
+          "volume": "메시지 양",
+          "replyQueue": "응답 대기열",
+          "pipeline": "파이프라인",
+          "team": "팀",
+          "campaigns": "캠페인",
+          "activity": "최근 활동"
+        }
       }
     }
   },

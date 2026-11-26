@@ -834,6 +834,24 @@
         "hoursOnly": "saa {value}",
         "days": "siku {value} saa {remainder}",
         "daysOnly": "siku {value}"
+      },
+      "layout": {
+        "widgets": "Wijeti",
+        "reset": "Rudisha mpangilio wa awali",
+        "hide": "Ficha kadi",
+        "dragHandle": "Hamisha {name}",
+        "cardMenu": "Chaguo za {name}",
+        "allHidden": "Kadi zote zimefichwa. Zionyeshe tena kutoka Wijeti au rudisha mpangilio.",
+        "names": {
+          "attention": "Inahitaji umakini",
+          "kpis": "Takwimu kuu",
+          "volume": "Wingi wa ujumbe",
+          "replyQueue": "Foleni ya majibu",
+          "pipeline": "Mfumo wa mauzo",
+          "team": "Timu",
+          "campaigns": "Kampeni",
+          "activity": "Shughuli za hivi karibuni"
+        }
       }
     }
   },

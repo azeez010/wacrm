@@ -1,16 +1,24 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { Briefcase, ChevronDown, Plus, Radio, UserPlus, Zap } from 'lucide-react'
+import { Briefcase, ChevronDown, LayoutGrid, Plus, Radio, RotateCcw, UserPlus, Zap } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 
 import { buttonVariants } from '@/components/ui/button'
 import {
   DropdownMenu,
+  DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import {
+  WIDGET_IDS,
+  isDefaultLayout,
+  type DashboardLayout,
+  type WidgetId,
+} from '@/lib/dashboard/layout'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   OVERVIEW_RANGES,
@@ -43,14 +51,22 @@ export function OverviewHeader({
   name,
   range,
   onRangeChange,
+  layout,
+  onToggleWidget,
+  onResetLayout,
 }: {
   data: DashboardOverview | null
   now: number
   name: string | null
   range: OverviewRange
   onRangeChange: (range: OverviewRange) => void
+  /** Card layout controls; omitted while the setup checklist shows. */
+  layout?: DashboardLayout
+  onToggleWidget?: (id: WidgetId, visible: boolean) => void
+  onResetLayout?: () => void
 }) {
   const t = useTranslations('Dashboard.overview.header')
+  const tl = useTranslations('Dashboard.overview.layout')
   const router = useRouter()
   const formatDuration = useFormatDuration()
   const firstName = name?.trim().split(/\s+/)[0] || null
@@ -97,6 +113,30 @@ export function OverviewHeader({
             ))}
           </TabsList>
         </Tabs>
+        {layout && onToggleWidget && onResetLayout && (
+          <DropdownMenu>
+            <DropdownMenuTrigger className={buttonVariants({ size: 'sm', variant: 'outline' })}>
+              <LayoutGrid aria-hidden />
+              {tl('widgets')}
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              {WIDGET_IDS.map((id) => (
+                <DropdownMenuCheckboxItem
+                  key={id}
+                  checked={!layout.hidden.includes(id)}
+                  onCheckedChange={(on) => onToggleWidget(id, on === true)}
+                >
+                  {tl(`names.${id}`)}
+                </DropdownMenuCheckboxItem>
+              ))}
+              <DropdownMenuSeparator />
+              <DropdownMenuItem disabled={isDefaultLayout(layout)} onClick={onResetLayout}>
+                <RotateCcw aria-hidden />
+                {tl('reset')}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
         <DropdownMenu>
           <DropdownMenuTrigger className={buttonVariants({ size: 'sm' })}>
             <Plus aria-hidden />

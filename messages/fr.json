@@ -337,6 +337,24 @@
         "hoursOnly": "{value} h",
         "days": "{value} j {remainder} h",
         "daysOnly": "{value} j"
+      },
+      "layout": {
+        "widgets": "Widgets",
+        "reset": "Rétablir la disposition par défaut",
+        "hide": "Masquer la carte",
+        "dragHandle": "Déplacer {name}",
+        "cardMenu": "Options de {name}",
+        "allHidden": "Toutes les cartes sont masquées. Réaffichez-les depuis Widgets ou rétablissez la disposition.",
+        "names": {
+          "attention": "À traiter",
+          "kpis": "Chiffres clés",
+          "volume": "Volume de messages",
+          "replyQueue": "File de réponses",
+          "pipeline": "Pipeline",
+          "team": "Équipe",
+          "campaigns": "Campagnes",
+          "activity": "Activité récente"
+        }
       }
     }
   },

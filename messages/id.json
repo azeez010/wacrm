@@ -834,6 +834,24 @@
         "hoursOnly": "{value} jam",
         "days": "{value} hr {remainder} jam",
         "daysOnly": "{value} hr"
+      },
+      "layout": {
+        "widgets": "Widget",
+        "reset": "Kembalikan tata letak bawaan",
+        "hide": "Sembunyikan kartu",
+        "dragHandle": "Pindahkan {name}",
+        "cardMenu": "Opsi {name}",
+        "allHidden": "Semua kartu disembunyikan. Tampilkan lagi dari Widget atau kembalikan tata letak.",
+        "names": {
+          "attention": "Perlu perhatian",
+          "kpis": "Angka utama",
+          "volume": "Volume pesan",
+          "replyQueue": "Antrean balasan",
+          "pipeline": "Pipeline",
+          "team": "Tim",
+          "campaigns": "Kampanye",
+          "activity": "Aktivitas terbaru"
+        }
       }
     }
   },

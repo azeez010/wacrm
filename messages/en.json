@@ -337,6 +337,24 @@
         "hoursOnly": "{value} h",
         "days": "{value} d {remainder} h",
         "daysOnly": "{value} d"
+      },
+      "layout": {
+        "widgets": "Widgets",
+        "reset": "Reset to default layout",
+        "hide": "Hide card",
+        "dragHandle": "Move {name}",
+        "cardMenu": "{name} options",
+        "allHidden": "All cards are hidden. Show them again from Widgets, or reset the layout.",
+        "names": {
+          "attention": "Needs attention",
+          "kpis": "Key numbers",
+          "volume": "Message volume",
+          "replyQueue": "Reply queue",
+          "pipeline": "Pipeline",
+          "team": "Team",
+          "campaigns": "Campaigns",
+          "activity": "Recent activity"
+        }
       }
     }
   },

@@ -834,6 +834,24 @@
         "hoursOnly": "{value} س",
         "days": "{value} ي {remainder} س",
         "daysOnly": "{value} ي"
+      },
+      "layout": {
+        "widgets": "الأدوات",
+        "reset": "استعادة التخطيط الافتراضي",
+        "hide": "إخفاء البطاقة",
+        "dragHandle": "نقل {name}",
+        "cardMenu": "خيارات {name}",
+        "allHidden": "كل البطاقات مخفية. أظهرها من جديد من الأدوات أو استعد التخطيط.",
+        "names": {
+          "attention": "يحتاج إلى انتباه",
+          "kpis": "الأرقام الرئيسية",
+          "volume": "حجم الرسائل",
+          "replyQueue": "قائمة الردود",
+          "pipeline": "المسار",
+          "team": "الفريق",
+          "campaigns": "الحملات",
+          "activity": "النشاط الأخير"
+        }
       }
     }
   },

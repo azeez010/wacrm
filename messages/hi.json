@@ -834,6 +834,24 @@
         "hoursOnly": "{value} घं.",
         "days": "{value} दि. {remainder} घं.",
         "daysOnly": "{value} दि."
+      },
+      "layout": {
+        "widgets": "विजेट",
+        "reset": "डिफ़ॉल्ट लेआउट पर रीसेट करें",
+        "hide": "कार्ड छिपाएं",
+        "dragHandle": "{name} खिसकाएं",
+        "cardMenu": "{name} विकल्प",
+        "allHidden": "सभी कार्ड छिपे हुए हैं। विजेट से उन्हें फिर दिखाएं या लेआउट रीसेट करें।",
+        "names": {
+          "attention": "ध्यान देने योग्य",
+          "kpis": "मुख्य आंकड़े",
+          "volume": "संदेशों की मात्रा",
+          "replyQueue": "जवाब की कतार",
+          "pipeline": "पाइपलाइन",
+          "team": "टीम",
+          "campaigns": "कैंपेन",
+          "activity": "हाल की गतिविधि"
+        }
       }
     }
   },

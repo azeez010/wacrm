@@ -226,7 +226,9 @@
       "partner": "Kuwa mshirika",
       "blog": "Blogu",
       "changelog": "Mapya",
-      "help": "Msaada"
+      "help": "Msaada",
+      "solutions": "Suluhisho",
+      "templates": "Violezo"
     }
   },
   "Currency": {
@@ -339,7 +341,9 @@
     "ctaTitle": "Endesha mauzo na huduma yako ya WhatsApp kutoka kikasha kimoja",
     "ctaBody": "{brand} huleta pamoja timu yako, anwani, matangazo na otomatiki. Anza bila malipo, hakuna kadi inayohitajika.",
     "ctaButton": "Anza bila malipo",
-    "pagination": "Kuvinjari kurasa"
+    "pagination": "Kuvinjari kurasa",
+    "templates": "Violezo",
+    "solutions": "Suluhisho"
   },
   "Changelog": {
     "title": "Mapya",

@@ -4078,7 +4078,9 @@
       "partner": "Seja parceiro",
       "blog": "Blog",
       "changelog": "Novidades",
-      "help": "Ajuda"
+      "help": "Ajuda",
+      "solutions": "Soluções",
+      "templates": "Modelos"
     }
   },
   "CustomFields": {
@@ -5149,7 +5151,9 @@
     "ctaTitle": "Gerencie suas vendas e suporte no WhatsApp em uma só caixa de entrada",
     "ctaBody": "{brand} reúne equipe, contatos, transmissões e automações. Comece grátis, sem cartão.",
     "ctaButton": "Começar grátis",
-    "pagination": "Paginação"
+    "pagination": "Paginação",
+    "templates": "Modelos",
+    "solutions": "Soluções"
   },
   "Changelog": {
     "title": "Novidades",

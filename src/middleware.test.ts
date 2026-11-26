@@ -191,3 +191,13 @@ describe("middleware, localized blog, changelog and help", () => {
     expect(res.headers.get("location")).toBe("https://app.test/changelog");
   });
 });
+
+describe("middleware, marketing pages", () => {
+  it("serves /solutions, /compare and /templates in the default language, signed out", async () => {
+    for (const path of ["/solutions/whatsapp-crm", "/compare/whatsapp-business-app", "/templates"]) {
+      const res = await middleware(new NextRequest(`https://app.test${path}`, { headers: { cookie: "NEXT_LOCALE=ko" } }));
+      expect(res.headers.get("x-middleware-rewrite")).toBe(`https://app.test${path}`);
+      expect(res.headers.get("x-middleware-request-x-next-intl-locale")).toBe("en");
+    }
+  });
+});

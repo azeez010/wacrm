@@ -4078,7 +4078,9 @@
       "partner": "파트너 되기",
       "blog": "블로그",
       "changelog": "업데이트 소식",
-      "help": "도움말"
+      "help": "도움말",
+      "solutions": "솔루션",
+      "templates": "템플릿"
     }
   },
   "CustomFields": {
@@ -5149,7 +5151,9 @@
     "ctaTitle": "WhatsApp 판매와 지원을 하나의 받은편지함에서",
     "ctaBody": "{brand}는 팀, 연락처, 브로드캐스트, 자동화를 한곳에 모읍니다. 카드 없이 무료로 시작하세요.",
     "ctaButton": "무료로 시작",
-    "pagination": "페이지 이동"
+    "pagination": "페이지 이동",
+    "templates": "템플릿",
+    "solutions": "솔루션"
   },
   "Changelog": {
     "title": "업데이트 소식",

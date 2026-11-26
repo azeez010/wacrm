@@ -281,6 +281,14 @@ export default async function LandingPage({
           {t('footer.blog')}
         </Link>
         {' · '}
+        <Link href="/solutions/whatsapp-crm" className="underline">
+          {t('footer.solutions')}
+        </Link>
+        {' · '}
+        <Link href="/templates" className="underline">
+          {t('footer.templates')}
+        </Link>
+        {' · '}
         <Link href={localizedPath(locale, '/help')} className="underline">
           {t('footer.help')}
         </Link>

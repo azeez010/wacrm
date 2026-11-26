@@ -3,6 +3,7 @@ import { HREFLANG, LOCALES } from '@/i18n/locales'
 import { routing } from '@/i18n/routing'
 import { blogEntries } from '@/lib/blog/sitemap'
 import { getHelp } from '@/lib/help'
+import { MARKETING_PAGES } from '@/lib/marketing/pages'
 import { SITE_URL, localizedUrl } from '@/lib/seo'
 
 // Built on each request (not at build time), so new blog posts appear without a redeploy.
@@ -39,5 +40,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const help = helpPaths.flatMap((path) =>
     LOCALES.map((l) => ({ url: localizedUrl(l, path), changeFrequency: 'monthly' as const, priority: path === '/help' ? 0.6 : 0.5, alternates: helpUrls(path) })),
   )
-  return [...landing, ...legal, ...changelog, ...help, ...(await blogEntries())]
+  const marketing = ['/templates', ...MARKETING_PAGES.map((m) => `/${m.kind}/${m.slug}`)].map((path) => ({
+    url: `${SITE_URL}${path}`,
+    changeFrequency: 'monthly' as const,
+    priority: path === '/templates' ? 0.6 : 0.8,
+  }))
+  return [...landing, ...legal, ...changelog, ...help, ...marketing, ...(await blogEntries())]
 }

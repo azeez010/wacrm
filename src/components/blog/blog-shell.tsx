@@ -35,6 +35,8 @@ export async function BlogShell({ children }: { children: React.ReactNode }) {
           <p>© {new Date().getFullYear()} {BRAND_NAME}</p>
           <nav className="flex flex-wrap gap-4" aria-label="Footer">
             <Link href={to('/blog')} className="hover:text-foreground">{t('blog')}</Link>
+            <Link href="/solutions/whatsapp-crm" className="hover:text-foreground">{t('solutions')}</Link>
+            <Link href="/templates" className="hover:text-foreground">{t('templates')}</Link>
             <Link href={to('/help')} className="hover:text-foreground">{t('help')}</Link>
             <Link href={to('/changelog')} className="hover:text-foreground">{t('changelog')}</Link>
             <a href="/blog/feed.xml" className="hover:text-foreground">{t('rss')}</a>

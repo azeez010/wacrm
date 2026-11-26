@@ -226,7 +226,9 @@
       "partner": "Jadi mitra",
       "blog": "Blog",
       "changelog": "Yang baru",
-      "help": "Bantuan"
+      "help": "Bantuan",
+      "solutions": "Solusi",
+      "templates": "Templat"
     }
   },
   "Currency": {
@@ -339,7 +341,9 @@
     "ctaTitle": "Jalankan penjualan dan dukungan WhatsApp Anda dari satu kotak masuk",
     "ctaBody": "{brand} menyatukan tim, kontak, siaran, dan otomatisasi Anda. Mulai gratis, tanpa kartu.",
     "ctaButton": "Mulai gratis",
-    "pagination": "Navigasi halaman"
+    "pagination": "Navigasi halaman",
+    "templates": "Templat",
+    "solutions": "Solusi"
   },
   "Changelog": {
     "title": "Yang baru",

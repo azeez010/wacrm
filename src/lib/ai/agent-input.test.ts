@@ -17,6 +17,11 @@ describe('parseAgentInput', () => {
         channels: ['whatsapp', 'web_chat'],
         priority: 0,
         knowledge_mode: 'selected',
+      persona_gender: null,
+      persona_tone: null,
+      persona_behaviour: null,
+      persona_avoid: null,
+      persona_never: null,
       },
     })
   })
@@ -40,5 +45,14 @@ describe('parseIdList', () => {
   it('dedupes strings and rejects non-arrays', () => {
     expect(parseIdList(['a', 'a', 3, '', 'b'])).toEqual(['a', 'b'])
     expect(parseIdList('a')).toBeNull()
+  })
+
+  it('trims persona fields, treats blank as inherit (null), and rejects over-long ones', () => {
+    const ok = parseAgentInput({ name: 'Ada', persona_tone: '  warm ', persona_never: '   ', persona_gender: 'female' }, { partial: false })
+    expect(ok).toMatchObject({ data: { persona_tone: 'warm', persona_never: null, persona_gender: 'female' } })
+    expect(parseAgentInput({ name: 'Ada', persona_gender: 'x'.repeat(61) }, { partial: false })).toEqual({ error: 'persona_too_long' })
+    expect(parseAgentInput({ persona_avoid: 'x'.repeat(1501) }, { partial: true })).toEqual({ error: 'persona_too_long' })
+    // PATCH only touches what is sent.
+    expect(parseAgentInput({ persona_tone: 'calm' }, { partial: true })).toEqual({ data: { persona_tone: 'calm' } })
   })
 })

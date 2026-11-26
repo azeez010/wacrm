@@ -76,6 +76,9 @@ export function AiConfig({ onSaved }: { onSaved?: () => void } = {}) {
   const [embeddingsKeyEdited, setEmbeddingsKeyEdited] = useState(false);
   const [hasStoredEmbeddingsKey, setHasStoredEmbeddingsKey] = useState(false);
   const [isActive, setIsActive] = useState(false);
+  // 'platform' = OgaDesk AI included in the plan (no key needed); 'own' = the business's own provider key.
+  const [source, setSource] = useState<'platform' | 'own'>('platform');
+  const [credits, setCredits] = useState<{ used: number; limit: number | null; reason: string | null; percent: number } | null>(null);
 
   // Guard keyed on the account (not a bare boolean) so an in-place
   // account switch - ownership transfer, multi-account membership -
@@ -92,7 +95,9 @@ export function AiConfig({ onSaved }: { onSaved?: () => void } = {}) {
         toast.error(data.error ?? t('loadFailed'));
         return;
       }
+      setCredits(data.credits ?? null);
       if (data.configured) {
+        setSource(data.uses_platform ? 'platform' : 'own');
         setConfigured(true);
         setProvider(data.provider);
         setModel(data.model);
@@ -184,6 +189,26 @@ export function AiConfig({ onSaved }: { onSaved?: () => void } = {}) {
   };
 
   const handleSave = async () => {
+    if (source === 'platform') {
+      setSaving(true);
+      try {
+        const res = await fetch('/api/ai/config', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ use_platform: true, is_active: isActive }) });
+        const data = await res.json();
+        if (res.ok) {
+          invalidateAiAccountStatus();
+          toast.success(t('saveSuccess'));
+          await fetchConfig();
+          onSaved?.();
+        } else {
+          toast.error(data.error ?? t('saveFailed'));
+        }
+      } catch {
+        toast.error(t('saveFailed'));
+      } finally {
+        setSaving(false);
+      }
+      return;
+    }
     if (!model.trim()) {
       toast.error(t('missingModel'));
       return;
@@ -271,6 +296,50 @@ export function AiConfig({ onSaved }: { onSaved?: () => void } = {}) {
       )}
 
       <div className="space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">{t('sourceTitle')}</CardTitle>
+            <CardDescription>{t('sourceDesc')}</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div role="radiogroup" aria-label={t('sourceTitle')} className="grid gap-3 sm:grid-cols-2">
+              {(['platform', 'own'] as const).map((s) => (
+                <button
+                  key={s}
+                  type="button"
+                  role="radio"
+                  aria-checked={source === s}
+                  disabled={disabled}
+                  onClick={() => setSource(s)}
+                  className={`rounded-xl border p-3 text-left transition-colors disabled:opacity-60 ${source === s ? 'border-primary ring-1 ring-primary' : 'hover:bg-muted/50'}`}
+                >
+                  <span className="block text-sm font-semibold">{t(s === 'platform' ? 'sourcePlatform' : 'sourceOwn')}</span>
+                  <span className="mt-1 block text-xs text-muted-foreground">{t(s === 'platform' ? 'sourcePlatformDesc' : 'sourceOwnDesc')}</span>
+                </button>
+              ))}
+            </div>
+            {source === 'platform' && credits && (
+              <div className="rounded-md border border-border p-3 text-sm" aria-live="polite">
+                <p className="font-medium">{t('creditsTitle')}</p>
+                {credits.reason === 'plan_feature' ? (
+                  <p className="mt-1 text-muted-foreground">{t('creditsNotInPlan')}</p>
+                ) : credits.limit === null ? (
+                  <p className="mt-1 text-muted-foreground">{t('creditsUnlimited', { used: credits.used.toLocaleString() })}</p>
+                ) : (
+                  <>
+                    <div className="mt-2 h-2 overflow-hidden rounded-full bg-muted" role="progressbar" aria-valuenow={credits.percent} aria-valuemin={0} aria-valuemax={100} aria-label={t('creditsTitle')}>
+                      <div className={`h-full rounded-full ${credits.percent >= 100 ? 'bg-destructive' : credits.percent >= 80 ? 'bg-amber-500' : 'bg-primary'}`} style={{ width: `${Math.min(100, credits.percent)}%` }} />
+                    </div>
+                    <p className="mt-1 text-xs text-muted-foreground">{t('creditsUsed', { used: credits.used.toLocaleString(), limit: credits.limit.toLocaleString() })}</p>
+                    {credits.percent >= 100 && <p className="mt-1 text-xs text-destructive">{t('creditsExhausted')}</p>}
+                  </>
+                )}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {source === 'own' && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
@@ -414,6 +483,7 @@ export function AiConfig({ onSaved }: { onSaved?: () => void } = {}) {
             </div>
           </CardContent>
         </Card>
+        )}
 
         <Card>
           <CardHeader>

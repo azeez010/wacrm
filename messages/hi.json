@@ -2611,7 +2611,20 @@
       "addSource": "स्रोत जोड़ें",
       "libraryEmpty": "लाइब्रेरी ख़ाली है। इस एजेंट को जवाब देने के लिए कुछ देने हेतु स्रोत जोड़ें।",
       "selectedCount": "{count, plural, =0 {कुछ नहीं चुना: एजेंट सवाल सौंप देगा।} =1 {# स्रोत चुना गया} other {# स्रोत चुने गए}}",
-      "knowledgeSaved": "नॉलेज अपडेट हुई"
+      "knowledgeSaved": "नॉलेज अपडेट हुई",
+      "personaTitle": "व्यक्तित्व और दिशानिर्देश",
+      "personaDesc": "वैकल्पिक। खाली छोड़ने पर धूसर रंग में दिखा OgaDesk का डिफ़ॉल्ट लागू होता है; इस एजेंट के लिए बदलने हेतु लिखें।",
+      "personaGender": "लिंग",
+      "personaGenderPlaceholder": "जैसे: महिला",
+      "personaTone": "लहजा",
+      "personaTonePlaceholder": "जैसे: गर्मजोशी भरा, स्पष्ट और पेशेवर",
+      "personaBehaviour": "व्यवहार",
+      "personaBehaviourPlaceholder": "एजेंट कैसे पेश आए, जैसे: एक बार में एक ही सवाल पूछे",
+      "personaAvoid": "किन चीज़ों से बचें",
+      "personaAvoidPlaceholder": "जैसे: स्लैंग, लंबे पैराग्राफ़",
+      "personaNever": "कभी न करें",
+      "personaNeverPlaceholder": "जैसे: रिफ़ंड का वादा करना, नॉलेज बेस में न मौजूद कीमतें बताना",
+      "personaInheritHint": "आप यहाँ कुछ भी लिखें, OgaDesk के अपने सुरक्षा नियम हमेशा लागू रहते हैं।"
     },
     "library": {
       "title": "नॉलेज लाइब्रेरी",
@@ -3506,7 +3519,18 @@
       "providerOpenAiCompatible": "OpenAI-संगत API",
       "baseUrl": "बेस URL",
       "baseUrlHint": "OpenAI-संगत API का बेस URL, जैसे https://api.groq.com/openai/v1। /chat/completions अपने-आप जुड़ता है, जब तक आप ख़ुद वह पथ न लिखें।",
-      "missingBaseUrl": "OpenAI-संगत API का बेस URL दर्ज करें।"
+      "missingBaseUrl": "OpenAI-संगत API का बेस URL दर्ज करें।",
+      "sourceTitle": "AI जवाब कहाँ से आते हैं",
+      "sourceDesc": "OgaDesk में शामिल AI इस्तेमाल करें, या अपने प्रोवाइडर की कुंजी जोड़ें।",
+      "sourcePlatform": "OgaDesk AI",
+      "sourcePlatformDesc": "कुंजी की ज़रूरत नहीं। आपके प्लान में शामिल AI क्रेडिट इस्तेमाल होते हैं।",
+      "sourceOwn": "मेरी अपनी API कुंजी",
+      "sourceOwnDesc": "अपनी OpenAI, Anthropic या संगत कुंजी इस्तेमाल करें। हमारी ओर से क्रेडिट सीमा नहीं; आप अपने प्रोवाइडर को भुगतान करते हैं।",
+      "creditsTitle": "इस महीने के AI क्रेडिट",
+      "creditsNotInPlan": "आपके मौजूदा प्लान में AI जवाब शामिल नहीं हैं। अपग्रेड करें या अपनी API कुंजी इस्तेमाल करें।",
+      "creditsUnlimited": "इस महीने {used} टोकन इस्तेमाल हुए (असीमित प्लान)।",
+      "creditsUsed": "इस महीने {limit} में से {used} टोकन इस्तेमाल हुए।",
+      "creditsExhausted": "आपके AI क्रेडिट खत्म हो गए हैं। अगले महीने तक AI जवाब रुके रहेंगे; प्लान अपग्रेड करें या अपनी API कुंजी इस्तेमाल करें।"
     },
     "aiKnowledge": {
       "loadFailed": "नॉलेज बेस लोड नहीं हो सका",
@@ -3602,6 +3626,7 @@
         "api_keys": "API कुंजियाँ",
         "webhook_endpoints": "आउटबाउंड वेबहुक",
         "ai_replies_per_month": "AI जवाब / माह",
+        "ai_tokens_per_month": "AI क्रेडिट (टोकन) / माह",
         "storage_mb": "मीडिया स्टोरेज (MB)",
         "custom_fields_max": "कस्टम संपर्क फ़ील्ड",
         "custom_tables_max": "कस्टम टेबल",
@@ -3968,7 +3993,10 @@
       "apiError": "{provider} API त्रुटि ({status})",
       "embeddingsMalformed": "एम्बेडिंग का जवाब ग़लत रूप में था।",
       "embeddingsMissingIndices": "एम्बेडिंग के जवाब में परिणाम सूचकांक नहीं थे।",
-      "embeddingsMissingVector": "एम्बेडिंग के जवाब में वेक्टर नहीं था।"
+      "embeddingsMissingVector": "एम्बेडिंग के जवाब में वेक्टर नहीं था।",
+      "creditsExhausted": "इस महीने के आपके AI क्रेडिट खत्म हो गए हैं।",
+      "notInPlan": "AI जवाब आपके प्लान में शामिल नहीं हैं।",
+      "unavailable": "AI अभी कुछ समय के लिए उपलब्ध नहीं है। कोई साथी जवाब दे सकता है।"
     },
     "tags": {
       "verifyFailed": "संपर्क टैग का स्वामित्व सत्यापित नहीं हो सका",
@@ -5060,7 +5088,8 @@
         "deleteFailed": "AI एजेंट हट नहीं सका",
         "sourceIdsRequired": "source_ids (ऐरे) ज़रूरी है",
         "unknownSources": "कुछ स्रोत इस लाइब्रेरी में नहीं हैं",
-        "linkFailed": "एजेंट की नॉलेज अपडेट नहीं हो सकी"
+        "linkFailed": "एजेंट की नॉलेज अपडेट नहीं हो सकी",
+        "personaTooLong": "व्यक्तित्व का कोई एक फ़ील्ड बहुत लंबा है।"
       },
       "library": {
         "loadFailed": "नॉलेज लाइब्रेरी लोड नहीं हो सकी",
@@ -5077,7 +5106,8 @@
         "urlInvalid": "मान्य http(s) वेब पता दर्ज करें",
         "fileInvalid": "अपलोड की गई फ़ाइल मान्य नहीं है",
         "fileEmpty": "फ़ाइल में कोई टेक्स्ट नहीं मिला"
-      }
+      },
+      "platformNotInPlan": "OgaDesk AI आपके प्लान में शामिल नहीं है। अपग्रेड करें या अपनी API कुंजी इस्तेमाल करें।"
     },
     "automations": {
       "copyName": "{name} (कॉपी)",

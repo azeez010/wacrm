@@ -6,13 +6,21 @@ export interface LogAiUsageArgs {
   /** Null for a draft not tied to one thread, or when the row was
    *  deleted between generation and logging. */
   conversationId: string | null
-  mode: 'auto_reply' | 'draft'
-  provider: AiProvider
+  mode: 'auto_reply' | 'draft' | 'playground'
+  provider: AiProvider | string
   model: string
   /** Provider usage; a no-op when null (nothing worth recording). */
   usage: AiUsage | null
   /** The AI agent that made the call, when known. */
   agentId?: string | null
+  /** 'platform' = served by an admin-configured instance (counts against plan credits). Default 'own'. */
+  source?: 'own' | 'platform'
+  instanceId?: string | null
+  costUsd?: number | null
+  /** Every instance tried, for failover analytics. */
+  attempts?: unknown[]
+  /** All instances failed: log the attempts even though no tokens were used. */
+  failed?: boolean
 }
 
 /**
@@ -32,7 +40,7 @@ export async function logAiUsage(
   db: SupabaseClient,
   args: LogAiUsageArgs,
 ): Promise<void> {
-  if (!args.usage) return
+  if (!args.usage && !args.failed) return
   try {
     const { error } = await db.from('ai_usage_log').insert({
       account_id: args.accountId,
@@ -40,9 +48,13 @@ export async function logAiUsage(
       mode: args.mode,
       provider: args.provider,
       model: args.model,
-      prompt_tokens: args.usage.promptTokens,
-      completion_tokens: args.usage.completionTokens,
-      total_tokens: args.usage.totalTokens,
+      prompt_tokens: args.usage?.promptTokens ?? 0,
+      completion_tokens: args.usage?.completionTokens ?? 0,
+      total_tokens: args.usage?.totalTokens ?? 0,
+      source: args.source ?? 'own',
+      ...(args.instanceId ? { instance_id: args.instanceId } : {}),
+      ...(args.costUsd != null ? { cost_usd: args.costUsd } : {}),
+      ...(args.attempts ? { attempts: args.attempts } : {}),
       ...(args.agentId ? { agent_id: args.agentId } : {}),
     })
     if (error) {

@@ -3,7 +3,9 @@ import { requireRole, toErrorResponse } from '@/lib/auth/account'
 import { checkRateLimit, rateLimitResponse, RATE_LIMITS } from '@/lib/rate-limit'
 import { loadAgentConfig } from '@/lib/ai/config'
 import { retrieveKnowledge } from '@/lib/ai/knowledge'
-import { generateReply } from '@/lib/ai/generate'
+import { runGeneration } from '@/lib/ai/run'
+import { loadPlatformPrompt, personaPrompt } from '@/lib/ai/persona'
+import { supabaseAdmin } from '@/lib/ai/admin-client'
 import { buildSystemPrompt } from '@/lib/ai/defaults'
 import { latestUserMessage } from '@/lib/ai/query'
 import { AiError, type ChatMessage } from '@/lib/ai/types'
@@ -88,13 +90,18 @@ export async function POST(request: Request) {
       latestUserMessage(messages),
       { sourceIds: config.knowledgeSourceIds ?? null },
     )
+    const platform = personaPrompt(await loadPlatformPrompt(supabaseAdmin()), config.persona, config.agentName)
     const systemPrompt = buildSystemPrompt({
       userPrompt: config.systemPrompt,
       mode: 'auto_reply',
       knowledge,
+      platform,
     })
 
-    const { text, handoff } = await generateReply({ config, systemPrompt, messages })
+    // Same path as the live bot (own key, or the platform chain). Platform playground calls use credits like real ones.
+    const { text, handoff } = await runGeneration(supabaseAdmin(), {
+      config, systemPrompt, messages, accountId, conversationId: null, mode: 'playground', agentId: config.agentId ?? null,
+    })
     return NextResponse.json({
       reply: text,
       handoff,

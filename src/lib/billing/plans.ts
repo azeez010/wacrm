@@ -20,6 +20,8 @@ export const LIMIT_DEFS = {
   api_keys: 'API keys',
   webhook_endpoints: 'Outbound webhooks',
   ai_replies_per_month: 'AI replies / month',
+  // OgaDesk AI credits (tokens) a plan includes. Missing = none, null = unlimited. A business's own key is never limited.
+  ai_tokens_per_month: 'AI credits (tokens) / month',
   storage_mb: 'Media storage (MB)',
   custom_fields_max: 'Custom contact fields',
   custom_tables_max: 'Custom tables',

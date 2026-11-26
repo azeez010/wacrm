@@ -3,10 +3,10 @@ import { supabaseAdmin } from './admin-client'
 import { loadAgentConfig } from './config'
 import { buildConversationContext } from './context'
 import { retrieveKnowledge } from './knowledge'
-import { generateReply } from './generate'
+import { runGeneration } from './run'
+import { loadPlatformPrompt, personaPrompt } from './persona'
 import { buildSystemPrompt } from './defaults'
 import { buildHandoffSummary } from './handoff'
-import { logAiUsage } from './usage'
 import { latestUserMessage } from './query'
 import {
   engineSendText,
@@ -146,31 +146,18 @@ export async function dispatchInboundToAiReply(
       { sourceIds: config.knowledgeSourceIds ?? null },
     )
 
+    const platform = personaPrompt(await loadPlatformPrompt(db), config.persona, config.agentName)
     const systemPrompt = buildSystemPrompt({
       userPrompt: config.systemPrompt,
       mode: 'auto_reply',
       knowledge,
+      platform,
     })
 
-    const { text, handoff, usage } = await generateReply({
-      config,
-      systemPrompt,
-      messages,
-    })
-
-    // Record token spend on the account's BYO key. Fire-and-forget so it
-    // never adds latency to the customer-facing send: `logAiUsage`
-    // swallows its own errors, so the floating promise can't reject.
-    // Logged regardless of handoff - the provider call happened either
-    // way.
-    void logAiUsage(db, {
-      accountId,
-      conversationId,
-      mode: 'auto_reply',
-      provider: config.provider,
-      model: config.model,
-      usage,
-      agentId: config.agentId ?? null,
+    // One entry point: the business's own key, or the platform's provider chain with failover and plan credits.
+    // Token spend is logged inside (regardless of handoff - the provider call happened either way).
+    const { text, handoff } = await runGeneration(db, {
+      config, systemPrompt, messages, accountId, conversationId, mode: 'auto_reply', agentId: config.agentId ?? null,
     })
 
     if (handoff || !text) {

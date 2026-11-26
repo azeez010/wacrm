@@ -7,6 +7,7 @@ import {
 import { checkRateLimit, rateLimitResponse, RATE_LIMITS } from '@/lib/rate-limit'
 import { encrypt, decrypt } from '@/lib/whatsapp/encryption'
 import { checkAiAdminGate } from '@/lib/ai/admin-gate'
+import { supabaseAdmin } from '@/lib/ai/admin-client'
 import { validateAiCredentials } from '@/lib/ai/validate'
 import { embedTexts } from '@/lib/ai/embeddings'
 import { AiError, type AiProvider } from '@/lib/ai/types'
@@ -67,6 +68,14 @@ export async function GET() {
         ? agentRows.some((a) => a.is_active && a.auto_reply_enabled)
         : safe.auto_reply_enabled
 
+    // AI credits of the plan (platform AI only). Same function the generation path checks.
+    let credits: unknown = null
+    try {
+      credits = (await supabase.rpc('ai_credit_status', { p_account: accountId })).data ?? null
+    } catch {
+      credits = null
+    }
+
     // A platform admin can pause AI for everyone or for this business. Report auto-reply as off so the
     // inbox banner doesn't promise replies that won't come, and say why via `admin_paused`.
     const gate = await checkAiAdminGate(supabase, accountId)
@@ -74,6 +83,9 @@ export async function GET() {
     return NextResponse.json({
       configured: true,
       has_key: !!api_key,
+      // api_key NULL = powered by OgaDesk AI (the admin-configured providers, plan credits).
+      uses_platform: api_key === null,
+      credits,
       has_embeddings_key: !!embeddings_api_key,
       ...safe,
       admin_paused: !gate.allowed,
@@ -103,6 +115,26 @@ export async function POST(request: Request) {
 
     const body = await request.json().catch(() => null)
     if (!body || typeof body !== 'object') return bad(t('common.invalidRequestBody'))
+
+    // "Use OgaDesk AI": no key of the business's own; the platform's providers answer, counted against the plan's
+    // AI credits. Keeps every other setting; switching back to an own key goes through the normal path below.
+    if (body.use_platform === true) {
+      const { data: credit } = await supabaseAdmin().rpc('ai_credit_status', { p_account: accountId })
+      if ((credit as { reason?: string } | null)?.reason === 'plan_feature') {
+        return NextResponse.json({ error: t('ai.platformNotInPlan'), code: 'ai_plan_feature' }, { status: 402 })
+      }
+      const platformIsActive = body.is_active === true
+      const platformRow = { provider: 'openai', model: 'platform', base_url: null, api_key: null, is_active: platformIsActive }
+      const { data: current } = await supabase.from('ai_configs').select('id').eq('account_id', accountId).maybeSingle()
+      const { error: platformErr } = current
+        ? await supabase.from('ai_configs').update(platformRow).eq('account_id', accountId)
+        : await supabase.from('ai_configs').insert({ account_id: accountId, created_by: userId, ...platformRow })
+      if (platformErr) {
+        console.error('[ai/config POST] platform save error:', platformErr)
+        return NextResponse.json({ error: t('ai.saveConfigFailed') }, { status: 500 })
+      }
+      return NextResponse.json({ success: true })
+    }
 
     const provider = body.provider as AiProvider
     if (provider !== 'openai' && provider !== 'anthropic' && provider !== 'openai_compatible') {

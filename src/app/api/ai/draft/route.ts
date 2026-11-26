@@ -4,10 +4,10 @@ import { checkRateLimit, rateLimitResponse, RATE_LIMITS } from '@/lib/rate-limit
 import { loadAgentConfig } from '@/lib/ai/config'
 import { buildConversationContext } from '@/lib/ai/context'
 import { retrieveKnowledge } from '@/lib/ai/knowledge'
-import { generateReply } from '@/lib/ai/generate'
+import { runGeneration } from '@/lib/ai/run'
+import { loadPlatformPrompt, personaPrompt } from '@/lib/ai/persona'
 import { buildSystemPrompt } from '@/lib/ai/defaults'
 import { latestUserMessage } from '@/lib/ai/query'
-import { logAiUsage } from '@/lib/ai/usage'
 import { supabaseAdmin } from '@/lib/ai/admin-client'
 import { AiError } from '@/lib/ai/types'
 import { getT } from '@/lib/i18n/translate'
@@ -107,34 +107,19 @@ export async function POST(request: Request) {
       { sourceIds: config.knowledgeSourceIds ?? null },
     )
 
+    const platform = personaPrompt(await loadPlatformPrompt(supabaseAdmin()), config.persona, config.agentName)
     const systemPrompt = buildSystemPrompt({
       userPrompt: config.systemPrompt,
       mode: 'draft',
       knowledge,
+      platform,
     })
 
-    const { text, usage } = await generateReply({ config, systemPrompt, messages })
-
-    // Record spend on the account's BYO key. Best-effort + via the
-    // service role (the log has no `authenticated` INSERT policy). This
-    // must not fail or delay the draft the agent is waiting on, so:
-    //  - the whole thing is wrapped (constructing the admin client throws
-    //    if the service-role key is unset - that must not 500 the draft);
-    //  - it's fire-and-forget (`void`), not awaited, so the response
-    //    isn't held for a DB round-trip.
-    try {
-      void logAiUsage(supabaseAdmin(), {
-        accountId,
-        conversationId,
-        mode: 'draft',
-        provider: config.provider,
-        model: config.model,
-        usage,
-        agentId: config.agentId ?? null,
-      })
-    } catch (logErr) {
-      console.error('[ai/draft] usage log skipped:', logErr)
-    }
+    // One entry point: the business's own key, or the platform's provider chain with failover and plan credits.
+    // Usage is logged inside, through the service role (the log has no `authenticated` INSERT policy).
+    const { text } = await runGeneration(supabaseAdmin(), {
+      config, systemPrompt, messages, accountId, conversationId, mode: 'draft', agentId: config.agentId ?? null,
+    })
 
     return NextResponse.json({ draft: text, agent: config.agentName ?? null })
   } catch (err) {

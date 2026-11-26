@@ -35,9 +35,23 @@ export interface AiConfig {
    *  Absent/null for the legacy single-config path. */
   agentId?: string | null
   agentName?: string | null
+  /** 'platform' = powered by the admin-configured provider chain and counted against plan credits (no key of
+   *  the business's own); 'own' (or absent) = the business's key. */
+  source?: 'own' | 'platform'
+  /** The agent's own persona fields; null/absent = inherit the platform default (see lib/ai/persona.ts). */
+  persona?: AgentPersona | null
   /** Library sources the agent may search. null = the whole library
    *  (knowledge_mode 'all', or the legacy path); [] = none linked. */
   knowledgeSourceIds?: string[] | null
+}
+
+/** Optional per-agent persona overrides (null = use the platform default). The agent's name is `agentName`. */
+export interface AgentPersona {
+  gender: string | null
+  tone: string | null
+  behaviour: string | null
+  avoid: string | null
+  never: string | null
 }
 
 /** One retrieved knowledge excerpt, with where it came from. */

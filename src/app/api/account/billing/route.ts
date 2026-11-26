@@ -121,6 +121,17 @@ export async function GET() {
       };
     });
 
+    // AI credits: a missing plan limit means none (not unlimited), so this comes from the dedicated function.
+    try {
+      const { data: credit } = await supabaseAdmin().rpc('ai_credit_status', { p_account: accountId });
+      const c = credit as { used?: number; limit?: number | null; reason?: string } | null;
+      if (c && c.reason !== 'not_member') {
+        usage.push({ key: 'ai_tokens_per_month' as LimitKey, used: Number(c.used ?? 0), limit: c.reason === 'plan_feature' ? 0 : typeof c.limit === 'number' ? c.limit : null });
+      }
+    } catch {
+      /* the credit line is informational; never fail the page */
+    }
+
     const plans = (plansRes.data ?? []) as unknown as PlanRow[];
     const planId = sub.data?.plan_id ?? 'free';
     const lapsed = !sub.data || sub.data.status === 'canceled' || sub.data.status === 'past_due';

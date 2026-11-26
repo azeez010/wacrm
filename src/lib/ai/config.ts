@@ -8,7 +8,8 @@ interface AiConfigRow {
   provider: 'openai' | 'anthropic' | 'openai_compatible'
   model: string
   base_url: string | null
-  api_key: string
+  /** NULL = powered by the platform's provider chain (no key of the business's own). */
+  api_key: string | null
   system_prompt: string | null
   is_active: boolean
   auto_reply_enabled: boolean
@@ -53,9 +54,15 @@ export async function loadAiConfig(
   // The Playground passes requireActive:false so an admin can test the
   // agent before flipping the master switch on.
   if (requireActive && !row.is_active) return null
-  // Defensive: the column is NOT NULL, but a partial write / manual DB
-  // edit could leave it empty. Treat a missing key as "not configured"
-  // rather than letting decrypt() throw on null.
+  // A NULL key means the business uses the platform's AI (admin-configured providers, plan credits). An EMPTY
+  // string is a damaged row (partial write / manual edit): "not configured", never silently platform spend.
+  if (row.api_key === null) {
+    return {
+      provider: 'openai', model: '', baseUrl: null, apiKey: '', source: 'platform',
+      systemPrompt: row.system_prompt, isActive: row.is_active, autoReplyEnabled: row.auto_reply_enabled,
+      autoReplyMaxPerConversation: row.auto_reply_max_per_conversation, handoffAgentId: row.handoff_agent_id, embeddingsApiKey: null,
+    }
+  }
   if (!row.api_key) return null
 
   // The embeddings key is optional and independent of the chat key -
@@ -80,6 +87,7 @@ export async function loadAiConfig(
     model: row.model,
     baseUrl: row.base_url,
     apiKey: decrypt(row.api_key),
+    source: 'own',
     systemPrompt: row.system_prompt,
     isActive: row.is_active,
     autoReplyEnabled: row.auto_reply_enabled,
@@ -131,7 +139,8 @@ export async function loadAgentConfig(
 
   return {
     ...workspace,
-    model: agent.model?.trim() || workspace.model,
+    // On the platform the admin's instances choose the model; an agent's own model only applies to a business's own key.
+    model: workspace.source === 'platform' ? workspace.model : agent.model?.trim() || workspace.model,
     systemPrompt: agent.system_prompt,
     autoReplyEnabled: agent.auto_reply_enabled,
     autoReplyMaxPerConversation: agent.auto_reply_max_per_conversation,
@@ -139,6 +148,10 @@ export async function loadAgentConfig(
     agentId: agent.id,
     agentName: agent.name,
     knowledgeSourceIds,
+    persona: {
+      gender: agent.persona_gender ?? null, tone: agent.persona_tone ?? null, behaviour: agent.persona_behaviour ?? null,
+      avoid: agent.persona_avoid ?? null, never: agent.persona_never ?? null,
+    },
   }
 }
 

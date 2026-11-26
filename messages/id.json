@@ -2611,7 +2611,20 @@
       "addSource": "Tambah sumber",
       "libraryEmpty": "Pustaka kosong. Tambahkan sumber agar agen ini punya bahan untuk menjawab.",
       "selectedCount": "{count, plural, =0 {Tidak ada yang dipilih: agen akan menyerahkan pertanyaan.} other {# sumber dipilih}}",
-      "knowledgeSaved": "Pengetahuan diperbarui"
+      "knowledgeSaved": "Pengetahuan diperbarui",
+      "personaTitle": "Kepribadian dan batasan",
+      "personaDesc": "Opsional. Biarkan kosong untuk memakai bawaan OgaDesk yang tampil abu-abu; ketik untuk menggantinya di agen ini.",
+      "personaGender": "Gender",
+      "personaGenderPlaceholder": "mis. perempuan",
+      "personaTone": "Nada",
+      "personaTonePlaceholder": "mis. hangat, jelas, dan profesional",
+      "personaBehaviour": "Perilaku",
+      "personaBehaviourPlaceholder": "Bagaimana agen bersikap, mis. mengajukan satu pertanyaan sekali waktu",
+      "personaAvoid": "Hal yang dihindari",
+      "personaAvoidPlaceholder": "mis. bahasa gaul, paragraf panjang",
+      "personaNever": "Hal yang tidak boleh dilakukan",
+      "personaNeverPlaceholder": "mis. menjanjikan pengembalian dana, menyebut harga yang tidak ada di basis pengetahuan",
+      "personaInheritHint": "Aturan keamanan OgaDesk selalu berlaku, apa pun yang Anda tulis di sini."
     },
     "library": {
       "title": "Pustaka pengetahuan",
@@ -3506,7 +3519,18 @@
       "providerOpenAiCompatible": "API kompatibel OpenAI",
       "baseUrl": "URL dasar",
       "baseUrlHint": "URL dasar API kompatibel OpenAI, misalnya https://api.groq.com/openai/v1. /chat/completions ditambahkan otomatis kecuali Anda menyertakan jalur itu sendiri.",
-      "missingBaseUrl": "Masukkan URL dasar API kompatibel OpenAI."
+      "missingBaseUrl": "Masukkan URL dasar API kompatibel OpenAI.",
+      "sourceTitle": "Sumber balasan AI",
+      "sourceDesc": "Gunakan AI yang disertakan OgaDesk, atau sambungkan kunci penyedia Anda sendiri.",
+      "sourcePlatform": "AI OgaDesk",
+      "sourcePlatformDesc": "Tanpa kunci. Memakai kredit AI yang termasuk dalam paket Anda.",
+      "sourceOwn": "Kunci API saya sendiri",
+      "sourceOwnDesc": "Gunakan kunci OpenAI, Anthropic, atau yang kompatibel. Tanpa batas kredit dari kami; Anda membayar penyedia Anda.",
+      "creditsTitle": "Kredit AI bulan ini",
+      "creditsNotInPlan": "Balasan AI tidak termasuk dalam paket Anda saat ini. Upgrade, atau gunakan kunci API Anda sendiri.",
+      "creditsUnlimited": "{used} token terpakai bulan ini (paket tanpa batas).",
+      "creditsUsed": "{used} dari {limit} token terpakai bulan ini.",
+      "creditsExhausted": "Kredit AI Anda habis. Balasan AI dijeda sampai bulan depan; upgrade paket atau gunakan kunci API Anda sendiri."
     },
     "aiKnowledge": {
       "loadFailed": "Gagal memuat basis pengetahuan",
@@ -3602,6 +3626,7 @@
         "api_keys": "Kunci API",
         "webhook_endpoints": "Webhook keluar",
         "ai_replies_per_month": "Balasan AI / bulan",
+        "ai_tokens_per_month": "Kredit AI (token) / bulan",
         "storage_mb": "Penyimpanan media (MB)",
         "custom_fields_max": "Kolom kontak khusus",
         "custom_tables_max": "Tabel khusus",
@@ -3968,7 +3993,10 @@
       "apiError": "Galat API {provider} ({status})",
       "embeddingsMalformed": "Respons embedding rusak.",
       "embeddingsMissingIndices": "Respons embedding tidak memiliki indeks hasil.",
-      "embeddingsMissingVector": "Respons embedding tidak memiliki vektor."
+      "embeddingsMissingVector": "Respons embedding tidak memiliki vektor.",
+      "creditsExhausted": "Kredit AI Anda bulan ini habis.",
+      "notInPlan": "Balasan AI tidak termasuk dalam paket Anda.",
+      "unavailable": "AI sementara tidak tersedia. Rekan tim dapat membalas."
     },
     "tags": {
       "verifyFailed": "Tidak dapat memverifikasi kepemilikan tag kontak",
@@ -5060,7 +5088,8 @@
         "deleteFailed": "Gagal menghapus agen AI",
         "sourceIdsRequired": "source_ids (array) wajib diisi",
         "unknownSources": "Beberapa sumber tidak ada di pustaka ini",
-        "linkFailed": "Gagal memperbarui pengetahuan agen"
+        "linkFailed": "Gagal memperbarui pengetahuan agen",
+        "personaTooLong": "Salah satu kolom kepribadian terlalu panjang."
       },
       "library": {
         "loadFailed": "Gagal memuat pustaka pengetahuan",
@@ -5077,7 +5106,8 @@
         "urlInvalid": "Masukkan alamat web http(s) yang valid",
         "fileInvalid": "Berkas yang diunggah tidak valid",
         "fileEmpty": "Tidak ada teks di berkas"
-      }
+      },
+      "platformNotInPlan": "AI OgaDesk tidak termasuk dalam paket Anda. Upgrade, atau gunakan kunci API Anda sendiri."
     },
     "automations": {
       "copyName": "{name} (Salinan)",

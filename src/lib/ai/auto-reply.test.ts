@@ -26,6 +26,8 @@ vi.mock('./config', () => ({ loadAgentConfig: h.loadAgentConfig }))
 vi.mock('./context', () => ({ buildConversationContext: h.buildConversationContext }))
 vi.mock('./knowledge', () => ({ retrieveKnowledge: h.retrieveKnowledge }))
 vi.mock('./generate', () => ({ generateReply: h.generateReply }))
+// The platform persona layer reads the database; keep these tests about the reply flow.
+vi.mock('./persona', () => ({ loadPlatformPrompt: async () => ({}), personaPrompt: () => ({ guardrails: '', persona: '' }) }))
 vi.mock('@/lib/flows/meta-send', () => ({
   engineSendText: h.engineSendText,
   loadAccountMetaCredentials: h.loadAccountMetaCredentials,

@@ -2680,7 +2680,18 @@
       "providerOpenAiCompatible": "API compatible con OpenAI",
       "baseUrl": "URL base",
       "baseUrlHint": "URL base de la API compatible con OpenAI, por ejemplo https://api.groq.com/openai/v1. /chat/completions se añade automáticamente, salvo que incluyas esa ruta.",
-      "missingBaseUrl": "Introduce la URL base de la API compatible con OpenAI."
+      "missingBaseUrl": "Introduce la URL base de la API compatible con OpenAI.",
+      "sourceTitle": "De dónde vienen las respuestas de IA",
+      "sourceDesc": "Usa la IA incluida con OgaDesk o conecta la clave de tu propio proveedor.",
+      "sourcePlatform": "IA de OgaDesk",
+      "sourcePlatformDesc": "No necesitas clave. Usa los créditos de IA incluidos en tu plan.",
+      "sourceOwn": "Mi propia clave API",
+      "sourceOwnDesc": "Usa tu clave de OpenAI, Anthropic o compatible. Sin límite de créditos por nuestra parte; pagas a tu proveedor.",
+      "creditsTitle": "Créditos de IA este mes",
+      "creditsNotInPlan": "Las respuestas de IA no están incluidas en tu plan actual. Mejora tu plan o usa tu propia clave API.",
+      "creditsUnlimited": "{used} tokens usados este mes (plan ilimitado).",
+      "creditsUsed": "{used} de {limit} tokens usados este mes.",
+      "creditsExhausted": "Tus créditos de IA se han agotado. Las respuestas de IA están en pausa hasta el mes que viene; mejora tu plan o usa tu propia clave API."
     },
     "aiKnowledge": {
       "loadFailed": "Error al cargar la base de conocimiento",
@@ -2796,6 +2807,7 @@
         "api_keys": "Claves de API",
         "webhook_endpoints": "Webhooks salientes",
         "ai_replies_per_month": "Respuestas de IA / mes",
+        "ai_tokens_per_month": "Créditos de IA (tokens) / mes",
         "storage_mb": "Almacenamiento multimedia (MB)",
         "custom_fields_max": "Campos personalizados de contacto",
         "custom_tables_max": "Tablas personalizadas",
@@ -3251,7 +3263,20 @@
       "addSource": "Añadir fuente",
       "libraryEmpty": "La biblioteca está vacía. Añade una fuente para que este agente tenga de dónde responder.",
       "selectedCount": "{count, plural, =0 {Nada elegido: el agente transferirá las preguntas.} =1 {# fuente elegida} other {# fuentes elegidas}}",
-      "knowledgeSaved": "Conocimiento actualizado"
+      "knowledgeSaved": "Conocimiento actualizado",
+      "personaTitle": "Personalidad y límites",
+      "personaDesc": "Opcional. Deja un campo vacío para usar el valor por defecto de OgaDesk que aparece en gris; escribe para reemplazarlo en este agente.",
+      "personaGender": "Género",
+      "personaGenderPlaceholder": "p. ej. femenino",
+      "personaTone": "Tono",
+      "personaTonePlaceholder": "p. ej. cálido, claro y profesional",
+      "personaBehaviour": "Comportamiento",
+      "personaBehaviourPlaceholder": "Cómo debe actuar el agente, p. ej. hacer una pregunta a la vez",
+      "personaAvoid": "Cosas que evitar",
+      "personaAvoidPlaceholder": "p. ej. jerga, párrafos largos",
+      "personaNever": "Cosas que nunca debe hacer",
+      "personaNeverPlaceholder": "p. ej. prometer reembolsos, dar precios que no estén en la base de conocimiento",
+      "personaInheritHint": "Las reglas de seguridad de OgaDesk siempre se aplican, escribas lo que escribas aquí."
     },
     "library": {
       "title": "Biblioteca de conocimiento",
@@ -3574,7 +3599,10 @@
       "apiError": "Error de la API de {provider} ({status})",
       "embeddingsMalformed": "La respuesta de embeddings tenía un formato incorrecto.",
       "embeddingsMissingIndices": "A la respuesta de embeddings le faltaban los índices de resultados.",
-      "embeddingsMissingVector": "A la respuesta de embeddings le falta un vector."
+      "embeddingsMissingVector": "A la respuesta de embeddings le falta un vector.",
+      "creditsExhausted": "Tus créditos de IA de este mes se han agotado.",
+      "notInPlan": "Las respuestas de IA no están incluidas en tu plan.",
+      "unavailable": "La IA no está disponible temporalmente. Un compañero puede responder."
     },
     "tags": {
       "verifyFailed": "No se pudo verificar la propiedad del contacto y la etiqueta",
@@ -3908,7 +3936,8 @@
         "deleteFailed": "No se pudo eliminar el agente de IA",
         "sourceIdsRequired": "source_ids (lista) es obligatorio",
         "unknownSources": "Algunas fuentes no están en esta biblioteca",
-        "linkFailed": "No se pudo actualizar el conocimiento del agente"
+        "linkFailed": "No se pudo actualizar el conocimiento del agente",
+        "personaTooLong": "Uno de los campos de personalidad es demasiado largo."
       },
       "library": {
         "loadFailed": "No se pudo cargar la biblioteca de conocimiento",
@@ -3925,7 +3954,8 @@
         "urlInvalid": "Escribe una dirección web http(s) válida",
         "fileInvalid": "El archivo subido no es válido",
         "fileEmpty": "No se encontró texto en el archivo"
-      }
+      },
+      "platformNotInPlan": "La IA de OgaDesk no está incluida en tu plan. Mejora tu plan o usa tu propia clave API."
     },
     "automations": {
       "copyName": "{name} (Copia)",

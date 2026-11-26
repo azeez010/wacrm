@@ -18,6 +18,12 @@ export interface AgentWrite {
   channels?: AgentChannel[]
   priority?: number
   knowledge_mode?: KnowledgeMode
+  /** Optional persona overrides; null = inherit the platform default. */
+  persona_gender?: string | null
+  persona_tone?: string | null
+  persona_behaviour?: string | null
+  persona_avoid?: string | null
+  persona_never?: string | null
 }
 
 export type AgentInputError =
@@ -25,9 +31,12 @@ export type AgentInputError =
   | 'name_too_long'
   | 'prompt_too_long'
   | 'knowledge_mode_invalid'
+  | 'persona_too_long'
 
 export const AGENT_NAME_MAX = 80
 export const AGENT_PROMPT_MAX = 20_000
+/** Max lengths of the persona fields (mirrored by CHECKs in migration 115). */
+export const PERSONA_MAX = { persona_gender: 60, persona_tone: 400, persona_behaviour: 1500, persona_avoid: 1500, persona_never: 1500 } as const
 
 const optionalText = (v: unknown): string | null =>
   typeof v === 'string' && v.trim() ? v.trim() : null
@@ -70,6 +79,13 @@ export function parseAgentInput(
   if (!partial || has('priority')) {
     const p = Number(b.priority)
     out.priority = Number.isFinite(p) ? Math.min(100, Math.max(-100, Math.floor(p))) : 0
+  }
+  for (const [key, max] of Object.entries(PERSONA_MAX) as [keyof typeof PERSONA_MAX, number][]) {
+    if (!partial || has(key)) {
+      const v = optionalText(b[key])
+      if (v && v.length > max) return { error: 'persona_too_long' }
+      out[key] = v
+    }
   }
   if (!partial || has('knowledge_mode')) {
     const mode = has('knowledge_mode') ? b.knowledge_mode : 'selected'

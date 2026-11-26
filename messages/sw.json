@@ -2611,7 +2611,20 @@
       "addSource": "Ongeza chanzo",
       "libraryEmpty": "Maktaba iko tupu. Ongeza chanzo ili wakala huyu apate cha kujibu.",
       "selectedCount": "{count, plural, =0 {Hakuna kilichochaguliwa: wakala atakabidhi maswali.} =1 {Chanzo # kimechaguliwa} other {Vyanzo # vimechaguliwa}}",
-      "knowledgeSaved": "Maarifa yamesasishwa"
+      "knowledgeSaved": "Maarifa yamesasishwa",
+      "personaTitle": "Haiba na vizuizi",
+      "personaDesc": "Si lazima. Acha uwanja wazi kutumia chaguo-msingi la OgaDesk linaloonekana kwa rangi ya kijivu; andika ili kulibadilisha kwa wakala huyu.",
+      "personaGender": "Jinsia",
+      "personaGenderPlaceholder": "mfano: mwanamke",
+      "personaTone": "Toni",
+      "personaTonePlaceholder": "mfano: ya uchangamfu, wazi na ya kitaalamu",
+      "personaBehaviour": "Tabia",
+      "personaBehaviourPlaceholder": "Wakala atende vipi, mfano: auliza swali moja kwa wakati",
+      "personaAvoid": "Mambo ya kuepuka",
+      "personaAvoidPlaceholder": "mfano: lugha ya mitaani, aya ndefu",
+      "personaNever": "Mambo ya kutofanya kamwe",
+      "personaNeverPlaceholder": "mfano: kuahidi kurejeshewa pesa, kutaja bei zisizo kwenye msingi wa maarifa",
+      "personaInheritHint": "Kanuni za usalama za OgaDesk hutumika kila wakati, chochote utakachoandika hapa."
     },
     "library": {
       "title": "Maktaba ya maarifa",
@@ -3506,7 +3519,18 @@
       "providerOpenAiCompatible": "API inayoendana na OpenAI",
       "baseUrl": "URL ya msingi",
       "baseUrlHint": "URL ya msingi ya API inayoendana na OpenAI, mfano https://api.groq.com/openai/v1. /chat/completions huongezwa kiotomatiki usipoweka njia hiyo wewe mwenyewe.",
-      "missingBaseUrl": "Weka URL ya msingi ya API inayoendana na OpenAI."
+      "missingBaseUrl": "Weka URL ya msingi ya API inayoendana na OpenAI.",
+      "sourceTitle": "Majibu ya AI yanatoka wapi",
+      "sourceDesc": "Tumia AI inayokuja na OgaDesk, au unganisha ufunguo wa mtoa huduma wako mwenyewe.",
+      "sourcePlatform": "AI ya OgaDesk",
+      "sourcePlatformDesc": "Hakuna ufunguo unaohitajika. Inatumia krediti za AI zilizo kwenye mpango wako.",
+      "sourceOwn": "Ufunguo wangu wa API",
+      "sourceOwnDesc": "Tumia ufunguo wako wa OpenAI, Anthropic au unaooana. Hatuweki kikomo cha krediti; unalipa mtoa huduma wako.",
+      "creditsTitle": "Krediti za AI mwezi huu",
+      "creditsNotInPlan": "Majibu ya AI hayamo kwenye mpango wako wa sasa. Pandisha mpango au tumia ufunguo wako wa API.",
+      "creditsUnlimited": "Tokeni {used} zimetumika mwezi huu (mpango usio na kikomo).",
+      "creditsUsed": "Tokeni {used} kati ya {limit} zimetumika mwezi huu.",
+      "creditsExhausted": "Krediti zako za AI zimeisha. Majibu ya AI yamesitishwa hadi mwezi ujao; pandisha mpango wako au tumia ufunguo wako wa API."
     },
     "aiKnowledge": {
       "loadFailed": "Imeshindwa kupakia msingi wa maarifa",
@@ -3602,6 +3626,7 @@
         "api_keys": "Funguo za API",
         "webhook_endpoints": "Webhook zinazotoka",
         "ai_replies_per_month": "Majibu ya AI / mwezi",
+        "ai_tokens_per_month": "Krediti za AI (tokeni) / mwezi",
         "storage_mb": "Hifadhi ya media (MB)",
         "custom_fields_max": "Sehemu maalum za anwani",
         "custom_tables_max": "Majedwali maalum",
@@ -3968,7 +3993,10 @@
       "apiError": "Hitilafu ya API ya {provider} ({status})",
       "embeddingsMalformed": "Jibu la embeddings lilikuwa na kasoro.",
       "embeddingsMissingIndices": "Jibu la embeddings halikuwa na fahirisi za matokeo.",
-      "embeddingsMissingVector": "Jibu la embeddings halina vekta."
+      "embeddingsMissingVector": "Jibu la embeddings halina vekta.",
+      "creditsExhausted": "Krediti zako za AI za mwezi huu zimeisha.",
+      "notInPlan": "Majibu ya AI hayamo kwenye mpango wako.",
+      "unavailable": "AI haipatikani kwa muda. Mwenzako anaweza kujibu."
     },
     "tags": {
       "verifyFailed": "Imeshindwa kuthibitisha umiliki wa lebo ya anwani",
@@ -5060,7 +5088,8 @@
         "deleteFailed": "Imeshindwa kufuta wakala wa AI",
         "sourceIdsRequired": "source_ids (safu) inahitajika",
         "unknownSources": "Baadhi ya vyanzo havipo kwenye maktaba hii",
-        "linkFailed": "Imeshindwa kusasisha maarifa ya wakala"
+        "linkFailed": "Imeshindwa kusasisha maarifa ya wakala",
+        "personaTooLong": "Moja ya sehemu za haiba ni ndefu mno."
       },
       "library": {
         "loadFailed": "Imeshindwa kupakia maktaba ya maarifa",
@@ -5077,7 +5106,8 @@
         "urlInvalid": "Weka anwani halali ya wavuti ya http(s)",
         "fileInvalid": "Faili iliyopakiwa si halali",
         "fileEmpty": "Hakuna maandishi yaliyopatikana kwenye faili"
-      }
+      },
+      "platformNotInPlan": "AI ya OgaDesk haimo kwenye mpango wako. Pandisha mpango au tumia ufunguo wako wa API."
     },
     "automations": {
       "copyName": "{name} (Nakala)",

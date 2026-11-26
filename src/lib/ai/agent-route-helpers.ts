@@ -12,6 +12,7 @@ export function agentInputErrorResponse(error: AgentInputError) {
     name_too_long: 'ai.agents.nameTooLong',
     prompt_too_long: 'ai.agents.promptTooLong',
     knowledge_mode_invalid: 'ai.agents.knowledgeModeInvalid',
+    persona_too_long: 'ai.agents.personaTooLong',
   }[error]
   return NextResponse.json({ error: t(key), code: error }, { status: 400 })
 }

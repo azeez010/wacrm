@@ -19,6 +19,11 @@ export interface AgentDto {
   channels: AgentChannel[]
   priority: number
   knowledge_mode: KnowledgeMode
+  persona_gender?: string | null
+  persona_tone?: string | null
+  persona_behaviour?: string | null
+  persona_avoid?: string | null
+  persona_never?: string | null
   source_count: number
   created_at: string
   updated_at: string

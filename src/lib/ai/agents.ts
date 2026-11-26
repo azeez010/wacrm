@@ -23,10 +23,16 @@ export interface AiAgentRow {
   priority: number
   knowledge_mode: KnowledgeMode
   created_at: string
+  /** Optional persona overrides; null = inherit the platform default. */
+  persona_gender?: string | null
+  persona_tone?: string | null
+  persona_behaviour?: string | null
+  persona_avoid?: string | null
+  persona_never?: string | null
 }
 
 export const AGENT_COLUMNS =
-  'id, name, is_active, is_default, model, system_prompt, auto_reply_enabled, auto_reply_max_per_conversation, handoff_agent_id, channels, priority, knowledge_mode, created_at'
+  'id, name, is_active, is_default, model, system_prompt, auto_reply_enabled, auto_reply_max_per_conversation, handoff_agent_id, channels, priority, knowledge_mode, created_at, persona_gender, persona_tone, persona_behaviour, persona_avoid, persona_never'
 
 export const AGENT_CHANNELS: readonly AgentChannel[] = ['whatsapp', 'web_chat']
 

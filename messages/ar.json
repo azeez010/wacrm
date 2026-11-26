@@ -2611,7 +2611,20 @@
       "addSource": "إضافة مصدر",
       "libraryEmpty": "المكتبة فارغة. أضف مصدرًا ليجد هذا الوكيل ما يجيب منه.",
       "selectedCount": "{count, plural, =0 {لم يُحدَّد شيء: سيحوّل الوكيل الأسئلة.} =1 {مصدر واحد محدد} other {# مصادر محددة}}",
-      "knowledgeSaved": "تم تحديث المعرفة"
+      "knowledgeSaved": "تم تحديث المعرفة",
+      "personaTitle": "الشخصية والضوابط",
+      "personaDesc": "اختياري. اترك الحقل فارغًا لاستخدام القيمة الافتراضية من OgaDesk الظاهرة باللون الرمادي؛ اكتب لتجاوزها لهذا الوكيل.",
+      "personaGender": "الجنس",
+      "personaGenderPlaceholder": "مثال: أنثى",
+      "personaTone": "النبرة",
+      "personaTonePlaceholder": "مثال: ودودة وواضحة ومهنية",
+      "personaBehaviour": "السلوك",
+      "personaBehaviourPlaceholder": "كيف يتصرف الوكيل، مثال: طرح سؤال واحد في كل مرة",
+      "personaAvoid": "أمور يجب تجنبها",
+      "personaAvoidPlaceholder": "مثال: العامية، الفقرات الطويلة",
+      "personaNever": "أمور يُمنع فعلها",
+      "personaNeverPlaceholder": "مثال: وعد باسترداد الأموال، ذكر أسعار غير موجودة في قاعدة المعرفة",
+      "personaInheritHint": "قواعد الأمان الخاصة بـ OgaDesk تُطبَّق دائمًا مهما كتبت هنا."
     },
     "library": {
       "title": "مكتبة المعرفة",
@@ -3506,7 +3519,18 @@
       "providerOpenAiCompatible": "واجهة متوافقة مع OpenAI",
       "baseUrl": "الرابط الأساسي",
       "baseUrlHint": "الرابط الأساسي للواجهة المتوافقة مع OpenAI، مثل https://api.groq.com/openai/v1. يُضاف /chat/completions تلقائيًا ما لم تضمّن هذا المسار بنفسك.",
-      "missingBaseUrl": "أدخل الرابط الأساسي للواجهة المتوافقة مع OpenAI."
+      "missingBaseUrl": "أدخل الرابط الأساسي للواجهة المتوافقة مع OpenAI.",
+      "sourceTitle": "مصدر ردود الذكاء الاصطناعي",
+      "sourceDesc": "استخدم الذكاء الاصطناعي المضمّن في OgaDesk أو اربط مفتاح مزوّدك الخاص.",
+      "sourcePlatform": "ذكاء OgaDesk الاصطناعي",
+      "sourcePlatformDesc": "لا حاجة لمفتاح. يستخدم رصيد الذكاء الاصطناعي المضمّن في خطتك.",
+      "sourceOwn": "مفتاح API الخاص بي",
+      "sourceOwnDesc": "استخدم مفتاح OpenAI أو Anthropic أو متوافقًا. لا حدّ رصيد من جانبنا؛ تدفع لمزوّدك مباشرة.",
+      "creditsTitle": "رصيد الذكاء الاصطناعي هذا الشهر",
+      "creditsNotInPlan": "ردود الذكاء الاصطناعي غير مشمولة في خطتك الحالية. قم بالترقية أو استخدم مفتاح API الخاص بك.",
+      "creditsUnlimited": "تم استخدام {used} رمزًا هذا الشهر (خطة غير محدودة).",
+      "creditsUsed": "تم استخدام {used} من {limit} رمزًا هذا الشهر.",
+      "creditsExhausted": "نفد رصيد الذكاء الاصطناعي. ردود الذكاء الاصطناعي متوقفة حتى الشهر القادم؛ قم بترقية خطتك أو استخدم مفتاح API الخاص بك."
     },
     "aiKnowledge": {
       "loadFailed": "فشل تحميل قاعدة المعرفة",
@@ -3602,6 +3626,7 @@
         "api_keys": "مفاتيح API",
         "webhook_endpoints": "خطافات الويب الصادرة",
         "ai_replies_per_month": "ردود الذكاء الاصطناعي / شهريًا",
+        "ai_tokens_per_month": "رصيد الذكاء الاصطناعي (رموز) / شهر",
         "storage_mb": "تخزين الوسائط (ميغابايت)",
         "custom_fields_max": "حقول جهات الاتصال المخصصة",
         "custom_tables_max": "الجداول المخصصة",
@@ -3968,7 +3993,10 @@
       "apiError": "خطأ في API لدى {provider} ({status})",
       "embeddingsMalformed": "استجابة التضمينات تالفة.",
       "embeddingsMissingIndices": "استجابة التضمينات تفتقد إلى فهارس النتائج.",
-      "embeddingsMissingVector": "استجابة التضمينات تفتقد إلى متجه."
+      "embeddingsMissingVector": "استجابة التضمينات تفتقد إلى متجه.",
+      "creditsExhausted": "نفد رصيد الذكاء الاصطناعي لهذا الشهر.",
+      "notInPlan": "ردود الذكاء الاصطناعي غير مشمولة في خطتك.",
+      "unavailable": "الذكاء الاصطناعي غير متاح مؤقتًا. يمكن لأحد زملائك الرد."
     },
     "tags": {
       "verifyFailed": "تعذّر التحقق من ملكية وسم جهة الاتصال",
@@ -5060,7 +5088,8 @@
         "deleteFailed": "فشل حذف وكيل الذكاء الاصطناعي",
         "sourceIdsRequired": "source_ids (مصفوفة) مطلوب",
         "unknownSources": "بعض المصادر ليست في هذه المكتبة",
-        "linkFailed": "فشل تحديث معرفة الوكيل"
+        "linkFailed": "فشل تحديث معرفة الوكيل",
+        "personaTooLong": "أحد حقول الشخصية طويل جدًا."
       },
       "library": {
         "loadFailed": "فشل تحميل مكتبة المعرفة",
@@ -5077,7 +5106,8 @@
         "urlInvalid": "أدخل عنوان ويب http(s) صالحًا",
         "fileInvalid": "الملف المرفوع غير صالح",
         "fileEmpty": "لم يُعثر على نص في الملف"
-      }
+      },
+      "platformNotInPlan": "ذكاء OgaDesk الاصطناعي غير مشمول في خطتك. قم بالترقية أو استخدم مفتاح API الخاص بك."
     },
     "automations": {
       "copyName": "{name} (نسخة)",

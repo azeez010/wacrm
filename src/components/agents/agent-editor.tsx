@@ -41,6 +41,20 @@ interface Form {
   handoff_agent_id: string;
   channels: AgentChannel[];
   priority: number;
+  persona_gender: string;
+  persona_tone: string;
+  persona_behaviour: string;
+  persona_avoid: string;
+  persona_never: string;
+}
+
+interface PersonaDefaults {
+  name: string | null;
+  gender: string | null;
+  tone: string | null;
+  behaviour: string | null;
+  avoid: string | null;
+  never: string | null;
 }
 
 /** A template pre-fills a NEW agent; its name/description are already translated. */
@@ -59,6 +73,11 @@ function toForm(a: AgentDto | null, preset?: AgentPreset | null): Form {
     handoff_agent_id: a?.handoff_agent_id ?? '',
     channels: a?.channels ?? preset?.channels ?? ['whatsapp', 'web_chat'],
     priority: a?.priority ?? 0,
+    persona_gender: a?.persona_gender ?? '',
+    persona_tone: a?.persona_tone ?? '',
+    persona_behaviour: a?.persona_behaviour ?? '',
+    persona_avoid: a?.persona_avoid ?? '',
+    persona_never: a?.persona_never ?? '',
   };
 }
 
@@ -90,6 +109,18 @@ export function AgentEditor({
   const [tab, setTab] = useState<SubTab>(agent ? initialTab : 'setup');
   const [form, setForm] = useState<Form>(() => toForm(agent, agent ? null : preset));
   const [saving, setSaving] = useState(false);
+  // The platform's default persona: shown as the placeholders of the optional persona fields (empty = use it).
+  const [defaults, setDefaults] = useState<PersonaDefaults | null>(null);
+  useEffect(() => {
+    let live = true;
+    fetch('/api/ai/persona-defaults')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d: PersonaDefaults | null) => live && setDefaults(d))
+      .catch(() => undefined);
+    return () => {
+      live = false;
+    };
+  }, []);
   const [deleting, setDeleting] = useState(false);
 
   const set = <K extends keyof Form>(k: K, v: Form[K]) => setForm((f) => ({ ...f, [k]: v }));
@@ -179,7 +210,7 @@ export function AgentEditor({
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-1.5">
                   <Label htmlFor="ag-name">{t('name')}</Label>
-                  <Input id="ag-name" value={form.name} onChange={(e) => set('name', e.target.value)} placeholder={t('namePlaceholder')} maxLength={80} disabled={disabled} />
+                  <Input id="ag-name" value={form.name} onChange={(e) => set('name', e.target.value)} placeholder={defaults?.name || t('namePlaceholder')} maxLength={80} disabled={disabled} />
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="ag-model">
@@ -218,6 +249,36 @@ export function AgentEditor({
                 </div>
                 <Switch checked={form.is_active} onCheckedChange={(v) => set('is_active', v)} disabled={disabled} />
               </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">{t('personaTitle')}</CardTitle>
+              <p className="text-sm text-muted-foreground">{t('personaDesc')}</p>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                  <Label htmlFor="ag-gender">{t('personaGender')}</Label>
+                  <Input id="ag-gender" value={form.persona_gender} onChange={(e) => set('persona_gender', e.target.value)} placeholder={defaults?.gender || t('personaGenderPlaceholder')} maxLength={60} disabled={disabled} />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="ag-tone">{t('personaTone')}</Label>
+                  <Input id="ag-tone" value={form.persona_tone} onChange={(e) => set('persona_tone', e.target.value)} placeholder={defaults?.tone || t('personaTonePlaceholder')} maxLength={400} disabled={disabled} />
+                </div>
+              </div>
+              {([
+                ['persona_behaviour', 'personaBehaviour', defaults?.behaviour, 'personaBehaviourPlaceholder'],
+                ['persona_avoid', 'personaAvoid', defaults?.avoid, 'personaAvoidPlaceholder'],
+                ['persona_never', 'personaNever', defaults?.never, 'personaNeverPlaceholder'],
+              ] as const).map(([field, label, dflt, fallback]) => (
+                <div key={field} className="space-y-1.5">
+                  <Label htmlFor={`ag-${field}`}>{t(label)}</Label>
+                  <Textarea id={`ag-${field}`} value={form[field]} onChange={(e) => set(field, e.target.value)} placeholder={dflt || t(fallback)} rows={3} maxLength={1500} disabled={disabled} />
+                </div>
+              ))}
+              <p className="text-xs text-muted-foreground">{t('personaInheritHint')}</p>
             </CardContent>
           </Card>
 

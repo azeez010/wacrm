@@ -2680,7 +2680,18 @@
       "providerOpenAiCompatible": "OpenAI-compatible API",
       "baseUrl": "Base URL",
       "baseUrlHint": "Base URL for the OpenAI-compatible API, for example https://api.groq.com/openai/v1. /chat/completions is added automatically unless you include that path yourself.",
-      "missingBaseUrl": "Enter the Base URL for the OpenAI-compatible API."
+      "missingBaseUrl": "Enter the Base URL for the OpenAI-compatible API.",
+      "sourceTitle": "Where AI replies come from",
+      "sourceDesc": "Use the AI included with OgaDesk, or connect your own provider key.",
+      "sourcePlatform": "OgaDesk AI",
+      "sourcePlatformDesc": "No key needed. Uses the AI credits included in your plan.",
+      "sourceOwn": "My own API key",
+      "sourceOwnDesc": "Use your OpenAI, Anthropic or compatible key. No credit limit from us; you pay your provider.",
+      "creditsTitle": "AI credits this month",
+      "creditsNotInPlan": "AI replies aren't included in your current plan. Upgrade, or use your own API key.",
+      "creditsUnlimited": "{used} tokens used this month (unlimited plan).",
+      "creditsUsed": "{used} of {limit} tokens used this month.",
+      "creditsExhausted": "Your AI credits are used up. AI replies are paused until next month; upgrade your plan or use your own API key."
     },
     "aiKnowledge": {
       "loadFailed": "Failed to load knowledge base",
@@ -2796,6 +2807,7 @@
         "api_keys": "API keys",
         "webhook_endpoints": "Outbound webhooks",
         "ai_replies_per_month": "AI replies / month",
+        "ai_tokens_per_month": "AI credits (tokens) / month",
         "storage_mb": "Media storage (MB)",
         "custom_fields_max": "Custom contact fields",
         "custom_tables_max": "Custom tables",
@@ -3251,7 +3263,20 @@
       "addSource": "Add source",
       "libraryEmpty": "The library is empty. Add a source to give this agent something to answer from.",
       "selectedCount": "{count, plural, =0 {Nothing selected: the agent will hand off questions.} =1 {# source selected} other {# sources selected}}",
-      "knowledgeSaved": "Knowledge updated"
+      "knowledgeSaved": "Knowledge updated",
+      "personaTitle": "Personality and guardrails",
+      "personaDesc": "Optional. Leave a field empty to use the OgaDesk default shown in grey; type to override it for this agent.",
+      "personaGender": "Gender",
+      "personaGenderPlaceholder": "e.g. female",
+      "personaTone": "Tone",
+      "personaTonePlaceholder": "e.g. warm, clear and professional",
+      "personaBehaviour": "Behaviour",
+      "personaBehaviourPlaceholder": "How the agent should act, e.g. ask one question at a time",
+      "personaAvoid": "Things to avoid",
+      "personaAvoidPlaceholder": "e.g. slang, long paragraphs",
+      "personaNever": "Things never to do",
+      "personaNeverPlaceholder": "e.g. promise refunds, share prices not in the knowledge base",
+      "personaInheritHint": "OgaDesk's own safety rules always apply, whatever you write here."
     },
     "library": {
       "title": "Knowledge library",
@@ -3574,7 +3599,10 @@
       "apiError": "{provider} API error ({status})",
       "embeddingsMalformed": "Embeddings response was malformed.",
       "embeddingsMissingIndices": "Embeddings response was missing result indices.",
-      "embeddingsMissingVector": "Embeddings response missing a vector."
+      "embeddingsMissingVector": "Embeddings response missing a vector.",
+      "creditsExhausted": "Your AI credits for this month are used up.",
+      "notInPlan": "AI replies are not included in your plan.",
+      "unavailable": "AI is temporarily unavailable. A teammate can reply instead."
     },
     "tags": {
       "verifyFailed": "Could not verify contact tag ownership",
@@ -3908,7 +3936,8 @@
         "deleteFailed": "Failed to delete the AI agent",
         "sourceIdsRequired": "source_ids (array) is required",
         "unknownSources": "Some sources are not in this library",
-        "linkFailed": "Failed to update the agent's knowledge"
+        "linkFailed": "Failed to update the agent's knowledge",
+        "personaTooLong": "One of the personality fields is too long."
       },
       "library": {
         "loadFailed": "Failed to load the knowledge library",
@@ -3925,7 +3954,8 @@
         "urlInvalid": "Enter a valid http(s) web address",
         "fileInvalid": "The uploaded file is not valid",
         "fileEmpty": "No text was found in the file"
-      }
+      },
+      "platformNotInPlan": "OgaDesk AI isn't included in your plan. Upgrade, or use your own API key."
     },
     "automations": {
       "copyName": "{name} (Copy)",

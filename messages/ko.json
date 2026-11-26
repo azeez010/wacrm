@@ -2680,7 +2680,18 @@
       "providerOpenAiCompatible": "OpenAI 호환 API",
       "baseUrl": "기본 URL",
       "baseUrlHint": "OpenAI 호환 API의 기본 URL입니다. 예: https://api.groq.com/openai/v1. /chat/completions 경로는 직접 입력하지 않는 경우 자동으로 추가됩니다.",
-      "missingBaseUrl": "OpenAI 호환 API의 기본 URL을 입력하세요."
+      "missingBaseUrl": "OpenAI 호환 API의 기본 URL을 입력하세요.",
+      "sourceTitle": "AI 답변의 출처",
+      "sourceDesc": "OgaDesk에 포함된 AI를 사용하거나 직접 가진 제공업체 키를 연결하세요.",
+      "sourcePlatform": "OgaDesk AI",
+      "sourcePlatformDesc": "키가 필요 없습니다. 요금제에 포함된 AI 크레딧을 사용합니다.",
+      "sourceOwn": "내 API 키",
+      "sourceOwnDesc": "OpenAI, Anthropic 또는 호환 키를 사용합니다. 저희 쪽 크레딧 제한은 없으며 비용은 제공업체에 직접 지불합니다.",
+      "creditsTitle": "이번 달 AI 크레딧",
+      "creditsNotInPlan": "현재 요금제에는 AI 답변이 포함되어 있지 않습니다. 업그레이드하거나 내 API 키를 사용하세요.",
+      "creditsUnlimited": "이번 달 {used} 토큰 사용 (무제한 요금제).",
+      "creditsUsed": "이번 달 {limit} 토큰 중 {used} 사용.",
+      "creditsExhausted": "AI 크레딧을 모두 사용했습니다. 다음 달까지 AI 답변이 일시 중지됩니다. 요금제를 업그레이드하거나 내 API 키를 사용하세요."
     },
     "aiKnowledge": {
       "loadFailed": "지식베이스를 불러오지 못했습니다",
@@ -2796,6 +2807,7 @@
         "api_keys": "API 키",
         "webhook_endpoints": "아웃바운드 웹훅",
         "ai_replies_per_month": "월 AI 답변",
+        "ai_tokens_per_month": "AI 크레딧(토큰) / 월",
         "storage_mb": "미디어 저장소 (MB)",
         "custom_fields_max": "사용자 지정 연락처 필드",
         "custom_tables_max": "사용자 지정 테이블",
@@ -3251,7 +3263,20 @@
       "addSource": "출처 추가",
       "libraryEmpty": "라이브러리가 비어 있습니다. 이 에이전트가 답할 수 있도록 출처를 추가하세요.",
       "selectedCount": "선택한 출처 {count}개",
-      "knowledgeSaved": "지식을 업데이트했습니다"
+      "knowledgeSaved": "지식을 업데이트했습니다",
+      "personaTitle": "성격과 가이드라인",
+      "personaDesc": "선택 사항입니다. 비워 두면 회색으로 표시된 OgaDesk 기본값을 사용하고, 입력하면 이 에이전트에 한해 덮어씁니다.",
+      "personaGender": "성별",
+      "personaGenderPlaceholder": "예: 여성",
+      "personaTone": "어조",
+      "personaTonePlaceholder": "예: 따뜻하고 명확하며 전문적인",
+      "personaBehaviour": "행동 방식",
+      "personaBehaviourPlaceholder": "에이전트가 행동하는 방식, 예: 한 번에 하나씩 질문하기",
+      "personaAvoid": "피해야 할 것",
+      "personaAvoidPlaceholder": "예: 은어, 긴 문단",
+      "personaNever": "절대 하지 말아야 할 것",
+      "personaNeverPlaceholder": "예: 환불 약속, 지식 베이스에 없는 가격 안내",
+      "personaInheritHint": "여기에 무엇을 쓰더라도 OgaDesk의 안전 규칙은 항상 적용됩니다."
     },
     "library": {
       "title": "지식 라이브러리",
@@ -3574,7 +3599,10 @@
       "apiError": "{provider} API 오류 ({status})",
       "embeddingsMalformed": "임베딩 응답 형식이 올바르지 않습니다.",
       "embeddingsMissingIndices": "임베딩 응답에 결과 인덱스가 없습니다.",
-      "embeddingsMissingVector": "임베딩 응답에 벡터가 누락되었습니다."
+      "embeddingsMissingVector": "임베딩 응답에 벡터가 누락되었습니다.",
+      "creditsExhausted": "이번 달 AI 크레딧을 모두 사용했습니다.",
+      "notInPlan": "요금제에 AI 답변이 포함되어 있지 않습니다.",
+      "unavailable": "AI를 일시적으로 사용할 수 없습니다. 팀원이 대신 답변할 수 있습니다."
     },
     "tags": {
       "verifyFailed": "연락처 태그 소유권을 확인할 수 없습니다",
@@ -3908,7 +3936,8 @@
         "deleteFailed": "AI 에이전트를 삭제하지 못했습니다",
         "sourceIdsRequired": "source_ids(배열)는 필수입니다",
         "unknownSources": "일부 출처가 이 라이브러리에 없습니다",
-        "linkFailed": "에이전트의 지식을 업데이트하지 못했습니다"
+        "linkFailed": "에이전트의 지식을 업데이트하지 못했습니다",
+        "personaTooLong": "성격 항목 중 하나가 너무 깁니다."
       },
       "library": {
         "loadFailed": "지식 라이브러리를 불러오지 못했습니다",
@@ -3925,7 +3954,8 @@
         "urlInvalid": "올바른 http(s) 웹 주소를 입력하세요",
         "fileInvalid": "업로드한 파일이 올바르지 않습니다",
         "fileEmpty": "파일에서 텍스트를 찾지 못했습니다"
-      }
+      },
+      "platformNotInPlan": "OgaDesk AI는 현재 요금제에 포함되어 있지 않습니다. 업그레이드하거나 내 API 키를 사용하세요."
     },
     "automations": {
       "copyName": "{name} (복사본)",

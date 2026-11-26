@@ -28,6 +28,8 @@ export default function robots(): MetadataRoute.Robots {
         '/agents',
         '/notifications',
         '/settings',
+        '/tools/',
+        '/billing/',
       ],
     },
     sitemap: `${SITE_URL}/sitemap.xml`,

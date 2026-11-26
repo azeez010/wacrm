@@ -19,7 +19,10 @@ function CurrencyFlag({ code }: { code: string }) {
 
 export function CurrencySwitcher({ current, options, className }: { current: string; options: string[]; className?: string }) {
   const [busy, setBusy] = useState(false)
-  if (options.length < 2) return null
+  // Currencies with no flag (XOF, XAF: shared by many countries) aren't offered in the
+  // picker, but stay supported: a visitor auto-detected on one keeps it (as `current`).
+  const choices = options.filter((code) => code === current || !isSupportedCurrency(code) || CURRENCY_FLAG[code])
+  if (choices.length < 2) return null
 
   async function choose(code: string) {
     if (code === current || busy) return
@@ -41,7 +44,7 @@ export function CurrencySwitcher({ current, options, className }: { current: str
         <ChevronDown className="size-3.5 opacity-60" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="max-h-72 overflow-y-auto">
-        {options.map((code) => (
+        {choices.map((code) => (
           <DropdownMenuItem key={code} onClick={() => void choose(code)} className="justify-between gap-4">
             <span className="flex items-center gap-2">
               <CurrencyFlag code={code} />

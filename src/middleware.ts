@@ -1,7 +1,8 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 import createIntlMiddleware from 'next-intl/middleware'
-import { LOCALES } from '@/i18n/locales'
+import { LOCALES, LOCALE_COOKIE } from '@/i18n/locales'
+import { LOCALE_AUTH_PATH } from '@/lib/marketing/route'
 import { routing } from '@/i18n/routing'
 import { canonicalRedirect } from '@/lib/canonical-host'
 import { applyReferralCookie } from '@/lib/referral'
@@ -66,6 +67,15 @@ async function handle(request: NextRequest) {
 
   if (PUBLIC_FORM_PATH.test(request.nextUrl.pathname)) {
     return NextResponse.next({ request })
+  }
+  // `/<lang>/signup` and `/<lang>/login`: shareable localized links. Remember the language, then use the one auth page.
+  const authLink = LOCALE_AUTH_PATH.exec(request.nextUrl.pathname)
+  if (authLink) {
+    const url = request.nextUrl.clone()
+    url.pathname = `/${authLink[2]}`
+    const res = NextResponse.redirect(url, 307)
+    res.cookies.set(LOCALE_COOKIE, authLink[1]!, { path: '/', maxAge: 60 * 60 * 24 * 365, sameSite: 'lax' })
+    return res
   }
   const content = CONTENT_ROUTE.exec(request.nextUrl.pathname)
   if (content) {

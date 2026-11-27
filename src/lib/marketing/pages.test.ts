@@ -21,4 +21,17 @@ describe('marketing content', () => {
       expect(used).toEqual(t.variables.map((_, i) => i + 1))
     }
   })
+
+  it('French pages are French, link only to French pages, and coming-soon pages promise nothing', () => {
+    const frPages = MARKETING_PAGES.filter((p) => p.lang === 'fr')
+    expect(frPages.length).toBeGreaterThanOrEqual(4)
+    for (const p of frPages) {
+      expect(p.slug).toMatch(/cameroun|cote-d-ivoire|senegal|rdc/)
+      expect(`${p.h1} ${p.lead}`).not.toMatch(/\b(Start free|Sign up|WhatsApp Business API for)\b/)
+      for (const r of p.related) expect(MARKETING_PAGES.find((x) => x.slug === r)?.lang).toBe('fr')
+    }
+    const soon = MARKETING_PAGES.filter((p) => p.comingSoon)
+    expect(soon.map((p) => p.slug)).toContain('click-to-whatsapp-ads-crm')
+    for (const p of soon) expect(JSON.stringify(p)).not.toMatch(/available now|live now|launched/i)
+  })
 })

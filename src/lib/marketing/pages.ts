@@ -5,6 +5,10 @@
 export interface MarketingPage {
   slug: string
   kind: 'solutions' | 'compare' | 'industries'
+  /** Language the page is written in. English lives at the unprefixed URL, French under /fr. */
+  lang?: 'en' | 'fr'
+  /** Feature that is announced but not shipped yet: shows a badge and promises nothing. */
+  comingSoon?: boolean
   /** Short name used in lists and breadcrumbs. */
   name: string
   metaTitle: string
@@ -19,6 +23,8 @@ export interface MarketingPage {
   steps: { title: string; body: string }[]
   /** Optional comparison table (compare pages). */
   table?: { heading: string; rows: [string, string, string][]; columns: [string, string, string] }
+  /** Small print under the table, e.g. when competitor details were last checked. */
+  note?: string
   faq: { question: string; answer: string }[]
   related: string[]
 }
@@ -57,7 +63,7 @@ export const MARKETING_PAGES: MarketingPage[] = [
       { question: 'Can I import my existing customers?', answer: 'Yes. Upload a CSV with names and phone numbers in international format, add tags, and map any extra columns to custom fields.' },
       { question: 'Do I need a card to start?', answer: 'No. You can start free and upgrade when you need more numbers, seats or messages.' },
     ],
-    related: ['shared-whatsapp-inbox', 'whatsapp-broadcast', 'whatsapp-business-api-nigeria'],
+    related: ['shared-whatsapp-inbox', 'ai-whatsapp-auto-reply', 'whatsapp-contact-forms', 'click-to-whatsapp-ads-crm'],
   },
   {
     slug: 'shared-whatsapp-inbox',
@@ -92,7 +98,7 @@ export const MARKETING_PAGES: MarketingPage[] = [
       { question: 'Does it work on a phone?', answer: 'Yes. OgaDesk runs in the browser on desktop and mobile, with notifications.' },
       { question: 'What happens after 24 hours?', answer: 'WhatsApp allows free replies within 24 hours of a customer message. After that you use an approved message template, which OgaDesk lets you create and send.' },
     ],
-    related: ['whatsapp-crm', 'whatsapp-broadcast', 'whatsapp-business-api-nigeria'],
+    related: ['whatsapp-crm', 'website-live-chat-widget', 'ai-whatsapp-auto-reply', 'whatsapp-broadcast'],
   },
   {
     slug: 'whatsapp-broadcast',
@@ -127,7 +133,7 @@ export const MARKETING_PAGES: MarketingPage[] = [
       { question: 'What if someone asks to stop?', answer: 'You can add an Unsubscribe automation that asks them to confirm and then blocks them, so they never get another message.' },
       { question: 'How long do templates take to approve?', answer: 'Usually between a few minutes and a day. The status updates inside OgaDesk.' },
     ],
-    related: ['whatsapp-crm', 'shared-whatsapp-inbox', 'whatsapp-business-api-nigeria'],
+    related: ['whatsapp-crm', 'shared-whatsapp-inbox', 'whatsapp-automations', 'whatsapp-business-api-nigeria'],
   },
   {
     slug: 'whatsapp-business-api-nigeria',
@@ -482,6 +488,704 @@ MARKETING_PAGES.push(
       { question: 'Can I give riders access?', answer: 'You can invite teammates with limited roles so each person sees only what they need.' },
     ],
   }),
+)
+
+
+// ---------------- competitor comparisons ----------------
+// Keep competitor claims to stable, public facts (who it is built for, how it bills, what it offers).
+// No competitor prices: they change often and public sources disagree. Re-check the details when editing.
+const COMPARE_CHECKED = 'November 2026'
+const OGADESK_ROWS: Record<string, string> = {
+  built: 'Small and growing businesses in Africa',
+  currency: 'Naira, with an estimate in your own currency',
+  pricing: 'Flat monthly plans, free to start',
+  inbox: 'Yes, with assignment, roles and notes',
+  broadcasts: 'Yes, to tags and segments, with reports',
+  flows: 'Yes, chatbot flows and automations',
+  ai: 'AI replies from your own knowledge library',
+  live: 'Yes, website chat in the same inbox',
+  otp: 'Yes, WhatsApp OTP and verification API',
+  languages: 'English, French, Spanish, Portuguese, Arabic, Swahili and more',
+}
+const ROW_LABELS: Record<string, string> = {
+  built: 'Built for', currency: 'Plan currency', pricing: 'How plans are priced', inbox: 'Shared team inbox',
+  broadcasts: 'Broadcasts', flows: 'Chatbot flows', ai: 'AI replies', live: 'Website live chat',
+  otp: 'OTP codes by API', languages: 'App languages',
+}
+const comparePage = (c: {
+  slug: string; rival: string; metaDescription: string; lead: string; pickThem: string; pickUs: string;
+  rows: Partial<Record<keyof typeof ROW_LABELS, string>> & { built: string; currency: string; pricing: string };
+  faq: MarketingPage['faq']; related: string[]
+}): MarketingPage => ({
+  slug: c.slug,
+  kind: 'compare',
+  name: `OgaDesk vs ${c.rival}`,
+  metaTitle: `${c.rival} alternative for African businesses: OgaDesk vs ${c.rival}`,
+  metaDescription: c.metaDescription,
+  eyebrow: 'Compare',
+  h1: `OgaDesk vs ${c.rival}: which WhatsApp tool fits your business?`,
+  lead: c.lead,
+  problems: [
+    { title: `Choose ${c.rival} if…`, body: c.pickThem },
+    { title: 'Choose OgaDesk if…', body: c.pickUs },
+    { title: 'Try before you decide', body: 'OgaDesk is free to start with no card. Connect your number, invite a teammate and see how it feels with real customers.' },
+  ],
+  features: [
+    { title: 'Priced for local budgets', body: 'Plans are set in naira, and you can see an estimate in cedis, shillings, rand and other currencies. No surprise when the dollar moves.' },
+    { title: 'Everything in one plan', body: 'From the Starter plan up, the shared inbox, contacts, pipelines, broadcasts, chatbot flows, automations and AI replies are all included, with no add-ons for the basics.' },
+    { title: 'WhatsApp and your website together', body: 'Website live chat lands in the same inbox, and the same flows, automations and AI answer both.' },
+    { title: 'Built for developers too', body: 'Send OTP and verification codes over WhatsApp, and use the API and webhooks to connect your own systems.' },
+  ],
+  steps: [
+    { title: 'Sign up free', body: 'Create an account in a minute, no card needed.' },
+    { title: 'Connect your number', body: 'Sign in with Meta, or link the number from your WhatsApp Business app.' },
+    { title: 'Invite your team', body: 'Import contacts, set up a welcome flow and start replying together.' },
+  ],
+  table: {
+    heading: 'Side by side',
+    columns: ['', c.rival, 'OgaDesk'],
+    rows: Object.keys(ROW_LABELS)
+      .filter((k) => c.rows[k] !== undefined)
+      .map((k) => [ROW_LABELS[k], c.rows[k] as string, OGADESK_ROWS[k]] as [string, string, string]),
+  },
+  note: `${c.rival} details are based on its public website and listings, checked in ${COMPARE_CHECKED}. Plans and features change, so check ${c.rival}’s own site for the latest. On every provider, Meta charges its own WhatsApp message fees on top of the plan.`,
+  faq: c.faq,
+  related: c.related,
+})
+
+MARKETING_PAGES.push(
+  comparePage({
+    slug: 'wati-alternative',
+    rival: 'WATI',
+    metaDescription: 'Looking for a WATI alternative? Compare OgaDesk and WATI on pricing currency, team inbox, broadcasts, chatbot flows and AI. Built for African businesses.',
+    lead: 'WATI is a popular WhatsApp Business API tool with a team inbox, broadcasts and a chatbot builder. OgaDesk covers the same daily work, priced in naira and built for businesses across Africa.',
+    pickThem: 'You already run on WATI, your team is used to it, and paying in US dollars works for your budget.',
+    pickUs: 'You want a plan set in naira, a free way to start, website chat in the same inbox, and AI replies trained on your own answers.',
+    rows: {
+      built: 'Businesses worldwide, with a strong base in India',
+      currency: 'Mostly US dollars (some regions in local currency)',
+      pricing: 'Monthly or yearly plans by tier',
+      inbox: 'Yes', broadcasts: 'Yes', flows: 'Yes, chatbot builder', ai: 'Yes, AI features on its plans',
+      live: 'Website widget that opens WhatsApp', otp: 'Through its API',
+    },
+    faq: [
+      { question: 'Can I move from WATI to OgaDesk?', answer: 'Yes. Export your contacts from WATI as a CSV and import them into OgaDesk. Your WhatsApp number can be moved to a new provider through Meta; your approved templates are recreated and resubmitted.' },
+      { question: 'Will my number change?', answer: 'No. The number belongs to your business on Meta, not to the tool. You move it, you keep it.' },
+      { question: 'Is OgaDesk cheaper than WATI?', answer: 'It depends on your plan and team size. OgaDesk plans are set in naira and free to start, so you can compare the real monthly cost for your business before you switch.' },
+      { question: 'Do I still pay Meta?', answer: 'Yes. Meta charges for WhatsApp messages on every provider, including WATI and OgaDesk.' },
+    ],
+    related: ['respond-io-alternative', 'interakt-alternative', 'doubletick-alternative'],
+  }),
+  comparePage({
+    slug: 'respond-io-alternative',
+    rival: 'Respond.io',
+    metaDescription: 'Respond.io alternative for small teams: compare OgaDesk and Respond.io on pricing, contact limits, WhatsApp inbox, broadcasts and AI replies.',
+    lead: 'Respond.io is a powerful omnichannel platform for larger customer teams. If your business lives mostly on WhatsApp and you want a simpler price, OgaDesk is built for you.',
+    pickThem: 'You run a large support or sales team across many channels, need advanced routing and reporting, and your budget is in US dollars.',
+    pickUs: 'WhatsApp is your main channel, you want a flat plan in naira without counting active contacts, and you want to be set up in an afternoon.',
+    rows: {
+      built: 'Mid-size and large teams worldwide',
+      currency: 'US dollars',
+      pricing: 'By seats and monthly active contacts',
+      inbox: 'Yes, omnichannel', broadcasts: 'Yes', flows: 'Yes, workflows', ai: 'Yes, AI agents',
+      live: 'Yes, website chat', otp: 'Through its API',
+    },
+    faq: [
+      { question: 'What is a monthly active contact?', answer: 'Some tools charge by how many different people you message each month. OgaDesk plans are flat, so a busy month does not change your plan price.' },
+      { question: 'Does OgaDesk support Instagram and Messenger?', answer: 'OgaDesk focuses on WhatsApp and website live chat. If you need many social channels in one place, a larger omnichannel tool may suit you better.' },
+      { question: 'Can I import my contacts?', answer: 'Yes. Export them as a CSV and import into OgaDesk, mapping extra columns to custom fields.' },
+    ],
+    related: ['wati-alternative', 'trengo-alternative', 'chatwoot-alternative'],
+  }),
+  comparePage({
+    slug: 'interakt-alternative',
+    rival: 'Interakt',
+    metaDescription: 'Interakt alternative for businesses outside India: compare OgaDesk and Interakt on pricing currency, shared inbox, broadcasts, flows and AI.',
+    lead: 'Interakt is a WhatsApp tool built mainly for Indian businesses and online stores. OgaDesk offers the same kind of inbox, broadcasts and automation, designed for businesses in Africa.',
+    pickThem: 'You sell mostly in India, pay in rupees and rely on its online-store integrations.',
+    pickUs: 'Your customers are in Nigeria, Ghana, Kenya, South Africa or elsewhere in Africa, and you want local pricing, local guides and website chat in the same inbox.',
+    rows: {
+      built: 'Indian small businesses and online stores',
+      currency: 'Indian rupees and US dollars',
+      pricing: 'Plans by tier, some billed quarterly or yearly',
+      inbox: 'Yes', broadcasts: 'Yes', flows: 'Yes', ai: 'Yes, as an add-on or higher plan',
+      otp: 'Through its API',
+    },
+    faq: [
+      { question: 'Can I switch from Interakt to OgaDesk?', answer: 'Yes. Export contacts as a CSV, import them into OgaDesk and move your WhatsApp number to OgaDesk through Meta.' },
+      { question: 'Does OgaDesk work with my online store?', answer: 'You can connect your store through the API and webhooks, and send order updates with approved templates.' },
+      { question: 'Is support available in my time zone?', answer: 'OgaDesk is run from Nigeria and built for African businesses, with guides written for local setup.' },
+    ],
+    related: ['wati-alternative', 'doubletick-alternative', 'respond-io-alternative'],
+  }),
+  comparePage({
+    slug: 'trengo-alternative',
+    rival: 'Trengo',
+    metaDescription: 'Trengo alternative for African businesses: compare OgaDesk and Trengo on pricing currency, team inbox, WhatsApp broadcasts, flows and AI replies.',
+    lead: 'Trengo is a European customer inbox that brings email, chat and social channels together. OgaDesk is WhatsApp-first, priced in naira and made for African teams.',
+    pickThem: 'You are a European business that needs email, social and WhatsApp in one inbox and you budget in euros.',
+    pickUs: 'WhatsApp is how your customers reach you, you want a plan in naira that a small team can afford, and broadcasts and AI replies included.',
+    rows: {
+      built: 'Mid-size businesses in Europe',
+      currency: 'Euros',
+      pricing: 'Plans by tier with a set number of users and conversations',
+      inbox: 'Yes, omnichannel', broadcasts: 'Yes', flows: 'Yes, automations', ai: 'Yes, AI agent',
+      live: 'Yes, website chat',
+    },
+    faq: [
+      { question: 'Does OgaDesk handle email?', answer: 'OgaDesk focuses on WhatsApp and website live chat. If email support is your main channel, a full help-desk tool may suit you better.' },
+      { question: 'Can several people reply from one WhatsApp number?', answer: 'Yes. Invite teammates with roles and assign each conversation to the right person.' },
+      { question: 'How do I move my WhatsApp number?', answer: 'Your number is registered with Meta. You can move it to OgaDesk and keep the same number your customers know.' },
+    ],
+    related: ['respond-io-alternative', 'chatwoot-alternative', 'wati-alternative'],
+  }),
+  comparePage({
+    slug: 'chatwoot-alternative',
+    rival: 'Chatwoot',
+    metaDescription: 'Chatwoot alternative with no servers to run: compare OgaDesk and Chatwoot on WhatsApp setup, broadcasts, chatbot flows, AI replies and pricing.',
+    lead: 'Chatwoot is an open-source customer inbox you can host yourself or use in the cloud. OgaDesk is ready to use, with WhatsApp broadcasts, chatbot flows and AI built in.',
+    pickThem: 'You have developers, want to host the software on your own servers and are happy to set up WhatsApp and automations yourself.',
+    pickUs: 'You want to connect WhatsApp with a few clicks, send approved broadcasts, build flows without code and pay one plan in naira.',
+    rows: {
+      built: 'Teams that want open-source software',
+      currency: 'US dollars (free if you host it yourself)',
+      pricing: 'Per agent per month, or self-hosted',
+      inbox: 'Yes, omnichannel', broadcasts: 'Campaigns, more limited for WhatsApp', flows: 'Through bots and integrations', ai: 'Yes, AI assistant on paid plans',
+      live: 'Yes, website chat',
+    },
+    faq: [
+      { question: 'Do I need a server for OgaDesk?', answer: 'No. OgaDesk runs in the cloud. Sign up, connect WhatsApp through Meta and start replying.' },
+      { question: 'Is Chatwoot free?', answer: 'Its community edition is free to host yourself, but you pay for servers and your own time to run, update and secure it.' },
+      { question: 'Can I import contacts from Chatwoot?', answer: 'Yes. Export contacts as a CSV and import them into OgaDesk.' },
+    ],
+    related: ['trengo-alternative', 'respond-io-alternative', 'wati-alternative'],
+  }),
+  comparePage({
+    slug: 'doubletick-alternative',
+    rival: 'DoubleTick',
+    metaDescription: 'DoubleTick alternative with monthly plans in naira: compare OgaDesk and DoubleTick on team inbox, broadcasts, chatbot flows, AI and pricing.',
+    lead: 'DoubleTick is a WhatsApp sales tool with a strong mobile app, popular with Indian sales teams. OgaDesk gives African businesses a shared inbox, broadcasts and AI on monthly plans in naira.',
+    pickThem: 'Your sales team works mainly from phones in India and a yearly plan in rupees or dollars suits you.',
+    pickUs: 'You want to pay month by month in naira, start free, and use the same inbox for WhatsApp and your website on any phone or laptop.',
+    rows: {
+      built: 'Sales teams, mainly in India',
+      currency: 'Indian rupees and US dollars',
+      pricing: 'Plans by tier, commonly billed yearly',
+      inbox: 'Yes, with a mobile app', broadcasts: 'Yes', flows: 'Yes', ai: 'Yes, on higher plans',
+      otp: 'Through its API',
+    },
+    faq: [
+      { question: 'Does OgaDesk work on a phone?', answer: 'Yes. OgaDesk runs in the browser on any phone or computer, with notifications for new messages.' },
+      { question: 'Can I pay monthly?', answer: 'Yes. OgaDesk plans can be paid month by month, and you can start free.' },
+      { question: 'Can I keep my WhatsApp number?', answer: 'Yes. Your number is registered with Meta and can be moved to OgaDesk.' },
+    ],
+    related: ['wati-alternative', 'interakt-alternative', 'whatsapp-business-app'],
+  }),
+)
+
+MARKETING_PAGES.push(
+  {
+    slug: "ai-whatsapp-auto-reply",
+    kind: 'solutions',
+    name: "AI auto-reply for WhatsApp",
+    metaTitle: "AI auto-reply for WhatsApp",
+    metaDescription: "Let an AI agent answer common WhatsApp questions from your own knowledge library, and hand over to a person when it cannot help. Included from the Starter plan.",
+    eyebrow: "AI replies",
+    h1: "An AI that answers your WhatsApp customers from your own answers",
+    lead: "Customers ask the same questions all day: prices, hours, delivery. Add your answers to a knowledge library and let an AI agent reply instantly, then pass the chat to your team when a person is needed.",
+    problems: [
+      { title: "Repeat questions eat your day", body: "The same ten questions arrive again and again, and every reply is typed by hand." },
+      { title: "Nobody answers at night", body: "Customers who message after hours often buy somewhere else by morning." },
+      { title: "Generic bots sound wrong", body: "Chatbots that do not know your business give answers you would never send." },
+    ],
+    features: [
+      { title: "Answers from your own knowledge", body: "Add your FAQs, price lists and policies to a knowledge library. The agent answers from them." },
+      { title: "Hands over to a person", body: "When the agent cannot help, the conversation goes to your team with the history attached." },
+      { title: "Drafts for your agents", body: "Use AI to draft a reply that your team member reviews and sends." },
+      { title: "Set the tone", body: "Give the agent a name and a way of speaking that matches your brand." },
+      { title: "Test before going live", body: "Try questions in a playground and see the answer before customers do." },
+      { title: "Works with website chat", body: "The same AI answers customers on WhatsApp and on your website." },
+    ],
+    steps: [
+      { title: "Add your knowledge", body: "Paste or upload the answers you give most often." },
+      { title: "Create an agent", body: "Choose its name, tone and when it should hand over." },
+      { title: "Turn it on", body: "Start with one channel and watch the replies in the inbox." },
+    ],
+    faq: [
+      { question: "Will the AI make things up?", answer: "It answers from the knowledge you provide and hands over when it is not sure. Review its replies in the inbox and improve your library over time." },
+      { question: "Is AI included in my plan?", answer: "AI replies are included from the Starter plan up. The Free plan does not include them." },
+      { question: "Can a person take over?", answer: "Yes. Your team can step into any conversation at any time." },
+    ],
+    related: ["shared-whatsapp-inbox", "whatsapp-chatbot-builder", "whatsapp-crm"],
+  },
+  {
+    slug: "whatsapp-chatbot-builder",
+    kind: 'solutions',
+    name: "WhatsApp chatbot builder",
+    metaTitle: "WhatsApp chatbot builder",
+    metaDescription: "Build a WhatsApp chatbot with flows, no code needed. Guide customers through menus, questions and bookings, then hand over to your team. Free to start.",
+    eyebrow: "Chatbot flows",
+    h1: "Build a WhatsApp chatbot without writing code",
+    lead: "Flows guide a customer through a conversation step by step: a welcome menu, a few questions, a booking or an order, then a handover to a person. Draw it once and it runs every time.",
+    problems: [
+      { title: "Every chat starts from zero", body: "Your team asks the same opening questions for every new customer." },
+      { title: "Menus are hard to keep consistent", body: "Different people give different answers about prices, hours and steps." },
+      { title: "Leads go cold waiting", body: "A customer waiting for the first reply may not wait." },
+    ],
+    features: [
+      { title: "Visual flow builder", body: "Lay out messages, questions and choices on a canvas." },
+      { title: "Collect details", body: "Ask for a name, an order or a date and save the answer to the contact." },
+      { title: "Hand over to a person", body: "Pass the chat to your team when the flow reaches a human step." },
+      { title: "Start with templates", body: "Begin from a ready-made flow and change the wording." },
+      { title: "Triggers you choose", body: "Start a flow from a keyword, a new contact or another automation." },
+      { title: "Works on website chat too", body: "The same flows run in your website chat widget." },
+    ],
+    steps: [
+      { title: "Pick a starting flow", body: "Choose a template or start blank." },
+      { title: "Add your steps", body: "Write messages, add questions and connect them." },
+      { title: "Publish it", body: "Turn it on and watch real conversations in the inbox." },
+    ],
+    faq: [
+      { question: "Do I need to code?", answer: "No. You build flows visually." },
+      { question: "Are flows free?", answer: "The Free plan includes one flow. Starter allows more and Pro has no limit on flows." },
+      { question: "Can a flow call an AI agent?", answer: "You can combine flows, automations and AI replies. Start simple and add them one at a time." },
+    ],
+    related: ["ai-whatsapp-auto-reply", "whatsapp-automations", "shared-whatsapp-inbox"],
+  },
+  {
+    slug: "website-live-chat-widget",
+    kind: 'solutions',
+    name: "Website live chat for WhatsApp teams",
+    metaTitle: "Website live chat for WhatsApp teams",
+    metaDescription: "Add a live chat widget to your website and answer visitors from the same shared inbox as WhatsApp. Flows, automations and AI replies work in both.",
+    eyebrow: "Live chat",
+    h1: "Website chat and WhatsApp in one inbox",
+    lead: "Put a chat bubble on your website and answer visitors from the same inbox you use for WhatsApp. One team, one history, and the same flows and AI on both.",
+    problems: [
+      { title: "Two inboxes to watch", body: "Website messages live in one tool and WhatsApp in another, so things get missed." },
+      { title: "Visitors leave without asking", body: "A question that goes unanswered is a sale that goes elsewhere." },
+      { title: "History is split", body: "The same customer appears twice with no shared record." },
+    ],
+    features: [
+      { title: "One shared inbox", body: "Website chats and WhatsApp conversations appear side by side." },
+      { title: "Add it with one snippet", body: "Paste a short script into your website to show the widget." },
+      { title: "Capture visitor details", body: "Ask for a name and phone so the visitor becomes a contact." },
+      { title: "Flows and automations", body: "The same flows, automations and AI replies work in website chat." },
+      { title: "Assign and reply as a team", body: "Roles, assignment and notes work the same as in WhatsApp." },
+      { title: "Move to WhatsApp", body: "Keep the conversation going on WhatsApp once you have the number." },
+    ],
+    steps: [
+      { title: "Create a widget", body: "Set its name, colour and welcome message." },
+      { title: "Paste the snippet", body: "Add it to your website." },
+      { title: "Answer from the inbox", body: "New chats appear with your WhatsApp conversations." },
+    ],
+    faq: [
+      { question: "Does it work on any website?", answer: "Yes. You paste one script into your site, and it works on most website builders." },
+      { question: "Is live chat in the Free plan?", answer: "Check the plans page for what each plan includes." },
+      { question: "Can the AI answer on the website?", answer: "Yes. AI replies, flows and automations work in website chat." },
+    ],
+    related: ["shared-whatsapp-inbox", "ai-whatsapp-auto-reply", "whatsapp-chatbot-builder"],
+  },
+  {
+    slug: "whatsapp-automations",
+    kind: 'solutions',
+    name: "WhatsApp automations",
+    metaTitle: "WhatsApp automations",
+    metaDescription: "Automate WhatsApp follow-ups: tag new contacts, assign chats, send welcome and away messages, and remind customers who have not replied.",
+    eyebrow: "Automations",
+    h1: "WhatsApp automations that do the busywork",
+    lead: "Set a rule once and OgaDesk runs it every time: tag a new contact, assign a chat, send a welcome message or follow up when a customer goes quiet.",
+    problems: [
+      { title: "Follow-ups get forgotten", body: "Busy days mean quiet customers never hear from you again." },
+      { title: "Manual sorting wastes time", body: "Tagging and assigning every new chat by hand slows the team down." },
+      { title: "After hours looks closed", body: "Customers who message at night get no reply until the morning." },
+    ],
+    features: [
+      { title: "When this, do that", body: "Run an action when something happens, like a new contact or a keyword." },
+      { title: "Welcome and away messages", body: "Greet new customers and reply when you are closed." },
+      { title: "Tag and assign", body: "Sort conversations to the right person or label automatically." },
+      { title: "Follow up on silence", body: "Remind customers who have not replied." },
+      { title: "Unsubscribe handling", body: "Let customers opt out, so they are skipped from then on." },
+      { title: "Combine with flows and AI", body: "Use automations to start a flow or hand over to an agent." },
+    ],
+    steps: [
+      { title: "Choose a trigger", body: "Pick the event that starts the rule." },
+      { title: "Add the action", body: "Tag, assign, send or start a flow." },
+      { title: "Turn it on", body: "Watch it work in the inbox." },
+    ],
+    faq: [
+      { question: "Are automations in the Free plan?", answer: "Yes, automations are available on the Free plan. Check the plans page for limits." },
+      { question: "Can I stop an automation?", answer: "Yes. Turn any automation off at any time." },
+      { question: "Do customers know it is automated?", answer: "Messages come from your business number. Write them the way you want customers to read them." },
+    ],
+    related: ["whatsapp-chatbot-builder", "ai-whatsapp-auto-reply", "whatsapp-crm"],
+  },
+  {
+    slug: "whatsapp-contact-forms",
+    kind: 'solutions',
+    name: "WhatsApp lead forms",
+    metaTitle: "WhatsApp lead forms",
+    metaDescription: "Collect leads with a shareable form or QR code and send them straight into your WhatsApp CRM with their source. Free to start.",
+    eyebrow: "Lead forms",
+    h1: "Lead forms that land in your WhatsApp inbox",
+    lead: "Share a form link or QR code on your website, ads or shop counter. Every answer becomes a contact with its source, ready for your team to follow up on WhatsApp.",
+    problems: [
+      { title: "Leads arrive in different places", body: "Sheets, DMs and sticky notes mean nobody follows up on time." },
+      { title: "No idea where leads come from", body: "Without a source you cannot tell which ad or page works." },
+      { title: "Typing details by hand", body: "Copying names and numbers into a list is slow and full of mistakes." },
+    ],
+    features: [
+      { title: "Shareable form link", body: "Send a link by message, post or ad." },
+      { title: "QR code", body: "Print it on a flyer, receipt or shop window." },
+      { title: "Custom fields", body: "Ask for exactly what you need and save it on the contact." },
+      { title: "Source on every lead", body: "See which form or campaign each lead came from." },
+      { title: "Start a conversation", body: "Follow up with your team in the shared inbox." },
+      { title: "Plain to fill in", body: "A short form works well on a phone." },
+    ],
+    steps: [
+      { title: "Create a form", body: "Choose the questions." },
+      { title: "Share the link", body: "Post it or print the QR code." },
+      { title: "Follow up", body: "New leads appear in your contacts and inbox." },
+    ],
+    faq: [
+      { question: "Do leads need a WhatsApp number?", answer: "Ask for a phone number in your form. Start a chat once you have it, using an approved template if it has been more than 24 hours." },
+      { question: "Is it free?", answer: "Forms are on the Free plan. Starter adds more advanced form features." },
+      { question: "Can I use it in ads?", answer: "Yes. Use the form link as the destination and see the source on each lead." },
+    ],
+    related: ["whatsapp-crm", "click-to-whatsapp-ads-crm", "whatsapp-automations"],
+  },
+  {
+    slug: "whatsapp-api-and-webhooks",
+    kind: 'solutions',
+    name: "WhatsApp API and webhooks",
+    metaTitle: "WhatsApp API and webhooks",
+    metaDescription: "Use a REST API and webhooks to create contacts, send WhatsApp messages and react to replies from your own software. Free to start.",
+    eyebrow: "Developers",
+    h1: "A WhatsApp API for your own software",
+    lead: "Create contacts, read conversations and send messages from your own app, and use webhooks to know when customers reply. Keys are created in settings, and the docs have examples.",
+    problems: [
+      { title: "Your tools do not talk to WhatsApp", body: "Orders in your store and chats in WhatsApp live in separate places." },
+      { title: "Direct Meta setup is heavy", body: "Connecting straight to Meta takes time and developer effort." },
+      { title: "No way to react to replies", body: "Without webhooks your system never knows a customer answered." },
+    ],
+    features: [
+      { title: "REST API", body: "Create contacts, read conversations and send messages." },
+      { title: "API keys in settings", body: "Create and rotate keys yourself." },
+      { title: "Webhooks", body: "Get notified of replies and delivery changes." },
+      { title: "Approved templates", body: "Send business-started messages with approved templates." },
+      { title: "Documented", body: "Reference pages with examples for each endpoint." },
+      { title: "Same data as the inbox", body: "Everything you send by API appears for your team." },
+    ],
+    steps: [
+      { title: "Create an API key", body: "Open Settings and add a key." },
+      { title: "Call the API", body: "Send your first message from your code." },
+      { title: "Add a webhook", body: "Receive replies in your system." },
+    ],
+    faq: [
+      { question: "Is the API in the Free plan?", answer: "Yes. The Free plan includes API access with one key. Paid plans allow more keys." },
+      { question: "Where are the docs?", answer: "The API reference is linked in the site footer." },
+      { question: "Can I connect n8n or Zapier?", answer: "Anything that can make HTTP requests can use the API and webhooks." },
+    ],
+    related: ["whatsapp-otp-api", "whatsapp-automations", "whatsapp-crm"],
+  },
+  {
+    slug: "whatsapp-otp-api",
+    kind: 'solutions',
+    name: "WhatsApp OTP API",
+    metaTitle: "WhatsApp OTP API",
+    metaDescription: "Send login and verification codes over WhatsApp with an approved authentication template and a simple API. Reach users who do not read SMS.",
+    eyebrow: "OTP codes",
+    h1: "Send one-time codes over WhatsApp",
+    lead: "Deliver login and verification codes to WhatsApp instead of SMS. Your app asks for a code, OgaDesk sends it, and your app checks what the customer types back.",
+    problems: [
+      { title: "SMS codes are slow and costly", body: "Texts arrive late or not at all, and the cost adds up." },
+      { title: "Users read WhatsApp, not SMS", body: "Customers open WhatsApp many times a day." },
+      { title: "Setup feels complex", body: "Authentication templates and the API can be confusing the first time." },
+    ],
+    features: [
+      { title: "Authentication templates", body: "Use a WhatsApp-approved template made for codes." },
+      { title: "Simple API", body: "Request a code and verify it with two calls." },
+      { title: "Works with your login", body: "Add it to sign-up, login or checkout." },
+      { title: "Delivery tracking", body: "See the status of each message." },
+      { title: "Same number as support", body: "Codes come from your verified business number." },
+      { title: "Guides in plain English", body: "Step-by-step help from template to first code." },
+    ],
+    steps: [
+      { title: "Create the template", body: "Submit an authentication template for approval." },
+      { title: "Get an API key", body: "Create it in settings." },
+      { title: "Send and verify", body: "Call the API from your app." },
+    ],
+    faq: [
+      { question: "What do I need?", answer: "A connected WhatsApp number, an approved authentication template and an API key." },
+      { question: "Does Meta charge for codes?", answer: "Meta charges its own fees for authentication messages on every provider. They are separate from OgaDesk." },
+      { question: "Is there a guide?", answer: "Yes, in the help center under Developers." },
+    ],
+    related: ["whatsapp-api-and-webhooks", "whatsapp-business-api-nigeria", "whatsapp-crm"],
+  },
+)
+
+MARKETING_PAGES.push(
+  countryPage({
+    slug: 'whatsapp-business-api-uganda',
+    country: 'Uganda',
+    currency: 'shillings (UGX)',
+    lead: 'Your customers in Kampala already chat on WhatsApp. OgaDesk gives your team one shared inbox, broadcasts and automations on the official API.',
+    problems: [
+      { title: 'Orders and questions pile up on one phone', body: 'Questions, orders and payment confirmations all arrive at once and one person cannot keep up.' },
+      { title: 'Staff changes lose customer history', body: 'When the person holding the phone leaves, the conversations and customer details go with them.' },
+      { title: 'Hard to message customers properly', body: 'Sending the same update to many people by hand is slow and can look like spam to WhatsApp.' },
+    ],
+    faq: [
+      { question: 'Can I use my existing WhatsApp number in Uganda?', answer: 'Yes. You can link the number from your WhatsApp Business app, or connect a new number through Meta.' },
+      { question: 'Are prices shown in shillings (UGX)?', answer: 'Plans are priced in naira and shown in shillings (UGX) as an estimate. The amount you pay is shown at checkout, and Meta charges its own message fees separately.' },
+      { question: 'Can my team share one number?', answer: 'Yes. Invite teammates with roles and assign each conversation to the right person.' },
+    ],
+  }),
+  countryPage({
+    slug: 'whatsapp-business-api-tanzania',
+    country: 'Tanzania',
+    currency: 'shillings (TZS)',
+    lead: 'Your customers in Dar es Salaam already chat on WhatsApp. OgaDesk gives your team one shared inbox, broadcasts and automations on the official API.',
+    problems: [
+      { title: 'Customers message faster than you can reply', body: 'Questions, orders and payment confirmations all arrive at once and one person cannot keep up.' },
+      { title: 'Staff changes lose customer history', body: 'When the person holding the phone leaves, the conversations and customer details go with them.' },
+      { title: 'Hard to message customers properly', body: 'Sending the same update to many people by hand is slow and can look like spam to WhatsApp.' },
+    ],
+    faq: [
+      { question: 'Can I use my existing WhatsApp number in Tanzania?', answer: 'Yes. You can link the number from your WhatsApp Business app, or connect a new number through Meta.' },
+      { question: 'Are prices shown in shillings (TZS)?', answer: 'Plans are priced in naira and shown in shillings (TZS) as an estimate. The amount you pay is shown at checkout, and Meta charges its own message fees separately.' },
+      { question: 'Can my team share one number?', answer: 'Yes. Invite teammates with roles and assign each conversation to the right person.' },
+    ],
+  }),
+  countryPage({
+    slug: 'whatsapp-business-api-rwanda',
+    country: 'Rwanda',
+    currency: 'francs (RWF)',
+    lead: 'Your customers in Kigali already chat on WhatsApp. OgaDesk gives your team one shared inbox, broadcasts and automations on the official API.',
+    problems: [
+      { title: 'One phone cannot serve every customer', body: 'Questions, orders and payment confirmations all arrive at once and one person cannot keep up.' },
+      { title: 'Staff changes lose customer history', body: 'When the person holding the phone leaves, the conversations and customer details go with them.' },
+      { title: 'Hard to message customers properly', body: 'Sending the same update to many people by hand is slow and can look like spam to WhatsApp.' },
+    ],
+    faq: [
+      { question: 'Can I use my existing WhatsApp number in Rwanda?', answer: 'Yes. You can link the number from your WhatsApp Business app, or connect a new number through Meta.' },
+      { question: 'Are prices shown in francs (RWF)?', answer: 'Plans are priced in naira and shown in francs (RWF) as an estimate. The amount you pay is shown at checkout, and Meta charges its own message fees separately.' },
+      { question: 'Can my team share one number?', answer: 'Yes. Invite teammates with roles and assign each conversation to the right person.' },
+    ],
+  }),
+  countryPage({
+    slug: 'whatsapp-business-api-egypt',
+    country: 'Egypt',
+    currency: 'pounds (EGP)',
+    lead: 'Your customers in Cairo already chat on WhatsApp. OgaDesk gives your team one shared inbox, broadcasts and automations on the official API.',
+    problems: [
+      { title: 'Messages pile up on one phone', body: 'Questions, orders and payment confirmations all arrive at once and one person cannot keep up.' },
+      { title: 'Staff changes lose customer history', body: 'When the person holding the phone leaves, the conversations and customer details go with them.' },
+      { title: 'Hard to message customers properly', body: 'Sending the same update to many people by hand is slow and can look like spam to WhatsApp.' },
+    ],
+    faq: [
+      { question: 'Can I use my existing WhatsApp number in Egypt?', answer: 'Yes. You can link the number from your WhatsApp Business app, or connect a new number through Meta.' },
+      { question: 'Are prices shown in pounds (EGP)?', answer: 'Plans are priced in naira and shown in pounds (EGP) as an estimate. The amount you pay is shown at checkout, and Meta charges its own message fees separately.' },
+      { question: 'Can my team share one number?', answer: 'Yes. Invite teammates with roles and assign each conversation to the right person.' },
+    ],
+  }),
+  countryPage({
+    slug: 'whatsapp-business-api-ethiopia',
+    country: 'Ethiopia',
+    currency: 'birr (ETB)',
+    lead: 'Your customers in Addis Ababa already chat on WhatsApp. OgaDesk gives your team one shared inbox, broadcasts and automations on the official API.',
+    problems: [
+      { title: 'Customer chats get lost on one phone', body: 'Questions, orders and payment confirmations all arrive at once and one person cannot keep up.' },
+      { title: 'Staff changes lose customer history', body: 'When the person holding the phone leaves, the conversations and customer details go with them.' },
+      { title: 'Hard to message customers properly', body: 'Sending the same update to many people by hand is slow and can look like spam to WhatsApp.' },
+    ],
+    faq: [
+      { question: 'Can I use my existing WhatsApp number in Ethiopia?', answer: 'Yes. You can link the number from your WhatsApp Business app, or connect a new number through Meta.' },
+      { question: 'Are prices shown in birr (ETB)?', answer: 'Plans are priced in naira and shown in birr (ETB) as an estimate. The amount you pay is shown at checkout, and Meta charges its own message fees separately.' },
+      { question: 'Can my team share one number?', answer: 'Yes. Invite teammates with roles and assign each conversation to the right person.' },
+    ],
+  }),
+)
+
+MARKETING_PAGES.push(
+  {
+    slug: "click-to-whatsapp-ads-crm",
+    kind: 'solutions',
+    comingSoon: true,
+    name: "Click-to-WhatsApp ads and your CRM",
+    metaTitle: "Click-to-WhatsApp ads and your CRM",
+    metaDescription: "Coming soon: see which Click-to-WhatsApp ad every new lead came from, inside your OgaDesk CRM. Start free today and be first to know.",
+    eyebrow: "Coming soon",
+    h1: "Click-to-WhatsApp ads, tracked to every lead",
+    lead: "Ads on Facebook and Instagram that open a WhatsApp chat with your business. We are building the link between those ads and your CRM, so each new lead shows the ad it came from. It is waiting on Meta, and it is coming soon.",
+    problems: [
+      { title: "Ad clicks that vanish", body: "You pay for clicks but cannot tell which ones became real conversations." },
+      { title: "No source on the lead", body: "A new chat arrives with no sign of the ad, post or campaign behind it." },
+      { title: "Slow first reply", body: "Leads from ads go cold fast when nobody answers in minutes." },
+    ],
+    features: [
+      { title: "See the ad behind each chat", body: "Planned: every lead from a Click-to-WhatsApp ad will carry its ad and campaign." },
+      { title: "Reply as a team", body: "Leads land in the shared inbox where your team can answer and assign them." },
+      { title: "Instant first answer", body: "Pair it with flows and AI replies to greet new leads straight away." },
+      { title: "Tag and follow up", body: "Automations can tag leads by campaign and remind you to follow up." },
+      { title: "Measure what works", body: "Planned: compare campaigns by conversations and deals won." },
+      { title: "Works with your number", body: "Uses your connected WhatsApp Business number." },
+    ],
+    steps: [
+      { title: "Start free today", body: "Create your account and connect your number." },
+      { title: "Prepare your replies", body: "Set up a welcome flow and an AI agent for new leads." },
+      { title: "Switch on ads tracking", body: "When Meta access is ready, we turn it on for your account." },
+    ],
+    faq: [
+      { question: "Can I use this today?", answer: "Not yet. We are waiting on Meta to finish this integration. The page will change when it is live." },
+      { question: "What works today?", answer: "You can share a wa.me link or a lead form and see the source on each contact, and everything else in the inbox, flows and AI replies." },
+      { question: "Do I need to do anything now?", answer: "Create a free account and connect your number, so you are ready the day it launches." },
+    ],
+    related: ["whatsapp-contact-forms", "whatsapp-chatbot-builder", "whatsapp-crm"],
+  },
+)
+
+MARKETING_PAGES.push(
+  {
+    slug: "whatsapp-business-api-cameroun",
+    kind: 'solutions',
+    lang: 'fr',
+    name: "WhatsApp Business API au Cameroun",
+    metaTitle: "WhatsApp Business API au Cameroun",
+    metaDescription: "Utilisez l’API officielle WhatsApp Business au Cameroun : boîte partagée, diffusions et automatisations. Prix en francs CFA (XAF). Gratuit.",
+    eyebrow: "Conçu pour Cameroun",
+    h1: "L’API WhatsApp Business pour les entreprises du Cameroun",
+    lead: "Vos clients de Douala et Yaoundé discutent déjà sur WhatsApp. OgaDesk donne à votre équipe une boîte partagée, des diffusions et des automatisations sur l’API officielle.",
+    problems: [
+      { title: "Les messages s’accumulent sur un seul téléphone", body: "Questions, commandes et confirmations de paiement arrivent en même temps, et une seule personne ne peut pas suivre." },
+      { title: "Le départ d’un employé fait perdre l’historique", body: "Quand la personne qui a le téléphone s’en va, les conversations et les fiches clients partent avec elle." },
+      { title: "Difficile d’écrire aux clients correctement", body: "Envoyer la même information à la main est lent et peut ressembler à du spam pour WhatsApp." },
+    ],
+    features: [
+      { title: "Boîte partagée pour votre équipe", body: "Tout le monde répond depuis un seul numéro WhatsApp, chaque conversation étant attribuée à la bonne personne." },
+      { title: "Des prix lisibles en francs CFA (XAF)", body: "Les forfaits affichent un prix approximatif en francs CFA (XAF) selon un taux de change quotidien. Le montant à payer est indiqué au paiement." },
+      { title: "Diffusions avec modèles approuvés", body: "Écrivez à vos clients par étiquette ou segment, personnalisez chaque message et voyez qui l’a reçu et lu." },
+      { title: "Automatisations et chatbot", body: "Messages d’accueil, réponses hors horaires, menus et réponses de l’IA à partir de vos propres informations." },
+      { title: "Gardez votre numéro", body: "Connectez-vous via Meta, ou liez le numéro de votre application WhatsApp Business et importez vos conversations." },
+      { title: "API de codes OTP", body: "Envoyez des codes de connexion et de vérification par WhatsApp depuis votre application." },
+    ],
+    steps: [
+      { title: "Créez votre compte", body: "Inscrivez-vous gratuitement, sans carte bancaire." },
+      { title: "Connectez WhatsApp", body: "Connectez-vous avec Meta et liez votre numéro professionnel." },
+      { title: "Servez vos clients en équipe", body: "Invitez vos collègues, importez vos contacts et envoyez votre premier modèle." },
+    ],
+    faq: [
+      { question: "Puis-je garder mon numéro WhatsApp au Cameroun ?", answer: "Oui. Vous pouvez lier le numéro de votre application WhatsApp Business ou connecter un nouveau numéro via Meta." },
+      { question: "Les prix sont-ils affichés en francs CFA (XAF) ?", answer: "Les forfaits sont fixés en nairas et affichés en francs CFA (XAF) à titre indicatif. Le montant exact est indiqué au paiement, et Meta facture ses propres frais de message séparément." },
+      { question: "Mon équipe peut-elle partager un numéro ?", answer: "Oui. Invitez vos collègues avec des rôles et attribuez chaque conversation à la bonne personne." },
+    ],
+    related: ["whatsapp-business-api-cote-d-ivoire", "whatsapp-business-api-senegal", "whatsapp-business-api-rdc"],
+  },
+  {
+    slug: "whatsapp-business-api-cote-d-ivoire",
+    kind: 'solutions',
+    lang: 'fr',
+    name: "WhatsApp Business API en Côte d’Ivoire",
+    metaTitle: "WhatsApp Business API en Côte d’Ivoire",
+    metaDescription: "Utilisez l’API officielle WhatsApp Business en Côte d’Ivoire : boîte partagée, diffusions et automatisations. Prix en francs CFA (XOF). Gratuit.",
+    eyebrow: "Conçu pour Côte d’Ivoire",
+    h1: "L’API WhatsApp Business pour les entreprises en Côte d’Ivoire",
+    lead: "Vos clients de Abidjan discutent déjà sur WhatsApp. OgaDesk donne à votre équipe une boîte partagée, des diffusions et des automatisations sur l’API officielle.",
+    problems: [
+      { title: "Les clients écrivent plus vite que vous ne répondez", body: "Questions, commandes et confirmations de paiement arrivent en même temps, et une seule personne ne peut pas suivre." },
+      { title: "Le départ d’un employé fait perdre l’historique", body: "Quand la personne qui a le téléphone s’en va, les conversations et les fiches clients partent avec elle." },
+      { title: "Difficile d’écrire aux clients correctement", body: "Envoyer la même information à la main est lent et peut ressembler à du spam pour WhatsApp." },
+    ],
+    features: [
+      { title: "Boîte partagée pour votre équipe", body: "Tout le monde répond depuis un seul numéro WhatsApp, chaque conversation étant attribuée à la bonne personne." },
+      { title: "Des prix lisibles en francs CFA (XOF)", body: "Les forfaits affichent un prix approximatif en francs CFA (XOF) selon un taux de change quotidien. Le montant à payer est indiqué au paiement." },
+      { title: "Diffusions avec modèles approuvés", body: "Écrivez à vos clients par étiquette ou segment, personnalisez chaque message et voyez qui l’a reçu et lu." },
+      { title: "Automatisations et chatbot", body: "Messages d’accueil, réponses hors horaires, menus et réponses de l’IA à partir de vos propres informations." },
+      { title: "Gardez votre numéro", body: "Connectez-vous via Meta, ou liez le numéro de votre application WhatsApp Business et importez vos conversations." },
+      { title: "API de codes OTP", body: "Envoyez des codes de connexion et de vérification par WhatsApp depuis votre application." },
+    ],
+    steps: [
+      { title: "Créez votre compte", body: "Inscrivez-vous gratuitement, sans carte bancaire." },
+      { title: "Connectez WhatsApp", body: "Connectez-vous avec Meta et liez votre numéro professionnel." },
+      { title: "Servez vos clients en équipe", body: "Invitez vos collègues, importez vos contacts et envoyez votre premier modèle." },
+    ],
+    faq: [
+      { question: "Puis-je garder mon numéro WhatsApp en Côte d’Ivoire ?", answer: "Oui. Vous pouvez lier le numéro de votre application WhatsApp Business ou connecter un nouveau numéro via Meta." },
+      { question: "Les prix sont-ils affichés en francs CFA (XOF) ?", answer: "Les forfaits sont fixés en nairas et affichés en francs CFA (XOF) à titre indicatif. Le montant exact est indiqué au paiement, et Meta facture ses propres frais de message séparément." },
+      { question: "Mon équipe peut-elle partager un numéro ?", answer: "Oui. Invitez vos collègues avec des rôles et attribuez chaque conversation à la bonne personne." },
+    ],
+    related: ["whatsapp-business-api-cameroun", "whatsapp-business-api-senegal", "whatsapp-business-api-rdc"],
+  },
+  {
+    slug: "whatsapp-business-api-senegal",
+    kind: 'solutions',
+    lang: 'fr',
+    name: "WhatsApp Business API au Sénégal",
+    metaTitle: "WhatsApp Business API au Sénégal",
+    metaDescription: "Utilisez l’API officielle WhatsApp Business au Sénégal : boîte partagée, diffusions et automatisations. Prix en francs CFA (XOF). Gratuit.",
+    eyebrow: "Conçu pour Sénégal",
+    h1: "L’API WhatsApp Business pour les entreprises du Sénégal",
+    lead: "Vos clients de Dakar discutent déjà sur WhatsApp. OgaDesk donne à votre équipe une boîte partagée, des diffusions et des automatisations sur l’API officielle.",
+    problems: [
+      { title: "Un seul téléphone ne suffit plus pour tous les clients", body: "Questions, commandes et confirmations de paiement arrivent en même temps, et une seule personne ne peut pas suivre." },
+      { title: "Le départ d’un employé fait perdre l’historique", body: "Quand la personne qui a le téléphone s’en va, les conversations et les fiches clients partent avec elle." },
+      { title: "Difficile d’écrire aux clients correctement", body: "Envoyer la même information à la main est lent et peut ressembler à du spam pour WhatsApp." },
+    ],
+    features: [
+      { title: "Boîte partagée pour votre équipe", body: "Tout le monde répond depuis un seul numéro WhatsApp, chaque conversation étant attribuée à la bonne personne." },
+      { title: "Des prix lisibles en francs CFA (XOF)", body: "Les forfaits affichent un prix approximatif en francs CFA (XOF) selon un taux de change quotidien. Le montant à payer est indiqué au paiement." },
+      { title: "Diffusions avec modèles approuvés", body: "Écrivez à vos clients par étiquette ou segment, personnalisez chaque message et voyez qui l’a reçu et lu." },
+      { title: "Automatisations et chatbot", body: "Messages d’accueil, réponses hors horaires, menus et réponses de l’IA à partir de vos propres informations." },
+      { title: "Gardez votre numéro", body: "Connectez-vous via Meta, ou liez le numéro de votre application WhatsApp Business et importez vos conversations." },
+      { title: "API de codes OTP", body: "Envoyez des codes de connexion et de vérification par WhatsApp depuis votre application." },
+    ],
+    steps: [
+      { title: "Créez votre compte", body: "Inscrivez-vous gratuitement, sans carte bancaire." },
+      { title: "Connectez WhatsApp", body: "Connectez-vous avec Meta et liez votre numéro professionnel." },
+      { title: "Servez vos clients en équipe", body: "Invitez vos collègues, importez vos contacts et envoyez votre premier modèle." },
+    ],
+    faq: [
+      { question: "Puis-je garder mon numéro WhatsApp au Sénégal ?", answer: "Oui. Vous pouvez lier le numéro de votre application WhatsApp Business ou connecter un nouveau numéro via Meta." },
+      { question: "Les prix sont-ils affichés en francs CFA (XOF) ?", answer: "Les forfaits sont fixés en nairas et affichés en francs CFA (XOF) à titre indicatif. Le montant exact est indiqué au paiement, et Meta facture ses propres frais de message séparément." },
+      { question: "Mon équipe peut-elle partager un numéro ?", answer: "Oui. Invitez vos collègues avec des rôles et attribuez chaque conversation à la bonne personne." },
+    ],
+    related: ["whatsapp-business-api-cameroun", "whatsapp-business-api-cote-d-ivoire", "whatsapp-business-api-rdc"],
+  },
+  {
+    slug: "whatsapp-business-api-rdc",
+    kind: 'solutions',
+    lang: 'fr',
+    name: "WhatsApp Business API en RD Congo",
+    metaTitle: "WhatsApp Business API en RD Congo",
+    metaDescription: "Utilisez l’API officielle WhatsApp Business en RD Congo : boîte partagée, diffusions et automatisations. Prix en francs congolais (CDF). Gratuit.",
+    eyebrow: "Conçu pour RD Congo",
+    h1: "L’API WhatsApp Business pour les entreprises en RD Congo",
+    lead: "Vos clients de Kinshasa et Lubumbashi discutent déjà sur WhatsApp. OgaDesk donne à votre équipe une boîte partagée, des diffusions et des automatisations sur l’API officielle.",
+    problems: [
+      { title: "Les conversations se perdent sur un seul téléphone", body: "Questions, commandes et confirmations de paiement arrivent en même temps, et une seule personne ne peut pas suivre." },
+      { title: "Le départ d’un employé fait perdre l’historique", body: "Quand la personne qui a le téléphone s’en va, les conversations et les fiches clients partent avec elle." },
+      { title: "Difficile d’écrire aux clients correctement", body: "Envoyer la même information à la main est lent et peut ressembler à du spam pour WhatsApp." },
+    ],
+    features: [
+      { title: "Boîte partagée pour votre équipe", body: "Tout le monde répond depuis un seul numéro WhatsApp, chaque conversation étant attribuée à la bonne personne." },
+      { title: "Des prix lisibles en francs congolais (CDF)", body: "Les forfaits affichent un prix approximatif en francs congolais (CDF) selon un taux de change quotidien. Le montant à payer est indiqué au paiement." },
+      { title: "Diffusions avec modèles approuvés", body: "Écrivez à vos clients par étiquette ou segment, personnalisez chaque message et voyez qui l’a reçu et lu." },
+      { title: "Automatisations et chatbot", body: "Messages d’accueil, réponses hors horaires, menus et réponses de l’IA à partir de vos propres informations." },
+      { title: "Gardez votre numéro", body: "Connectez-vous via Meta, ou liez le numéro de votre application WhatsApp Business et importez vos conversations." },
+      { title: "API de codes OTP", body: "Envoyez des codes de connexion et de vérification par WhatsApp depuis votre application." },
+    ],
+    steps: [
+      { title: "Créez votre compte", body: "Inscrivez-vous gratuitement, sans carte bancaire." },
+      { title: "Connectez WhatsApp", body: "Connectez-vous avec Meta et liez votre numéro professionnel." },
+      { title: "Servez vos clients en équipe", body: "Invitez vos collègues, importez vos contacts et envoyez votre premier modèle." },
+    ],
+    faq: [
+      { question: "Puis-je garder mon numéro WhatsApp en RD Congo ?", answer: "Oui. Vous pouvez lier le numéro de votre application WhatsApp Business ou connecter un nouveau numéro via Meta." },
+      { question: "Les prix sont-ils affichés en francs congolais (CDF) ?", answer: "Les forfaits sont fixés en nairas et affichés en francs congolais (CDF) à titre indicatif. Le montant exact est indiqué au paiement, et Meta facture ses propres frais de message séparément." },
+      { question: "Mon équipe peut-elle partager un numéro ?", answer: "Oui. Invitez vos collègues avec des rôles et attribuez chaque conversation à la bonne personne." },
+    ],
+    related: ["whatsapp-business-api-cameroun", "whatsapp-business-api-cote-d-ivoire", "whatsapp-business-api-senegal"],
+  },
 )
 
 export const getMarketingPage = (kind: MarketingPage['kind'], slug: string) => MARKETING_PAGES.find((p) => p.kind === kind && p.slug === slug)

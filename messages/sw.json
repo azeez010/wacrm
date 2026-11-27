@@ -3935,6 +3935,33 @@
         "draft": "Rasimu",
         "playground": "Uwanja wa majaribio",
         "manual": "Na mwenzako"
+      },
+      "reconnect": "Unganisha Google upya",
+      "calendarHelp": "AI inapendekeza nyakati wazi ndani ya saa hizi na kuziweka kwenye kalenda yako.",
+      "timezone": "Saa za eneo",
+      "calendarId": "Kalenda",
+      "opens": "Inafunguliwa",
+      "closes": "Inafungwa",
+      "slotMinutes": "Urefu wa miadi (dakika)",
+      "workDays": "Siku za kazi",
+      "google": {
+        "connected": "Google Kalenda imeunganishwa.",
+        "reconnected": "Google Kalenda imeunganishwa upya.",
+        "denied": "Ufikiaji wa Google haukutolewa.",
+        "expired": "Kuingia kwa Google kumeisha muda. Tafadhali jaribu tena.",
+        "not_configured": "Kuingia kwa Google bado hakujawekwa kwenye jukwaa hili.",
+        "plan": "Mpango wako hauruhusu muunganisho mwingine.",
+        "scopes": "Ruhusu ufikiaji wa kalenda ili kuendelea.",
+        "error": "Imeshindwa kuunganisha Google. Tafadhali jaribu tena."
+      },
+      "days": {
+        "0": "Jpili",
+        "1": "Jtatu",
+        "2": "Jnne",
+        "3": "Jtano",
+        "4": "Alh",
+        "5": "Ijum",
+        "6": "Jmosi"
       }
     },
     "webhooks": {

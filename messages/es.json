@@ -3122,6 +3122,33 @@
         "draft": "Borrador",
         "playground": "Área de pruebas",
         "manual": "Por un compañero"
+      },
+      "reconnect": "Reconectar Google",
+      "calendarHelp": "La IA ofrece horarios libres dentro de este horario y los reserva en tu calendario.",
+      "timezone": "Zona horaria",
+      "calendarId": "Calendario",
+      "opens": "Apertura",
+      "closes": "Cierre",
+      "slotMinutes": "Duración de la cita (minutos)",
+      "workDays": "Días laborables",
+      "google": {
+        "connected": "Google Calendar conectado.",
+        "reconnected": "Google Calendar reconectado.",
+        "denied": "No se concedió el acceso a Google.",
+        "expired": "El inicio de sesión de Google caducó. Inténtalo de nuevo.",
+        "not_configured": "El acceso con Google aún no está configurado en la plataforma.",
+        "plan": "Tu plan no permite otra integración.",
+        "scopes": "Permite el acceso al calendario para continuar.",
+        "error": "No se pudo conectar Google. Inténtalo de nuevo."
+      },
+      "days": {
+        "0": "Dom",
+        "1": "Lun",
+        "2": "Mar",
+        "3": "Mié",
+        "4": "Jue",
+        "5": "Vie",
+        "6": "Sáb"
       }
     },
     "webhooks": {

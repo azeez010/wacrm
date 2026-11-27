@@ -3122,6 +3122,33 @@
         "draft": "Rascunho",
         "playground": "Ambiente de testes",
         "manual": "Por um colega"
+      },
+      "reconnect": "Reconectar Google",
+      "calendarHelp": "A IA oferece horários livres dentro deste expediente e os agenda no seu calendário.",
+      "timezone": "Fuso horário",
+      "calendarId": "Agenda",
+      "opens": "Abre",
+      "closes": "Fecha",
+      "slotMinutes": "Duração do compromisso (minutos)",
+      "workDays": "Dias úteis",
+      "google": {
+        "connected": "Google Agenda conectada.",
+        "reconnected": "Google Agenda reconectada.",
+        "denied": "O acesso ao Google não foi concedido.",
+        "expired": "O login do Google expirou. Tente novamente.",
+        "not_configured": "O login com Google ainda não está configurado na plataforma.",
+        "plan": "Seu plano não permite mais uma integração.",
+        "scopes": "Permita o acesso à agenda para continuar.",
+        "error": "Não foi possível conectar o Google. Tente novamente."
+      },
+      "days": {
+        "0": "Dom",
+        "1": "Seg",
+        "2": "Ter",
+        "3": "Qua",
+        "4": "Qui",
+        "5": "Sex",
+        "6": "Sáb"
       }
     },
     "webhooks": {

@@ -82,6 +82,13 @@ export const updateSchema = z.object({
   secret_key: z.string().trim().regex(/^sk_(test|live)_[A-Za-z0-9]{10,}$/).optional(),
   currency: z.string().trim().regex(/^[A-Z]{3}$/).optional(),
   business_name: z.string().trim().max(80).optional(),
+  // Google Calendar
+  calendar_id: z.string().trim().min(1).max(200).optional(),
+  timezone: z.string().trim().min(1).max(60).optional(),
+  slot_minutes: z.number().int().min(10).max(240).optional(),
+  day_start: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/).optional(),
+  day_end: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/).optional(),
+  work_days: z.array(z.number().int().min(0).max(6)).max(7).optional(),
 })
 export type UpdateInput = z.infer<typeof updateSchema>
 
@@ -170,7 +177,7 @@ export function paystackToolRows() {
   return PAYSTACK_TOOLS.map((t) => ({ name: t.name, title: t.title, description: t.description, input_schema: t.inputSchema, kind: t.kind, source: 'builtin' as const, config: {} }))
 }
 
-type ToolRowInput = ReturnType<typeof mcpToolRows>[number] | ReturnType<typeof httpToolRow> | ReturnType<typeof paystackToolRows>[number]
+export type ToolRowInput = { name: string; title: string | null; description: string; input_schema: Record<string, unknown>; kind: 'read' | 'action'; source: 'discovered' | 'defined' | 'builtin'; config: Record<string, unknown> }
 
 /** The plan must include AI tools, and the business must be under its integrations limit. */
 export async function assertCanAddIntegration(db: SupabaseClient, accountId: string) {
@@ -311,6 +318,14 @@ export async function prepareUpdate(
     }
     if (input.currency !== undefined) config.currency = input.currency
     if (input.business_name !== undefined) config.business_name = input.business_name
+  }
+  if (current.kind === 'google_calendar') {
+    if (input.timezone !== undefined) {
+      try { new Intl.DateTimeFormat('en-US', { timeZone: input.timezone }) } catch { throw new IntegrationInputError('That time zone is not valid (use e.g. Africa/Lagos).') }
+      config.timezone = input.timezone
+    }
+    for (const k of ['calendar_id', 'slot_minutes', 'day_start', 'day_end', 'work_days'] as const) if (input[k] !== undefined) config[k] = input[k]
+    if (typeof config.day_start === 'string' && typeof config.day_end === 'string' && config.day_start >= config.day_end) throw new IntegrationInputError('Closing time must be after opening time.')
   }
   patch.config = config
   if (secretsChanged) Object.assign(patch, sealSecrets(sec))

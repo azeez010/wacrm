@@ -3122,6 +3122,33 @@
         "draft": "Draft",
         "playground": "Playground",
         "manual": "By a teammate"
+      },
+      "reconnect": "Reconnect Google",
+      "calendarHelp": "The AI offers free times inside these hours and books them in your calendar.",
+      "timezone": "Time zone",
+      "calendarId": "Calendar",
+      "opens": "Opens",
+      "closes": "Closes",
+      "slotMinutes": "Appointment length (minutes)",
+      "workDays": "Working days",
+      "google": {
+        "connected": "Google Calendar connected.",
+        "reconnected": "Google Calendar reconnected.",
+        "denied": "Google access was not granted.",
+        "expired": "The Google sign-in expired. Please try again.",
+        "not_configured": "Google sign-in is not set up on this platform yet.",
+        "plan": "Your plan does not allow another integration.",
+        "scopes": "Please allow calendar access to continue.",
+        "error": "Could not connect Google. Please try again."
+      },
+      "days": {
+        "0": "Sun",
+        "1": "Mon",
+        "2": "Tue",
+        "3": "Wed",
+        "4": "Thu",
+        "5": "Fri",
+        "6": "Sat"
       }
     },
     "webhooks": {

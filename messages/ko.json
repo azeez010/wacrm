@@ -3122,6 +3122,33 @@
         "draft": "초안",
         "playground": "플레이그라운드",
         "manual": "팀원"
+      },
+      "reconnect": "Google 다시 연결",
+      "calendarHelp": "AI가 이 시간대 안의 빈 시간을 제안하고 캘린더에 예약합니다.",
+      "timezone": "시간대",
+      "calendarId": "캘린더",
+      "opens": "시작",
+      "closes": "종료",
+      "slotMinutes": "약속 시간(분)",
+      "workDays": "근무 요일",
+      "google": {
+        "connected": "Google 캘린더가 연결되었습니다.",
+        "reconnected": "Google 캘린더가 다시 연결되었습니다.",
+        "denied": "Google 접근이 허용되지 않았습니다.",
+        "expired": "Google 로그인이 만료되었습니다. 다시 시도하세요.",
+        "not_configured": "이 플랫폼에는 아직 Google 로그인이 설정되지 않았습니다.",
+        "plan": "요금제에서 통합을 더 추가할 수 없습니다.",
+        "scopes": "계속하려면 캘린더 접근을 허용하세요.",
+        "error": "Google을 연결하지 못했습니다. 다시 시도하세요."
+      },
+      "days": {
+        "0": "일",
+        "1": "월",
+        "2": "화",
+        "3": "수",
+        "4": "목",
+        "5": "금",
+        "6": "토"
       }
     },
     "webhooks": {

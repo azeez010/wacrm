@@ -143,6 +143,16 @@ export function IntegrationsPanel() {
     void load();
   }, [load]);
 
+  useEffect(() => {
+    const g = new URLSearchParams(window.location.search).get('google');
+    if (!g) return;
+    const ok = g === 'connected' || g === 'reconnected';
+    (ok ? toast.success : toast.error)(t(`google.${g}`));
+    const u = new URL(window.location.href);
+    u.searchParams.delete('google');
+    window.history.replaceState(null, '', u.toString());
+  }, [t]);
+
   const atLimit = !!usage && usage.limit !== null && usage.used >= usage.limit;
   const canAdd = !!usage?.enabled && !atLimit;
 
@@ -231,22 +241,20 @@ export function IntegrationsPanel() {
           <div className="grid gap-2 sm:grid-cols-2">
             {(['mcp', 'http', 'paystack', 'google_calendar'] as Kind[]).map((k) => {
               const Icon = KIND_ICON[k];
-              const soon = k === 'google_calendar';
               return (
                 <button
                   key={k}
                   type="button"
-                  disabled={soon}
                   onClick={() => {
                     setPicker(false);
-                    setAdding(k);
+                    if (k === 'google_calendar') window.location.href = '/api/integrations/google/start';
+                    else setAdding(k);
                   }}
                   className="hover:bg-muted flex flex-col items-start gap-1 rounded-lg border p-3 text-left transition disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <span className="flex items-center gap-2 text-sm font-medium">
                     <Icon className="size-4" />
                     {t(`kinds.${k}`)}
-                    {soon ? <Badge className="border-border bg-muted text-muted-foreground text-[10px]">{t('soon')}</Badge> : null}
                   </span>
                   <span className="text-muted-foreground text-xs">{t(`kindHelp.${k}`)}</span>
                 </button>
@@ -353,7 +361,9 @@ function IntegrationCard({ integration: i, onChange, onRemoved }: { integration:
       ? String(i.config.url ?? '')
       : i.kind === 'paystack'
         ? `${String(i.config.currency ?? 'NGN')} · ${i.config.mode === 'test' ? t('testKey') : t('liveKey')} · ${i.secret_hints.secret_key ?? ''}`
-        : i.kind === 'http'
+        : i.kind === 'google_calendar'
+          ? `${String(i.config.email ?? '')} · ${String(i.config.timezone ?? '')}`
+          : i.kind === 'http'
           ? (Array.isArray(i.config.header_names) && i.config.header_names.length ? t('headersSaved', { names: (i.config.header_names as string[]).join(', ') }) : t('noHeaders'))
           : '';
 
@@ -384,6 +394,12 @@ function IntegrationCard({ integration: i, onChange, onRemoved }: { integration:
                   <DropdownMenuItem onClick={() => void rediscover()}>
                     <RefreshCw className="size-4" />
                     {t('rediscover')}
+                  </DropdownMenuItem>
+                ) : null}
+                {i.kind === 'google_calendar' ? (
+                  <DropdownMenuItem onClick={() => { window.location.href = '/api/integrations/google/start?reconnect=1'; }}>
+                    <RefreshCw className="size-4" />
+                    {t('reconnect')}
                   </DropdownMenuItem>
                 ) : null}
                 {i.kind === 'http' ? (
@@ -621,12 +637,21 @@ function EditDialog({ integration: i, onClose, onSaved }: { integration: Integra
   const [headers, setHeaders] = useState<{ name: string; value: string }[]>(
     (Array.isArray(i.config.header_names) ? (i.config.header_names as string[]) : []).map((n) => ({ name: n, value: '' })),
   );
+  const [cal, setCal] = useState({
+    timezone: String(i.config.timezone ?? 'Africa/Lagos'),
+    calendar_id: String(i.config.calendar_id ?? 'primary'),
+    slot_minutes: Number(i.config.slot_minutes ?? 30),
+    day_start: String(i.config.day_start ?? '09:00'),
+    day_end: String(i.config.day_end ?? '17:00'),
+    work_days: Array.isArray(i.config.work_days) ? (i.config.work_days as number[]) : [1, 2, 3, 4, 5],
+  });
   const [saving, setSaving] = useState(false);
 
   const submit = async () => {
     setSaving(true);
     try {
       const body: Record<string, unknown> = { name };
+      if (i.kind === 'google_calendar') Object.assign(body, cal);
       if (i.kind === 'mcp') {
         if (url !== i.config.url) body.url = url;
         if (token) body.token = token;
@@ -671,6 +696,52 @@ function EditDialog({ integration: i, onClose, onSaved }: { integration: Integra
             </>
           ) : null}
           {i.kind === 'http' ? <HeaderRows rows={headers} onChange={setHeaders} hints={i.secret_hints} /> : null}
+          {i.kind === 'google_calendar' ? (
+            <div className="space-y-3">
+              <p className="text-muted-foreground text-xs">{t('calendarHelp')}</p>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                  <Label htmlFor="cal-tz">{t('timezone')}</Label>
+                  <Input id="cal-tz" value={cal.timezone} onChange={(e) => setCal({ ...cal, timezone: e.target.value })} placeholder="Africa/Lagos" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="cal-id">{t('calendarId')}</Label>
+                  <Input id="cal-id" value={cal.calendar_id} onChange={(e) => setCal({ ...cal, calendar_id: e.target.value })} placeholder="primary" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="cal-start">{t('opens')}</Label>
+                  <Input id="cal-start" type="time" value={cal.day_start} onChange={(e) => setCal({ ...cal, day_start: e.target.value })} />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="cal-end">{t('closes')}</Label>
+                  <Input id="cal-end" type="time" value={cal.day_end} onChange={(e) => setCal({ ...cal, day_end: e.target.value })} />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="cal-slot">{t('slotMinutes')}</Label>
+                  <Input id="cal-slot" type="number" min={10} max={240} value={cal.slot_minutes} onChange={(e) => setCal({ ...cal, slot_minutes: Number(e.target.value) || 30 })} />
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <Label>{t('workDays')}</Label>
+                <div className="flex flex-wrap gap-1.5">
+                  {[1, 2, 3, 4, 5, 6, 0].map((d) => {
+                    const on = cal.work_days.includes(d);
+                    return (
+                      <button
+                        key={d}
+                        type="button"
+                        aria-pressed={on}
+                        onClick={() => setCal({ ...cal, work_days: on ? cal.work_days.filter((x) => x !== d) : [...cal.work_days, d] })}
+                        className={`rounded-md border px-2.5 py-1 text-xs ${on ? 'bg-primary text-primary-foreground border-primary' : 'text-muted-foreground'}`}
+                      >
+                        {t(`days.${d}`)}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          ) : null}
           {i.kind === 'paystack' ? (
             <>
               <div className="space-y-1.5">

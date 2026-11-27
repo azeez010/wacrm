@@ -3935,6 +3935,33 @@
         "draft": "Draf",
         "playground": "Playground",
         "manual": "Oleh rekan tim"
+      },
+      "reconnect": "Hubungkan ulang Google",
+      "calendarHelp": "AI menawarkan waktu kosong dalam jam ini dan memesannya di kalender Anda.",
+      "timezone": "Zona waktu",
+      "calendarId": "Kalender",
+      "opens": "Buka",
+      "closes": "Tutup",
+      "slotMinutes": "Durasi janji (menit)",
+      "workDays": "Hari kerja",
+      "google": {
+        "connected": "Google Kalender terhubung.",
+        "reconnected": "Google Kalender terhubung ulang.",
+        "denied": "Akses Google tidak diberikan.",
+        "expired": "Masuk Google kedaluwarsa. Silakan coba lagi.",
+        "not_configured": "Masuk dengan Google belum disiapkan di platform ini.",
+        "plan": "Paket Anda tidak mengizinkan integrasi tambahan.",
+        "scopes": "Izinkan akses kalender untuk melanjutkan.",
+        "error": "Tidak dapat menghubungkan Google. Silakan coba lagi."
+      },
+      "days": {
+        "0": "Min",
+        "1": "Sen",
+        "2": "Sel",
+        "3": "Rab",
+        "4": "Kam",
+        "5": "Jum",
+        "6": "Sab"
       }
     },
     "webhooks": {

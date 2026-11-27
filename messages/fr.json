@@ -3122,6 +3122,33 @@
         "draft": "Brouillon",
         "playground": "Bac à sable",
         "manual": "Par un coéquipier"
+      },
+      "reconnect": "Reconnecter Google",
+      "calendarHelp": "L’IA propose des créneaux libres dans ces horaires et les réserve dans votre agenda.",
+      "timezone": "Fuseau horaire",
+      "calendarId": "Agenda",
+      "opens": "Ouverture",
+      "closes": "Fermeture",
+      "slotMinutes": "Durée d’un rendez-vous (minutes)",
+      "workDays": "Jours ouvrés",
+      "google": {
+        "connected": "Google Agenda connecté.",
+        "reconnected": "Google Agenda reconnecté.",
+        "denied": "L’accès Google n’a pas été accordé.",
+        "expired": "La connexion Google a expiré. Veuillez réessayer.",
+        "not_configured": "La connexion Google n’est pas encore configurée sur la plateforme.",
+        "plan": "Votre forfait n’autorise pas une intégration de plus.",
+        "scopes": "Veuillez autoriser l’accès à l’agenda pour continuer.",
+        "error": "Impossible de connecter Google. Veuillez réessayer."
+      },
+      "days": {
+        "0": "Dim",
+        "1": "Lun",
+        "2": "Mar",
+        "3": "Mer",
+        "4": "Jeu",
+        "5": "Ven",
+        "6": "Sam"
       }
     },
     "webhooks": {

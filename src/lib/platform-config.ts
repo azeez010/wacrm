@@ -20,6 +20,9 @@ export const META_KEYS = [
   'META_WHATSAPP_COEXISTENCE_FEATURE_TYPE',
   'META_GRAPH_API_VERSION',
   'META_WHATSAPP_WEBHOOK_VERIFY_TOKEN',
+  // Google Calendar integration (Settings → Integrations → Connect with Google).
+  'GOOGLE_OAUTH_CLIENT_ID',
+  'GOOGLE_OAUTH_CLIENT_SECRET',
 ] as const
 export type MetaKey = (typeof META_KEYS)[number]
 

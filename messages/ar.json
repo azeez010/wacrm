@@ -5597,6 +5597,7 @@
     "builtOn": "مبني على واجهة WhatsApp Business API الرسمية.",
     "rights": "© {year} {brand}. جميع الحقوق محفوظة.",
     "trademark": "WhatsApp علامة تجارية مسجلة لشركة Meta Platforms, Inc. إن {brand} غير تابعة لشركة Meta Platforms, Inc. ولا معتمدة منها ولا برعايتها.",
-    "whatsappPricing": "أسعار واتساب"
+    "whatsappPricing": "أسعار واتساب",
+    "signupSync": "مزامنة تسجيلات تطبيقك"
   }
 }

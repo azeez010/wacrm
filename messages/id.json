@@ -5597,6 +5597,7 @@
     "builtOn": "Dibangun di atas WhatsApp Business API resmi.",
     "rights": "© {year} {brand}. Hak cipta dilindungi.",
     "trademark": "WhatsApp adalah merek dagang terdaftar milik Meta Platforms, Inc. {brand} tidak berafiliasi dengan, didukung oleh, atau disponsori oleh Meta Platforms, Inc.",
-    "whatsappPricing": "Harga WhatsApp"
+    "whatsappPricing": "Harga WhatsApp",
+    "signupSync": "Sinkronkan pendaftar aplikasi"
   }
 }

@@ -5597,6 +5597,7 @@
     "builtOn": "Built on the official WhatsApp Business API.",
     "rights": "© {year} {brand}. All rights reserved.",
     "trademark": "WhatsApp is a registered trademark of Meta Platforms, Inc. {brand} is not affiliated with, endorsed by, or sponsored by Meta Platforms, Inc.",
-    "whatsappPricing": "WhatsApp pricing"
+    "whatsappPricing": "WhatsApp pricing",
+    "signupSync": "Sync your app's signups"
   }
 }

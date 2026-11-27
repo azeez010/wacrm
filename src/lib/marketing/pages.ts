@@ -1927,4 +1927,41 @@ MARKETING_PAGES.push(
   },
 )
 
+// How OgaDesk keeps its own signups in its own workspace (src/lib/crm/ogadesk.ts): a real, working setup.
+MARKETING_PAGES.push({
+  slug: 'sync-app-signups-to-crm',
+  kind: 'solutions',
+  name: 'Sync your app’s signups into OgaDesk',
+  metaTitle: 'Sync your app’s signups into your WhatsApp CRM',
+  metaDescription: 'Send every new signup from your app or website into OgaDesk as a contact, with plan, usage and lifecycle data, then follow up on WhatsApp. How we do it ourselves.',
+  eyebrow: 'Use case',
+  h1: 'Every new signup lands in your CRM, ready for a WhatsApp follow-up',
+  lead: 'This is exactly how OgaDesk tracks its own customers. Each time someone signs up for OgaDesk, our app sends them to our own OgaDesk workspace through the public API: one contact per person, kept up to date with their plan, usage and milestones. Your app can do the same.',
+  problems: [
+    { title: 'Signups sit in a database nobody reads', body: 'The sales and support team cannot see who joined, what they chose or where they got stuck.' },
+    { title: 'Exports go stale', body: 'A spreadsheet pulled on Monday is wrong by Wednesday: plans change, people upgrade or go quiet.' },
+    { title: 'Follow-up depends on memory', body: 'Nobody notices the customer who signed up, never finished setup and quietly left.' },
+  ],
+  features: [
+    { title: 'One contact per person', body: 'Contacts are created or found by email, so a signup without a phone number still gets a contact. Add the phone later.' },
+    { title: 'Your data as custom fields', body: 'Plan, signup date, country, usage and anything else your app knows are stored on the contact as fields you can filter on.' },
+    { title: 'Segments as tags', body: 'Tags such as “Use case: Support” or “Marketing opt-in” are added and removed as people change. Tags your team adds by hand are left alone.' },
+    { title: 'Milestones as they happen', body: 'Events like “finished onboarding” or “used 80% of their plan” add a tag and update a “last event” field on the contact.' },
+    { title: 'Follow up on WhatsApp', body: 'Start an automation when a tag is added, send an approved template to a segment, or let a teammate pick up the chat in the shared inbox.' },
+    { title: 'Never slows your app', body: 'Our app queues each update and sends it in the background with retries, so a slow request never holds up a signup.' },
+  ],
+  steps: [
+    { title: 'Create an API key', body: 'In Settings, API keys, create a key that can read and write contacts and custom fields.' },
+    { title: 'Send signups from your app', body: 'Call POST /api/v1/contacts with the email (and phone if you have it), then PATCH the contact with tags and custom fields when things change.' },
+    { title: 'Act on the data', body: 'Build segments and automations on the tags and fields, and reach people on WhatsApp.' },
+  ],
+  faq: [
+    { question: 'Do I need a developer?', answer: 'Yes, someone has to call the API from your app or backend. The API docs show every request with examples.' },
+    { question: 'What if a signup has no phone number?', answer: 'The contact is created with their email only. When you learn their number, add it to the same contact.' },
+    { question: 'Will my team’s own tags be overwritten?', answer: 'Not if you do what we do: read the contact’s tags, change only the ones your app manages, and send the full list back.' },
+    { question: 'Which plan do I need?', answer: 'The public API and custom fields are included from the Starter plan up. Check each plan’s custom field limit for how many fields you can keep.' },
+  ],
+  related: ['whatsapp-crm', 'whatsapp-broadcast', 'shared-whatsapp-inbox'],
+})
+
 export const getMarketingPage = (kind: MarketingPage['kind'], slug: string) => MARKETING_PAGES.find((p) => p.kind === kind && p.slug === slug)

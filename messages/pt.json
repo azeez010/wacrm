@@ -5597,6 +5597,7 @@
     "builtOn": "Criado sobre a API oficial do WhatsApp Business.",
     "rights": "© {year} {brand}. Todos os direitos reservados.",
     "trademark": "WhatsApp é uma marca registada da Meta Platforms, Inc. A {brand} não é afiliada, endossada nem patrocinada pela Meta Platforms, Inc.",
-    "whatsappPricing": "Preços do WhatsApp"
+    "whatsappPricing": "Preços do WhatsApp",
+    "signupSync": "Sincronize seus cadastros"
   }
 }

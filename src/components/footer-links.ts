@@ -10,6 +10,7 @@ export function footerColumns(to: (path: string) => string, lang: string = 'en')
       { key: 'solutions', href: fr ? '/fr/solutions/crm-whatsapp' : '/solutions/whatsapp-crm' },
       { key: 'templates', href: '/templates' },
       { key: 'linkGenerator', href: '/free-tools/whatsapp-link-generator' },
+      { key: 'signupSync', href: '/solutions/sync-app-signups-to-crm' },
       { key: 'whatsappPricing', href: fr ? '/fr/solutions/tarifs-api-whatsapp-business' : '/solutions/whatsapp-business-api-pricing' },
       { key: 'apiDocs', href: '/docs' },
     ] },

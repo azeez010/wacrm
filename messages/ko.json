@@ -5597,6 +5597,7 @@
     "builtOn": "공식 WhatsApp Business API 기반.",
     "rights": "© {year} {brand}. All rights reserved.",
     "trademark": "WhatsApp은 Meta Platforms, Inc.의 등록 상표입니다. {brand}는 Meta Platforms, Inc.와 제휴, 승인 또는 후원 관계가 없습니다.",
-    "whatsappPricing": "WhatsApp 요금"
+    "whatsappPricing": "WhatsApp 요금",
+    "signupSync": "앱 가입자 동기화"
   }
 }

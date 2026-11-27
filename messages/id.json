@@ -3755,7 +3755,9 @@
         "returnPending": "Pembayaran Anda masih diproses. Halaman ini diperbarui otomatis.",
         "returnChecking": "Memeriksa pembayaran Anda…",
         "returnBack": "Kembali ke tagihan"
-      }
+      },
+      "historyCoupon": "Kupon {code}: −{amount}",
+      "historyFee": "Biaya pembayaran: {amount}"
     },
     "tables": {
       "title": "Tabel khusus",

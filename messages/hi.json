@@ -3755,7 +3755,9 @@
         "returnPending": "आपका भुगतान अभी प्रोसेस हो रहा है। यह पेज अपने-आप अपडेट होता है।",
         "returnChecking": "आपका भुगतान जाँचा जा रहा है…",
         "returnBack": "बिलिंग पर वापस जाएँ"
-      }
+      },
+      "historyCoupon": "कूपन {code}: −{amount}",
+      "historyFee": "भुगतान शुल्क: {amount}"
     },
     "tables": {
       "title": "कस्टम टेबल",

@@ -1,7 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 
 import { markReferralPaid } from '@/lib/partner/crm-sync'
-import type { PaymentMethod } from './catalogue'
+import { computeFee, homeCurrency, type PaymentMethod } from './catalogue'
 import { paymentDriver } from './registry'
 import { decryptSecretsObject } from './secrets'
 import { PaymentError, type CheckoutResult, type DriverContext, type PaymentEvent } from './types'
@@ -16,6 +16,19 @@ import { PaymentError, type CheckoutResult, type DriverContext, type PaymentEven
 export type RouteEntry = { id: string; kind: string; name: string; mode: 'test' | 'live'; priority: number; chargeCurrency: string | null; reason: string | null }
 export type Attempt = { instanceId: string; kind: string; name: string; ok: boolean; error?: string; ms: number; currency?: string; amount?: number }
 type Quote = { amount: number; currency: string; baseAmount: number; baseCurrency: string }
+type CouponResult = { ok: true; couponId: string; code: string; duration: 'once' | 'forever'; discount: number } | { ok: false; reason: string }
+
+/** What the customer is charged, line by line. `total` is what is sent to the provider. */
+export interface PriceBreakdown {
+  subtotal: number
+  discount: number
+  /** The fee added to the customer's total (0 when the business pays it). */
+  fee: number
+  feePayer: 'customer' | 'business'
+  total: number
+  currency: string
+  couponCode: string | null
+}
 
 export interface StartCheckoutInput {
   accountId: string
@@ -29,11 +42,14 @@ export interface StartCheckoutInput {
   mode: 'test' | 'live'
   appUrl: string
   transferExpiryDays?: number
+  /** An admin-created coupon code the customer typed; re-validated here. */
+  couponCode?: string
 }
 
+/** `completed`: a 100%-off coupon, so no provider is involved and the plan is already active. */
 export type StartCheckoutResult =
-  | { ok: true; reference: string; result: CheckoutResult; attempts: Attempt[]; amount: number; currency: string }
-  | { ok: false; error: 'no_provider' | 'unknown_plan' | 'all_failed'; reference?: string; attempts: Attempt[] }
+  | { ok: true; reference: string; result: CheckoutResult | { kind: 'completed' }; attempts: Attempt[]; amount: number; currency: string; breakdown: PriceBreakdown }
+  | { ok: false; error: 'no_provider' | 'unknown_plan' | 'all_failed' | 'coupon_invalid' | 'coupon_not_recurring'; couponReason?: string; reference?: string; attempts: Attempt[] }
 
 export interface Deps {
   fetch: typeof fetch
@@ -86,6 +102,34 @@ async function providerPlanId(db: SupabaseClient, instanceId: string, ctx: Drive
   return id
 }
 
+/** Price for one instance: the plan quote in its charge currency, minus the coupon, plus the provider fee when the customer pays it. */
+export async function priceFor(
+  db: SupabaseClient, plan: { id: string }, input: Pick<StartCheckoutInput, 'accountId' | 'interval' | 'couponCode'>,
+  inst: { kind: string; chargeCurrency: string | null }, config: Record<string, unknown>,
+): Promise<{ quote: Quote; breakdown: PriceBreakdown; couponId: string | null; couponDuration: 'once' | 'forever' | null; providerFee: number } | { error: 'no_price' | 'coupon_invalid'; couponReason?: string }> {
+  const quote = await rpc<Quote | null>(db, 'payment_quote', { p_plan: plan.id, p_interval: input.interval, p_currency: inst.chargeCurrency })
+  if (!quote) return { error: 'no_price' }
+  const subtotal = Number(quote.amount)
+  let discount = 0
+  let couponId: string | null = null
+  let couponDuration: 'once' | 'forever' | null = null
+  let couponCode: string | null = null
+  if (input.couponCode?.trim()) {
+    const c = await rpc<CouponResult>(db, 'coupon_apply', { p_code: input.couponCode, p_account: input.accountId, p_plan: plan.id, p_interval: input.interval, p_subtotal: subtotal, p_currency: quote.currency })
+    if (!c.ok) return { error: 'coupon_invalid', couponReason: c.reason }
+    discount = Number(c.discount)
+    couponId = c.couponId
+    couponDuration = c.duration
+    couponCode = c.code
+  }
+  const discounted = Math.max(0, Math.round((subtotal - discount) * 100) / 100)
+  const fee = computeFee(config, homeCurrency(inst.kind, config), quote.currency, discounted)
+  return {
+    quote, couponId, couponDuration, providerFee: fee.providerFee,
+    breakdown: { subtotal, discount, fee: fee.fee, feePayer: fee.payer, total: fee.total, currency: quote.currency, couponCode },
+  }
+}
+
 export async function startCheckout(db: SupabaseClient, input: StartCheckoutInput, deps: Deps = defaultDeps): Promise<StartCheckoutResult> {
   const { data: plan } = await db.from('plans').select('id, name').eq('id', input.planId).eq('is_active', true).maybeSingle()
   if (!plan || plan.id === 'free') return { ok: false, error: 'unknown_plan', attempts: [] }
@@ -93,6 +137,16 @@ export async function startCheckout(db: SupabaseClient, input: StartCheckoutInpu
   const route = await getRoute(db, input.country, input.currency, input.method, input.mode)
   const eligible = route.filter((r) => !r.reason && r.chargeCurrency)
   if (eligible.length === 0) return { ok: false, error: 'no_provider', attempts: [] }
+
+  // A bad or unusable coupon is the customer's problem, not an instance failure: say so before any session exists.
+  if (input.couponCode?.trim()) {
+    const first = eligible[0]!
+    const pub = await rpc<{ config: Record<string, unknown> } | null>(db, 'payment_instance_public', { p_id: first.id })
+    const p = await priceFor(db, plan as { id: string }, input, first, pub?.config ?? {})
+    if ('error' in p) return p.error === 'coupon_invalid' ? { ok: false, error: 'coupon_invalid', couponReason: p.couponReason, attempts: [] } : { ok: false, error: 'no_provider', attempts: [] }
+    // A "once" coupon discounts one payment; a subscription would renew at full price, so it is one-off only.
+    if (p.couponDuration === 'once' && input.method === 'subscription') return { ok: false, error: 'coupon_not_recurring', attempts: [] }
+  }
 
   const reference = `ogd_${deps.random()}`
   const expires = new Date(deps.now() + (input.method === 'bank_transfer' ? (input.transferExpiryDays ?? 7) * 86_400_000 : 86_400_000)).toISOString()
@@ -107,18 +161,37 @@ export async function startCheckout(db: SupabaseClient, input: StartCheckoutInpu
     const started = deps.now()
     const attempt: Attempt = { instanceId: inst.id, kind: inst.kind, name: inst.name, ok: false, ms: 0 }
     try {
-      const quote = await rpc<Quote | null>(db, 'payment_quote', { p_plan: plan.id, p_interval: input.interval, p_currency: inst.chargeCurrency })
-      if (!quote) throw new PaymentError(`No price or exchange rate for ${inst.chargeCurrency}`, false)
-      attempt.amount = Number(quote.amount)
-      attempt.currency = quote.currency
       const driver = paymentDriver(inst.kind)
       if (!driver) throw new PaymentError(`No driver for ${inst.kind}`, false)
       const { ctx } = await driverContext(db, inst.id, deps)
+      const priced = await priceFor(db, plan as { id: string }, input, inst, ctx.config)
+      if ('error' in priced) throw new PaymentError(priced.error === 'coupon_invalid' ? `Coupon not usable in ${inst.chargeCurrency}` : `No price or exchange rate for ${inst.chargeCurrency}`, false)
+      const { quote, breakdown } = priced
+      attempt.amount = breakdown.total
+      attempt.currency = quote.currency
+      const breakdownColumns = {
+        coupon_id: priced.couponId, list_amount: breakdown.subtotal, discount_amount: breakdown.discount,
+        fee_amount: breakdown.feePayer === 'customer' ? breakdown.fee : priced.providerFee, fee_payer: breakdown.feePayer,
+      }
+
+      // A coupon that takes the whole price off: nothing to charge, so activate the plan directly.
+      if (breakdown.total === 0) {
+        attempt.ok = true
+        attempt.ms = deps.now() - started
+        attempts.push(attempt)
+        await db.from('checkout_sessions').update({
+          provider: 'coupon', instance_id: null, method: 'checkout_link', currency: quote.currency, amount: 0, base_amount: quote.baseAmount, base_currency: quote.baseCurrency,
+          ...breakdownColumns, status: 'pending', attempts,
+        }).eq('id', session.id)
+        await settle(db, session.id as string, `${reference}_coupon`, 0, quote.currency)
+        return { ok: true, reference, result: { kind: 'completed' }, attempts, amount: 0, currency: quote.currency, breakdown }
+      }
+
       const providerPlan = input.method === 'subscription'
-        ? await withTimeout(providerPlanId(db, inst.id, ctx, inst.kind, { id: plan.id as string, name: plan.name as string }, input.interval, attempt.amount, quote.currency), deps.timeoutMs)
+        ? await withTimeout(providerPlanId(db, inst.id, ctx, inst.kind, { id: plan.id as string, name: plan.name as string }, input.interval, breakdown.total, quote.currency), deps.timeoutMs)
         : undefined
       const result = await withTimeout(driver.createCheckout(ctx, {
-        reference: `${reference}_${i + 1}`, sessionReference: reference, method: input.method, amount: attempt.amount, currency: quote.currency,
+        reference: `${reference}_${i + 1}`, sessionReference: reference, method: input.method, amount: breakdown.total, currency: quote.currency,
         email: input.email, plan: { id: plan.id as string, name: plan.name as string }, interval: input.interval,
         callbackUrl: `${input.appUrl.replace(/\/+$/, '')}/settings/billing/return/${reference}`, providerPlanId: providerPlan,
       }), deps.timeoutMs)
@@ -127,13 +200,14 @@ export async function startCheckout(db: SupabaseClient, input: StartCheckoutInpu
       attempts.push(attempt)
       await report(db, inst.id, true)
       await db.from('checkout_sessions').update({
-        instance_id: inst.id, provider: inst.kind, currency: quote.currency, amount: quote.amount, base_amount: quote.baseAmount, base_currency: quote.baseCurrency,
+        instance_id: inst.id, provider: inst.kind, currency: quote.currency, amount: breakdown.total, base_amount: quote.baseAmount, base_currency: quote.baseCurrency,
+        ...breakdownColumns,
         status: result.kind === 'redirect' ? 'redirected' : 'awaiting_transfer',
         checkout_url: result.kind === 'redirect' ? result.url : null,
         instructions: result.kind === 'instructions' ? result.instructions : null,
         attempts,
       }).eq('id', session.id)
-      return { ok: true, reference, result, attempts, amount: attempt.amount, currency: quote.currency }
+      return { ok: true, reference, result, attempts, amount: breakdown.total, currency: quote.currency, breakdown }
     } catch (e) {
       attempt.error = e instanceof Error ? e.message : 'Failed'
       attempt.ms = deps.now() - started

@@ -3755,7 +3755,9 @@
         "returnPending": "لا تزال دفعتك قيد المعالجة. تتحدث هذه الصفحة تلقائيًا.",
         "returnChecking": "جارٍ التحقق من دفعتك…",
         "returnBack": "العودة إلى الفوترة"
-      }
+      },
+      "historyCoupon": "قسيمة {code}: −{amount}",
+      "historyFee": "رسوم الدفع: {amount}"
     },
     "tables": {
       "title": "الجداول المخصصة",

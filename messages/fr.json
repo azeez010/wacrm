@@ -2901,7 +2901,9 @@
         "returnPending": "Votre paiement est en cours de traitement. Cette page se met à jour toute seule.",
         "returnChecking": "Vérification de votre paiement…",
         "returnBack": "Retour à la facturation"
-      }
+      },
+      "historyCoupon": "Code promo {code} : −{amount}",
+      "historyFee": "Frais de paiement : {amount}"
     },
     "language": {
       "title": "Langue",

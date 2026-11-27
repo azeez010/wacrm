@@ -104,7 +104,7 @@ describe('manual transfer driver', () => {
 })
 
 // ---------------------------------------------------------------- executor (in-memory database stand-in)
-function fakeDb(opts: { route: unknown[]; instances: Record<string, { kind: string; config?: Record<string, unknown>; secrets?: string | null }> }) {
+function fakeDb(opts: { route: unknown[]; instances: Record<string, { kind: string; config?: Record<string, unknown>; secrets?: string | null }>; coupon?: unknown }) {
   const tables: Record<string, Record<string, unknown>[]> = { checkout_sessions: [], payment_provider_plans: [] }
   const reports: { id: string; ok: boolean }[] = []
   const rpcCalls: { fn: string; args: Record<string, unknown> }[] = []
@@ -131,6 +131,8 @@ function fakeDb(opts: { route: unknown[]; instances: Record<string, { kind: stri
       if (fn === 'payment_route') return { data: opts.route, error: null }
       if (fn === 'payment_quote') return { data: { amount: args.p_currency === 'NGN' ? 15000 : 12, currency: args.p_currency, baseAmount: 15000, baseCurrency: 'NGN' }, error: null }
       if (fn === 'payment_instance_secrets') { const i = opts.instances[args.p_id as string]; return { data: i ? { id: args.p_id, mode: 'test', config: i.config ?? {}, secrets: i.secrets ?? null, kind: i.kind } : null, error: null } }
+      if (fn === 'payment_instance_public') { const i = opts.instances[args.p_id as string]; return { data: i ? { id: args.p_id, kind: i.kind, config: i.config ?? {} } : null, error: null } }
+      if (fn === 'coupon_apply') return { data: opts.coupon ?? { ok: false, reason: 'not_found' }, error: null }
       if (fn === 'payment_instance_report') { reports.push({ id: args.p_id as string, ok: args.p_ok as boolean }); return { data: null, error: null } }
       return { data: { status: 'settled', accountId: 'acc' }, error: null }
     },
@@ -187,6 +189,91 @@ describe('startCheckout failover', () => {
     expect(f.mock.calls.filter(([u]) => String(u).endsWith('/plan'))).toHaveLength(1)
     expect(JSON.parse(String(f.mock.calls.at(-1)![1]!.body)).plan).toBe('PLN_9')
     vi.unstubAllEnvs()
+  })
+})
+
+describe('startCheckout: provider fee and coupons', () => {
+  const paystackFees = { fee_payer: 'customer', fee_percent: '1.5', fee_flat: '100', fee_cap: '2000', fee_flat_waived_below: '2500' }
+  const ok = (url = 'https://pay/1') => vi.fn(async (_u: RequestInfo | URL, _i?: RequestInit) => json(200, { status: true, data: { authorization_url: url, reference: 'r' } }))
+
+  it('adds the fee the customer pays to the amount sent to the provider and records the breakdown', async () => {
+    vi.stubEnv('PLATFORM_SECRETS_KEY', KEY)
+    const secrets = await encryptPlatformSecret(JSON.stringify({ secret_key: 'sk_test_abc' }), KEY)
+    const f = ok()
+    const fx = fakeDb({ route: [entry('p', 'paystack')], instances: { p: { kind: 'paystack', secrets, config: paystackFees } } })
+    const r = await startCheckout(fx.db, input, deps(f))
+    expect(r.ok).toBe(true)
+    if (!r.ok) return
+    const total = r.breakdown.total
+    expect(r.breakdown).toMatchObject({ subtotal: 15000, discount: 0, feePayer: 'customer' })
+    expect(r.breakdown.fee).toBeGreaterThan(300)
+    expect(total).toBeCloseTo(15000 + r.breakdown.fee, 2)
+    expect(JSON.parse(String(f.mock.calls[0]![1]!.body)).amount).toBe(Math.round(total * 100))
+    expect(fx.tables.checkout_sessions![0]).toMatchObject({ amount: total, list_amount: 15000, discount_amount: 0, fee_amount: r.breakdown.fee, fee_payer: 'customer', coupon_id: null })
+    vi.unstubAllEnvs()
+  })
+
+  it('charges the plain price when the business pays the fee, and still records the expected cost', async () => {
+    vi.stubEnv('PLATFORM_SECRETS_KEY', KEY)
+    const secrets = await encryptPlatformSecret(JSON.stringify({ secret_key: 'sk_test_abc' }), KEY)
+    const fx = fakeDb({ route: [entry('p', 'paystack')], instances: { p: { kind: 'paystack', secrets, config: { ...paystackFees, fee_payer: 'business' } } } })
+    const r = await startCheckout(fx.db, input, deps(ok()))
+    expect(r).toMatchObject({ ok: true, amount: 15000, breakdown: { fee: 0, feePayer: 'business', total: 15000 } })
+    expect(fx.tables.checkout_sessions![0]).toMatchObject({ amount: 15000, fee_payer: 'business', fee_amount: 100 + 0.015 * 15000 })
+    vi.unstubAllEnvs()
+  })
+
+  it('applies a coupon before the fee (the fee is on what is actually paid)', async () => {
+    vi.stubEnv('PLATFORM_SECRETS_KEY', KEY)
+    const secrets = await encryptPlatformSecret(JSON.stringify({ secret_key: 'sk_test_abc' }), KEY)
+    const fx = fakeDb({
+      route: [entry('p', 'paystack')], instances: { p: { kind: 'paystack', secrets, config: paystackFees } },
+      coupon: { ok: true, couponId: 'c1', code: 'SAVE20', duration: 'once', discount: 3000 },
+    })
+    const r = await startCheckout(fx.db, { ...input, couponCode: 'save20' }, deps(ok()))
+    expect(r.ok).toBe(true)
+    if (!r.ok) return
+    expect(r.breakdown).toMatchObject({ subtotal: 15000, discount: 3000, couponCode: 'SAVE20' })
+    expect(r.breakdown.total).toBeCloseTo(12000 + r.breakdown.fee, 2)
+    expect(fx.tables.checkout_sessions![0]).toMatchObject({ coupon_id: 'c1', discount_amount: 3000, list_amount: 15000 })
+    expect(fx.rpcCalls.find((c) => c.fn === 'coupon_apply')!.args).toMatchObject({ p_code: 'save20', p_account: 'acc', p_plan: 'starter', p_subtotal: 15000 })
+    vi.unstubAllEnvs()
+  })
+
+  it('rejects an unusable coupon before any checkout session exists', async () => {
+    const fx = fakeDb({ route: [entry('p', 'paystack')], instances: { p: { kind: 'paystack' } }, coupon: { ok: false, reason: 'expired' } })
+    const r = await startCheckout(fx.db, { ...input, couponCode: 'OLD' }, deps(vi.fn()))
+    expect(r).toMatchObject({ ok: false, error: 'coupon_invalid', couponReason: 'expired' })
+    expect(fx.tables.checkout_sessions).toHaveLength(0)
+  })
+
+  it('does not combine a first-payment-only coupon with an automatic subscription', async () => {
+    const fx = fakeDb({ route: [entry('p', 'paystack')], instances: { p: { kind: 'paystack' } }, coupon: { ok: true, couponId: 'c1', code: 'ONCE', duration: 'once', discount: 1000 } })
+    const r = await startCheckout(fx.db, { ...input, method: 'subscription', couponCode: 'ONCE' }, deps(vi.fn()))
+    expect(r).toMatchObject({ ok: false, error: 'coupon_not_recurring' })
+    expect(fx.tables.checkout_sessions).toHaveLength(0)
+  })
+
+  it('a coupon that lasts is allowed on a subscription and the provider plan is created at the discounted total', async () => {
+    vi.stubEnv('PLATFORM_SECRETS_KEY', KEY)
+    const secrets = await encryptPlatformSecret(JSON.stringify({ secret_key: 'sk_test_abc' }), KEY)
+    const f = vi.fn(async (url: RequestInfo | URL, _i?: RequestInit) => String(url).endsWith('/plan') ? json(200, { status: true, data: { plan_code: 'PLN_D' } }) : json(200, { status: true, data: { authorization_url: 'u', reference: 'r' } }))
+    const fx = fakeDb({ route: [entry('p', 'paystack')], instances: { p: { kind: 'paystack', secrets } }, coupon: { ok: true, couponId: 'c1', code: 'FOREVER', duration: 'forever', discount: 5000 } })
+    const r = await startCheckout(fx.db, { ...input, method: 'subscription', couponCode: 'FOREVER' }, deps(f as never))
+    expect(r).toMatchObject({ ok: true, amount: 10000 })
+    expect(JSON.parse(String(f.mock.calls[0]![1]!.body)).amount).toBe(1_000_000)
+    expect(fx.tables.payment_provider_plans![0]).toMatchObject({ amount: 10000, provider_plan_id: 'PLN_D' })
+    vi.unstubAllEnvs()
+  })
+
+  it('a coupon that takes off everything activates the plan without calling a provider', async () => {
+    const f = vi.fn()
+    const fx = fakeDb({ route: [entry('p', 'paystack')], instances: { p: { kind: 'paystack', config: paystackFees } }, coupon: { ok: true, couponId: 'c1', code: 'FREE', duration: 'once', discount: 15000 } })
+    const r = await startCheckout(fx.db, { ...input, couponCode: 'FREE' }, deps(f))
+    expect(r).toMatchObject({ ok: true, amount: 0, result: { kind: 'completed' }, breakdown: { total: 0, fee: 0, discount: 15000 } })
+    expect(f).not.toHaveBeenCalled()
+    expect(fx.tables.checkout_sessions![0]).toMatchObject({ provider: 'coupon', amount: 0, method: 'checkout_link', coupon_id: 'c1' })
+    expect(fx.rpcCalls.find((c) => c.fn === 'payment_settle')!.args).toMatchObject({ p_amount: 0, p_provider_reference: 'ogd_abc_coupon' })
   })
 })
 

@@ -4,7 +4,7 @@ import { cookies, headers } from 'next/headers'
 import { CURRENCY_COOKIE } from '@/lib/currency/convert'
 import { currencyForCountry, isSupportedCurrency } from '@/lib/currency/supported'
 import { PAYMENT_METHODS, type PaymentMethod } from './catalogue'
-import { getRoute } from './checkout'
+import { getRoute, priceFor } from './checkout'
 
 export type PaymentMode = 'off' | 'test' | 'live'
 export interface CustomerPaymentContext {
@@ -39,17 +39,48 @@ export async function customerPaymentContext(db: SupabaseClient, accountId: stri
   return { mode, country, currency, transferExpiryDays }
 }
 
-export type MethodOption = { method: PaymentMethod; available: boolean; amount: number | null; currency: string | null }
+export type MethodOption = {
+  method: PaymentMethod
+  available: boolean
+  /** What the customer pays (subtotal - discount + fee). */
+  amount: number | null
+  currency: string | null
+  subtotal: number | null
+  discount: number
+  fee: number
+  feePayer: 'customer' | 'business' | null
+  /** Why the typed coupon cannot be used with this method/price (not_found, expired, ..., once_not_recurring). */
+  couponIssue: string | null
+}
 
-/** Which methods this customer can use for a plan/interval, and the price the first instance would charge. */
-export async function methodOptions(db: SupabaseClient, pc: CustomerPaymentContext, planId: string, interval: string): Promise<MethodOption[]> {
-  if (pc.mode === 'off') return PAYMENT_METHODS.map((method) => ({ method, available: false, amount: null, currency: null }))
+const unavailable = (method: PaymentMethod): MethodOption => ({ method, available: false, amount: null, currency: null, subtotal: null, discount: 0, fee: 0, feePayer: null, couponIssue: null })
+
+/** Which methods this customer can use for a plan/interval, and the price the first instance would charge,
+ *  line by line (coupon and provider fee included). */
+export async function methodOptions(
+  db: SupabaseClient, pc: CustomerPaymentContext, planId: string, interval: string, opts: { accountId?: string; couponCode?: string } = {},
+): Promise<MethodOption[]> {
+  if (pc.mode === 'off') return PAYMENT_METHODS.map(unavailable)
   const mode = pc.mode
-  return Promise.all(PAYMENT_METHODS.map(async (method) => {
+  return Promise.all(PAYMENT_METHODS.map(async (method): Promise<MethodOption> => {
     const first = (await getRoute(db, pc.country, pc.currency, method, mode)).find((r) => !r.reason && r.chargeCurrency)
-    if (!first) return { method, available: false, amount: null, currency: null }
-    const { data } = await db.rpc('payment_quote', { p_plan: planId, p_interval: interval, p_currency: first.chargeCurrency })
-    const q = data as { amount: number; currency: string } | null
-    return { method, available: !!q, amount: q ? Number(q.amount) : null, currency: q?.currency ?? null }
+    if (!first) return unavailable(method)
+    const { data: pub } = await db.rpc('payment_instance_public', { p_id: first.id })
+    const config = ((pub as { config?: Record<string, unknown> } | null)?.config) ?? {}
+    const priced = await priceFor(db, { id: planId }, { accountId: opts.accountId ?? '', interval: interval as 'monthly' | 'quarterly' | 'annual', couponCode: opts.accountId ? opts.couponCode : undefined }, first, config)
+    if ('error' in priced) {
+      if (priced.error === 'coupon_invalid') {
+        // Show the plain price and say why the coupon does not apply.
+        const plain = await priceFor(db, { id: planId }, { accountId: opts.accountId ?? '', interval: interval as 'monthly' | 'quarterly' | 'annual' }, first, config)
+        if ('error' in plain) return unavailable(method)
+        return { method, available: true, amount: plain.breakdown.total, currency: plain.breakdown.currency, subtotal: plain.breakdown.subtotal, discount: 0, fee: plain.breakdown.fee, feePayer: plain.breakdown.feePayer, couponIssue: priced.couponReason ?? 'invalid' }
+      }
+      return unavailable(method)
+    }
+    const b = priced.breakdown
+    return {
+      method, available: true, amount: b.total, currency: b.currency, subtotal: b.subtotal, discount: b.discount, fee: b.fee, feePayer: b.feePayer,
+      couponIssue: priced.couponDuration === 'once' && method === 'subscription' ? 'once_not_recurring' : null,
+    }
   }))
 }

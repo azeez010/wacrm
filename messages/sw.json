@@ -3755,7 +3755,9 @@
         "returnPending": "Malipo yako bado yanashughulikiwa. Ukurasa huu unajisasisha wenyewe.",
         "returnChecking": "Tunaangalia malipo yako…",
         "returnBack": "Rudi kwenye malipo"
-      }
+      },
+      "historyCoupon": "Kuponi {code}: −{amount}",
+      "historyFee": "Ada ya malipo: {amount}"
     },
     "tables": {
       "title": "Majedwali maalum",

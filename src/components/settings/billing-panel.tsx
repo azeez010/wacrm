@@ -45,6 +45,9 @@ interface Billing {
     status: 'pending' | 'succeeded' | 'failed' | 'refunded';
     description: string | null;
     created_at: string;
+    discount_amount?: number | string | null;
+    fee_amount?: number | string | null;
+    coupon_code?: string | null;
   }[];
 }
 
@@ -299,7 +302,17 @@ function History({ data, t, money, date }: { data: Billing; t: T; money: Money; 
                     <td className="py-2.5 pr-4">
                       {h.description ?? t('subscription', { plan: data.plans.find((p) => p.id === h.plan_id)?.name ?? h.plan_id ?? '' })}
                     </td>
-                    <td className="py-2.5 pr-4 whitespace-nowrap">{money(h.amount, h.currency)}</td>
+                    <td className="py-2.5 pr-4 whitespace-nowrap">
+                      {money(h.amount, h.currency)}
+                      {Number(h.discount_amount) > 0 ? (
+                        <div className="text-muted-foreground text-xs">
+                          {t('historyCoupon', { code: h.coupon_code ?? '', amount: money(h.discount_amount ?? 0, h.currency) })}
+                        </div>
+                      ) : null}
+                      {Number(h.fee_amount) > 0 ? (
+                        <div className="text-muted-foreground text-xs">{t('historyFee', { amount: money(h.fee_amount ?? 0, h.currency) })}</div>
+                      ) : null}
+                    </td>
                     <td className="py-2.5">
                       <span className={cn('rounded-full px-2.5 py-0.5 text-xs font-medium', PAY_STYLE[h.status])}>
                         {t(`payStatus.${h.status}`)}

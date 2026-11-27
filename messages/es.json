@@ -2901,7 +2901,9 @@
         "returnPending": "Tu pago aún se está procesando. Esta página se actualiza sola.",
         "returnChecking": "Comprobando tu pago…",
         "returnBack": "Volver a facturación"
-      }
+      },
+      "historyCoupon": "Cupón {code}: −{amount}",
+      "historyFee": "Comisión de pago: {amount}"
     },
     "language": {
       "title": "Idioma",

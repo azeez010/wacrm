@@ -74,7 +74,7 @@ export async function buildContactSnapshot(db: SupabaseClient, userId: string): 
       count(db, 'profiles', accountId),
       getEntitlements(db, accountId),
       countBillableMessages(db, accountId),
-      db.from('subscription_payments').select('amount').eq('account_id', accountId).eq('status', 'succeeded').limit(1000),
+      db.from('subscription_payments').select('amount, net_amount').eq('account_id', accountId).eq('status', 'succeeded').limit(1000),
     ])
     const limit = typeof ents.limits.messages_per_month === 'number' ? ents.limits.messages_per_month : null
     const useCases = (account?.use_cases as string[] | null) ?? []
@@ -91,7 +91,7 @@ export async function buildContactSnapshot(db: SupabaseClient, userId: string): 
       PLAN_STATUS: sub?.status ?? 'active',
       BILLING_INTERVAL: sub?.billing_interval ?? null,
       PLAN_RENEWS_AT: ymd(sub?.current_period_end as string | null),
-      LIFETIME_PAID: ((paid.data ?? []) as Array<{ amount: number | string }>).reduce((s, r) => s + Number(r.amount), 0),
+      LIFETIME_PAID: ((paid.data ?? []) as Array<{ amount: number | string; net_amount: number | string | null }>).reduce((s, r) => s + Number(r.net_amount ?? r.amount), 0),
       WHATSAPP_CONNECTED: connected > 0,
       WHATSAPP_NUMBERS: numbers,
       API_KEYS: keys,

@@ -42,6 +42,76 @@ export interface PaymentTypeDef {
   validate?(config: Record<string, unknown>, secrets: Record<string, string>, mode: 'test' | 'live'): string[]
 }
 
+// ---- Who pays the provider's fee (per instance) -----------------------------------------------
+// Every type carries the same fee settings. `fee_payer` defaults to the customer: the fee is added to what
+// they pay (grossed up so the business still receives the full plan price). Amounts are in the instance's
+// home currency; other charge currencies use `fee_percent_intl` only (no flat fee, no cap).
+const NUMBER_PATTERN = '^\\d+(\\.\\d+)?$'
+function feeFields(d: { percent: string; flat: string; cap: string; waivedBelow: string; intl: string }): FieldDef[] {
+  return [
+    {
+      key: 'fee_payer', label: 'Who pays the payment fee', type: 'select', default: 'customer',
+      options: [{ value: 'customer', label: 'Customer (added at checkout)' }, { value: 'business', label: 'Business (included in the price)' }],
+      help: 'When the customer pays, checkout shows a transaction fee and the business receives the full plan price.',
+    },
+    { key: 'fee_percent', label: 'Fee percent (%)', type: 'text', default: d.percent, pattern: NUMBER_PATTERN, help: "The provider's percentage on local payments." },
+    { key: 'fee_flat', label: 'Flat fee', type: 'text', default: d.flat, pattern: NUMBER_PATTERN, help: 'In the instance home currency. Leave 0 if none.' },
+    { key: 'fee_cap', label: 'Fee cap', type: 'text', default: d.cap, pattern: NUMBER_PATTERN, help: 'The most the provider takes per payment. 0 = no cap.' },
+    { key: 'fee_flat_waived_below', label: 'Flat fee waived below', type: 'text', default: d.waivedBelow, pattern: NUMBER_PATTERN, help: 'The flat fee is not charged on payments under this amount. 0 = never waived.' },
+    { key: 'fee_percent_intl', label: 'Fee percent, other currencies (%)', type: 'text', default: d.intl, pattern: NUMBER_PATTERN, help: 'Used for payments in any currency other than the home currency.' },
+  ]
+}
+
+export interface FeeResult {
+  payer: 'customer' | 'business'
+  /** Added to the customer's total (0 when the business pays). */
+  fee: number
+  /** What the customer pays: subtotal + fee. */
+  total: number
+  /** What the provider is expected to take from that payment (the cost when the business pays). */
+  providerFee: number
+}
+
+const num = (v: unknown): number => {
+  const n = typeof v === 'number' ? v : typeof v === 'string' && v.trim() !== '' ? Number(v) : NaN
+  return Number.isFinite(n) && n > 0 ? n : 0
+}
+const cents = (n: number) => Math.round(n * 100) / 100
+
+/** The provider fee for one payment of `subtotal` (the plan price after any coupon) in `currency`, and who bears it.
+ *  Customer pays: grossed up so that total minus the provider's own fee on that total equals the subtotal,
+ *  rounded up to the cent. Business pays: the total is the subtotal and `providerFee` is only the expected cost. */
+export function computeFee(config: Record<string, unknown>, homeCurrency: string, currency: string, subtotal: number): FeeResult {
+  const payer: FeeResult['payer'] = config.fee_payer === 'business' ? 'business' : 'customer'
+  const home = currency.toUpperCase() === homeCurrency.toUpperCase()
+  const pctRaw = home ? num(config.fee_percent) : (config.fee_percent_intl === undefined || config.fee_percent_intl === '' ? num(config.fee_percent) : num(config.fee_percent_intl))
+  const pct = Math.min(pctRaw, 90) / 100
+  const flat = home ? num(config.fee_flat) : 0
+  const cap = home ? num(config.fee_cap) : 0
+  const waived = home ? num(config.fee_flat_waived_below) : 0
+  const s = Math.max(0, subtotal)
+  if (s === 0 || (pct === 0 && flat === 0)) return { payer, fee: 0, total: cents(s), providerFee: 0 }
+
+  const providerFeeOn = (t: number) => {
+    let f = (waived > 0 && t < waived ? 0 : flat) + pct * t
+    if (cap > 0) f = Math.min(f, cap)
+    return f
+  }
+  if (payer === 'business') return { payer, fee: 0, total: cents(s), providerFee: cents(providerFeeOn(s)) }
+
+  const noFlat = s / (1 - pct)
+  let total = waived > 0 && noFlat < waived ? noFlat : (s + flat) / (1 - pct)
+  if (cap > 0 && total - s > cap) total = s + cap
+  total = Math.ceil(total * 100 - 1e-9) / 100
+  return { payer, fee: cents(total - s), total: cents(total), providerFee: cents(providerFeeOn(total)) }
+}
+
+/** The currency an instance charges when it can: the first of its coverage currencies. */
+export function homeCurrency(kind: string, config: Record<string, unknown>): string {
+  const t = paymentType(kind)
+  return t?.coverage(config).currencies[0] ?? 'NGN'
+}
+
 // Paystack: an account charges its home currency (plus USD for Nigeria / Kenya businesses that
 // enabled it); cards from any country work when international payments are on.
 const PAYSTACK_HOME: Record<string, string> = { NG: 'NGN', GH: 'GHS', ZA: 'ZAR', KE: 'KES', CI: 'XOF' }
@@ -61,6 +131,8 @@ const paystack: PaymentTypeDef = {
     },
     { key: 'usd_enabled', label: 'USD payments enabled on this account', type: 'boolean', default: false, help: 'Only for Nigeria and Kenya accounts that Paystack approved for USD.' },
     { key: 'international_cards', label: 'International cards enabled', type: 'boolean', default: true, help: 'When on, customers in any country can pay by card.' },
+    // Defaults are Paystack Nigeria's local-card pricing; check your own Paystack pricing page.
+    ...feeFields({ percent: '1.5', flat: '100', cap: '2000', waivedBelow: '2500', intl: '3.9' }),
   ],
   coverage(config) {
     const mc = typeof config.merchant_country === 'string' && PAYSTACK_HOME[config.merchant_country] ? config.merchant_country : 'NG'
@@ -88,6 +160,7 @@ const manualTransfer: PaymentTypeDef = {
     { key: 'currency', label: 'Account currency', type: 'select', required: true, default: 'NGN', options: ['NGN', 'GHS', 'KES', 'ZAR', 'USD', 'GBP', 'EUR'].map((c) => ({ value: c, label: c })) },
     { key: 'country', label: 'Bank country', type: 'select', required: true, default: 'NG', options: ['NG', 'GH', 'KE', 'ZA', 'US', 'GB'].map((c) => ({ value: c, label: c })) },
     { key: 'instructions', label: 'Extra instructions', type: 'textarea', help: 'Shown under the bank details, e.g. "Send the receipt to billing@…".' },
+    ...feeFields({ percent: '0', flat: '0', cap: '0', waivedBelow: '0', intl: '0' }),
   ],
   coverage(config) {
     return { countries: [typeof config.country === 'string' ? config.country : 'NG'], currencies: [typeof config.currency === 'string' ? config.currency : 'NGN'] }

@@ -1,5 +1,5 @@
 // GET  /api/account/billing/checkout?plan_id=&interval=   which payment methods this customer can use, with prices
-// POST /api/account/billing/checkout { plan_id, interval, method }   start a checkout (failover across payment instances)
+// POST /api/account/billing/checkout { plan_id, interval, method, coupon_code? }   start a checkout (failover across payment instances)
 // Admin+. When the platform has payments off for this account (admin console), GET says mode 'off'
 // and POST answers 409 payments_off, so the client keeps using the free plan switch.
 import { NextResponse } from 'next/server'
@@ -22,10 +22,15 @@ export async function GET(request: Request) {
     const url = new URL(request.url)
     const planId = url.searchParams.get('plan_id') ?? ''
     const interval = url.searchParams.get('interval') ?? 'monthly'
+    const couponCode = url.searchParams.get('coupon')?.trim().slice(0, 40) || undefined
     if (!planId || !isInterval(interval)) return NextResponse.json({ error: "'plan_id' and a valid 'interval' are required" }, { status: 400 })
+    if (couponCode) {
+      const l = checkRateLimit(`billing:coupon:${ctx.userId}`, RATE_LIMITS.couponAttempt)
+      if (!l.success) return rateLimitResponse(l)
+    }
     const db = supabaseAdmin()
     const pc = await customerPaymentContext(db, ctx.accountId, ctx.userId)
-    return NextResponse.json({ mode: pc.mode, country: pc.country, currency: pc.currency, methods: await methodOptions(db, pc, planId, interval) })
+    return NextResponse.json({ mode: pc.mode, country: pc.country, currency: pc.currency, methods: await methodOptions(db, pc, planId, interval, { accountId: ctx.accountId, couponCode }) })
   } catch (err) {
     return toErrorResponse(err)
   }
@@ -36,11 +41,16 @@ export async function POST(request: Request) {
     const ctx = await requireRole('admin')
     const limit = checkRateLimit(`billing:checkout:${ctx.userId}`, RATE_LIMITS.adminAction)
     if (!limit.success) return rateLimitResponse(limit)
-    const body = (await request.json().catch(() => null)) as { plan_id?: unknown; interval?: unknown; method?: unknown } | null
+    const body = (await request.json().catch(() => null)) as { plan_id?: unknown; interval?: unknown; method?: unknown; coupon_code?: unknown } | null
     const planId = typeof body?.plan_id === 'string' ? body.plan_id.trim() : ''
     const method = body?.method as PaymentMethod
     if (!planId || !isInterval(body?.interval) || !PAYMENT_METHODS.includes(method)) {
       return NextResponse.json({ error: "'plan_id', 'interval' and 'method' are required" }, { status: 400 })
+    }
+    const couponCode = typeof body?.coupon_code === 'string' && body.coupon_code.trim() ? body.coupon_code.trim().slice(0, 40) : undefined
+    if (couponCode) {
+      const l = checkRateLimit(`billing:coupon:${ctx.userId}`, RATE_LIMITS.couponAttempt)
+      if (!l.success) return rateLimitResponse(l)
     }
     const db = supabaseAdmin()
     const pc = await customerPaymentContext(db, ctx.accountId, ctx.userId)
@@ -51,15 +61,15 @@ export async function POST(request: Request) {
 
     const r = await startCheckout(db, {
       accountId: ctx.accountId, userId: ctx.userId, email, planId, interval: body!.interval as Interval, method,
-      country: pc.country, currency: pc.currency, mode: pc.mode, appUrl: SITE_URL, transferExpiryDays: pc.transferExpiryDays,
+      country: pc.country, currency: pc.currency, mode: pc.mode, appUrl: SITE_URL, transferExpiryDays: pc.transferExpiryDays, couponCode,
     })
     if (!r.ok) {
-      const status = r.error === 'unknown_plan' ? 400 : r.error === 'no_provider' ? 409 : 502
-      return NextResponse.json({ error: r.error, reference: r.reference ?? null }, { status })
+      const status = r.error === 'unknown_plan' ? 400 : r.error === 'no_provider' ? 409 : r.error === 'coupon_invalid' || r.error === 'coupon_not_recurring' ? 422 : 502
+      return NextResponse.json({ error: r.error, coupon_reason: r.couponReason ?? null, reference: r.reference ?? null }, { status })
     }
     return NextResponse.json({
-      reference: r.reference, amount: r.amount, currency: r.currency,
-      ...(r.result.kind === 'redirect' ? { redirectUrl: r.result.url } : { instructions: r.result.instructions }),
+      reference: r.reference, amount: r.amount, currency: r.currency, breakdown: r.breakdown,
+      ...(r.result.kind === 'redirect' ? { redirectUrl: r.result.url } : r.result.kind === 'instructions' ? { instructions: r.result.instructions } : { completed: true }),
     })
   } catch (err) {
     return toErrorResponse(err)

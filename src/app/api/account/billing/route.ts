@@ -62,7 +62,7 @@ export async function GET() {
         ? db
             .from('subscription_payments')
             .select(
-              'id, plan_id, amount, currency, status, billing_interval, provider, description, period_start, period_end, created_at'
+              'id, plan_id, amount, currency, status, billing_interval, provider, description, period_start, period_end, created_at, list_amount, discount_amount, fee_amount, fee_payer, coupons(code)'
             )
             .eq('account_id', accountId)
             .order('created_at', { ascending: false })
@@ -164,7 +164,12 @@ export async function GET() {
       features: ents.features,
       usage,
       plans,
-      history: history.data ?? [],
+      // What was actually charged, plus the coupon and the fee the customer paid (when there were any).
+      history: ((history.data ?? []) as Array<Record<string, unknown>>).map(({ coupons, ...h }) => ({
+        ...h,
+        coupon_code: (Array.isArray(coupons) ? coupons[0]?.code : (coupons as { code?: string } | null)?.code) ?? null,
+        fee_amount: h.fee_payer === 'customer' ? h.fee_amount : 0,
+      })),
     });
   } catch (err) {
     return toErrorResponse(err);

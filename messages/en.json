@@ -2901,7 +2901,9 @@
         "returnPending": "Your payment is still being processed. This page updates by itself.",
         "returnChecking": "Checking your payment…",
         "returnBack": "Back to billing"
-      }
+      },
+      "historyCoupon": "Coupon {code}: −{amount}",
+      "historyFee": "Payment fee: {amount}"
     },
     "language": {
       "title": "Language",

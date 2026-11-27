@@ -13,6 +13,7 @@ import { registerFormsTools } from './forms-tools'
 import { registerDevTools } from './dev-tools'
 import { registerOpsTools } from './ops-tools'
 import { registerWorkspaceTools } from './workspace-tools'
+import { registerAiTools } from './ai-tools'
 import { registerGuidance } from './guidance'
 import { SERVER_INSTRUCTIONS } from './playbooks'
 
@@ -304,6 +305,7 @@ export function createWacrmMcpServer(
   registerDevTools(server, api, scopes)
   registerOpsTools(server, api, scopes)
   registerWorkspaceTools(server, api, scopes)
+  registerAiTools(server, api, scopes)
   registerGuidance(server)
 
   return server

@@ -14,7 +14,8 @@ export function registerGuidance(server: McpServer) {
       description:
         'Step-by-step recipe for a goal, naming the exact tools to use and the decisions to ask the user first. Topics: ' +
         'project_kickoff (a whole project end to end: start here for "I have a project"), lead_gen (forms and follow-up), support (support button, routing), ' +
-        'marketing_broadcast (send to an audience), developer_api (help a developer integrate), templates (write approvable WhatsApp templates).',
+        'marketing_broadcast (send to an audience), developer_api (help a developer integrate), templates (write approvable WhatsApp templates), ' +
+        'ai_agents (an AI agent that answers customers), workspaces (team, invitations and other workspaces).',
       inputSchema: { topic: z.enum(PLAYBOOK_TOPICS) },
       annotations: { ...READ, title: 'Playbook for a goal' },
     },

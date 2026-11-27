@@ -15,18 +15,19 @@ export interface Playbook {
   notes: string[]
 }
 
-export const PLAYBOOK_TOPICS = ['project_kickoff', 'lead_gen', 'support', 'marketing_broadcast', 'developer_api', 'templates'] as const
+export const PLAYBOOK_TOPICS = ['project_kickoff', 'lead_gen', 'support', 'marketing_broadcast', 'developer_api', 'templates', 'ai_agents', 'workspaces'] as const
 export type PlaybookTopic = (typeof PLAYBOOK_TOPICS)[number]
 
 export const SERVER_INSTRUCTIONS = `OgaDesk is a WhatsApp CRM: contacts, a shared inbox, lead forms and support buttons, pipelines and deals, automations, chatbot flows, templates, broadcasts, custom fields and tables, segments, webhooks and verification codes (OTP).
 
 How to work:
-1. Start with whoami (what this key may do) and get_usage (plan limits). Only tools the key's access allows are listed.
+1. Start with whoami (what this key may do) and get_plan (plan, limits, what is near or at its limit, upgrade_url). Only tools the key's access allows are listed.
 2. For a goal, call get_playbook (topics: ${PLAYBOOK_TOPICS.join(', ')}). "project_kickoff" runs a whole project end to end.
 3. Read before you write, and build everything as DRAFTS first (forms, automations and flows are created inactive). Show the user a short summary and get a yes before publishing or activating.
 4. Anything that messages customers (send_message, send_broadcast, send_verification) or is hard to undo (deleting) needs the user's explicit go-ahead for that exact action.
 5. Ask the user about missing decisions once, in a single message, instead of guessing or asking one by one.
-6. Give the user real links: form and embed links come back from create_form / get_form already using our public domain.`
+6. Give the user real links: form and embed links come back from create_form / get_form already using our public domain.
+7. When a call fails with plan_limit, do not retry: tell the user which limit, suggest a plan (list_plans with limit_key) and give them upgrade_url. Plans are changed only by the user in Billing.`
 
 export const PLAYBOOKS: Record<PlaybookTopic, Playbook> = {
   project_kickoff: {
@@ -92,9 +93,11 @@ export const PLAYBOOKS: Record<PlaybookTopic, Playbook> = {
       'create_flow for a simple menu (Sales / Billing / Talk to a person) or create_automation with keyword_match for common questions; validate first.',
       'create_tag for categories if useful. To track support tickets, create_pipeline with kind "support" (default stages New → In progress → Waiting on customer → Resolved → Closed; Resolved/Closed are final stages that close the linked chat). The live-chat widget can open a ticket per new chat (settings.chat.ticket).',
       'Day to day, the team can triage with update_conversation (assign to an agent, close or reopen).',
+      'Every workspace already has a default "Support" pipeline (kind support); reuse it (list_pipelines) before creating another.',
+      'To answer common questions automatically, follow the ai_agents playbook (an AI agent on the web_chat and/or whatsapp channel with the support template).',
       'Summarise and ask before update_form status "active"; then give the embed snippet from get_form.',
     ],
-    notes: ['Support submissions create a conversation and notify the whole team by default.', 'Do not message customers without their go-ahead; replies in the inbox use send_message within 24 hours or an approved template outside it.'],
+    notes: ['Contacts a lower plan archived (get_contact archived_by_plan) still reach the inbox and can be answered by hand, but get no automations, flows, AI replies or broadcasts until the plan has room again.', 'Support submissions create a conversation and notify the whole team by default.', 'Do not message customers without their go-ahead; replies in the inbox use send_message within 24 hours or an approved template outside it.'],
   },
 
   marketing_broadcast: {
@@ -147,6 +150,44 @@ export const PLAYBOOKS: Record<PlaybookTopic, Playbook> = {
     ],
     notes: ['Keep variables out of the first and last word; avoid promotional wording in Utility templates; never ask for passwords or card numbers.'],
   },
+
+  ai_agents: {
+    title: 'Set up an AI agent that answers customers',
+    when: 'The user wants AI to answer WhatsApp or website chat questions, qualify leads, or draft replies for the team.',
+    ask: [
+      'What the agent should do (support, sales, bookings) and on which channels (whatsapp, web_chat).',
+      'Where the answers come from: website pages, an FAQ (questions and answers), or text you paste.',
+      'Who takes over when the AI cannot help (a teammate, or the shared queue), and anything it must never say or promise.',
+      'Whether it may reply automatically, or only draft replies for the team at first.',
+    ],
+    steps: [
+      'get_plan: check the AI features and credits (get_ai_usage for this month). list_ai_agents and list_knowledge_sources: reuse what exists.',
+      'list_ai_agent_templates and pick the closest; list_team_members for the handoff_agent_id.',
+      'create_knowledge_source for each source: website { start_url, include } for help pages, qa { pairs } for FAQs, text { content } for policies. Websites finish indexing in the background.',
+      'create_ai_agent with the template system_prompt adapted to the business, channels, handoff_agent_id, knowledge_mode ("selected" + link_agent_knowledge to keep it focused) and auto_reply_enabled false.',
+      'search_knowledge with 3-5 real customer questions (agent_id set) and show the user what the agent would be given; add or fix sources until the answers are there.',
+      'Summarise the agent and ask before update_ai_agent { auto_reply_enabled: true }. list_integrations shows tools it can use (bookings, payment links); actions that need approval appear in list_ai_tool_calls status pending_approval and are approved by a person in the app.',
+      'For one conversation that needs a specific agent, set_conversation_agent.',
+    ],
+    notes: [
+      'Provider keys, integrations and approvals are managed in the app (Settings > AI); never ask the user to paste keys into the chat.',
+      'Auto-replies message real customers: get an explicit yes before switching them on.',
+    ],
+  },
+
+  workspaces: {
+    title: 'Manage the workspace, team and other workspaces',
+    when: 'The user wants to rename the workspace, invite or remove teammates, change roles, or set up another business as a separate workspace.',
+    ask: ['Who to invite and with which role (admin, agent, viewer).', 'For a new workspace: its name, and that a new API key is needed to work inside it.'],
+    steps: [
+      'get_workspace for the name, plan and team size; list_team_members and list_invitations for who is in or invited.',
+      'Invite with create_invitation (role, label) and give the user the url to share; it is shown only once. Seats count members plus pending invitations (get_plan seats).',
+      'Change roles with update_member_role; remove with remove_member (confirm). Ownership is never changed here: the owner transfers it in the app.',
+      'Rename or set the timezone with update_workspace after the user confirms.',
+      'Other businesses: list_workspaces (needs workspaces:manage) shows every workspace of the key creator; create_workspace makes a new one (the plan workspaces limit applies). Each key works in one workspace only: to act in the new one, the user creates a key there (Settings > API & MCP) and connects it.',
+    ],
+    notes: ['A lower plan archives what no longer fits (forms, automations, flows, contacts…) instead of deleting it; get_plan archived_by_plan shows it and an upgrade restores it automatically.'],
+  },
 }
 
 export function renderPlaybook(topic: PlaybookTopic, origin: string): Playbook {
@@ -162,4 +203,6 @@ export const PROMPTS: { name: string; title: string; description: string; topic:
   { name: 'set_up_support', title: 'Set up support', description: 'Support button, routing and auto-replies.', topic: 'support', arg: 'Which website is it for?' },
   { name: 'run_broadcast', title: 'Run a broadcast', description: 'Pick an audience and template, test, then send with confirmation.', topic: 'marketing_broadcast', arg: 'What is the message about?' },
   { name: 'developer_onboarding', title: 'Developer onboarding', description: 'Connect an app: API key, OTP, messages, webhooks.', topic: 'developer_api', arg: 'What is the app?' },
+  { name: 'set_up_ai_agent', title: 'Set up an AI agent', description: 'Knowledge, agent, testing, then auto-replies after your yes.', topic: 'ai_agents', arg: 'What should the AI answer?' },
+  { name: 'manage_team', title: 'Manage the team and workspaces', description: 'Invite teammates, change roles, or add another workspace.', topic: 'workspaces', arg: 'What do you want to change?' },
 ]

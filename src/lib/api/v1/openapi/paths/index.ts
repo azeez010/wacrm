@@ -1,6 +1,7 @@
 import { WEBHOOK_EVENTS, WEBHOOK_EVENT_DESCRIPTIONS } from '@/lib/webhooks/events'
 import type { OpenApiObject, PathItems } from '../types'
 import { verificationPaths } from './verifications'
+import { aiPaths } from './ai'
 
 const ref = (name: string) => ({ $ref: `#/components/schemas/${name}` })
 const res = (name: string) => ({ $ref: `#/components/responses/${name}` })
@@ -45,6 +46,7 @@ const eventList = WEBHOOK_EVENTS.map((e) => `- \`${e}\`: ${WEBHOOK_EVENT_DESCRIP
 
 export const paths: PathItems = {
   ...verificationPaths,
+  ...aiPaths,
   '/me': {
     get: {
       tags: ['Account'],

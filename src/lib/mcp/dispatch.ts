@@ -25,6 +25,18 @@ import { GET as workspaceGet, PATCH as workspacePatch } from '@/app/api/v1/works
 import { GET as invitationsGet, POST as invitationsPost } from '@/app/api/v1/invitations/route'
 import { DELETE as invitationDelete } from '@/app/api/v1/invitations/[id]/route'
 import { GET as workspacesGet, POST as workspacesPost } from '@/app/api/v1/workspaces/route'
+import { GET as aiTemplatesGet } from '@/app/api/v1/ai/agent-templates/route'
+import { GET as aiAgentsGet, POST as aiAgentsPost } from '@/app/api/v1/ai/agents/route'
+import { GET as aiAgentGet, PATCH as aiAgentPatch, DELETE as aiAgentDelete } from '@/app/api/v1/ai/agents/[id]/route'
+import { PUT as aiAgentKnowledgePut } from '@/app/api/v1/ai/agents/[id]/knowledge/route'
+import { GET as aiSourcesGet, POST as aiSourcesPost } from '@/app/api/v1/ai/knowledge/sources/route'
+import { DELETE as aiSourceDelete } from '@/app/api/v1/ai/knowledge/sources/[id]/route'
+import { POST as aiSourceSync } from '@/app/api/v1/ai/knowledge/sources/[id]/sync/route'
+import { POST as aiSearchPost } from '@/app/api/v1/ai/knowledge/search/route'
+import { GET as aiIntegrationsGet } from '@/app/api/v1/ai/integrations/route'
+import { GET as aiToolCallsGet } from '@/app/api/v1/ai/tool-calls/route'
+import { GET as aiUsageGet } from '@/app/api/v1/ai/usage/route'
+import { PUT as aiConversationAgentPut } from '@/app/api/v1/ai/conversations/[id]/agent/route'
 import { GET as pipelinesGet, POST as pipelinesPost } from '@/app/api/v1/pipelines/route'
 import { PATCH as pipelinePatch, DELETE as pipelineDelete } from '@/app/api/v1/pipelines/[id]/route'
 import { GET as dealsGet, POST as dealsPost } from '@/app/api/v1/deals/route'
@@ -186,6 +198,24 @@ export function createApiClient(authorization: string) {
     revokeInvitation: (id: string) => call(authorization, invitationDelete as Handler, 'DELETE', `/invitations/${enc(id)}`, { id }),
     listWorkspaces: () => call(authorization, workspacesGet as Handler, 'GET', '/workspaces'),
     createWorkspace: (body: unknown) => call(authorization, workspacesPost as Handler, 'POST', '/workspaces', { body }),
+    aiAgentTemplates: () => call(authorization, aiTemplatesGet as Handler, 'GET', '/ai/agent-templates'),
+    listAiAgents: () => call(authorization, aiAgentsGet as Handler, 'GET', '/ai/agents'),
+    createAiAgent: (body: unknown) => call(authorization, aiAgentsPost as Handler, 'POST', '/ai/agents', { body }),
+    getAiAgent: (id: string) => call(authorization, aiAgentGet as Handler, 'GET', `/ai/agents/${enc(id)}`, { id }),
+    updateAiAgent: (id: string, body: unknown) => call(authorization, aiAgentPatch as Handler, 'PATCH', `/ai/agents/${enc(id)}`, { id, body }),
+    deleteAiAgent: (id: string) => call(authorization, aiAgentDelete as Handler, 'DELETE', `/ai/agents/${enc(id)}`, { id }),
+    linkAgentKnowledge: (id: string, body: unknown) =>
+      call(authorization, aiAgentKnowledgePut as Handler, 'PUT', `/ai/agents/${enc(id)}/knowledge`, { id, body }),
+    listKnowledgeSources: () => call(authorization, aiSourcesGet as Handler, 'GET', '/ai/knowledge/sources'),
+    createKnowledgeSource: (body: unknown) => call(authorization, aiSourcesPost as Handler, 'POST', '/ai/knowledge/sources', { body }),
+    deleteKnowledgeSource: (id: string) => call(authorization, aiSourceDelete as Handler, 'DELETE', `/ai/knowledge/sources/${enc(id)}`, { id }),
+    syncKnowledgeSource: (id: string) => call(authorization, aiSourceSync as Handler, 'POST', `/ai/knowledge/sources/${enc(id)}/sync`, { id }),
+    searchKnowledge: (body: unknown) => call(authorization, aiSearchPost as Handler, 'POST', '/ai/knowledge/search', { body }),
+    listIntegrations: () => call(authorization, aiIntegrationsGet as Handler, 'GET', '/ai/integrations'),
+    listAiToolCalls: (q: Record<string, string | number | undefined>) => call(authorization, aiToolCallsGet as Handler, 'GET', '/ai/tool-calls', { query: q }),
+    getAiUsage: () => call(authorization, aiUsageGet as Handler, 'GET', '/ai/usage'),
+    setConversationAgent: (id: string, body: unknown) =>
+      call(authorization, aiConversationAgentPut as Handler, 'PUT', `/ai/conversations/${enc(id)}/agent`, { id, body }),
     listPipelines: () => call(authorization, pipelinesGet as Handler, 'GET', '/pipelines'),
     createPipeline: (body: unknown) => call(authorization, pipelinesPost as Handler, 'POST', '/pipelines', { body }),
     updatePipeline: (id: string, body: unknown) =>

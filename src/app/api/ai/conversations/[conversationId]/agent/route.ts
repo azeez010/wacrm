@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { requireRole, toErrorResponse } from '@/lib/auth/account'
 import { checkRateLimit, rateLimitResponse, RATE_LIMITS } from '@/lib/rate-limit'
 import { getT } from '@/lib/i18n/translate'
+import { setConversationAgent } from '@/lib/ai/service'
 
 const t = getT('Api')
 
@@ -26,29 +27,15 @@ export async function PUT(request: Request, { params }: Params) {
     }
     const agentId = typeof body.agent_id === 'string' && body.agent_id ? body.agent_id : null
 
-    if (agentId) {
-      const { data: agent } = await supabase
-        .from('ai_agents')
-        .select('id')
-        .eq('id', agentId)
-        .eq('account_id', accountId)
-        .maybeSingle()
-      if (!agent) return NextResponse.json({ error: t('ai.agents.notFound') }, { status: 404 })
-    }
-
-    const { data, error } = await supabase
-      .from('conversations')
-      .update({ ai_agent_id: agentId })
-      .eq('id', conversationId)
-      .eq('account_id', accountId)
-      .select('id')
-      .maybeSingle()
-    if (error) {
-      console.error('[ai/conversations/:id/agent PUT] error:', error)
+    const r = await setConversationAgent(supabase, accountId, conversationId, agentId)
+    if (!r.ok) {
+      if (r.code === 'not_found' && agentId) {
+        // Either the agent or the conversation is missing; say which.
+        const { data: agent } = await supabase.from('ai_agents').select('id').eq('id', agentId).eq('account_id', accountId).maybeSingle()
+        if (!agent) return NextResponse.json({ error: t('ai.agents.notFound') }, { status: 404 })
+      }
+      if (r.code === 'not_found') return NextResponse.json({ error: t('common.conversationNotFound') }, { status: 404 })
       return NextResponse.json({ error: t('ai.updateConversationFailed') }, { status: 500 })
-    }
-    if (!data) {
-      return NextResponse.json({ error: t('common.conversationNotFound') }, { status: 404 })
     }
     return NextResponse.json({ agent_id: agentId })
   } catch (err) {

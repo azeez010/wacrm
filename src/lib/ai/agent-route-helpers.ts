@@ -33,3 +33,23 @@ export async function isAccountMember(
     .maybeSingle()
   return !!data
 }
+
+/** The dashboard's response for a failed AI service call (the API maps the same codes to its own envelope). */
+export function agentServiceErrorResponse(
+  r: { status: number; code: string },
+  failKey: 'ai.agents.loadFailed' | 'ai.agents.saveFailed' | 'ai.agents.deleteFailed' | 'ai.agents.linkFailed' | 'ai.updateConversationFailed',
+) {
+  const agentInput = ['name_required', 'name_too_long', 'prompt_too_long', 'knowledge_mode_invalid', 'persona_too_long']
+  if (agentInput.includes(r.code)) return agentInputErrorResponse(r.code as AgentInputError)
+  const key: Record<string, string> = {
+    handoff_not_member: 'ai.handoffNotMember',
+    agent_limit: 'ai.agents.limitReached',
+    not_found: 'ai.agents.notFound',
+    default_undeletable: 'ai.agents.defaultUndeletable',
+    empty_update: 'common.invalidRequestBody',
+    source_ids_required: 'ai.agents.sourceIdsRequired',
+    unknown_sources: 'ai.agents.unknownSources',
+  }
+  const k = key[r.code] ?? failKey
+  return NextResponse.json({ error: t(k, k === 'ai.agents.limitReached' ? { max: 20 } : undefined) }, { status: r.status })
+}

@@ -509,3 +509,23 @@ broadcasts, and outbound webhooks — the full scope of
 [#245](https://github.com/ArnasDon/wacrm/issues/245). Future ideas
 (deals/pipelines, templates, flows, a delivery queue for webhooks) are
 not yet scheduled.
+
+## Plan, workspace and AI agents
+
+| Endpoint | Scope | What it does |
+| --- | --- | --- |
+| `GET /api/v1/plan` | none | Plan, every limit with used / near / at-limit flags, features, items archived by a lower plan, upgrade link |
+| `GET /api/v1/plans` | none | Public plans; `?limit_key=&used=` or `?feature=` adds `recommended_plan_id` |
+| `GET /api/v1/workspace` · `PATCH` | `workspace:read` · `workspace:manage` | The workspace; rename it or set its timezone |
+| `GET /api/v1/invitations` · `POST` | `workspace:read` · `workspace:manage` | Pending invitations; create a one-time invite link (url returned once) |
+| `DELETE /api/v1/invitations/{id}` | `workspace:manage` | Revoke an invitation |
+| `PATCH /api/v1/team/{user_id}` · `DELETE` | `workspace:manage` | Change a member's role; remove a member (never the owner or the key creator) |
+| `GET /api/v1/workspaces` · `POST` | `workspaces:manage` | The key creator's workspaces; create one (workspaces limit applies) |
+| `/api/v1/ai/agents`, `/ai/agents/{id}`, `/ai/agents/{id}/knowledge` | `ai:read` / `ai:write` | AI agents and the knowledge each uses |
+| `/api/v1/ai/knowledge/sources`, `/{id}`, `/{id}/sync`, `/ai/knowledge/search` | `ai:read` / `ai:write` | The knowledge library: add text, Q&A, pages or websites; re-sync; delete; test a question |
+| `GET /api/v1/ai/integrations`, `/ai/tool-calls`, `/ai/usage`, `/ai/agent-templates` | `ai:read` | Connected tools (no credentials), AI actions (read only), credits and tokens, templates |
+| `PUT /api/v1/ai/conversations/{id}/agent` | `ai:write` | Choose the agent that answers a conversation |
+
+A limit the plan enforces comes back as `402` with code `plan_limit`, whichever endpoint hit it. Contacts now also
+return `archived_by_plan` (archived by a lower plan: kept and reachable from the inbox, but left out of broadcasts,
+automations, flows and AI replies until the plan has room).

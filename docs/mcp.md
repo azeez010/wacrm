@@ -80,3 +80,40 @@ model of a custom app and target contacts with it:
 - `create_contact` / `update_contact` take `custom_fields`; `send_broadcast` takes `segment_id` or `filter`
 
 Deleting a field, table, row or segment needs `confirm: true`.
+
+## Plan and limits
+
+Every key gets these (no scope needed):
+
+- `get_plan`: the plan, each limit with `used` / `limit` and `near_limit` / `at_limit`, the features included,
+  what a lower plan archived (`archived_by_plan`), and `upgrade_url`.
+- `list_plans`: prices, trial days, limits and features; with `limit_key` (and `used`) or `feature` it returns
+  `recommended_plan_id`, the cheapest plan above the current one that fits.
+
+When a call fails with `plan_limit`, Claude tells the user which limit was hit and gives them `upgrade_url`.
+Plans are only changed by a person in Settings > Billing.
+
+## AI agents
+
+With `ai:read` (Read only preset and up) and `ai:write` (Campaign builder and up):
+
+- `list_ai_agent_templates`, `list_ai_agents`, `get_ai_agent`, `create_ai_agent`, `update_ai_agent`, `delete_ai_agent`
+- `list_knowledge_sources`, `create_knowledge_source` (text, Q&A, web page, website), `sync_knowledge_source`,
+  `delete_knowledge_source`, `link_agent_knowledge`, `search_knowledge` (retrieval only, no credits)
+- `list_integrations` (credentials are never returned), `list_ai_tool_calls` (read only), `get_ai_usage`
+- `set_conversation_agent`
+
+Agents are created with auto-replies off; Claude turns them on only after you say yes. Provider keys,
+connecting integrations, uploading files and approving AI actions stay in the app.
+
+## Workspace and team
+
+- `workspace:read`: `get_workspace`, `list_invitations`, `list_team_members`
+- `workspace:manage`: `update_workspace` (name, timezone), `create_invitation` (one-time link), `revoke_invitation`,
+  `update_member_role`, `remove_member`. Ownership is never transferred over MCP, and nobody can change their own
+  role or remove themselves.
+- `workspaces:manage` (Full access keys created in Settings only; a key can never grant it to another key):
+  `list_workspaces` (every workspace of the person who created the key) and `create_workspace` (the plan's
+  workspaces limit applies). A key works in one workspace only, so to act in a new workspace create a key there.
+
+Removing a member, revoking an invitation and deleting an agent or knowledge source need `confirm: true`.

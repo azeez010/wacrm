@@ -82,6 +82,10 @@ when their guard is set.
 | `update_contact`     | write     | `contacts:write`     | Update a contact / replace its tags             |
 | `send_broadcast`     | broadcast | `broadcasts:send`    | Launch a template broadcast (requires `confirm`)|
 
+This package keeps a small, conservative tool set. The hosted MCP endpoint (`/api/mcp` on your OgaDesk domain)
+has the full set, including plan and limits (`get_plan`, `list_plans`), AI agents and their knowledge, and
+workspace and team management; see [docs/mcp.md](../docs/mcp.md).
+
 ## Safety model
 
 Sending WhatsApp messages through an LLM is a real-world side effect, so

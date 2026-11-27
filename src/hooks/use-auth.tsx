@@ -385,6 +385,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, [fetchProfile]);
 
+  // The database only shows and accepts the ACTIVE workspace's rows (migration
+  // 125). If the person switches workspace in another tab, this tab keeps the old
+  // one in memory, so reload it when it comes back into view instead of letting
+  // it show empty lists or fail writes.
+  const loadedAccountId = profile?.account_id ?? null;
+  useEffect(() => {
+    if (!loadedAccountId) return;
+    let checking = false;
+    const check = async () => {
+      if (checking || document.visibilityState !== "visible") return;
+      checking = true;
+      try {
+        const { data, error } = await createClient().rpc("current_account_id");
+        if (!error && typeof data === "string" && data !== loadedAccountId) {
+          window.location.reload();
+        }
+      } finally {
+        checking = false;
+      }
+    };
+    document.addEventListener("visibilitychange", check);
+    window.addEventListener("focus", check);
+    return () => {
+      document.removeEventListener("visibilitychange", check);
+      window.removeEventListener("focus", check);
+    };
+  }, [loadedAccountId]);
+
   const signOut = useCallback(async () => {
     const supabase = createClient();
     await supabase.auth.signOut();

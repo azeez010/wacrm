@@ -107,7 +107,7 @@ export function registerBuilderTools(server: McpServer, api: ApiClient, scopes: 
       run(async (a) => api.createTag(a)),
     )
   }
-  if (hasAny(scopes, ['automations:read', 'flows:read', 'pipelines:read'])) {
+  if (hasAny(scopes, ['automations:read', 'flows:read', 'pipelines:read', 'workspace:read'])) {
     server.registerTool(
       'list_team_members',
       {

@@ -20,6 +20,11 @@ import { GET as broadcastGet } from '@/app/api/v1/broadcasts/[id]/route'
 import { GET as templatesGet, POST as templatesPost } from '@/app/api/v1/templates/route'
 import { GET as tagsGet, POST as tagsPost } from '@/app/api/v1/tags/route'
 import { GET as teamGet } from '@/app/api/v1/team/route'
+import { PATCH as memberPatch, DELETE as memberDelete } from '@/app/api/v1/team/[id]/route'
+import { GET as workspaceGet, PATCH as workspacePatch } from '@/app/api/v1/workspace/route'
+import { GET as invitationsGet, POST as invitationsPost } from '@/app/api/v1/invitations/route'
+import { DELETE as invitationDelete } from '@/app/api/v1/invitations/[id]/route'
+import { GET as workspacesGet, POST as workspacesPost } from '@/app/api/v1/workspaces/route'
 import { GET as pipelinesGet, POST as pipelinesPost } from '@/app/api/v1/pipelines/route'
 import { PATCH as pipelinePatch, DELETE as pipelineDelete } from '@/app/api/v1/pipelines/[id]/route'
 import { GET as dealsGet, POST as dealsPost } from '@/app/api/v1/deals/route'
@@ -67,6 +72,8 @@ import { GET as verificationGet } from '@/app/api/v1/verifications/[id]/route'
 import { POST as verificationCheck } from '@/app/api/v1/verifications/[id]/check/route'
 import { GET as messageGet } from '@/app/api/v1/messages/[id]/route'
 import { GET as usageGet } from '@/app/api/v1/usage/route'
+import { GET as planGet } from '@/app/api/v1/plan/route'
+import { GET as plansGet } from '@/app/api/v1/plans/route'
 import { GET as pipelineGet } from '@/app/api/v1/pipelines/[id]/route'
 import { GET as dealGet } from '@/app/api/v1/deals/[id]/route'
 import { GET as formsGet, POST as formsPost } from '@/app/api/v1/forms/route'
@@ -170,6 +177,15 @@ export function createApiClient(authorization: string) {
       call(authorization, formSubmissionsGet as Handler, 'GET', `/forms/${enc(id)}/submissions`, { id, query: q }),
     createTag: (body: unknown) => call(authorization, tagsPost as Handler, 'POST', '/tags', { body }),
     listTeam: () => call(authorization, teamGet as Handler, 'GET', '/team'),
+    updateMember: (id: string, body: unknown) => call(authorization, memberPatch as Handler, 'PATCH', `/team/${enc(id)}`, { id, body }),
+    removeMember: (id: string) => call(authorization, memberDelete as Handler, 'DELETE', `/team/${enc(id)}`, { id }),
+    getWorkspace: () => call(authorization, workspaceGet as Handler, 'GET', '/workspace'),
+    updateWorkspace: (body: unknown) => call(authorization, workspacePatch as Handler, 'PATCH', '/workspace', { body }),
+    listInvitations: () => call(authorization, invitationsGet as Handler, 'GET', '/invitations'),
+    createInvitation: (body: unknown) => call(authorization, invitationsPost as Handler, 'POST', '/invitations', { body }),
+    revokeInvitation: (id: string) => call(authorization, invitationDelete as Handler, 'DELETE', `/invitations/${enc(id)}`, { id }),
+    listWorkspaces: () => call(authorization, workspacesGet as Handler, 'GET', '/workspaces'),
+    createWorkspace: (body: unknown) => call(authorization, workspacesPost as Handler, 'POST', '/workspaces', { body }),
     listPipelines: () => call(authorization, pipelinesGet as Handler, 'GET', '/pipelines'),
     createPipeline: (body: unknown) => call(authorization, pipelinesPost as Handler, 'POST', '/pipelines', { body }),
     updatePipeline: (id: string, body: unknown) =>
@@ -278,6 +294,8 @@ export function createApiClient(authorization: string) {
       call(authorization, verificationCheck as Handler, 'POST', `/verifications/${enc(id)}/check`, { id, body: { code } }),
     getMessage: (id: string) => call(authorization, messageGet as Handler, 'GET', `/messages/${enc(id)}`, { id }),
     getUsage: () => call(authorization, usageGet as Handler, 'GET', '/usage'),
+    getPlan: () => call(authorization, planGet as Handler, 'GET', '/plan'),
+    listPlans: (q: Record<string, string | number | undefined>) => call(authorization, plansGet as Handler, 'GET', '/plans', { query: q }),
     getPipeline: (id: string) =>
       call(authorization, pipelineGet as Handler, 'GET', `/pipelines/${enc(id)}`, { id }),
     getDeal: (id: string) => call(authorization, dealGet as Handler, 'GET', `/deals/${enc(id)}`, { id }),

@@ -11,8 +11,10 @@ export function checkMintScopes(
   const scopes = normalizeScopes(requested)
   if (scopes === null) return { ok: false, status: 400, error: "'scopes' must be an array of known scope names" }
   if (scopes.length === 0) return { ok: false, status: 400, error: "'scopes' must list at least one scope" }
-  if (scopes.includes('keys:manage')) {
-    return { ok: false, status: 403, error: "A key created this way cannot have 'keys:manage'. Create that key in Settings > API & MCP." }
+  for (const s of ['keys:manage', 'workspaces:manage'] as const) {
+    if (scopes.includes(s)) {
+      return { ok: false, status: 403, error: `A key created this way cannot have '${s}'. Create that key in Settings > API & MCP.` }
+    }
   }
   const extra = scopes.filter((s) => !callerScopes.includes(s))
   if (extra.length > 0) {

@@ -23,7 +23,7 @@ async function connect(scopes: string[], opts: { hasWhatsAppConnection?: boolean
   return client
 }
 // Guidance tools that every key gets (no scope needed); tested on their own below.
-const ALWAYS = new Set(['get_usage', 'get_playbook'])
+const ALWAYS = new Set(['get_usage', 'get_plan', 'list_plans', 'get_playbook'])
 const names = async (c: Client) => (await c.listTools()).tools.map((t) => t.name).filter((n) => !ALWAYS.has(n)).sort()
 
 describe('hosted MCP server', () => {

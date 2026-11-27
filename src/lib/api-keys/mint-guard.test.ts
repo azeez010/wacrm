@@ -11,6 +11,10 @@ describe('checkMintScopes', () => {
     expect(r).toMatchObject({ ok: false, status: 403 })
     expect(r.ok ? '' : r.error).toContain('messages:send')
   })
+  it('never lets a minted key carry workspaces:manage (cross-workspace), even if the caller has it', () => {
+    expect(checkMintScopes(['workspaces:manage'], [...caller, 'workspaces:manage'])).toMatchObject({ ok: false, status: 403 })
+  })
+
   it('never lets a minted key carry keys:manage, even if the caller has it', () => {
     expect(checkMintScopes(['keys:manage'], caller)).toMatchObject({ ok: false, status: 403 })
   })

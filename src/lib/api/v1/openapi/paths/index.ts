@@ -84,6 +84,114 @@ export const paths: PathItems = {
       },
     },
   },
+  '/plan': {
+    get: {
+      tags: ['Account'],
+      operationId: 'getPlan',
+      summary: 'See your plan and limits',
+      description:
+        'The current plan, every limit with what is used (`near_limit` from 80%, `at_limit` when full), the features included, the items a lower plan archived (`archived_by_plan`, restored automatically on upgrade) and the `upgrade_url`. Needs a valid key but no scope.',
+      responses: {
+        '200': { description: 'Plan and limits.', content: json({ type: 'object', properties: { data: { type: 'object' } } }) },
+        ...errors('Unauthorized', 'PlanLimit', 'RateLimited'),
+      },
+    },
+  },
+  '/plans': {
+    get: {
+      tags: ['Account'],
+      operationId: 'listPlans',
+      summary: 'List plans',
+      description:
+        'Public plans with prices, trial days, limits and features. With `limit_key` (and optional `used`) or `feature`, `recommended_plan_id` names the cheapest plan above the current one that fits. Plans are changed in the app (Settings > Billing), not through the API. Needs a valid key but no scope.',
+      parameters: [
+        { name: 'limit_key', in: 'query', required: false, schema: { type: 'string' }, description: 'A limit key, e.g. `contacts` or `forms_max`.' },
+        { name: 'used', in: 'query', required: false, schema: { type: 'integer', minimum: 0 }, description: 'How many are needed, for the recommendation.' },
+        { name: 'feature', in: 'query', required: false, schema: { type: 'string' }, description: 'A feature key, e.g. `broadcasts`.' },
+      ],
+      responses: {
+        '200': { description: 'Plans.', content: json({ type: 'object', properties: { data: { type: 'object' } } }) },
+        ...errors('Unauthorized', 'BadRequest', 'PlanLimit', 'RateLimited'),
+      },
+    },
+  },
+  '/workspace': {
+    get: {
+      tags: ['Workspace'],
+      operationId: 'getWorkspace',
+      summary: 'Get the workspace',
+      description: 'Name, timezone, currency, plan, owner and team size by role. Requires `workspace:read`.',
+      responses: { '200': { description: 'The workspace.', content: json({ type: 'object', properties: { data: { type: 'object' } } }) }, ...errors('Unauthorized', 'Forbidden', 'RateLimited') },
+    },
+    patch: {
+      tags: ['Workspace'],
+      operationId: 'updateWorkspace',
+      summary: 'Rename the workspace or change its timezone',
+      description: 'Send `name` (1-80 characters) and/or `timezone` (IANA). Requires `workspace:manage`.',
+      requestBody: {
+        required: true,
+        content: json({ type: 'object', properties: { name: { type: 'string', maxLength: 80 }, timezone: { type: 'string', example: 'Africa/Lagos' } } }),
+      },
+      responses: { '200': { description: 'Updated.', content: json({ type: 'object', properties: { data: { type: 'object' } } }) }, ...errors('BadRequest', 'Unauthorized', 'Forbidden', 'RateLimited') },
+    },
+  },
+  '/invitations': {
+    get: {
+      tags: ['Workspace'],
+      operationId: 'listInvitations',
+      summary: 'List pending invitations',
+      description: 'Invitations not yet used and not expired. Requires `workspace:read`.',
+      responses: { '200': { description: 'Invitations.', content: json({ type: 'object', properties: { data: { type: 'object' } } }) }, ...errors('Unauthorized', 'Forbidden', 'RateLimited') },
+    },
+    post: {
+      tags: ['Workspace'],
+      operationId: 'createInvitation',
+      summary: 'Invite a teammate',
+      description:
+        'Creates a one-time invite link. The `url` is returned only in this response. Members plus pending invitations count toward the plan seat limit (`402 plan_limit`). Requires `workspace:manage`.',
+      requestBody: {
+        required: true,
+        content: json({
+          type: 'object',
+          properties: {
+            role: { type: 'string', enum: ['admin', 'agent', 'viewer'], default: 'agent' },
+            label: { type: 'string', maxLength: 80 },
+            expires_in_days: { type: 'integer', minimum: 1, maximum: 30 },
+          },
+        }),
+      },
+      responses: { '201': { description: 'Created.', content: json({ type: 'object', properties: { data: { type: 'object' } } }) }, ...errors('BadRequest', 'Unauthorized', 'PlanLimit', 'Forbidden', 'RateLimited') },
+    },
+  },
+  '/invitations/{id}': {
+    delete: {
+      tags: ['Workspace'],
+      operationId: 'revokeInvitation',
+      summary: 'Revoke an invitation',
+      description: 'The link stops working. Requires `workspace:manage`.',
+      parameters: [idParam('id', 'Invitation id.')],
+      responses: { '200': { description: 'Revoked.', content: json({ type: 'object', properties: { data: { type: 'object' } } }) }, ...errors('Unauthorized', 'Forbidden', 'NotFound', 'RateLimited') },
+    },
+  },
+  '/workspaces': {
+    get: {
+      tags: ['Workspace'],
+      operationId: 'listWorkspaces',
+      summary: 'List your workspaces',
+      description:
+        'Every workspace the person who created the key belongs to, with their role and plan; `this_key` marks the one this key works in. Requires `workspaces:manage` (only on keys created in Settings).',
+      responses: { '200': { description: 'Workspaces.', content: json({ type: 'object', properties: { data: { type: 'object' } } }) }, ...errors('Unauthorized', 'Forbidden', 'RateLimited') },
+    },
+    post: {
+      tags: ['Workspace'],
+      operationId: 'createWorkspace',
+      summary: 'Create a workspace',
+      description:
+        'Creates a workspace owned by the key creator. The plan workspaces limit applies (`402 plan_limit`). It does not switch their active workspace, and this key cannot act in it: create a key inside the new workspace. Requires `workspaces:manage`.',
+      requestBody: { required: true, content: json({ type: 'object', required: ['name'], properties: { name: { type: 'string', maxLength: 80 } } }) },
+      responses: { '201': { description: 'Created.', content: json({ type: 'object', properties: { data: { type: 'object' } } }) }, ...errors('BadRequest', 'Unauthorized', 'PlanLimit', 'Forbidden', 'RateLimited') },
+    },
+  },
   '/messages': {
     post: {
       tags: ['Messages'],

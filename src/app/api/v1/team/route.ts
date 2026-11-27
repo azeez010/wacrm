@@ -5,7 +5,7 @@ import { requireAnyScope } from '@/lib/api/v1/scope';
 
 export async function GET(request: Request) {
   try {
-    const ctx = await requireAnyScope(request, ['automations:read', 'flows:read', 'pipelines:read']);
+    const ctx = await requireAnyScope(request, ['automations:read', 'flows:read', 'pipelines:read', 'workspace:read']);
     const { data, error } = await ctx.supabase
       .from('workspace_members')
       .select('user_id, full_name, account_role')

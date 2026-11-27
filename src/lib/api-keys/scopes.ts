@@ -42,6 +42,11 @@ export const API_SCOPES = [
   'otp:send',
   'otp:verify',
   'keys:manage',
+  'ai:read',
+  'ai:write',
+  'workspace:read',
+  'workspace:manage',
+  'workspaces:manage',
 ] as const;
 
 export type ApiScope = (typeof API_SCOPES)[number];
@@ -76,6 +81,11 @@ export const SCOPE_DESCRIPTIONS: Record<ApiScope, string> = {
   'otp:send': 'Send verification codes over WhatsApp',
   'otp:verify': 'Check verification codes and read verification status',
   'keys:manage': 'Create and revoke API keys (a key can never grant more than it has itself)',
+  'ai:read': 'Read AI agents, their knowledge sources, connected tools and AI usage',
+  'ai:write': 'Create and edit AI agents and their knowledge, and choose the agent for a conversation',
+  'workspace:read': 'Read this workspace, its team and pending invitations',
+  'workspace:manage': 'Rename this workspace, invite people and change or remove members (never ownership)',
+  'workspaces:manage': 'List the workspaces of the person who created the key and create new ones (only from Settings)',
 };
 
 /** Type-narrow an unknown value into a valid `ApiScope`. */

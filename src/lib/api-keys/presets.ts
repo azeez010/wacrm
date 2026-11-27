@@ -13,6 +13,8 @@ export const READ_SCOPES: ApiScope[] = [
   'tables:read',
   'segments:read',
   'forms:read',
+  'ai:read',
+  'workspace:read',
 ]
 
 export const BUILDER_SCOPES: ApiScope[] = [
@@ -25,6 +27,7 @@ export const BUILDER_SCOPES: ApiScope[] = [
   'tables:write',
   'segments:write',
   'forms:manage',
+  'ai:write',
 ]
 
 /** Builder plus what an app integration needs: outbound webhooks and verification codes (OTP). */
@@ -37,6 +40,8 @@ export const FULL_SCOPES: ApiScope[] = [
   'messages:send',
   'broadcasts:send',
   'forms:write',
+  'workspace:manage',
+  'workspaces:manage',
 ]
 
 export type PresetId = 'read' | 'builder' | 'developer' | 'full'

@@ -25,6 +25,34 @@ export function registerDevTools(server: McpServer, api: ApiClient, scopes: stri
     run(async () => api.getUsage()),
   )
 
+  server.registerTool(
+    'get_plan',
+    {
+      title: 'Plan and limits',
+      description:
+        'The current plan (status, renewal or trial end), every limit with used / limit and near_limit / at_limit flags, the features included, what a lower plan archived (archived_by_plan: forms, automations, contacts…, restored on upgrade) and the upgrade_url. Check before creating things in bulk; when a limit is reached, give the user the upgrade_url instead of retrying.',
+      inputSchema: {},
+      annotations: { ...READ, title: 'Plan and limits' },
+    },
+    run(async () => api.getPlan()),
+  )
+
+  server.registerTool(
+    'list_plans',
+    {
+      title: 'List plans',
+      description:
+        'Public plans with prices (monthly, quarterly, annual), trial days, limits and features. Pass limit_key (and optionally used) or feature to get recommended_plan_id: the cheapest plan above the current one that fits. Plans are changed by the user in Billing (upgrade_url), never through the API.',
+      inputSchema: {
+        limit_key: z.string().optional().describe('A limit key from get_plan, e.g. "contacts", "forms_max", "workspaces".'),
+        used: z.number().int().min(0).optional().describe('How many the user needs, for the recommendation.'),
+        feature: z.string().optional().describe('A feature key from get_plan, e.g. "broadcasts".'),
+      },
+      annotations: { ...READ, title: 'List plans' },
+    },
+    run(async ({ limit_key, used, feature }) => api.listPlans({ limit_key, used, feature })),
+  )
+
   if (has(scopes, 'messages:read')) {
     server.registerTool(
       'get_message',

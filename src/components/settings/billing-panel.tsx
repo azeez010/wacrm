@@ -21,6 +21,8 @@ import { FEATURE_DEFS } from '@/lib/billing/plans';
 import { SettingsPanelHead } from './settings-panel-head';
 import { UpgradeDialog } from '@/components/billing/upgrade-dialog';
 import { useMoney } from '@/hooks/use-money';
+import { periodTotal, savingsPercent } from '@/lib/billing/period-price';
+import { toast } from 'sonner';
 
 interface Billing {
   payments_mode?: 'off' | 'test' | 'live';
@@ -30,6 +32,7 @@ interface Billing {
     status: 'active' | 'trialing' | 'past_due' | 'canceled';
     billing_interval: string | null;
     current_period_end: string | null;
+    auto_renew?: boolean;
     provider: string | null;
   };
   effective_plan_name: string;
@@ -71,6 +74,9 @@ export function BillingPanel() {
   const [error, setError] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
   const [switchTo, setSwitchTo] = useState<string | null>(null);
+  // "Upgrade" from a usage meter: the plan picker, with the plan that makes room recommended.
+  const [upgradeFor, setUpgradeFor] = useState<LimitKey | null | undefined>(undefined);
+  const reload = () => setReloadKey((k) => k + 1);
 
   useEffect(() => {
     let cancelled = false;
@@ -101,15 +107,22 @@ export function BillingPanel() {
 
       {data && (
         <>
-          <CurrentPlan data={data} t={t} money={money} date={date} />
-          <Usage data={data} t={t} />
+          <CurrentPlan data={data} t={t} money={money} date={date} onChanged={reload} onChoose={() => setUpgradeFor(null)} />
           <Plans data={data} t={t} money={money} onPick={setSwitchTo} />
+          <Usage data={data} t={t} onUpgrade={(k) => setUpgradeFor(k)} />
           <History data={data} t={t} money={money} date={date} />
+          {/* A plan button skips straight to checkout; a usage "Upgrade" opens the picker with a recommendation. */}
           <UpgradeDialog
             open={switchTo !== null}
             onOpenChange={(o) => !o && setSwitchTo(null)}
             initialPlanId={switchTo ?? undefined}
-            onChanged={() => setReloadKey((k) => k + 1)}
+            onChanged={reload}
+          />
+          <UpgradeDialog
+            open={upgradeFor !== undefined}
+            onOpenChange={(o) => !o && setUpgradeFor(undefined)}
+            limitKey={upgradeFor ?? null}
+            onChanged={reload}
           />
         </>
       )}
@@ -120,7 +133,24 @@ export function BillingPanel() {
 type T = ReturnType<typeof useTranslations<'Settings.billing'>>;
 type Money = (a: number | string, c: string) => string;
 
-function CurrentPlan({ data, t, money, date }: { data: Billing; t: T; money: Money; date: (i: string) => string }) {
+function CurrentPlan({ data, t, money, date, onChanged, onChoose }: { data: Billing; t: T; money: Money; date: (i: string) => string; onChanged: () => void; onChoose: () => void }) {
+  const [stopping, setStopping] = useState(false);
+  // "Now" for the trial's days-left, read once (render must stay pure).
+  const [now] = useState(() => Date.now());
+  const paid = data.subscription.plan_id !== 'free' && data.subscription.status === 'active';
+  const autoRenew = data.subscription.auto_renew === true;
+  async function stopRenewing() {
+    setStopping(true);
+    try {
+      const res = await fetch('/api/account/billing/cancel', { method: 'POST' });
+      const body = (await res.json().catch(() => ({}))) as { message?: string };
+      if (!res.ok) return void toast.error(body.message || t('picker.failed'));
+      toast.success(t('renewStopped'));
+      onChanged();
+    } finally {
+      setStopping(false);
+    }
+  }
   const plan = data.plans.find((p) => p.id === data.subscription.plan_id);
   const status = data.subscription.status;
   return (
@@ -146,16 +176,29 @@ function CurrentPlan({ data, t, money, date }: { data: Billing; t: T; money: Mon
             {t('trialNotice', {
               plan: plan?.name ?? data.effective_plan_name,
               date: date(data.subscription.current_period_end),
-              days: Math.max(0, Math.ceil((new Date(data.subscription.current_period_end).getTime() - Date.now()) / 86_400_000)),
+              days: Math.max(0, Math.ceil((new Date(data.subscription.current_period_end).getTime() - now) / 86_400_000)),
             })}
           </p>
         ) : (
-          <p className="text-muted-foreground text-sm">
-            {data.subscription.current_period_end
-              ? t('renews', { date: date(data.subscription.current_period_end) })
-              : t('noRenewal')}
-          </p>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="text-muted-foreground text-sm">
+              {data.subscription.current_period_end
+                ? paid && !autoRenew
+                  ? t('endsOn', { date: date(data.subscription.current_period_end) })
+                  : t('renews', { date: date(data.subscription.current_period_end) })
+                : t('noRenewal')}
+            </p>
+            {paid && autoRenew && data.can_view_history ? (
+              <Button variant="ghost" size="sm" disabled={stopping} onClick={() => void stopRenewing()}>
+                {stopping ? <Loader2 className="size-4 animate-spin" /> : null}
+                {t('stopRenewing')}
+              </Button>
+            ) : null}
+          </div>
         )}
+        {data.subscription.status === 'trialing' ? (
+          <Button size="sm" onClick={onChoose}>{t('picker.choosePlan')}</Button>
+        ) : null}
         {data.downgraded && (
           <p className="rounded-lg bg-amber-500/10 p-3 text-sm text-amber-700 dark:text-amber-400">
             {t('downgradedNotice')}
@@ -166,7 +209,7 @@ function CurrentPlan({ data, t, money, date }: { data: Billing; t: T; money: Mon
   );
 }
 
-function Usage({ data, t }: { data: Billing; t: T }) {
+function Usage({ data, t, onUpgrade }: { data: Billing; t: T; onUpgrade: (k: LimitKey) => void }) {
   const features = Object.keys(FEATURE_DEFS) as FeatureKey[];
   return (
     <Card>
@@ -197,8 +240,11 @@ function Usage({ data, t }: { data: Billing; t: T }) {
                   />
                 </div>
                 {(atLimit || near) && (
-                  <p className="mt-1 text-xs text-amber-600 dark:text-amber-400">
-                    {atLimit ? t('atLimit') : t('nearLimit')}
+                  <p className="mt-1 flex items-center justify-between gap-2 text-xs text-amber-600 dark:text-amber-400">
+                    <span>{atLimit ? t('atLimit') : t('nearLimit')}</span>
+                    <button type="button" className="text-primary font-medium hover:underline" onClick={() => onUpgrade(u.key)}>
+                      {t('upgrade')}
+                    </button>
                   </p>
                 )}
                 {u.held ? (
@@ -258,17 +304,21 @@ function Plans({ data, t, money, onPick }: { data: Billing; t: T; money: Money; 
                   <span className="text-xl font-bold">{money(p.price_monthly, p.currency)}</span>
                   {p.price_monthly > 0 && <span className="text-muted-foreground text-xs"> {t('perMonth')}</span>}
                 </p>
-                {p.price_annual > 0 && (
+                {periodTotal(p, 'annual') > 0 && (
                   <p className="text-muted-foreground text-xs">
-                    {t('billedYearly', { price: money(p.price_annual, p.currency) })}
+                    {t('billedYearly', { price: money(periodTotal(p, 'annual'), p.currency) })}
+                    {savingsPercent(p, 'annual') > 0 ? ` · ${t('picker.save', { percent: savingsPercent(p, 'annual') })}` : ''}
                   </p>
                 )}
-                <div className="mt-4">
-                  {isCurrent ? (
+                {(p.trial_days ?? 0) > 0 && current === 'free' && data.subscription.status !== 'trialing' ? (
+                  <p className="text-primary mt-1 text-xs font-medium">{t('picker.trialAvailable', { days: p.trial_days ?? 0 })}</p>
+                ) : null}
+                <div className="mt-auto pt-4">
+                  {isCurrent && data.subscription.status !== 'trialing' ? (
                     <span className="text-primary text-xs font-medium">{t('yourPlan')}</span>
                   ) : (
-                    <Button variant="outline" size="sm" className="w-full" onClick={() => onPick(p.id)}>
-                      {t('switchTo', { plan: p.name })}
+                    <Button variant={p.is_featured ? 'default' : 'outline'} size="sm" className="w-full" onClick={() => onPick(p.id)}>
+                      {p.id === 'free' ? t('picker.switchToFree') : t('picker.choose')}
                     </Button>
                   )}
                 </div>
@@ -276,7 +326,7 @@ function Plans({ data, t, money, onPick }: { data: Billing; t: T; money: Money; 
             );
           })}
         </div>
-        {data.payments_mode === 'test' ? <p className="text-xs text-amber-600 dark:text-amber-400">{t('pay.testMode')}</p> : data.payments_mode === 'live' ? null : <p className="text-muted-foreground text-xs">{t('upgradeSoon')}</p>}
+        {data.payments_mode === 'test' ? <p className="text-xs text-amber-600 dark:text-amber-400">{t('pay.testMode')}</p> : null}
       </CardContent>
     </Card>
   );

@@ -13,6 +13,14 @@ interface Fx {
 }
 
 let cached: Promise<Fx | null> | null = null
+const CHANGED = 'ogadesk:currency-changed'
+
+/** After the currency cookie changed (no page reload): every money() on the page refetches and re-renders. */
+export function refreshMoney() {
+  cached = null
+  if (typeof window !== 'undefined') window.dispatchEvent(new Event(CHANGED))
+}
+
 const load = (): Promise<Fx | null> =>
   (cached ??= fetch('/api/currency')
     .then((r) => (r.ok ? (r.json() as Promise<Fx>) : null))
@@ -28,9 +36,12 @@ export function useMoney() {
   const [fx, setFx] = useState<Fx | null>(null)
   useEffect(() => {
     let live = true
-    void load().then((v) => live && setFx(v))
+    const read = () => void load().then((v) => live && setFx(v))
+    read()
+    window.addEventListener(CHANGED, read)
     return () => {
       live = false
+      window.removeEventListener(CHANGED, read)
     }
   }, [])
   return useCallback(

@@ -14,7 +14,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { ClipboardList, CornerDownLeft, Search, User, type LucideIcon } from 'lucide-react';
+import { ArrowRightLeft, ClipboardList, CornerDownLeft, Plus, Search, User, type LucideIcon } from 'lucide-react';
 
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
 import { useAuth } from '@/hooks/use-auth';
@@ -41,7 +41,10 @@ const DESKTOP_QUERY = '(min-width: 1024px)';
 const MAX_RESULTS = 30;
 const RECORD_DEBOUNCE_MS = 200;
 
-type Group = 'actions' | 'pages' | 'records';
+type Group = 'actions' | 'workspaces' | 'pages' | 'records';
+
+/** Opens the sidebar's "New workspace" dialog (the workspace switcher listens for it). */
+export const NEW_WORKSPACE_EVENT = 'ogadesk:new-workspace';
 
 interface Entry {
   id: string;
@@ -51,6 +54,8 @@ interface Entry {
   keywords?: string;
   icon: LucideIcon;
   href: string;
+  /** Instead of navigating (switching workspace is an RPC plus a full reload). */
+  run?: () => void;
 }
 
 interface RecordHit {
@@ -66,7 +71,9 @@ export function CommandPalette() {
   const tNav = useTranslations('Sidebar');
   const tSettings = useTranslations('Settings');
   const router = useRouter();
-  const { accountId } = useAuth();
+  const { accountId, user } = useAuth();
+  // The workspaces this person belongs to (their own memberships), loaded when the palette opens.
+  const [workspaces, setWorkspaces] = useState<{ id: string; name: string; role: string }[]>([]);
   const canSend = useCan('send-messages');
   const canForms = useCan('manage-forms');
   const canMembers = useCan('manage-members');
@@ -151,8 +158,61 @@ export function CommandPalette() {
         href: `/settings?tab=${s}`,
       });
     }
+    for (const w of workspaces) {
+      if (w.id === accountId) continue;
+      out.push({
+        id: `workspace:${w.id}`,
+        group: 'workspaces',
+        label: t('workspaces.switchTo', { name: w.name }),
+        breadcrumb: tNav(`role${w.role.charAt(0).toUpperCase()}${w.role.slice(1)}`),
+        keywords: `workspace switch ${w.name}`,
+        icon: ArrowRightLeft,
+        href: '/dashboard',
+        run: () => {
+          void createClient()
+            .rpc('switch_account', { p_account: w.id })
+            .then(({ error }) => {
+              // Full load: auth context, RLS-scoped queries and realtime all re-read the new workspace.
+              // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- a hard reload is required here
+              if (!error) window.location.assign('/dashboard');
+            });
+        },
+      });
+    }
+    out.push({
+      id: 'workspace:new',
+      group: 'workspaces',
+      label: t('workspaces.new'),
+      keywords: 'workspace create add new business',
+      icon: Plus,
+      href: '/dashboard',
+      run: () => window.dispatchEvent(new Event(NEW_WORKSPACE_EVENT)),
+    });
     return out;
-  }, [t, tNav, tSettings, can]);
+  }, [t, tNav, tSettings, can, workspaces, accountId]);
+
+  useEffect(() => {
+    if (!open || !user?.id) return;
+    let live = true;
+    void createClient()
+      .from('account_members')
+      .select('account_id, account_role, accounts(name)')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: true })
+      .then(({ data }) => {
+        if (!live) return;
+        setWorkspaces(
+          ((data ?? []) as { account_id: string; account_role: string; accounts: { name?: string } | { name?: string }[] | null }[]).map((r) => ({
+            id: r.account_id,
+            role: r.account_role,
+            name: (Array.isArray(r.accounts) ? r.accounts[0]?.name : r.accounts?.name) ?? '',
+          })),
+        );
+      });
+    return () => {
+      live = false;
+    };
+  }, [open, user?.id]);
 
   // Matching contacts and forms (RLS scopes them to this workspace).
   useEffect(() => {
@@ -194,6 +254,7 @@ export function CommandPalette() {
       // Landing view: actions first, then every page.
       return [
         ...entries.filter((e) => e.group === 'actions'),
+        ...entries.filter((e) => e.group === 'workspaces'),
         ...entries.filter((e) => e.group === 'pages' && !e.breadcrumb),
       ];
     }
@@ -213,9 +274,10 @@ export function CommandPalette() {
   }, [activeIndex, results]);
 
   const go = useCallback(
-    (href: string) => {
+    (hit: { href: string; run?: () => void }) => {
       handleOpenChange(false);
-      router.push(href);
+      if (hit.run) hit.run();
+      else router.push(hit.href);
     },
     [handleOpenChange, router],
   );
@@ -230,11 +292,11 @@ export function CommandPalette() {
     } else if (e.key === 'Enter') {
       e.preventDefault();
       const hit = results[activeIndex];
-      if (hit) go(hit.href);
+      if (hit) go(hit);
     }
   }
 
-  const sectionLabel = (g: Group) => t(g === 'actions' ? 'quickActions' : g === 'records' ? 'records' : 'jumpTo');
+  const sectionLabel = (g: Group) => t(g === 'actions' ? 'quickActions' : g === 'records' ? 'records' : g === 'workspaces' ? 'workspaces.title' : 'jumpTo');
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -287,7 +349,7 @@ export function CommandPalette() {
                     role="option"
                     aria-selected={selected}
                     onMouseMove={() => setActive(i)}
-                    onClick={() => go(r.href)}
+                    onClick={() => go(r)}
                     className={cn('flex cursor-pointer items-center gap-3 rounded-md px-3 py-2', selected && 'bg-muted')}
                   >
                     <Icon className="text-muted-foreground size-4 shrink-0" />

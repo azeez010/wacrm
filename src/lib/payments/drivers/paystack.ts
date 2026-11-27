@@ -107,6 +107,15 @@ export const paystackDriver: PaymentDriver = {
     }
   },
 
+  async cancelSubscription(ctx, sub) {
+    // Paystack disables a subscription with its code + email token. The token arrives with the
+    // subscription.create webhook (kept in provider_meta); otherwise read it from the subscription.
+    let token = typeof sub.meta.emailToken === 'string' ? sub.meta.emailToken : ''
+    if (!token) token = (await call<{ email_token?: string }>(ctx, `/subscription/${encodeURIComponent(sub.subscriptionId)}`)).email_token ?? ''
+    if (!token) throw new PaymentError('Paystack did not return the subscription token', false)
+    await call(ctx, '/subscription/disable', { method: 'POST', body: JSON.stringify({ code: sub.subscriptionId, token }) })
+  },
+
   async testConnection(ctx) {
     try {
       await call(ctx, '/balance')

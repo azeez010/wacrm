@@ -3,7 +3,7 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 
 import { COUNTRY_CURRENCY } from '@/lib/currency/supported'
 import { PAYMENT_COUNTRY_CURRENCY, paymentType, PAYMENT_TYPES } from './catalogue'
-import { applyEvent, startCheckout, type Deps } from './checkout'
+import { applyEvent, cancelRenewal, startCheckout, type Deps } from './checkout'
 import { manualTransferDriver } from './drivers/manual-transfer'
 import { paystackDriver } from './drivers/paystack'
 import { decryptSecretsObject, encryptPlatformSecret } from './secrets'
@@ -286,5 +286,61 @@ describe('applyEvent', () => {
     await applyEvent(fx.db, 'i1', 'paystack', { type: 'subscription.payment_failed', subscriptionId: 'SUB' })
     expect(fx.rpcCalls.map((c) => c.fn)).toEqual(['payment_settle', 'payment_renew', 'payment_subscription_stopped'])
     expect(fx.rpcCalls[0]!.args).toMatchObject({ p_session: 's1', p_provider_reference: 'ogd_a_1', p_customer_id: 'CUS' })
+  })
+})
+
+describe('cancelRenewal', () => {
+  function subDb(sub: Record<string, unknown> | null) {
+    const updates: Record<string, unknown>[] = []
+    const db = {
+      from: () => ({
+        select: () => ({ eq: () => ({ maybeSingle: async () => ({ data: sub, error: null }) }) }),
+        update: (p: Record<string, unknown>) => ({ eq: async () => { updates.push(p); return { error: null } } }),
+      }),
+      rpc: async (fn: string) => fn === 'payment_instance_secrets'
+        ? { data: { id: 'i1', kind: 'paystack', mode: 'test', config: {}, secrets: await encryptPlatformSecret(JSON.stringify({ secret_key: 'sk_test_abc' }), KEY) }, error: null }
+        : { data: null, error: null },
+    }
+    return { db: db as unknown as SupabaseClient, updates }
+  }
+  const card = { plan_id: 'pro', status: 'active', auto_renew: true, provider: 'paystack', provider_subscription_id: 'SUB_1', payment_instance_id: 'i1', provider_meta: { emailToken: 'tok' }, current_period_end: '2026-12-31T00:00:00Z' }
+
+  it('disables a card subscription at Paystack, then stops renewal', async () => {
+    vi.stubEnv('PLATFORM_SECRETS_KEY', KEY)
+    const f = vi.fn(async (_u: RequestInfo | URL, _i?: RequestInit) => json(200, { status: true, data: {} }))
+    const d = subDb(card)
+    const out = await cancelRenewal(d.db, 'acc', { fetch: f as never })
+    expect(out).toEqual({ status: 'stopped', periodEnd: '2026-12-31T00:00:00Z' })
+    expect(String(f.mock.calls[0]![0])).toBe('https://api.paystack.co/subscription/disable')
+    expect(JSON.parse(String(f.mock.calls[0]![1]!.body))).toEqual({ code: 'SUB_1', token: 'tok' })
+    expect(d.updates).toEqual([{ auto_renew: false }])
+    vi.unstubAllEnvs()
+  })
+
+  it('looks up the token when the webhook did not provide it', async () => {
+    vi.stubEnv('PLATFORM_SECRETS_KEY', KEY)
+    const f = vi.fn(async (u: RequestInfo | URL, _i?: RequestInit) => String(u).includes('/subscription/SUB_1') ? json(200, { status: true, data: { email_token: 'looked-up' } }) : json(200, { status: true, data: {} }))
+    await cancelRenewal(subDb({ ...card, provider_meta: {} }).db, 'acc', { fetch: f as never })
+    expect(JSON.parse(String(f.mock.calls[1]![1]!.body))).toEqual({ code: 'SUB_1', token: 'looked-up' })
+    vi.unstubAllEnvs()
+  })
+
+  it('changes nothing when the provider refuses (so the customer is never told it stopped while still being charged)', async () => {
+    vi.stubEnv('PLATFORM_SECRETS_KEY', KEY)
+    const f = vi.fn(async () => json(400, { status: false, message: 'Subscription not found' }))
+    const d = subDb(card)
+    const out = await cancelRenewal(d.db, 'acc', { fetch: f as never })
+    expect(out.status).toBe('failed')
+    expect(d.updates).toEqual([])
+    vi.unstubAllEnvs()
+  })
+
+  it('only switches auto-renew off when nothing is at the provider; nothing to stop on Free or a trial', async () => {
+    const transfer = subDb({ ...card, provider: 'manual_transfer', provider_subscription_id: null, payment_instance_id: 'm1' })
+    expect((await cancelRenewal(transfer.db, 'acc', { fetch: vi.fn() as never })).status).toBe('stopped')
+    expect(transfer.updates).toEqual([{ auto_renew: false }])
+    expect((await cancelRenewal(subDb({ ...card, plan_id: 'free' }).db, 'acc')).status).toBe('nothing_to_stop')
+    expect((await cancelRenewal(subDb({ ...card, status: 'trialing' }).db, 'acc')).status).toBe('nothing_to_stop')
+    expect((await cancelRenewal(subDb(null).db, 'acc')).status).toBe('nothing_to_stop')
   })
 })

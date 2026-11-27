@@ -8,6 +8,7 @@
 export const LIMIT_DEFS = {
   whatsapp_connections: 'WhatsApp numbers',
   seats: 'Team members',
+  workspaces: 'Workspaces you own',
   contacts: 'Contacts',
   messages_per_month: 'Messages / month',
   broadcast_recipients_per_month: 'Broadcast recipients / month',

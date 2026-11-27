@@ -23,6 +23,7 @@ const PLANS = [
     limits: {
       whatsapp_connections: 1,
       seats: 2,
+      workspaces: 1,
       contacts: 250,
       messages_per_month: 1000,
       broadcast_recipients_per_month: 0,
@@ -63,6 +64,7 @@ const PLANS = [
     limits: {
       whatsapp_connections: 2,
       seats: 5,
+      workspaces: 3,
       contacts: 5000,
       messages_per_month: 20000,
       broadcast_recipients_per_month: 5000,
@@ -103,6 +105,7 @@ const PLANS = [
     limits: {
       whatsapp_connections: 10,
       seats: 25,
+      workspaces: 10,
       contacts: null,
       messages_per_month: null,
       broadcast_recipients_per_month: 100000,

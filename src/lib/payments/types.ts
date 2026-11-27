@@ -57,4 +57,6 @@ export interface PaymentDriver {
   /** Verifies the signature (throws PaymentError 401 when invalid) and normalises the event. */
   parseWebhook?(ctx: DriverContext, rawBody: string, headers: Headers): Promise<PaymentEvent>
   testConnection(ctx: DriverContext): Promise<{ ok: boolean; detail: string }>
+  /** Stop a provider subscription from renewing (the paid period runs out normally). Absent = nothing to stop. */
+  cancelSubscription?(ctx: DriverContext, sub: { subscriptionId: string; meta: Record<string, unknown> }): Promise<void>
 }

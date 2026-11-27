@@ -41,7 +41,7 @@ async function countPendingInvites(db: Db, accountId: string) {
 
 export async function GET() {
   try {
-    const { supabase: db, accountId, role } = await getCurrentAccount();
+    const { supabase: db, accountId, role, userId } = await getCurrentAccount();
     const isAdmin = hasMinRole(role, 'admin');
 
     const [sub, ents, plansRes, history, counts] = await Promise.all([
@@ -120,6 +120,15 @@ export async function GET() {
         ...(key === 'form_submissions_per_month' ? { held: Number(leadCounts.held ?? 0) } : {}),
       };
     });
+
+    // Workspaces are per person: how many they own against the most any of their owned workspaces' plans allows.
+    try {
+      const { data: allowance } = await db.rpc('owned_workspace_allowance', { p_user: userId });
+      const a = allowance as { owned?: number; allowed?: number | null } | null;
+      if (a) usage.push({ key: 'workspaces', used: Number(a.owned ?? 0), limit: typeof a.allowed === 'number' ? a.allowed : null });
+    } catch {
+      /* the meter is informational; never fail the billing page over it */
+    }
 
     // AI credits: a missing plan limit means none (not unlimited), so this comes from the dedicated function.
     try {

@@ -289,3 +289,32 @@ export async function applyEvent(db: SupabaseClient, instanceId: string, kind: s
       return { status: 'ignored' }
   }
 }
+
+export type CancelOutcome = { status: 'stopped' | 'nothing_to_stop' | 'failed'; error?: string; periodEnd?: string | null }
+
+/**
+ * Stop the workspace's plan from renewing. The paid period runs out normally, then the daily sweep moves it to
+ * Free. A provider subscription (card) is disabled at the provider first; if that fails nothing changes here, so
+ * the customer is never told renewal stopped while the provider keeps charging. Bank-transfer / one-off plans have
+ * nothing at the provider: only auto_renew is switched off.
+ */
+export async function cancelRenewal(db: SupabaseClient, accountId: string, deps: Pick<Deps, 'fetch'> = defaultDeps): Promise<CancelOutcome> {
+  const { data: sub } = await db.from('account_subscriptions')
+    .select('plan_id, status, auto_renew, provider, provider_subscription_id, payment_instance_id, provider_meta, current_period_end')
+    .eq('account_id', accountId).maybeSingle()
+  if (!sub || sub.plan_id === 'free' || sub.status === 'trialing') return { status: 'nothing_to_stop' }
+  if (sub.provider_subscription_id && sub.payment_instance_id) {
+    try {
+      const { kind, ctx } = await driverContext(db, sub.payment_instance_id as string, deps)
+      const driver = paymentDriver(kind)
+      if (driver?.cancelSubscription) {
+        await driver.cancelSubscription(ctx, { subscriptionId: sub.provider_subscription_id as string, meta: (sub.provider_meta as Record<string, unknown>) ?? {} })
+      }
+    } catch (e) {
+      return { status: 'failed', error: e instanceof Error ? e.message : 'Could not stop the subscription at the payment provider' }
+    }
+  }
+  if (sub.auto_renew === false && !sub.provider_subscription_id) return { status: 'nothing_to_stop', periodEnd: (sub.current_period_end as string | null) ?? null }
+  await db.from('account_subscriptions').update({ auto_renew: false }).eq('account_id', accountId)
+  return { status: 'stopped', periodEnd: (sub.current_period_end as string | null) ?? null }
+}

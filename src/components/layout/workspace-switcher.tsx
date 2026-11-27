@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { Check, ChevronsUpDown, Plus, UsersRound } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
+import { parsePlanLimit } from "@/lib/billing/plan-limit";
+import { NEW_WORKSPACE_EVENT } from "@/components/command-palette/command-palette";
 
 import { createClient } from "@/lib/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
@@ -81,6 +83,16 @@ export function WorkspaceSwitcher({
     );
   };
 
+  // "New workspace" from the command palette (⌘K).
+  useEffect(() => {
+    const open = () => {
+      setName("");
+      setCreateOpen(true);
+    };
+    window.addEventListener(NEW_WORKSPACE_EVENT, open);
+    return () => window.removeEventListener(NEW_WORKSPACE_EVENT, open);
+  }, []);
+
   // Initial list; it is refreshed again whenever the menu opens.
   useEffect(() => {
     let cancelled = false;
@@ -126,8 +138,13 @@ export function WorkspaceSwitcher({
     setBusy(true);
     const { error } = await createClient().rpc("create_workspace", { p_name: trimmed });
     if (error) {
-      toast.error(t("workspaceCreateFailed"));
       setBusy(false);
+      // Their plan's workspace limit: the upgrade dialog (opened by the dashboard's UpgradeHost) explains it.
+      if (parsePlanLimit(error)) {
+        setCreateOpen(false);
+        return;
+      }
+      toast.error(t("workspaceCreateFailed"));
       return;
     }
     reloadIntoWorkspace();

@@ -761,7 +761,9 @@
         "api": "Bloqueado via API"
       },
       "unreachableBadge": "Inalcançável no WhatsApp",
-      "unreachableHint": "A Meta não conseguiu entregar a este número (não está no WhatsApp, não aceitou os novos termos ou usa um app antigo). Some sozinho se a pessoa escrever ou uma mensagem for entregue."
+      "unreachableHint": "A Meta não conseguiu entregar a este número (não está no WhatsApp, não aceitou os novos termos ou usa um app antigo). Some sozinho se a pessoa escrever ou uma mensagem for entregue.",
+      "planArchivedBadge": "Arquivado pelo plano",
+      "planArchivedHint": "Arquivado pelo seu plano: mantido, mas sem transmissões, automações ou respostas de IA até você fazer upgrade. Clique para fazer upgrade."
     },
     "form": {
       "addTitle": "Adicionar contato",
@@ -874,7 +876,9 @@
         "optIn": "Aceitou contato",
         "submissions": "Formulários enviados",
         "notQualified": "não qualificado"
-      }
+      },
+      "planArchivedBadge": "Arquivado pelo plano",
+      "planArchivedHint": "Arquivado pelo seu plano: mantido, mas sem transmissões, automações ou respostas de IA até você fazer upgrade. Clique para fazer upgrade."
     },
     "importModal": {
       "title": "Importar contatos",

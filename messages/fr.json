@@ -761,7 +761,9 @@
         "api": "Bloqué via l'API"
       },
       "unreachableBadge": "Injoignable sur WhatsApp",
-      "unreachableHint": "Meta n'a pas pu livrer à ce numéro (pas sur WhatsApp, nouvelles conditions non acceptées ou ancienne application). Cela disparaît si la personne vous écrit ou si un message est livré."
+      "unreachableHint": "Meta n'a pas pu livrer à ce numéro (pas sur WhatsApp, nouvelles conditions non acceptées ou ancienne application). Cela disparaît si la personne vous écrit ou si un message est livré.",
+      "planArchivedBadge": "Archivé par le forfait",
+      "planArchivedHint": "Archivé par votre forfait : conservé, mais sans diffusions, automatisations ni réponses IA tant que vous ne passez pas à un forfait supérieur. Cliquez pour changer de forfait."
     },
     "form": {
       "addTitle": "Ajouter un contact",
@@ -874,7 +876,9 @@
         "optIn": "Consentement",
         "submissions": "Formulaires remplis",
         "notQualified": "non qualifié"
-      }
+      },
+      "planArchivedBadge": "Archivé par le forfait",
+      "planArchivedHint": "Archivé par votre forfait : conservé, mais sans diffusions, automatisations ni réponses IA tant que vous ne passez pas à un forfait supérieur. Cliquez pour changer de forfait."
     },
     "importModal": {
       "title": "Importer des contacts",

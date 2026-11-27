@@ -139,6 +139,8 @@ export interface Contact {
   blocked_at?: string | null;
   blocked_reason?: 'manual' | 'opt_out' | 'import' | 'api' | null;
   blocked_by?: string | null;
+  /** Set when a lower plan archived the contact (migration 134): kept, but nothing automatic is sent. */
+  plan_archived_at?: string | null;
   /** Passive WhatsApp reachability (migration 099): null = never seen either way. */
   wa_status?: 'active' | 'unreachable' | null;
   wa_status_at?: string | null;

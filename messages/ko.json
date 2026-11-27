@@ -761,7 +761,9 @@
         "api": "API로 차단됨"
       },
       "unreachableBadge": "WhatsApp에서 연락 불가",
-      "unreachableHint": "Meta가 이 번호로 전달하지 못했습니다 (WhatsApp 미사용, 새 약관 미동의 또는 오래된 앱). 상대가 메시지를 보내거나 메시지가 전달되면 자동으로 해제됩니다."
+      "unreachableHint": "Meta가 이 번호로 전달하지 못했습니다 (WhatsApp 미사용, 새 약관 미동의 또는 오래된 앱). 상대가 메시지를 보내거나 메시지가 전달되면 자동으로 해제됩니다.",
+      "planArchivedBadge": "요금제로 보관됨",
+      "planArchivedHint": "요금제에 따라 보관됨: 유지되지만 업그레이드 전까지 브로드캐스트, 자동화, AI 답장이 전송되지 않습니다. 클릭해 업그레이드하세요."
     },
     "form": {
       "addTitle": "연락처 추가",
@@ -874,7 +876,9 @@
         "optIn": "수신 동의",
         "submissions": "제출한 양식",
         "notQualified": "적격 아님"
-      }
+      },
+      "planArchivedBadge": "요금제로 보관됨",
+      "planArchivedHint": "요금제에 따라 보관됨: 유지되지만 업그레이드 전까지 브로드캐스트, 자동화, AI 답장이 전송되지 않습니다. 클릭해 업그레이드하세요."
     },
     "importModal": {
       "title": "연락처 가져오기",

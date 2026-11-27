@@ -1,4 +1,4 @@
-import { isBlocked } from '@/lib/contacts/block-guard'
+import { isBlocked, isPlanArchived } from '@/lib/contacts/block-guard'
 import { supabaseAdmin } from './admin-client'
 import { loadAgentConfig } from './config'
 import { buildConversationContext } from './context'
@@ -84,14 +84,14 @@ export async function dispatchInboundToAiReply(
     // below (this read can race a concurrent inbound).
     if (conv.ai_reply_count >= config.autoReplyMaxPerConversation) return
 
-    // Blocked contacts get no AI reply (and no LLM spend / typing indicator).
+    // Blocked contacts, and contacts a lower plan archived, get no AI reply (and no LLM spend / typing indicator).
     const { data: blockedRow } = await db
       .from('contacts')
-      .select('blocked_at')
+      .select('blocked_at, plan_archived_at')
       .eq('id', contactId)
       .eq('account_id', accountId)
       .maybeSingle()
-    if (isBlocked(blockedRow)) return
+    if (isBlocked(blockedRow) || isPlanArchived(blockedRow)) return
 
     // Deterministic, user-configured responders win over the LLM - the
     // caller already excludes messages a Flow consumed. Message-level

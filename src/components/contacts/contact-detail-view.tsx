@@ -6,6 +6,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { formatCurrency } from '@/lib/currency';
 import { toast } from 'sonner';
 import type { Contact, Tag, ContactTag, ContactNote, CustomField, ContactCustomValue, Deal, MessageTemplate } from '@/types';
+import { notifyPlanLimit } from '@/lib/billing/plan-limit';
 import {
   TemplatePicker,
   type TemplateSendValues,
@@ -38,7 +39,7 @@ import {
   X,
   DollarSign,
   LayoutTemplate,
-  Ban, LifeBuoy } from 'lucide-react';
+  Ban, LifeBuoy, Archive } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { planTypedValueWrites } from '@/lib/custom-fields/value-writes';
 import type { FieldDef } from '@/lib/custom-fields/types';
@@ -475,6 +476,17 @@ export function ContactDetailView({
                     <Ban className="size-3" />
                     {t('blockedBadge')}
                   </span>
+                )}
+                {contact.plan_archived_at && (
+                  <button
+                    type="button"
+                    title={t('planArchivedHint')}
+                    onClick={() => notifyPlanLimit({ limitKey: 'contacts', limit: null })}
+                    className="bg-muted text-muted-foreground hover:text-foreground inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium"
+                  >
+                    <Archive className="size-3" />
+                    {t('planArchivedBadge')}
+                  </button>
                 )}
                 <Button
                   size="sm"

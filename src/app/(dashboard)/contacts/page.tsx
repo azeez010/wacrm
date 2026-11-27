@@ -43,6 +43,7 @@ import {
   Plus,
   Upload,
   Ban,
+  Archive,
   PhoneOff,
   MoreHorizontal,
   Pencil,
@@ -1422,6 +1423,11 @@ function ContactsPageInner() {
                       )}
                       {contact.blocked_at && (
                         <Ban className="size-3.5 shrink-0 text-destructive" aria-label={t('blockedBadge')} />
+                      )}
+                      {contact.plan_archived_at && (
+                        <Archive className="text-muted-foreground size-3.5 shrink-0" aria-label={t('planArchivedBadge')}>
+                          <title>{t('planArchivedHint')}</title>
+                        </Archive>
                       )}
                       {contact.wa_status === 'unreachable' && (
                         <PhoneOff className="size-3.5 shrink-0 text-amber-600" aria-label={t('unreachableBadge')}>

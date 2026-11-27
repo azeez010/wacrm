@@ -1498,7 +1498,9 @@
         "api": "Diblokir lewat API"
       },
       "unreachableBadge": "Tidak terjangkau di WhatsApp",
-      "unreachableHint": "Meta tidak dapat mengirim ke nomor ini (tidak di WhatsApp, belum menyetujui ketentuan baru, atau aplikasi lama). Status ini hilang sendiri jika mereka mengirim pesan kepada Anda atau ada pesan yang terkirim."
+      "unreachableHint": "Meta tidak dapat mengirim ke nomor ini (tidak di WhatsApp, belum menyetujui ketentuan baru, atau aplikasi lama). Status ini hilang sendiri jika mereka mengirim pesan kepada Anda atau ada pesan yang terkirim.",
+      "planArchivedBadge": "Diarsipkan oleh paket",
+      "planArchivedHint": "Diarsipkan oleh paket Anda: tetap disimpan, tetapi tanpa siaran, otomasi, atau balasan AI sampai Anda meningkatkan paket. Klik untuk meningkatkan."
     },
     "form": {
       "addTitle": "Tambah kontak",
@@ -1611,7 +1613,9 @@
         "optIn": "Setuju menerima",
         "submissions": "Formulir diisi",
         "notQualified": "tidak memenuhi syarat"
-      }
+      },
+      "planArchivedBadge": "Diarsipkan oleh paket",
+      "planArchivedHint": "Diarsipkan oleh paket Anda: tetap disimpan, tetapi tanpa siaran, otomasi, atau balasan AI sampai Anda meningkatkan paket. Klik untuk meningkatkan."
     },
     "importModal": {
       "title": "Impor kontak",

@@ -1,4 +1,4 @@
-import { assertNotBlocked } from '@/lib/contacts/block-guard'
+import { assertCanAutomate } from '@/lib/contacts/block-guard'
 import { sendTextMessage, sendTemplateMessage } from '@/lib/whatsapp/meta-api'
 import type { InteractiveMessagePayload } from '@/lib/whatsapp/interactive'
 import {
@@ -130,7 +130,7 @@ async function sendViaMeta(input: SendInput): Promise<{ whatsapp_message_id: str
   // new tenancy column.
   const { data: contact, error: contactErr } = await db
     .from('contacts')
-    .select('id, phone, wa_user_id, blocked_at')
+    .select('id, phone, wa_user_id, blocked_at, plan_archived_at')
     .eq('id', input.contactId)
     .eq('account_id', input.accountId)
     .maybeSingle()
@@ -138,7 +138,7 @@ async function sendViaMeta(input: SendInput): Promise<{ whatsapp_message_id: str
     throw new Error(t('send.contactNotFound'))
   }
   // Blocked contacts never receive a message (suppression list).
-  assertNotBlocked(contact)
+  assertCanAutomate(contact)
 
   // Same for the conversation the message lands in - see
   // conversation-scope.ts (GHSA-m4fx-g6pr-hrw8).

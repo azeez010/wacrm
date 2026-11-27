@@ -325,7 +325,7 @@ export async function deliverBroadcast(
     if (blockedRows.has(recipient.recipientRowId)) {
       await db
         .from('broadcast_recipients')
-        .update({ status: 'failed', error_message: 'Contact is blocked' })
+        .update({ status: 'failed', error_message: blockedRows.get(recipient.recipientRowId) ?? 'Contact is blocked' })
         .eq('id', recipient.recipientRowId);
       continue;
     }
@@ -437,7 +437,8 @@ async function fetchBlockedContactIds(
       .from('contacts')
       .select('id')
       .eq('account_id', accountId)
-      .not('blocked_at', 'is', null)
+      // blocked, or archived by a lower plan: both are left out of broadcasts
+      .or('blocked_at.not.is.null,plan_archived_at.not.is.null')
       .in('id', contactIds.slice(i, i + 200));
     for (const row of data ?? []) out.add(row.id as string);
   }
@@ -463,23 +464,22 @@ async function fetchUnreachableContactIds(
   return out;
 }
 
-/** Of these broadcast_recipients rows, the ones whose contact is blocked. */
+/** Of these broadcast_recipients rows, the ones whose contact is blocked or archived by the plan, with the reason. */
 async function fetchBlockedRecipientRowIds(
   db: SupabaseClient,
   rowIds: string[]
-): Promise<Set<string>> {
-  const out = new Set<string>();
+): Promise<Map<string, string>> {
+  const out = new Map<string, string>();
+  type C = { blocked_at?: string | null; plan_archived_at?: string | null };
   for (let i = 0; i < rowIds.length; i += 200) {
     const { data } = await db
       .from('broadcast_recipients')
-      .select('id, contact:contacts(blocked_at)')
+      .select('id, contact:contacts(blocked_at, plan_archived_at)')
       .in('id', rowIds.slice(i, i + 200));
-    for (const row of (data ?? []) as {
-      id: string;
-      contact: { blocked_at?: string | null } | { blocked_at?: string | null }[] | null;
-    }[]) {
+    for (const row of (data ?? []) as { id: string; contact: C | C[] | null }[]) {
       const c = Array.isArray(row.contact) ? row.contact[0] : row.contact;
-      if (c?.blocked_at) out.add(row.id);
+      if (c?.blocked_at) out.set(row.id, 'Contact is blocked');
+      else if (c?.plan_archived_at) out.set(row.id, 'Contact was archived by your plan');
     }
   }
   return out;

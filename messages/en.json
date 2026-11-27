@@ -761,7 +761,9 @@
         "api": "Blocked via API"
       },
       "unreachableBadge": "Unreachable on WhatsApp",
-      "unreachableHint": "Meta could not deliver to this number (not on WhatsApp, has not accepted the new terms, or an old app). It clears itself if they message you or a message is delivered."
+      "unreachableHint": "Meta could not deliver to this number (not on WhatsApp, has not accepted the new terms, or an old app). It clears itself if they message you or a message is delivered.",
+      "planArchivedBadge": "Archived by plan",
+      "planArchivedHint": "Archived by your plan: kept, but no broadcasts, automations or AI replies until you upgrade. Click to upgrade."
     },
     "form": {
       "addTitle": "Add Contact",
@@ -874,7 +876,9 @@
         "optIn": "Opted in",
         "submissions": "Forms filled in",
         "notQualified": "not qualified"
-      }
+      },
+      "planArchivedBadge": "Archived by plan",
+      "planArchivedHint": "Archived by your plan: kept, but no broadcasts, automations or AI replies until you upgrade. Click to upgrade."
     },
     "importModal": {
       "title": "Import Contacts",

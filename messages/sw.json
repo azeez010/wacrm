@@ -1498,7 +1498,9 @@
         "api": "Imezuiwa kupitia API"
       },
       "unreachableBadge": "Haifikiki kwenye WhatsApp",
-      "unreachableHint": "Meta haikuweza kuwasilisha kwa nambari hii (haiko kwenye WhatsApp, hajakubali masharti mapya, au programu ya zamani). Hali hii huondoka yenyewe akikuandikia au ujumbe ukiwasilishwa."
+      "unreachableHint": "Meta haikuweza kuwasilisha kwa nambari hii (haiko kwenye WhatsApp, hajakubali masharti mapya, au programu ya zamani). Hali hii huondoka yenyewe akikuandikia au ujumbe ukiwasilishwa.",
+      "planArchivedBadge": "Imehifadhiwa na mpango",
+      "planArchivedHint": "Imehifadhiwa na mpango wako: inabaki, lakini bila matangazo, otomatiki wala majibu ya AI hadi upandishe mpango. Bofya kupandisha."
     },
     "form": {
       "addTitle": "Ongeza anwani",
@@ -1611,7 +1613,9 @@
         "optIn": "Amekubali kupokea",
         "submissions": "Fomu zilizojazwa",
         "notQualified": "hajahitimu"
-      }
+      },
+      "planArchivedBadge": "Imehifadhiwa na mpango",
+      "planArchivedHint": "Imehifadhiwa na mpango wako: inabaki, lakini bila matangazo, otomatiki wala majibu ya AI hadi upandishe mpango. Bofya kupandisha."
     },
     "importModal": {
       "title": "Ingiza anwani",

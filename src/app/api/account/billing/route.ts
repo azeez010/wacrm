@@ -77,7 +77,7 @@ export async function GET() {
             .limit(50)
         : Promise.resolve({ data: [] as unknown[] }),
       Promise.all([
-        count(db, 'contacts', accountId),
+        countLive(db, 'contacts', accountId),
         count(db, 'whatsapp_config', accountId),
         countLive(db, 'automations', accountId),
         countLive(db, 'flows', accountId),

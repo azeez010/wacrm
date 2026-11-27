@@ -46,6 +46,8 @@ export interface ApiContact {
   blocked: boolean;
   blocked_reason: 'manual' | 'opt_out' | 'import' | 'api' | null;
   blocked_at: string | null;
+  /** True when a lower plan archived the contact: kept, but no broadcasts, automations, flows or AI replies. */
+  archived_by_plan: boolean;
   tags: { id: string; name: string; color: string }[];
   /** Typed custom field values keyed by field key. Filled by `attachCustomFields`. */
   custom_fields?: Record<string, unknown>;
@@ -91,6 +93,7 @@ export function serializeContact(row: Record<string, unknown>): ApiContact {
     blocked: Boolean(row.blocked_at),
     blocked_reason: (row.blocked_reason as ApiContact['blocked_reason']) ?? null,
     blocked_at: (row.blocked_at as string | null) ?? null,
+    archived_by_plan: Boolean(row.plan_archived_at),
     tags: joins
       .map((j) => j.tags)
       .filter((t): t is NonNullable<RawTagJoin['tags']> => t != null)

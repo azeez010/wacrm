@@ -116,6 +116,7 @@ function makeDb(
             return chain;
           },
           not: () => chain,
+          or: () => chain,
           in: () =>
             Promise.resolve({
               data: (wantUnreachable ? unreachable.ids : blockedContactIds).map((id) => ({ id })),

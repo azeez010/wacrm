@@ -192,7 +192,7 @@ or phone) and `?tag=<tagId>`.
     {
       "id": "…", "phone": "+14155550123", "name": "Jane Doe",
       "email": null, "company": "Acme", "avatar_url": null,
-      "blocked": false, "blocked_reason": null, "blocked_at": null,
+      "blocked": false, "blocked_reason": null, "blocked_at": null, "archived_by_plan": false,
       "tags": [{ "id": "…", "name": "vip", "color": "#3b82f6" }],
       "created_at": "…", "updated_at": "…"
     }

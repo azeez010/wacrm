@@ -61,6 +61,7 @@ describe('serializeContact', () => {
       blocked: false,
       blocked_reason: null,
       blocked_at: null,
+      archived_by_plan: false,
       tags: [{ id: 't1', name: 'vip', color: '#fff' }],
       created_at: '2026-01-01T00:00:00Z',
       updated_at: '2026-01-02T00:00:00Z',

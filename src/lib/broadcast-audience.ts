@@ -3,7 +3,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import { fetchAllInChunks, fetchAllPages } from '@/lib/supabase/paged-query';
 import type { Contact } from '@/types';
 import type { FilterGroup } from '@/lib/segments/types';
-import { isBlocked } from '@/lib/contacts/block-guard';
+import { isBlocked, isPlanArchived } from '@/lib/contacts/block-guard';
 
 export type CustomFieldOperator = 'is' | 'is_not' | 'contains';
 
@@ -224,8 +224,8 @@ export async function resolveAudienceContacts(
   opts: { accountId?: string; skipUnreachable?: boolean; stats?: { blockedSkipped: number; unreachableSkipped?: number } } = {},
 ): Promise<Contact[]> {
   const contacts = await resolveUnfiltered(db, audience, resolveCsv, opts);
-  // Blocked contacts never receive a broadcast, whatever the audience.
-  const unblocked = contacts.filter((c) => !isBlocked(c));
+  // Blocked contacts never receive a broadcast, whatever the audience; nor do contacts a lower plan archived.
+  const unblocked = contacts.filter((c) => !isBlocked(c) && !isPlanArchived(c));
   if (opts.stats) opts.stats.blockedSkipped = contacts.length - unblocked.length;
   // Optional (account switch): numbers Meta reported undeliverable are left out too.
   const sendable = opts.skipUnreachable ? unblocked.filter((c) => c.wa_status !== 'unreachable') : unblocked;

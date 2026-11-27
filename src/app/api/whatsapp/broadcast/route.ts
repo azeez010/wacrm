@@ -181,7 +181,8 @@ export async function POST(request: Request) {
         .from('contacts')
         .select('phone_normalized')
         .eq('account_id', accountId)
-        .not('blocked_at', 'is', null)
+        // blocked, or archived by a lower plan
+        .or('blocked_at.not.is.null,plan_archived_at.not.is.null')
         .in('phone_normalized', allDigits.slice(i, i + 200))
       for (const row of blockedRows ?? []) blockedPhones.add(row.phone_normalized as string)
     }

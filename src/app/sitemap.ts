@@ -41,7 +41,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const help = helpPaths.flatMap((path) =>
     LOCALES.map((l) => ({ url: localizedUrl(l, path), changeFrequency: 'monthly' as const, priority: path === '/help' ? 0.6 : 0.5, alternates: helpUrls(path) })),
   )
-  const marketing = ['/templates', '/compare', '/fr/compare', '/free-tools/whatsapp-link-generator', ...MARKETING_PAGES.map(pagePath)].map((path) => ({
+  const marketing = ['/templates', '/compare', '/fr/compare', '/free-tools/whatsapp-link-generator', '/free-tools/whatsapp-cost-calculator',...MARKETING_PAGES.map(pagePath)].map((path) => ({
     url: `${SITE_URL}${path}`,
     changeFrequency: 'monthly' as const,
     priority: path === '/templates' || path.startsWith('/free-tools') ? 0.6 : 0.8,

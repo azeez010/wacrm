@@ -112,6 +112,13 @@ export function MarketingPageView({ page }: { page: MarketingPage }) {
             </table>
           </div>
           {page.note && <p className="mt-3 text-center text-xs text-muted-foreground">{page.note}</p>}
+          {page.slug === 'whatsapp-business-api-pricing' && (
+            <p className="mt-4 text-center">
+              <Link href="/free-tools/whatsapp-cost-calculator" className={cn(buttonVariants({ variant: 'outline' }))}>
+                Estimate your monthly cost
+              </Link>
+            </p>
+          )}
         </section>
       )}
 

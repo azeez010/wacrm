@@ -143,6 +143,53 @@ export interface ContactInput {
   leadSource?: string | null;
 }
 
+const EMAIL_ONLY_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+/**
+ * Find (by email, case-insensitive) or create a contact that has an email but no phone yet. Used when an integration
+ * only knows the person's email (for example OgaDesk's own CRM sync of signups). The phone stays empty until known.
+ */
+export async function findOrCreateContactByEmail(
+  db: SupabaseClient,
+  accountId: string,
+  auditUserId: string,
+  input: Omit<ContactInput, 'phone'> & { email: string }
+): Promise<{ id: string; created: boolean }> {
+  const email = input.email.trim().toLowerCase();
+  if (!EMAIL_ONLY_RE.test(email) || email.length > 254) {
+    throw new ContactError("'email' must be a valid email address", 400);
+  }
+  const like = email.replace(/[\\%_]/g, '\\$&');
+  const { data: found } = await db
+    .from('contacts')
+    .select('id')
+    .eq('account_id', accountId)
+    .ilike('email', like)
+    .order('created_at', { ascending: true })
+    .limit(1);
+  if (found && found.length > 0) return { id: (found[0] as { id: string }).id, created: false };
+
+  const { data: created, error } = await db
+    .from('contacts')
+    .insert({
+      account_id: accountId,
+      user_id: auditUserId,
+      phone: '',
+      name: input.name ?? email,
+      email,
+      company: input.company ?? null,
+      lead_source: input.leadSource ?? 'API',
+      first_seen_at: new Date().toISOString(),
+    })
+    .select('id')
+    .single();
+  if (error || !created) {
+    console.error('[api/v1/contacts] create by email error:', error);
+    throw new ContactError('Failed to create contact', 500);
+  }
+  return { id: created.id, created: true };
+}
+
 /**
  * Find (by fuzzy phone match) or create a contact in `accountId`.
  * Returns the contact id and whether it was created. Reuses the shared

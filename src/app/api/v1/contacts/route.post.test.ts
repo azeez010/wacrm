@@ -79,3 +79,17 @@ describe('POST /api/v1/contacts tags', () => {
     expect(mocks.setContactTags).not.toHaveBeenCalled();
   });
 });
+
+describe('POST /api/v1/contacts by email only', () => {
+  it('requires a phone or an email', async () => {
+    const res = await POST(createRequest({ name: 'Ada' }));
+    expect(res.status).toBe(400);
+    expect(mocks.findOrCreateContact).not.toHaveBeenCalled();
+  });
+
+  it('keeps the phone path when a phone is given (email passed along)', async () => {
+    mocks.findOrCreateContact.mockResolvedValue({ id: 'c1', created: true });
+    await POST(createRequest({ phone: '+14155550123', email: 'ada@example.com' }));
+    expect(mocks.findOrCreateContact).toHaveBeenCalledWith({}, 'account-1', 'owner-1', expect.objectContaining({ phone: '+14155550123', email: 'ada@example.com' }));
+  });
+});

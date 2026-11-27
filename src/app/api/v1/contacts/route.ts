@@ -4,7 +4,8 @@
 //
 // List is keyset-paginated (see src/lib/api/v1/pagination.ts) and
 // supports `?search=` (name/phone) and `?tag=<tagId>` filters. Create
-// is find-or-create by phone: an existing match returns 200 with
+// is find-or-create by phone (or by email when no phone is sent; the
+// phone then stays empty): an existing match returns 200 with
 // `created: false`; a new row returns 201 with `created: true`.
 // ============================================================
 
@@ -21,6 +22,7 @@ import {
   CONTACT_SELECT,
   serializeContact,
   findOrCreateContact,
+  findOrCreateContactByEmail,
   setContactTags,
   addContactTags,
   getContactById,
@@ -108,23 +110,21 @@ export async function POST(request: Request) {
     }
 
     const phone = typeof body.phone === 'string' ? body.phone.trim() : '';
-    if (!phone) {
-      return fail('bad_request', "'phone' is required", 400);
+    const email = typeof body.email === 'string' ? body.email.trim() : '';
+    // A phone is the usual key. Without one, an email is enough (find-or-create by email, phone left empty).
+    if (!phone && !email) {
+      return fail('bad_request', "'phone' or 'email' is required", 400);
     }
 
     const auditUserId = await resolveAuditUserId(ctx.supabase, ctx.accountId);
 
-    const { id, created } = await findOrCreateContact(
-      ctx.supabase,
-      ctx.accountId,
-      auditUserId,
-      {
-        phone,
-        name: typeof body.name === 'string' ? body.name : undefined,
-        email: typeof body.email === 'string' ? body.email : undefined,
-        company: typeof body.company === 'string' ? body.company : undefined,
-      }
-    );
+    const fields = {
+      name: typeof body.name === 'string' ? body.name : undefined,
+      company: typeof body.company === 'string' ? body.company : undefined,
+    };
+    const { id, created } = phone
+      ? await findOrCreateContact(ctx.supabase, ctx.accountId, auditUserId, { phone, ...fields, email: email || undefined })
+      : await findOrCreateContactByEmail(ctx.supabase, ctx.accountId, auditUserId, { ...fields, email });
 
     if (Array.isArray(body.tags)) {
       const applyTags = created ? setContactTags : addContactTags;

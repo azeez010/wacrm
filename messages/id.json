@@ -44,7 +44,8 @@
     "signIn": "Masuk",
     "legal": "Dengan membuat akun, Anda menyetujui <terms>Ketentuan Layanan</terms> dan <privacy>Kebijakan Privasi</privacy>.",
     "continueWithGoogle": "Lanjutkan dengan Google",
-    "orDivider": "atau"
+    "orDivider": "atau",
+    "trialBanner": "Mulai uji coba gratis {days} hari paket {plan}. Tanpa kartu."
   },
   "ForgotPasswordPage": {
     "checkEmailTitle": "Periksa email Anda",
@@ -206,7 +207,8 @@
       "subtitle": "Kotak masuk tim bersama, siaran, otomatisasi, dan alur chatbot di WhatsApp Business API resmi. Daftar dengan Meta dalam beberapa klik, dapatkan nomor baru, atau tetap pakai nomor di aplikasi WhatsApp Business Anda.",
       "startFree": "Mulai gratis",
       "seePricing": "Lihat harga",
-      "openDashboard": "Buka dasbor"
+      "openDashboard": "Buka dasbor",
+      "startTrial": "Mulai uji coba gratis {days} hari Anda"
     },
     "features": {
       "f1Title": "Terhubung dalam hitungan menit",
@@ -234,7 +236,10 @@
       "save": "Hemat {percent}%",
       "billedQuarterly": "ditagih {price} setiap 3 bulan",
       "billedYearly": "ditagih {price} per tahun",
-      "billingPeriod": "Periode penagihan"
+      "billingPeriod": "Periode penagihan",
+      "startTrial": "Mulai uji coba gratis {days} hari",
+      "trialNote": "Uji coba gratis {days} hari, tanpa kartu",
+      "savePromo": "{promo}: diskon {percent}%"
     },
     "footer": {
       "login": "Masuk",
@@ -248,6 +253,27 @@
       "help": "Bantuan",
       "solutions": "Solusi",
       "templates": "Templat"
+    },
+    "faq": {
+      "title": "Pertanyaan umum",
+      "navLabel": "FAQ",
+      "pricingLink": "Lihat cara kerja harga WhatsApp",
+      "q1": "Apa itu OgaDesk?",
+      "a1": "OgaDesk adalah CRM WhatsApp. Seluruh tim menjawab pelanggan dari satu kotak masuk bersama, dengan kontak, siaran, otomatisasi, alur chatbot, dan balasan AI di WhatsApp Business API resmi.",
+      "q2": "Apakah saya butuh developer atau akun Meta?",
+      "a2": "Tidak perlu developer. Anda masuk dengan Meta dalam beberapa klik untuk menghubungkan nomor. Akun bisnis Meta membantu, dan OgaDesk memandu Anda.",
+      "q3": "Bisakah saya mempertahankan nomor WhatsApp saya?",
+      "a3": "Bisa. Anda dapat menautkan nomor dari aplikasi WhatsApp Business atau menghubungkan nomor baru.",
+      "q4": "Bisakah tim saya berbagi satu nomor?",
+      "a4": "Bisa. Undang rekan dengan peran dan tugaskan tiap percakapan ke orang yang tepat. Setiap paket mencantumkan jumlah anggota tim.",
+      "q5": "Apakah ada paket gratis?",
+      "a5": "Ada. Mulai gratis dengan satu nomor WhatsApp dan tim kecil, lalu tingkatkan saat perlu. Siaran dan balasan AI tersedia mulai paket Starter.",
+      "q6": "Berapa biaya dari WhatsApp sendiri?",
+      "a6": "Meta mengenakan biayanya sendiri untuk pesan WhatsApp di semua penyedia, terpisah dari paket OgaDesk Anda. Panduan harga kami menjelaskan apa yang gratis dan cara menghitungnya.",
+      "q7": "Apakah harga dalam mata uang saya?",
+      "a7": "Paket berharga dalam naira. Anda bisa mengganti mata uang tampilan untuk melihat perkiraan harga, dan jumlah yang dibayar ditampilkan saat pembayaran.",
+      "q8": "Apakah ini API WhatsApp resmi?",
+      "a8": "Ya. OgaDesk memakai WhatsApp Business Platform resmi dari Meta, sehingga nomor dan pelanggan Anda tetap milik Anda."
     }
   },
   "Currency": {
@@ -483,7 +509,12 @@
       }
     },
     "phoneLabel": "Nomor WhatsApp Anda",
-    "phoneHint": "Sertakan kode negara, mis. +2348012345678."
+    "phoneHint": "Sertakan kode negara, mis. +2348012345678.",
+    "workspaceLabel": "Nama ruang kerja",
+    "workspacePlaceholder": "mis. Toko Lagos",
+    "workspaceHint": "Ini yang akan dilihat tim Anda. Bisa diubah nanti di Pengaturan.",
+    "trialBanner": "Anda memulai uji coba gratis paket {plan} selama {days} hari. Tanpa kartu.",
+    "trialStarted": "Uji coba paket {plan} {days} hari Anda sudah dimulai."
   },
   "Partner": {
     "title": "Program mitra",
@@ -3757,7 +3788,8 @@
         "returnBack": "Kembali ke tagihan"
       },
       "historyCoupon": "Kupon {code}: −{amount}",
-      "historyFee": "Biaya pembayaran: {amount}"
+      "historyFee": "Biaya pembayaran: {amount}",
+      "trialNotice": "Anda sedang uji coba gratis paket {plan}: sisa {days} hari, berakhir {date}. Pilih paket sebelum itu agar fitur dan batas Anda tetap ada."
     },
     "tables": {
       "title": "Tabel khusus",
@@ -4390,6 +4422,20 @@
       "body": "Gunakan kode ini untuk mengonfirmasi data Anda di {form}.",
       "expires": "Kode berlaku {minutes} menit.",
       "footer": "Anda menerima email ini karena seseorang memasukkan alamat ini di formulir. Jika bukan Anda, abaikan saja."
+    },
+    "trialEnding": {
+      "subject": "Uji coba {plan} berakhir dalam {days} hari",
+      "heading": "Uji coba {plan} hampir selesai",
+      "body": "Halo {name}, uji coba gratis {plan} Anda berakhir dalam {days} hari.",
+      "advice": "Pilih paket sebelum berakhir agar fitur, batas {plan} dan semua yang Anda buat tetap ada. Jika tidak, Anda pindah ke paket Gratis.",
+      "cta": "Pilih paket"
+    },
+    "trialEnded": {
+      "subject": "Uji coba {plan} telah berakhir",
+      "heading": "Uji coba {plan} telah berakhir",
+      "body": "Halo {name}, uji coba gratis {plan} Anda sudah selesai, jadi sekarang Anda memakai paket Gratis.",
+      "advice": "Tidak ada yang dihapus. Pilih paket untuk mendapatkan kembali fitur dan batas {plan}.",
+      "cta": "Pilih paket"
     }
   },
   "MediaPicker": {
@@ -5461,6 +5507,7 @@
     "dataDeletion": "Penghapusan data",
     "builtOn": "Dibangun di atas WhatsApp Business API resmi.",
     "rights": "© {year} {brand}. Hak cipta dilindungi.",
-    "trademark": "WhatsApp adalah merek dagang terdaftar milik Meta Platforms, Inc. {brand} tidak berafiliasi dengan, didukung oleh, atau disponsori oleh Meta Platforms, Inc."
+    "trademark": "WhatsApp adalah merek dagang terdaftar milik Meta Platforms, Inc. {brand} tidak berafiliasi dengan, didukung oleh, atau disponsori oleh Meta Platforms, Inc.",
+    "whatsappPricing": "Harga WhatsApp"
   }
 }

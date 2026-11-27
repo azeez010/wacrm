@@ -141,11 +141,21 @@ function CurrentPlan({ data, t, money, date }: { data: Billing; t: T; money: Mon
             {plan.price_monthly > 0 && <span className="text-muted-foreground"> {t('perMonth')}</span>}
           </p>
         )}
-        <p className="text-muted-foreground text-sm">
-          {data.subscription.current_period_end
-            ? t('renews', { date: date(data.subscription.current_period_end) })
-            : t('noRenewal')}
-        </p>
+        {status === 'trialing' && data.subscription.current_period_end ? (
+          <p className="rounded-lg border border-primary/30 bg-primary/10 p-3 text-sm">
+            {t('trialNotice', {
+              plan: plan?.name ?? data.effective_plan_name,
+              date: date(data.subscription.current_period_end),
+              days: Math.max(0, Math.ceil((new Date(data.subscription.current_period_end).getTime() - Date.now()) / 86_400_000)),
+            })}
+          </p>
+        ) : (
+          <p className="text-muted-foreground text-sm">
+            {data.subscription.current_period_end
+              ? t('renews', { date: date(data.subscription.current_period_end) })
+              : t('noRenewal')}
+          </p>
+        )}
         {data.downgraded && (
           <p className="rounded-lg bg-amber-500/10 p-3 text-sm text-amber-700 dark:text-amber-400">
             {t('downgradedNotice')}

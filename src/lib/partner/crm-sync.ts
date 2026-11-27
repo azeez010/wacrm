@@ -18,12 +18,12 @@ export type AddToCrmResult =
   | { ok: true; contactId: string; dealId: string | null; alreadyAdded: boolean }
   | { ok: false; error: 'not_found' | 'needs_phone' | 'invalid_phone' | 'failed' }
 
-/** Paid = on a non-free plan that is active or trialing. */
+/** Paid = on a non-free plan with a real (active) subscription. A free trial is not paying yet. */
 export async function isAccountPaid(db: Db, accountId: string | null): Promise<boolean> {
   if (!accountId) return false
   const { data } = await db.from('account_subscriptions').select('plan_id, status').eq('account_id', accountId).maybeSingle()
   const s = data as { plan_id: string; status: string } | null
-  return Boolean(s && s.plan_id !== 'free' && (s.status === 'active' || s.status === 'trialing'))
+  return Boolean(s && s.plan_id !== 'free' && s.status === 'active')
 }
 
 /**

@@ -77,3 +77,26 @@ export async function queueQuotaEmail(
     { userId, accountId },
   )
 }
+
+/** "Your trial is ending" / "Your trial ended", to the workspace owner, once per trial. */
+export async function queueTrialEmail(
+  db: SupabaseClient,
+  accountId: string,
+  kind: 'trial_ending' | 'trial_ended',
+  planName: string,
+  onceId: string,
+  days?: number,
+): Promise<boolean> {
+  const from = sender()
+  if (!isEmailEnabled() || !from) return false
+  const userId = await ownerUserId(db, accountId)
+  const who = userId ? await person(db, userId) : null
+  if (!userId || !who) return false
+  const rendered = await renderEmail(kind, who.locale, { name: who.name, planName, days })
+  return queue(
+    db,
+    { to: { email: who.email, name: who.name || undefined }, from, subject: rendered.subject, html: rendered.html, text: rendered.text, tags: [kind] },
+    `once:email_${kind}:${accountId}:${onceId}`,
+    { userId, accountId },
+  )
+}

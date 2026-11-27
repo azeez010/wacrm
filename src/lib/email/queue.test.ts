@@ -72,3 +72,21 @@ describe('queueQuotaEmail', () => {
     expect((db.rows('crm_outbox')[0].payload as { subject: string }).subject).toContain('80')
   })
 })
+
+describe('queueTrialEmail', () => {
+  it('queues once per trial, in the owner\'s language', async () => {
+    const { queueTrialEmail } = await import('./queue')
+    const db = seed()
+    expect(await queueTrialEmail(db.asClient(), 'a1', 'trial_ending', 'Pro', '2026-12-31T00:00:00Z', 3)).toBe(true)
+    expect(await queueTrialEmail(db.asClient(), 'a1', 'trial_ending', 'Pro', '2026-12-31T00:00:00Z', 3)).toBe(false) // same trial: not again
+    const [row] = db.rows('crm_outbox')
+    expect(row).toMatchObject({ kind: 'email', account_id: 'a1', dedupe_key: 'once:email_trial_ending:a1:2026-12-31T00:00:00Z' })
+    expect((row!.payload as { tags: string[]; subject: string }).tags).toEqual(['trial_ending'])
+    expect((row!.payload as { subject: string }).subject).toContain('Pro') // French copy, plan name kept
+  })
+  it('sends nothing when email is off', async () => {
+    const { queueTrialEmail } = await import('./queue')
+    mailOn = false
+    expect(await queueTrialEmail(seed().asClient(), 'a1', 'trial_ended', 'Pro', '2026-12-31')).toBe(false)
+  })
+})

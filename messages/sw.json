@@ -44,7 +44,8 @@
     "signIn": "Ingia",
     "legal": "Kwa kufungua akaunti unakubali <terms>Masharti ya Huduma</terms> na <privacy>Sera ya Faragha</privacy>.",
     "continueWithGoogle": "Endelea na Google",
-    "orDivider": "au"
+    "orDivider": "au",
+    "trialBanner": "Anza jaribio la bure la siku {days} la mpango wa {plan}. Hakuna kadi."
   },
   "ForgotPasswordPage": {
     "checkEmailTitle": "Angalia barua pepe yako",
@@ -206,7 +207,8 @@
       "subtitle": "Kikasha cha timu cha pamoja, matangazo, otomatiki na mtiririko wa chatbot kwenye WhatsApp Business API rasmi. Jisajili na Meta kwa mibofyo michache, pata nambari mpya, au endelea kutumia nambari iliyo kwenye programu yako ya WhatsApp Business.",
       "startFree": "Anza bila malipo",
       "seePricing": "Tazama bei",
-      "openDashboard": "Fungua dashibodi"
+      "openDashboard": "Fungua dashibodi",
+      "startTrial": "Anza jaribio lako la bure la siku {days}"
     },
     "features": {
       "f1Title": "Unganisha kwa dakika",
@@ -234,7 +236,10 @@
       "save": "Okoa {percent}%",
       "billedQuarterly": "inalipwa {price} kila miezi 3",
       "billedYearly": "inalipwa {price} kwa mwaka",
-      "billingPeriod": "Kipindi cha malipo"
+      "billingPeriod": "Kipindi cha malipo",
+      "startTrial": "Anza jaribio la bure la siku {days}",
+      "trialNote": "Jaribio la bure la siku {days}, hakuna kadi",
+      "savePromo": "{promo}: punguzo la {percent}%"
     },
     "footer": {
       "login": "Ingia",
@@ -248,6 +253,27 @@
       "help": "Msaada",
       "solutions": "Suluhisho",
       "templates": "Violezo"
+    },
+    "faq": {
+      "title": "Maswali yanayoulizwa mara kwa mara",
+      "navLabel": "Maswali",
+      "pricingLink": "Angalia jinsi bei za WhatsApp zinavyofanya kazi",
+      "q1": "OgaDesk ni nini?",
+      "a1": "OgaDesk ni CRM ya WhatsApp. Timu yako yote hujibu wateja kutoka kikasha cha pamoja, ikiwa na mawasiliano, ujumbe kwa wengi, otomatiki, mtiririko wa chatbot na majibu ya AI kwenye WhatsApp Business API rasmi.",
+      "q2": "Je, ninahitaji msanidi programu au akaunti ya Meta?",
+      "a2": "Hauhitaji msanidi programu. Unaingia kwa Meta kwa mibofyo michache kuunganisha namba yako. Akaunti ya biashara ya Meta husaidia, na OgaDesk hukuongoza.",
+      "q3": "Je, naweza kuendelea kutumia namba yangu ya WhatsApp?",
+      "a3": "Ndiyo. Unaweza kuunganisha namba ya programu yako ya WhatsApp Business au kuunganisha namba mpya.",
+      "q4": "Je, timu yangu inaweza kushiriki namba moja?",
+      "a4": "Ndiyo. Waalike wenzako wenye majukumu na mpe kila mazungumzo mtu sahihi. Kila mpango unaonyesha idadi ya wanachama.",
+      "q5": "Je, kuna mpango wa bure?",
+      "a5": "Ndiyo. Anza bure na namba moja ya WhatsApp na timu ndogo, kisha upande daraja unapohitaji. Ujumbe kwa wengi na majibu ya AI huja na mpango wa Starter na kuendelea.",
+      "q6": "WhatsApp yenyewe hutoza nini?",
+      "a6": "Meta hutoza ada zake kwa ujumbe wa WhatsApp kwa kila mtoa huduma, tofauti na mpango wako wa OgaDesk. Mwongozo wetu wa bei unaeleza kipi ni bure na jinsi inavyojumlishwa.",
+      "q7": "Je, bei ziko kwa sarafu yangu?",
+      "a7": "Mipango ina bei kwa naira. Unaweza kubadilisha sarafu ya kuonyesha kuona bei ya makadirio kwa yako, na kiasi unacholipa huonyeshwa wakati wa malipo.",
+      "q8": "Je, ni API rasmi ya WhatsApp?",
+      "a8": "Ndiyo. OgaDesk hutumia WhatsApp Business Platform rasmi kutoka Meta, kwa hivyo namba na wateja wako hubaki wako."
     }
   },
   "Currency": {
@@ -483,7 +509,12 @@
       }
     },
     "phoneLabel": "Nambari yako ya WhatsApp",
-    "phoneHint": "Jumuisha msimbo wa nchi, mfano +2348012345678."
+    "phoneHint": "Jumuisha msimbo wa nchi, mfano +2348012345678.",
+    "workspaceLabel": "Jina la eneo la kazi",
+    "workspacePlaceholder": "mf. Duka la Lagos",
+    "workspaceHint": "Hili ndilo timu yako itaona. Unaweza kulibadilisha baadaye kwenye Mipangilio.",
+    "trialBanner": "Unaanza jaribio la bure la siku {days} la mpango wa {plan}. Hakuna kadi.",
+    "trialStarted": "Jaribio lako la siku {days} la mpango wa {plan} limeanza."
   },
   "Partner": {
     "title": "Mpango wa washirika",
@@ -3757,7 +3788,8 @@
         "returnBack": "Rudi kwenye malipo"
       },
       "historyCoupon": "Kuponi {code}: −{amount}",
-      "historyFee": "Ada ya malipo: {amount}"
+      "historyFee": "Ada ya malipo: {amount}",
+      "trialNotice": "Uko kwenye jaribio la bure la {plan}: siku {days} zimebaki, linaisha {date}. Chagua mpango kabla ya hapo ili kuweka vipengele na viwango vyako."
     },
     "tables": {
       "title": "Majedwali maalum",
@@ -4390,6 +4422,20 @@
       "body": "Tumia msimbo huu kuthibitisha maelezo yako kwa {form}.",
       "expires": "Unaisha baada ya dakika {minutes}.",
       "footer": "Umepokea barua pepe hii kwa sababu mtu ameweka anwani hii kwenye fomu. Kama si wewe, unaweza kuipuuza."
+    },
+    "trialEnding": {
+      "subject": "Jaribio la {plan} linaisha baada ya siku {days}",
+      "heading": "Jaribio lako la {plan} linakaribia kuisha",
+      "body": "Habari {name}, jaribio lako la bure la {plan} linaisha baada ya siku {days}.",
+      "advice": "Chagua mpango kabla halijaisha ili uweke vipengele na viwango vya {plan} na kila ulichounda. Vinginevyo utahamia mpango wa Bure.",
+      "cta": "Chagua mpango"
+    },
+    "trialEnded": {
+      "subject": "Jaribio la {plan} limeisha",
+      "heading": "Jaribio la {plan} limeisha",
+      "body": "Habari {name}, jaribio lako la bure la {plan} limeisha, kwa hiyo sasa uko kwenye mpango wa Bure.",
+      "advice": "Hakuna kinachofutwa. Chagua mpango ili kurudisha vipengele na viwango vya {plan}.",
+      "cta": "Chagua mpango"
     }
   },
   "MediaPicker": {
@@ -5461,6 +5507,7 @@
     "dataDeletion": "Kufuta data",
     "builtOn": "Imejengwa juu ya WhatsApp Business API rasmi.",
     "rights": "© {year} {brand}. Haki zote zimehifadhiwa.",
-    "trademark": "WhatsApp ni alama ya biashara iliyosajiliwa ya Meta Platforms, Inc. {brand} haihusiani na, haijaidhinishwa wala kufadhiliwa na Meta Platforms, Inc."
+    "trademark": "WhatsApp ni alama ya biashara iliyosajiliwa ya Meta Platforms, Inc. {brand} haihusiani na, haijaidhinishwa wala kufadhiliwa na Meta Platforms, Inc.",
+    "whatsappPricing": "Bei za WhatsApp"
   }
 }

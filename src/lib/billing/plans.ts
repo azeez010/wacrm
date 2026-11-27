@@ -72,4 +72,11 @@ export type PlanRow = {
   features: Partial<Record<FeatureKey, boolean>>
   is_featured: boolean
   sort_order: number
+  /** Free trial of this plan, in days (0 = none). Set per plan in the admin console. */
+  trial_days?: number
+  /** Given to people who sign up without choosing a plan (at most one plan). */
+  trial_on_signup?: boolean
+  /** Optional badge text beside "Save N%" for the quarterly / annual toggle. */
+  promo_quarterly?: string | null
+  promo_annual?: string | null
 }

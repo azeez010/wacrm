@@ -2903,7 +2903,8 @@
         "returnBack": "Retour à la facturation"
       },
       "historyCoupon": "Code promo {code} : −{amount}",
-      "historyFee": "Frais de paiement : {amount}"
+      "historyFee": "Frais de paiement : {amount}",
+      "trialNotice": "Vous êtes en essai gratuit du forfait {plan} : {days, plural, one {# jour restant} other {# jours restants}}, jusqu'au {date}. Choisissez un forfait avant pour conserver vos fonctionnalités et limites."
     },
     "language": {
       "title": "Langue",
@@ -3247,7 +3248,8 @@
     "signIn": "Se connecter",
     "legal": "En créant un compte, vous acceptez les <terms>Conditions d’utilisation</terms> et la <privacy>Politique de confidentialité</privacy>.",
     "continueWithGoogle": "Continuer avec Google",
-    "orDivider": "ou"
+    "orDivider": "ou",
+    "trialBanner": "Commencez votre essai gratuit de {days} jours du forfait {plan}. Sans carte."
   },
   "ForgotPasswordPage": {
     "checkEmailTitle": "Consultez votre boîte mail",
@@ -4282,7 +4284,8 @@
       "subtitle": "Une boîte de réception d’équipe partagée, des diffusions, des automatisations et des flux de chatbot sur l’API officielle WhatsApp Business. Inscrivez-vous avec Meta en quelques clics, obtenez un nouveau numéro, ou continuez à utiliser celui de votre application WhatsApp Business.",
       "startFree": "Commencer gratuitement",
       "seePricing": "Voir les tarifs",
-      "openDashboard": "Ouvrir le tableau de bord"
+      "openDashboard": "Ouvrir le tableau de bord",
+      "startTrial": "Commencez votre essai gratuit de {days} jours"
     },
     "features": {
       "f1Title": "Connexion en quelques minutes",
@@ -4310,7 +4313,10 @@
       "save": "-{percent} %",
       "billedQuarterly": "facturé {price} tous les 3 mois",
       "billedYearly": "facturé {price} par an",
-      "billingPeriod": "Période de facturation"
+      "billingPeriod": "Période de facturation",
+      "startTrial": "Commencer {days} jours d'essai gratuit",
+      "trialNote": "{days} jours d'essai gratuit, sans carte",
+      "savePromo": "{promo} : {percent} % de réduction"
     },
     "footer": {
       "login": "Se connecter",
@@ -4324,6 +4330,27 @@
       "help": "Aide",
       "solutions": "Solutions",
       "templates": "Modèles"
+    },
+    "faq": {
+      "title": "Questions fréquentes",
+      "navLabel": "FAQ",
+      "pricingLink": "Voir comment fonctionnent les tarifs WhatsApp",
+      "q1": "Qu’est-ce que OgaDesk ?",
+      "a1": "OgaDesk est un CRM WhatsApp. Toute votre équipe répond aux clients depuis une boîte partagée, avec contacts, diffusions, automatisations, scénarios de chatbot et réponses IA sur l’API officielle WhatsApp Business.",
+      "q2": "Faut-il un développeur ou un compte Meta ?",
+      "a2": "Aucun développeur n’est nécessaire. Vous vous connectez avec Meta en quelques clics pour relier votre numéro. Un compte professionnel Meta aide, et OgaDesk vous guide.",
+      "q3": "Puis-je garder mon numéro WhatsApp actuel ?",
+      "a3": "Oui. Vous pouvez lier le numéro de votre application WhatsApp Business ou connecter un nouveau numéro.",
+      "q4": "Mon équipe peut-elle partager un numéro ?",
+      "a4": "Oui. Invitez vos collègues avec des rôles et attribuez chaque conversation à la bonne personne. Chaque forfait indique le nombre de membres inclus.",
+      "q5": "Y a-t-il un forfait gratuit ?",
+      "a5": "Oui. Vous pouvez commencer gratuitement avec un numéro WhatsApp et une petite équipe, puis passer à un forfait supérieur. Les diffusions et les réponses IA sont incluses à partir du forfait Starter.",
+      "q6": "Que facture WhatsApp lui-même ?",
+      "a6": "Meta facture ses propres frais de messages WhatsApp chez tous les fournisseurs, séparément de votre forfait OgaDesk. Notre guide des tarifs explique ce qui est gratuit et comment cela s’additionne.",
+      "q7": "Les prix sont-ils dans ma devise ?",
+      "a7": "Les forfaits sont fixés en nairas. Vous pouvez changer la devise d’affichage pour voir un prix approximatif dans la vôtre, et le montant à payer est indiqué au paiement.",
+      "q8": "Est-ce l’API officielle de WhatsApp ?",
+      "a8": "Oui. OgaDesk utilise la plateforme officielle WhatsApp Business de Meta : votre numéro et vos clients restent à vous."
     }
   },
   "CustomFields": {
@@ -5135,7 +5162,12 @@
       }
     },
     "phoneLabel": "Votre numéro WhatsApp",
-    "phoneHint": "Avec l'indicatif du pays, ex. +2348012345678."
+    "phoneHint": "Avec l'indicatif du pays, ex. +2348012345678.",
+    "workspaceLabel": "Nom de l'espace de travail",
+    "workspacePlaceholder": "ex. : Boutique de Lagos",
+    "workspaceHint": "C'est ce que verra votre équipe. Vous pourrez le modifier plus tard dans les paramètres.",
+    "trialBanner": "Vous commencez un essai gratuit de {days} jours du forfait {plan}. Sans carte.",
+    "trialStarted": "Votre essai de {days} jours du forfait {plan} a commencé."
   },
   "Emails": {
     "footer": "Vous recevez cet e-mail de service parce que vous avez un compte OgaDesk.",
@@ -5186,6 +5218,20 @@
       "body": "Utilisez ce code pour confirmer vos informations pour {form}.",
       "expires": "Il expire dans {minutes} minutes.",
       "footer": "Vous recevez cet e-mail car quelqu'un a saisi cette adresse dans un formulaire. Si ce n'était pas vous, ignorez-le."
+    },
+    "trialEnding": {
+      "subject": "Votre essai {plan} se termine dans {days, plural, one {# jour} other {# jours}}",
+      "heading": "Votre essai {plan} touche à sa fin",
+      "body": "Bonjour {name}, votre essai gratuit du forfait {plan} se termine dans {days, plural, one {# jour} other {# jours}}.",
+      "advice": "Choisissez un forfait avant la fin pour conserver les fonctionnalités et limites de {plan} et tout ce que vous avez créé. Sinon, vous passerez au forfait Gratuit.",
+      "cta": "Choisir un forfait"
+    },
+    "trialEnded": {
+      "subject": "Votre essai {plan} est terminé",
+      "heading": "Votre essai {plan} est terminé",
+      "body": "Bonjour {name}, votre essai gratuit du forfait {plan} est terminé : vous êtes maintenant sur le forfait Gratuit.",
+      "advice": "Rien n'est supprimé. Choisissez un forfait pour retrouver les fonctionnalités et limites de {plan}.",
+      "cta": "Choisir un forfait"
     }
   },
   "Partner": {
@@ -5461,6 +5507,7 @@
     "dataDeletion": "Suppression des données",
     "builtOn": "Construit sur l’API officielle WhatsApp Business.",
     "rights": "© {year} {brand}. Tous droits réservés.",
-    "trademark": "WhatsApp est une marque déposée de Meta Platforms, Inc. {brand} n’est ni affilié à Meta Platforms, Inc., ni approuvé ou parrainé par celle-ci."
+    "trademark": "WhatsApp est une marque déposée de Meta Platforms, Inc. {brand} n’est ni affilié à Meta Platforms, Inc., ni approuvé ou parrainé par celle-ci.",
+    "whatsappPricing": "Tarifs WhatsApp"
   }
 }

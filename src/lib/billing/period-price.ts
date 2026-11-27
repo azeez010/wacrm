@@ -31,6 +31,17 @@ export function availablePeriods(plans: Prices[]): Period[] {
   return PERIODS.filter((p) => p === 'monthly' || plans.some((pl) => periodTotal(pl, p) > 0))
 }
 
+/** The admin's optional badge text for a period (e.g. "Black Friday"): the one on the plan with the biggest saving,
+ *  else the first plan that has one. Null for monthly or when none is set. */
+export function bestPromo(plans: Array<Prices & Pick<PlanRow, 'promo_quarterly' | 'promo_annual'>>, period: Period): string | null {
+  if (period === 'monthly') return null
+  const label = (p: (typeof plans)[number]) => (period === 'quarterly' ? p.promo_quarterly : p.promo_annual)?.trim() || null
+  const labelled = plans.filter((p) => label(p))
+  if (labelled.length === 0) return null
+  const best = labelled.reduce((a, b) => (savingsPercent(b, period) > savingsPercent(a, period) ? b : a))
+  return label(best)
+}
+
 /** The biggest saving any plan offers for a period, for the "Save N%" chip. */
 export function bestSavings(plans: Prices[], period: Period): number {
   return plans.reduce((max, pl) => Math.max(max, savingsPercent(pl, period)), 0)

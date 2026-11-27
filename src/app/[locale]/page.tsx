@@ -8,7 +8,7 @@ import { buttonVariants } from '@/components/ui/button'
 import { BrandLogo } from '@/components/brand-logo'
 import { LanguageSwitcher } from '@/components/language-switcher'
 import { HREFLANG, isLocale } from '@/i18n/locales'
-import { localizedAlternates, localizedPath, localizedUrl, organizationJsonLd } from '@/lib/seo'
+import { faqJsonLd, graph, jsonLd, localizedAlternates, localizedPath, localizedUrl, organizationJsonLd } from '@/lib/seo'
 import { cn } from '@/lib/utils'
 import { BRAND_NAME } from '@/lib/brand'
 import { getPublicPlans } from '@/lib/billing/public-plans'
@@ -16,7 +16,7 @@ import { createClient } from '@/lib/supabase/server'
 import { CurrencySwitcher } from '@/components/currency-switcher'
 import { PlanPrice, PricingPeriod } from '@/components/pricing-controls'
 import { SiteFooter } from '@/components/site-footer'
-import { availablePeriods, bestSavings, perMonth, periodTotal, type Period } from '@/lib/billing/period-price'
+import { availablePeriods, bestPromo, bestSavings, perMonth, periodTotal, type Period } from '@/lib/billing/period-price'
 import { getDisplayCurrency, toDisplay, type DisplayCurrency } from '@/lib/currency/server'
 import { FEATURE_DEFS, type FeatureKey, type LimitKey, type PlanRow } from '@/lib/billing/plans'
 
@@ -95,6 +95,7 @@ function PlanCard({
   signedIn: boolean
 }) {
   const price = (amount: number) => money(amount, plan.currency, locale, t('pricing.free'), fx)
+  const trialDays = plan.price_monthly > 0 ? (plan.trial_days ?? 0) : 0
   const monthText = Object.fromEntries(
     (['monthly', 'quarterly', 'annual'] as Period[]).map((p) => [p, price(perMonth(plan, p) || plan.price_monthly)]),
   ) as Record<Period, string>
@@ -132,8 +133,15 @@ function PlanCard({
           'mt-5 w-full',
         )}
       >
-        {plan.price_monthly === 0 ? t('pricing.startFree') : t('pricing.getPlan', { plan: plan.name })}
+        {plan.price_monthly === 0
+          ? t('pricing.startFree')
+          : trialDays > 0 && !signedIn
+            ? t('pricing.startTrial', { days: trialDays })
+            : t('pricing.getPlan', { plan: plan.name })}
       </Link>
+      {trialDays > 0 && !signedIn && (
+        <p className="mt-2 text-center text-xs text-muted-foreground">{t('pricing.trialNote', { days: trialDays })}</p>
+      )}
       <ul className="mt-6 space-y-2 text-sm">
         {HEADLINE_LIMITS.map((k) => (
           <li key={k} className="flex justify-between gap-2">
@@ -196,11 +204,17 @@ export default async function LandingPage({
   ])
   const locale = isLocale(rawLocale) ? rawLocale : 'en'
   const periodLabel: Record<Period, string> = { monthly: t('pricing.monthly'), quarterly: t('pricing.quarterly'), annual: t('pricing.annually') }
-  const periodOptions = availablePeriods(plans).map((period) => ({ period, label: periodLabel[period], save: bestSavings(plans, period) }))
+  const periodOptions = availablePeriods(plans).map((period) => ({ period, label: periodLabel[period], save: bestSavings(plans, period), promo: bestPromo(plans, period) }))
+  // The plan whose free trial everyone who signs up without choosing a plan gets (set in the admin console).
+  const signupTrial = plans.find((p) => p.trial_on_signup && (p.trial_days ?? 0) > 0) ?? null
+
+  const faq = Array.from({ length: 8 }, (_, i) => ({ question: t(`faq.q${i + 1}`), answer: t(`faq.a${i + 1}`) }))
+  const pricingGuide = locale === 'fr' ? '/fr/solutions/tarifs-api-whatsapp-business' : '/solutions/whatsapp-business-api-pricing'
 
   return (
     <div className="min-h-screen bg-background text-foreground">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: organizationJsonLd(BRAND_NAME) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(graph(faqJsonLd(faq))) }} />
       <header className="border-b">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-4 py-4 sm:px-6">
           <Link href={localizedPath(locale, '/')} aria-label={BRAND_NAME} className="shrink-0">
@@ -209,6 +223,9 @@ export default async function LandingPage({
           <nav className="flex items-center gap-1 sm:gap-2" aria-label="Main">
             <a href="#pricing" className={cn(buttonVariants({ variant: 'ghost' }), 'hidden sm:inline-flex')}>
               {t('nav.pricing')}
+            </a>
+            <a href="#faq" className={cn(buttonVariants({ variant: 'ghost' }), 'hidden md:inline-flex')}>
+              {t('faq.navLabel')}
             </a>
             <Link href={localizedPath(locale, '/blog')} className={cn(buttonVariants({ variant: 'ghost' }), 'hidden sm:inline-flex')}>
               {t('footer.blog')}
@@ -245,7 +262,7 @@ export default async function LandingPage({
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             <Link href={signedIn ? '/dashboard' : '/signup'} className={cn(buttonVariants({ size: 'lg' }))}>
-              {signedIn ? t('hero.openDashboard') : t('hero.startFree')}
+              {signedIn ? t('hero.openDashboard') : signupTrial ? t('hero.startTrial', { days: signupTrial.trial_days ?? 0 }) : t('hero.startFree')}
             </Link>
             <a href="#pricing" className={cn(buttonVariants({ size: 'lg', variant: 'outline' }))}>
               {t('hero.seePricing')}
@@ -268,6 +285,7 @@ export default async function LandingPage({
           <PricingPeriod
             options={periodOptions}
             saveLabel={t('pricing.save', { percent: '{percent}' })}
+            promoLabel={t('pricing.savePromo', { promo: '{promo}', percent: '{percent}' })}
             ariaLabel={t('pricing.billingPeriod')}
             leading={
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -288,6 +306,24 @@ export default async function LandingPage({
             </div>
           )}
           </PricingPeriod>
+        </section>
+
+        <section id="faq" className="mx-auto max-w-3xl px-4 pb-24 sm:px-6">
+          <h2 className="text-center text-3xl font-bold">{t('faq.title')}</h2>
+          <div className="mt-8 divide-y rounded-2xl border bg-card">
+            {faq.map((f, i) => (
+              <details key={i} className="group p-5" open={i === 0}>
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-medium marker:hidden">
+                  {f.question}
+                  <span aria-hidden className="text-muted-foreground transition-transform group-open:rotate-45">+</span>
+                </summary>
+                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{f.answer}</p>
+                {i === 5 && (
+                  <Link href={pricingGuide} className="mt-2 inline-block text-sm font-medium text-primary underline">{t('faq.pricingLink')}</Link>
+                )}
+              </details>
+            ))}
+          </div>
         </section>
       </main>
 

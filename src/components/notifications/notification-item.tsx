@@ -1,6 +1,6 @@
 'use client';
 
-import { Bell, ClipboardList, UserPlus } from 'lucide-react';
+import { Bell, ClipboardList, Hourglass, UserPlus } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { useLocale, useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
@@ -13,6 +13,8 @@ import type { Notification } from '@/types';
 const TYPE_ICON: Record<Notification['type'], typeof Bell> = {
   conversation_assigned: UserPlus,
   form_submission: ClipboardList,
+  trial_ending: Hourglass,
+  trial_ended: Hourglass,
 };
 
 interface Props {

@@ -10,7 +10,7 @@ export async function getPublicPlans(): Promise<PlanRow[]> {
   const { data, error } = await supabase
     .from('plans')
     .select(
-      'id, name, description, currency, price_monthly, price_quarterly, price_annual, limits, features, is_featured, sort_order',
+      'id, name, description, currency, price_monthly, price_quarterly, price_annual, limits, features, is_featured, sort_order, trial_days, trial_on_signup, promo_quarterly, promo_annual',
     )
     .eq('is_active', true)
     .order('sort_order', { ascending: true })
@@ -23,5 +23,7 @@ export async function getPublicPlans(): Promise<PlanRow[]> {
     price_monthly: Number(p.price_monthly),
     price_quarterly: Number(p.price_quarterly),
     price_annual: Number(p.price_annual),
+    trial_days: Number(p.trial_days ?? 0),
+    trial_on_signup: p.trial_on_signup === true,
   })) as PlanRow[]
 }

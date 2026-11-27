@@ -18,13 +18,15 @@ import { isValidReferralCode, REFERRAL_COOKIE } from '@/lib/referral'
 import { normalizeCode } from '@/lib/partner/code'
 import { parseOnboardingInput, parseUseCasesOnly } from '@/lib/onboarding/options'
 import { queueWelcomeEmail } from '@/lib/email/queue'
+import { PLAN_INTENT_COOKIE } from '@/lib/plan-intent'
+import { grantTrial, trialOfferFor } from '@/lib/billing/trial'
 
 export async function GET() {
   try {
     const ctx = await getCurrentAccount()
     const { data } = await ctx.supabase
       .from('accounts')
-      .select('use_cases, heard_from, onboarded_at, referral_code')
+      .select('name, use_cases, heard_from, onboarded_at, referral_code')
       .eq('id', ctx.accountId)
       .maybeSingle()
     // Came through a partner's link: we already know where they heard of us.
@@ -37,8 +39,13 @@ export async function GET() {
       const { data: partner } = await supabaseAdmin().from('partners').select('user_id').eq('code', cookieCode).maybeSingle()
       referred = Boolean(partner)
     }
+    // What the first card shows: the workspace's current name (editable) and the free trial they will start, if any.
+    const needs = ctx.role === 'owner' && !data?.onboarded_at
+    const trialOffer = needs ? await trialOfferFor(supabaseAdmin(), ctx.userId, jar.get(PLAN_INTENT_COOKIE)?.value).catch(() => null) : null
     return NextResponse.json({
       referred,
+      workspaceName: (data?.name as string | null) ?? '',
+      trialOffer,
       // Only the workspace owner is asked; invited teammates never see the dialog.
       needsOnboarding: ctx.role === 'owner' && !data?.onboarded_at,
       answers: { use_cases: data?.use_cases ?? [], heard_from: data?.heard_from ?? null },
@@ -83,6 +90,8 @@ export async function POST(request: Request) {
         heard_from_detail: input.heardFromDetail,
         referral_code: account?.referral_code ?? referral ?? (referralRow?.code as string | undefined) ?? null,
         onboarded_at: account?.onboarded_at ?? new Date().toISOString(),
+        // Only on the first save: renaming later happens in Settings, not by re-running onboarding.
+        ...(firstTime && input.workspaceName ? { name: input.workspaceName } : {}),
       })
       .eq('id', ctx.accountId)
     if (accErr) {
@@ -104,12 +113,23 @@ export async function POST(request: Request) {
       .eq('user_id', ctx.userId)
     if (profErr) console.error('[onboarding] profile update failed:', profErr.message)
 
+    // The free trial: the plan they clicked, else the signup-trial plan. Never blocks saving their answers.
+    const trial = firstTime
+      ? await (async () => {
+          const offer = await trialOfferFor(admin, ctx.userId, jar.get(PLAN_INTENT_COOKIE)?.value)
+          return offer ? grantTrial(admin, ctx.accountId, ctx.userId, offer) : null
+        })().catch((e) => {
+          console.error('[onboarding] trial grant failed:', e instanceof Error ? e.message : e)
+          return null
+        })
+      : null
+
     // Background: never blocks or fails the answer being saved.
     if (firstTime) {
       await crmTrack('onboarding_completed', {
         userId: ctx.userId,
         accountId: ctx.accountId,
-        properties: { use_cases: input.useCases.join(','), heard_from: heardFrom ?? 'unknown', marketing_opt_in: input.marketingOptIn },
+        properties: { use_cases: input.useCases.join(','), heard_from: heardFrom ?? 'unknown', marketing_opt_in: input.marketingOptIn, ...(trial ? { trial_plan: trial.planId, trial_days: trial.days } : {}) },
       })
       await queueWelcomeEmail(admin as never, ctx.userId, ctx.accountId).catch((e) =>
         console.error('[onboarding] welcome email failed:', e instanceof Error ? e.message : e),
@@ -118,7 +138,9 @@ export async function POST(request: Request) {
       await crmSyncUser(ctx.userId)
     }
 
-    return NextResponse.json({ ok: true })
+    const res = NextResponse.json({ ok: true, trial })
+    if (jar.get(PLAN_INTENT_COOKIE)) res.cookies.delete(PLAN_INTENT_COOKIE)
+    return res
   } catch (err) {
     return toErrorResponse(err)
   }

@@ -25,6 +25,7 @@ const exempt = new Map<string, string>([
   ["otp_verifications", "service-only"],
   ["pending_message_statuses", "service-only"],
   ["coupon_redemptions", "service-only (admin and billing functions only)"],
+  ["trial_grants", "service-only (the trial rules; one trial per person)"],
   // Admin console schema (admin.*): not reachable by the signed-in app role.
   ["account_suspensions", "admin schema"],
   ["ai_overrides", "admin schema"],

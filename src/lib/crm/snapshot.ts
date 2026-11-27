@@ -90,7 +90,9 @@ export async function buildContactSnapshot(db: SupabaseClient, userId: string): 
       PLAN: sub?.plan_id ?? 'free',
       PLAN_STATUS: sub?.status ?? 'active',
       BILLING_INTERVAL: sub?.billing_interval ?? null,
-      PLAN_RENEWS_AT: ymd(sub?.current_period_end as string | null),
+      // A free trial does not renew: its end date is its own attribute.
+      PLAN_RENEWS_AT: sub?.status === 'trialing' ? null : ymd(sub?.current_period_end as string | null),
+      TRIAL_ENDS_AT: sub?.status === 'trialing' ? ymd(sub?.current_period_end as string | null) : null,
       LIFETIME_PAID: ((paid.data ?? []) as Array<{ amount: number | string; net_amount: number | string | null }>).reduce((s, r) => s + Number(r.net_amount ?? r.amount), 0),
       WHATSAPP_CONNECTED: connected > 0,
       WHATSAPP_NUMBERS: numbers,

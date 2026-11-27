@@ -2903,7 +2903,8 @@
         "returnBack": "Back to billing"
       },
       "historyCoupon": "Coupon {code}: −{amount}",
-      "historyFee": "Payment fee: {amount}"
+      "historyFee": "Payment fee: {amount}",
+      "trialNotice": "You're on a free trial of {plan}: {days, plural, one {# day} other {# days}} left, ending {date}. Choose a plan before then to keep your features and limits."
     },
     "language": {
       "title": "Language",
@@ -3247,7 +3248,8 @@
     "signIn": "Sign in",
     "legal": "By creating an account you agree to the <terms>Terms of Service</terms> and <privacy>Privacy Policy</privacy>.",
     "continueWithGoogle": "Continue with Google",
-    "orDivider": "or"
+    "orDivider": "or",
+    "trialBanner": "Start your {days}-day {plan} free trial. No card needed."
   },
   "ForgotPasswordPage": {
     "checkEmailTitle": "Check your email",
@@ -4297,7 +4299,8 @@
       "subtitle": "A shared team inbox, broadcasts, automations and chatbot flows on the official WhatsApp Business API. Sign up with Meta in a few clicks, get a new number, or keep using the one on your WhatsApp Business app.",
       "startFree": "Start free",
       "seePricing": "See pricing",
-      "openDashboard": "Open dashboard"
+      "openDashboard": "Open dashboard",
+      "startTrial": "Start your {days}-day free trial"
     },
     "features": {
       "f1Title": "Connect in minutes",
@@ -4325,7 +4328,10 @@
       "save": "Save {percent}%",
       "billedQuarterly": "billed {price} every 3 months",
       "billedYearly": "billed {price} yearly",
-      "billingPeriod": "Billing period"
+      "billingPeriod": "Billing period",
+      "startTrial": "Start {days}-day free trial",
+      "trialNote": "{days}-day free trial, no card needed",
+      "savePromo": "{promo}: {percent}% off"
     },
     "footer": {
       "login": "Log in",
@@ -4339,6 +4345,27 @@
       "help": "Help",
       "solutions": "Solutions",
       "templates": "Templates"
+    },
+    "faq": {
+      "title": "Frequently asked questions",
+      "navLabel": "FAQ",
+      "pricingLink": "See how WhatsApp pricing works",
+      "q1": "What is OgaDesk?",
+      "a1": "OgaDesk is a WhatsApp CRM. Your whole team answers customers from one shared inbox, and you get contacts, broadcasts, automations, chatbot flows and AI replies on the official WhatsApp Business API.",
+      "q2": "Do I need a developer or a Meta account?",
+      "a2": "No developer is needed. You sign in with Meta in a few clicks to connect your number. A Meta business account helps, and OgaDesk guides you through it.",
+      "q3": "Can I keep my existing WhatsApp number?",
+      "a3": "Yes. You can link the number from your WhatsApp Business app, or connect a brand-new number.",
+      "q4": "Can my team share one number?",
+      "a4": "Yes. Invite teammates with roles and assign each conversation to the right person. Each plan lists how many team members it includes.",
+      "q5": "Is there a free plan?",
+      "a5": "Yes. You can start free with one WhatsApp number and a small team, and upgrade when you need more. Broadcasts and AI replies come with the Starter plan and above.",
+      "q6": "What does WhatsApp itself charge?",
+      "a6": "Meta charges its own fees for WhatsApp messages on every provider, separate from your OgaDesk plan. Our pricing guide explains what is free and how it adds up.",
+      "q7": "Are prices in my currency?",
+      "a7": "Plans are priced in naira. You can switch the display currency to see an approximate price in yours, and the amount you pay is shown at checkout.",
+      "q8": "Is it the official WhatsApp API?",
+      "a8": "Yes. OgaDesk uses the official WhatsApp Business Platform from Meta, so your number and your customers stay yours."
     }
   },
   "CustomFields": {
@@ -5135,7 +5162,12 @@
       }
     },
     "phoneLabel": "Your WhatsApp number",
-    "phoneHint": "Include the country code, e.g. +2348012345678."
+    "phoneHint": "Include the country code, e.g. +2348012345678.",
+    "workspaceLabel": "Workspace name",
+    "workspacePlaceholder": "e.g. Lagos store",
+    "workspaceHint": "This is what your team will see. You can change it later in Settings.",
+    "trialBanner": "You're starting a {days}-day {plan} free trial. No card needed.",
+    "trialStarted": "Your {days}-day {plan} trial has started."
   },
   "Emails": {
     "footer": "You're receiving this service email because you have an OgaDesk account.",
@@ -5186,6 +5218,20 @@
       "body": "Use this code to confirm your details for {form}.",
       "expires": "It expires in {minutes} minutes.",
       "footer": "You received this email because someone entered this address on a form. If it wasn't you, you can ignore it."
+    },
+    "trialEnding": {
+      "subject": "Your {plan} trial ends in {days, plural, one {# day} other {# days}}",
+      "heading": "Your {plan} trial is almost over",
+      "body": "Hi {name}, your free {plan} trial ends in {days, plural, one {# day} other {# days}}.",
+      "advice": "Choose a plan before it ends to keep your {plan} features, limits and everything you've built. Otherwise you'll move to the Free plan.",
+      "cta": "Choose a plan"
+    },
+    "trialEnded": {
+      "subject": "Your {plan} trial has ended",
+      "heading": "Your {plan} trial has ended",
+      "body": "Hi {name}, your free {plan} trial is over, so you're now on the Free plan.",
+      "advice": "Nothing is deleted. Choose a plan to get your {plan} features and limits back.",
+      "cta": "Choose a plan"
     }
   },
   "Partner": {
@@ -5461,6 +5507,7 @@
     "dataDeletion": "Data deletion",
     "builtOn": "Built on the official WhatsApp Business API.",
     "rights": "© {year} {brand}. All rights reserved.",
-    "trademark": "WhatsApp is a registered trademark of Meta Platforms, Inc. {brand} is not affiliated with, endorsed by, or sponsored by Meta Platforms, Inc."
+    "trademark": "WhatsApp is a registered trademark of Meta Platforms, Inc. {brand} is not affiliated with, endorsed by, or sponsored by Meta Platforms, Inc.",
+    "whatsappPricing": "WhatsApp pricing"
   }
 }

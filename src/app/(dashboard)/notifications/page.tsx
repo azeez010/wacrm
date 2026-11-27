@@ -18,7 +18,9 @@ export default function NotificationsPage() {
   const handleClick = useCallback(
     (n: Notification) => {
       if (!n.read_at) markRead(n.id);
-      if (n.conversation_id) {
+      if (n.type === 'trial_ending' || n.type === 'trial_ended') {
+        router.push('/settings?tab=billing');
+      } else if (n.conversation_id) {
         router.push(`/inbox?c=${n.conversation_id}`);
       } else if (n.contact_id) {
         router.push(`/contacts?open=${n.contact_id}`);

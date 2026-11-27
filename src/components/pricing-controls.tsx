@@ -7,15 +7,17 @@ import type { Period } from '@/lib/billing/period-price'
 const KEY = 'ogd-billing-period'
 const Ctx = createContext<Period>('monthly')
 
-type Option = { period: Period; label: string; save: number }
+type Option = { period: Period; label: string; save: number; promo?: string | null }
 
 /** Holds the chosen billing period for the pricing section and renders the toggle. Children read it via PlanPrice. */
 export function PricingPeriod({
-  options, saveLabel, ariaLabel, leading, children,
+  options, saveLabel, promoLabel, ariaLabel, leading, children,
 }: {
   options: Option[]
   /** "Save {percent}%" with {percent} left for us to fill in. */
   saveLabel: string
+  /** "{promo}: {percent}% off", used instead of saveLabel when the admin set badge text for the period. */
+  promoLabel?: string
   ariaLabel: string
   /** The currency picker, so both controls share one row. */
   leading: ReactNode
@@ -54,7 +56,9 @@ export function PricingPeriod({
                 {o.label}
                 {o.save > 0 && (
                   <span className={cn('rounded-full px-1.5 py-0.5 text-[10px] font-bold', period === o.period ? 'bg-primary-foreground/20' : 'bg-primary/15 text-primary')}>
-                    {saveLabel.replace('{percent}', String(o.save))}
+                    {o.promo && promoLabel
+                      ? promoLabel.replace('{promo}', o.promo).replace('{percent}', String(o.save))
+                      : saveLabel.replace('{percent}', String(o.save))}
                   </span>
                 )}
               </button>

@@ -2903,7 +2903,8 @@
         "returnBack": "Voltar para cobrança"
       },
       "historyCoupon": "Cupom {code}: −{amount}",
-      "historyFee": "Taxa de pagamento: {amount}"
+      "historyFee": "Taxa de pagamento: {amount}",
+      "trialNotice": "Você está em um teste grátis do {plan}: {days, plural, one {# dia} other {# dias}} restantes, até {date}. Escolha um plano antes para manter seus recursos e limites."
     },
     "language": {
       "title": "Idioma",
@@ -3247,7 +3248,8 @@
     "signIn": "Entrar",
     "legal": "Ao criar uma conta, você concorda com os <terms>Termos de Serviço</terms> e a <privacy>Política de Privacidade</privacy>.",
     "continueWithGoogle": "Continuar com o Google",
-    "orDivider": "ou"
+    "orDivider": "ou",
+    "trialBanner": "Comece seu teste grátis de {days} dias do plano {plan}. Sem cartão."
   },
   "ForgotPasswordPage": {
     "checkEmailTitle": "Verifique seu e-mail",
@@ -4297,7 +4299,8 @@
       "subtitle": "Uma caixa de entrada de equipe compartilhada, transmissões, automações e fluxos de chatbot na API oficial do WhatsApp Business. Cadastre-se com a Meta em poucos cliques, obtenha um número novo ou continue usando o do seu aplicativo WhatsApp Business.",
       "startFree": "Começar grátis",
       "seePricing": "Ver preços",
-      "openDashboard": "Abrir o painel"
+      "openDashboard": "Abrir o painel",
+      "startTrial": "Comece seu teste grátis de {days} dias"
     },
     "features": {
       "f1Title": "Conecte em minutos",
@@ -4325,7 +4328,10 @@
       "save": "Poupe {percent}%",
       "billedQuarterly": "cobrado {price} a cada 3 meses",
       "billedYearly": "cobrado {price} por ano",
-      "billingPeriod": "Período de cobrança"
+      "billingPeriod": "Período de cobrança",
+      "startTrial": "Comece {days} dias de teste grátis",
+      "trialNote": "{days} dias de teste grátis, sem cartão",
+      "savePromo": "{promo}: {percent}% de desconto"
     },
     "footer": {
       "login": "Entrar",
@@ -4339,6 +4345,27 @@
       "help": "Ajuda",
       "solutions": "Soluções",
       "templates": "Modelos"
+    },
+    "faq": {
+      "title": "Perguntas frequentes",
+      "navLabel": "Perguntas",
+      "pricingLink": "Ver como funcionam os preços do WhatsApp",
+      "q1": "O que é o OgaDesk?",
+      "a1": "O OgaDesk é um CRM de WhatsApp. Toda a sua equipa atende clientes a partir de uma caixa de entrada partilhada, com contactos, transmissões, automações, fluxos de chatbot e respostas com IA na API oficial do WhatsApp Business.",
+      "q2": "Preciso de um programador ou de uma conta Meta?",
+      "a2": "Não precisa de programador. Inicia sessão com a Meta em poucos cliques para ligar o seu número. Uma conta empresarial Meta ajuda e o OgaDesk guia-o.",
+      "q3": "Posso manter o meu número de WhatsApp atual?",
+      "a3": "Sim. Pode ligar o número da sua app WhatsApp Business ou ligar um número novo.",
+      "q4": "A minha equipa pode partilhar um número?",
+      "a4": "Sim. Convide colegas com funções e atribua cada conversa à pessoa certa. Cada plano indica quantos membros inclui.",
+      "q5": "Existe um plano gratuito?",
+      "a5": "Sim. Pode começar grátis com um número de WhatsApp e uma equipa pequena e subir de plano quando precisar. As transmissões e as respostas com IA vêm com o plano Starter e superiores.",
+      "q6": "O que cobra o próprio WhatsApp?",
+      "a6": "A Meta cobra as suas próprias taxas pelas mensagens de WhatsApp em qualquer fornecedor, à parte do seu plano OgaDesk. O nosso guia de preços explica o que é grátis e como se soma.",
+      "q7": "Os preços estão na minha moeda?",
+      "a7": "Os planos têm preço em nairas. Pode mudar a moeda apresentada para ver um preço aproximado na sua, e o valor a pagar aparece no pagamento.",
+      "q8": "É a API oficial do WhatsApp?",
+      "a8": "Sim. O OgaDesk usa a plataforma oficial WhatsApp Business da Meta, por isso o seu número e os seus clientes continuam seus."
     }
   },
   "CustomFields": {
@@ -5135,7 +5162,12 @@
       }
     },
     "phoneLabel": "Seu número de WhatsApp",
-    "phoneHint": "Com o código do país, ex. +2348012345678."
+    "phoneHint": "Com o código do país, ex. +2348012345678.",
+    "workspaceLabel": "Nome do espaço de trabalho",
+    "workspacePlaceholder": "ex.: Loja de Lagos",
+    "workspaceHint": "É o que sua equipe verá. Você pode mudar depois em Configurações.",
+    "trialBanner": "Você vai começar um teste grátis de {days} dias do plano {plan}. Sem cartão.",
+    "trialStarted": "Seu teste de {days} dias do plano {plan} começou."
   },
   "Emails": {
     "footer": "Você recebe este e-mail de serviço porque tem uma conta no OgaDesk.",
@@ -5186,6 +5218,20 @@
       "body": "Use este código para confirmar seus dados em {form}.",
       "expires": "Expira em {minutes} minutos.",
       "footer": "Você recebeu este e-mail porque alguém digitou este endereço em um formulário. Se não foi você, pode ignorá-lo."
+    },
+    "trialEnding": {
+      "subject": "Seu teste do {plan} termina em {days, plural, one {# dia} other {# dias}}",
+      "heading": "Seu teste do {plan} está acabando",
+      "body": "Olá {name}, seu teste grátis do {plan} termina em {days, plural, one {# dia} other {# dias}}.",
+      "advice": "Escolha um plano antes do fim para manter os recursos e limites do {plan} e tudo o que você criou. Caso contrário, você passará para o plano Grátis.",
+      "cta": "Escolher um plano"
+    },
+    "trialEnded": {
+      "subject": "Seu teste do {plan} terminou",
+      "heading": "Seu teste do {plan} terminou",
+      "body": "Olá {name}, seu teste grátis do {plan} terminou, então você está agora no plano Grátis.",
+      "advice": "Nada é apagado. Escolha um plano para recuperar os recursos e limites do {plan}.",
+      "cta": "Escolher um plano"
     }
   },
   "Partner": {
@@ -5461,6 +5507,7 @@
     "dataDeletion": "Eliminação de dados",
     "builtOn": "Criado sobre a API oficial do WhatsApp Business.",
     "rights": "© {year} {brand}. Todos os direitos reservados.",
-    "trademark": "WhatsApp é uma marca registada da Meta Platforms, Inc. A {brand} não é afiliada, endossada nem patrocinada pela Meta Platforms, Inc."
+    "trademark": "WhatsApp é uma marca registada da Meta Platforms, Inc. A {brand} não é afiliada, endossada nem patrocinada pela Meta Platforms, Inc.",
+    "whatsappPricing": "Preços do WhatsApp"
   }
 }

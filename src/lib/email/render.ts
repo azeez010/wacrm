@@ -22,7 +22,7 @@ const LOADERS: Record<Locale, () => Promise<{ default: Record<string, unknown> }
   sw: () => import('../../../messages/sw.json'),
 }
 
-export type EmailKind = 'welcome' | 'quota_80' | 'quota_100' | 'form_code'
+export type EmailKind = 'welcome' | 'quota_80' | 'quota_100' | 'form_code' | 'trial_ending' | 'trial_ended'
 
 export interface RenderedEmail {
   subject: string
@@ -71,6 +71,13 @@ export interface QuotaVars {
   limit: number
 }
 
+export interface TrialVars {
+  name: string
+  planName: string
+  /** Days left (trial_ending only). */
+  days?: number
+}
+
 export interface FormCodeVars {
   code: string
   formName: string
@@ -81,6 +88,11 @@ export async function renderEmail(
   kind: 'form_code',
   locale: string | null | undefined,
   vars: FormCodeVars,
+): Promise<RenderedEmail>
+export async function renderEmail(
+  kind: 'trial_ending' | 'trial_ended',
+  locale: string | null | undefined,
+  vars: TrialVars,
 ): Promise<RenderedEmail>
 export async function renderEmail(
   kind: 'welcome',
@@ -95,7 +107,7 @@ export async function renderEmail(
 export async function renderEmail(
   kind: EmailKind,
   locale: string | null | undefined,
-  vars: WelcomeVars | QuotaVars | FormCodeVars,
+  vars: WelcomeVars | QuotaVars | FormCodeVars | TrialVars,
 ): Promise<RenderedEmail> {
   const t = await translator(locale)
 
@@ -113,7 +125,17 @@ export async function renderEmail(
   }
 
   const footer = t('footer')
-  const name = (vars as WelcomeVars | QuotaVars).name || t('fallbackName')
+  const name = (vars as WelcomeVars | QuotaVars | TrialVars).name || t('fallbackName')
+
+  if (kind === 'trial_ending' || kind === 'trial_ended') {
+    const v = vars as TrialVars
+    const key = kind === 'trial_ending' ? 'trialEnding' : 'trialEnded'
+    const values = { name, plan: v.planName, days: v.days ?? 0 }
+    const paragraphs = [t(`${key}.body`, values), t(`${key}.advice`, values)]
+    const cta = { label: t(`${key}.cta`), url: `${SITE_URL}/settings?tab=billing` }
+    const heading = t(`${key}.heading`, values)
+    return { subject: t(`${key}.subject`, values), html: layout({ heading, paragraphs, cta, footer }), text: plain(heading, paragraphs, cta, footer) }
+  }
 
   if (kind === 'welcome') {
     const v = vars as WelcomeVars

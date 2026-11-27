@@ -57,3 +57,31 @@ describe('form_code email', () => {
     expect(en.text).not.toContain('you have an OgaDesk account')
   })
 })
+
+describe('renderEmail: free trial', () => {
+  const LOCALES = ['en', 'fr', 'es', 'pt', 'ko', 'ar', 'hi', 'id', 'sw']
+  it('says how many days are left and links to Billing', async () => {
+    const r = await renderEmail('trial_ending', 'en', { name: 'Jane', planName: 'Pro', days: 3 })
+    expect(r.subject).toBe('Your Pro trial ends in 3 days')
+    expect(r.html).toContain('Hi Jane, your free Pro trial ends in 3 days.')
+    expect(r.html).toContain('/settings?tab=billing')
+    expect((await renderEmail('trial_ending', 'en', { name: 'Jane', planName: 'Pro', days: 1 })).subject).toBe('Your Pro trial ends in 1 day')
+  })
+  it('tells them they are back on Free, and that nothing was deleted', async () => {
+    const r = await renderEmail('trial_ended', 'en', { name: '', planName: 'Pro' })
+    expect(r.subject).toBe('Your Pro trial has ended')
+    expect(r.text).toContain('Hi there')
+    expect(r.text).toContain('Nothing is deleted')
+  })
+  it('exists in every language with the real values filled in (no raw placeholders)', async () => {
+    for (const l of LOCALES) {
+      for (const kind of ['trial_ending', 'trial_ended'] as const) {
+        const r = await renderEmail(kind, l, { name: 'Jane', planName: 'Pro', days: 3 })
+        for (const part of [r.subject, r.html, r.text]) {
+          expect(part, `${l} ${kind}`).not.toMatch(/\{(name|plan|days)\}|undefined|\{[a-z]+, plural/)
+        }
+        expect(r.subject, `${l} ${kind}`).toContain('Pro')
+      }
+    }
+  })
+})

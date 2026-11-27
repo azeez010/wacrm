@@ -54,7 +54,7 @@ export async function GET() {
       db
         .from('plans')
         .select(
-          'id, name, description, currency, price_monthly, price_quarterly, price_annual, limits, features, is_featured, sort_order'
+          'id, name, description, currency, price_monthly, price_quarterly, price_annual, limits, features, is_featured, sort_order, trial_days, promo_quarterly, promo_annual'
         )
         .eq('is_active', true)
         .order('sort_order', { ascending: true }),

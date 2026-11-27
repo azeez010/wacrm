@@ -11,7 +11,7 @@ import { Switch } from '@/components/ui/switch'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { PhoneField } from '@/components/phone-field'
-import { DETAIL_MAX, HEARD_FROM, USE_CASES, type HeardFrom, type UseCase } from '@/lib/onboarding/options'
+import { DETAIL_MAX, HEARD_FROM, USE_CASES, WORKSPACE_NAME_MAX, type HeardFrom, type UseCase } from '@/lib/onboarding/options'
 import { cn } from '@/lib/utils'
 
 const PHONE_RE = /^\+\d{8,15}$/
@@ -43,15 +43,20 @@ export function OnboardingDialog() {
   const [saving, setSaving] = useState(false)
   // Arrived through a partner link: skip the "where did you hear" step.
   const [referred, setReferred] = useState(false)
+  // First card: the workspace's default name (editable, optional) and the free trial they will start, if any.
+  const [workspaceName, setWorkspaceName] = useState('')
+  const [trialOffer, setTrialOffer] = useState<{ planName: string; days: number } | null>(null)
 
   useEffect(() => {
     if (!accountId || accountStatus !== 'ready' || !isOwner) return
     let cancelled = false
     void fetch('/api/onboarding')
       .then((r) => (r.ok ? r.json() : null))
-      .then((d: { needsOnboarding?: boolean; referred?: boolean } | null) => {
+      .then((d: { needsOnboarding?: boolean; referred?: boolean; workspaceName?: string; trialOffer?: { planName: string; days: number } | null } | null) => {
         if (cancelled) return
         if (d?.referred) setReferred(true)
+        if (d?.workspaceName) setWorkspaceName(d.workspaceName)
+        if (d?.trialOffer) setTrialOffer(d.trialOffer)
         if (d?.needsOnboarding) setNeeded(true)
       })
       .catch(() => undefined)
@@ -72,9 +77,12 @@ export function OnboardingDialog() {
           heard_from_detail: skipSource ? null : detail || null,
           marketing_opt_in: optIn,
           phone: phone.trim() || null,
+          workspace_name: workspaceName.trim() || null,
         }),
       })
       if (!res.ok) throw new Error('save failed')
+      const saved = (await res.json().catch(() => null)) as { trial?: { planName: string; days: number } | null } | null
+      if (saved?.trial) toast.success(t('trialStarted', { days: saved.trial.days, plan: saved.trial.planName }))
       setNeeded(false)
       window.dispatchEvent(new Event(ONBOARDED_EVENT))
     } catch {
@@ -100,6 +108,22 @@ export function OnboardingDialog() {
               <DialogTitle>{t('title')}</DialogTitle>
               <DialogDescription>{t('subtitle')}</DialogDescription>
             </DialogHeader>
+            {trialOffer && (
+              <p className="rounded-lg border border-primary/30 bg-primary/10 px-3 py-2 text-sm">
+                {t('trialBanner', { days: trialOffer.days, plan: trialOffer.planName })}
+              </p>
+            )}
+            <div className="space-y-1.5">
+              <label htmlFor="onboarding-workspace" className="text-sm font-medium">{t('workspaceLabel')}</label>
+              <Input
+                id="onboarding-workspace"
+                value={workspaceName}
+                maxLength={WORKSPACE_NAME_MAX}
+                onChange={(e) => setWorkspaceName(e.target.value)}
+                placeholder={t('workspacePlaceholder')}
+              />
+              <p className="text-xs text-muted-foreground">{t('workspaceHint')}</p>
+            </div>
             <div role="group" aria-label={t('title')} className="grid gap-2 sm:grid-cols-2">
               {USE_CASES.map((uc) => {
                 const Icon = USE_CASE_ICONS[uc]

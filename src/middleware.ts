@@ -6,6 +6,7 @@ import { LOCALE_AUTH_PATH } from '@/lib/marketing/route'
 import { routing } from '@/i18n/routing'
 import { canonicalRedirect } from '@/lib/canonical-host'
 import { applyReferralCookie } from '@/lib/referral'
+import { applyPlanIntentCookie } from '@/lib/plan-intent'
 
 // Path-based language for the public landing page only (`/`, `/fr`, ...).
 // The signed-in app, auth and legal pages are cookie-driven and untouched.
@@ -53,7 +54,7 @@ const PUBLIC_FORM_PATH = /^\/(f|embed)\/|^\/embed\.js$|^\/api\/public\//
 
 /** Entry point: runs the real handler, then remembers a `?ref=` referral code. */
 export async function middleware(request: NextRequest) {
-  return applyReferralCookie(request, await handle(request))
+  return applyPlanIntentCookie(request, applyReferralCookie(request, await handle(request)))
 }
 
 async function handle(request: NextRequest) {

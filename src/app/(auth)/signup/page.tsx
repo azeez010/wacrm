@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -39,6 +39,28 @@ function SignupPageInner() {
   // redeem step instead of being dropped on /dashboard.
   const inviteToken = searchParams.get("invite");
   const t = useTranslations("SignupPage");
+
+  // The free trial they are about to start: the plan they clicked on the pricing page when it has one, otherwise the
+  // plan the admin made the default signup trial. Display only; onboarding validates and grants it server-side.
+  const planHint = searchParams.get("plan");
+  const [trial, setTrial] = useState<{ days: number; plan: string } | null>(null);
+  useEffect(() => {
+    if (inviteToken) return; // joining someone else's workspace: no trial of their own
+    let cancelled = false;
+    void fetch("/api/plans")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((body: { data?: { id: string; name: string; trial_days?: number; trial_on_signup?: boolean }[] } | null) => {
+        if (cancelled) return;
+        const plans = body?.data ?? [];
+        const chosen = planHint ? plans.find((p) => p.id === planHint && (p.trial_days ?? 0) > 0) : undefined;
+        const pick = chosen ?? plans.find((p) => p.trial_on_signup && (p.trial_days ?? 0) > 0);
+        if (pick) setTrial({ days: pick.trial_days ?? 0, plan: pick.name });
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, [planHint, inviteToken]);
 
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -157,6 +179,11 @@ function SignupPageInner() {
           </CardDescription>
         </CardHeader>
         <CardContent>
+          {trial && (
+            <div className="mb-4 rounded-lg border border-primary/30 bg-primary/10 px-4 py-3 text-sm">
+              {t("trialBanner", { days: trial.days, plan: trial.plan })}
+            </div>
+          )}
           {error && (
             <div className="mb-4 rounded-lg border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-400">
               {error}

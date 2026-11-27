@@ -22,6 +22,7 @@ export type HeardFrom = (typeof HEARD_FROM)[number]
 import { parseInternationalPhone } from '@/lib/whatsapp/phone-utils'
 
 export const DETAIL_MAX = 200
+export const WORKSPACE_NAME_MAX = 80
 
 export interface OnboardingInput {
   useCases: UseCase[]
@@ -30,6 +31,8 @@ export interface OnboardingInput {
   marketingOptIn: boolean
   /** International WhatsApp number, digits only (no +). Optional so older clients keep working. */
   phone: string | null
+  /** Optional new name for the workspace (the first card pre-fills the default). Null = keep the current name. */
+  workspaceName: string | null
 }
 
 export type ParseResult = { ok: true; value: OnboardingInput } | { ok: false; error: string }
@@ -73,9 +76,17 @@ export function parseOnboardingInput(body: unknown): ParseResult {
     if (!phone) return { ok: false, error: "'phone' must be an international number starting with + and the country code" }
   }
 
+  let workspaceName: string | null = null
+  if (b.workspace_name !== undefined && b.workspace_name !== null) {
+    if (typeof b.workspace_name !== 'string') return { ok: false, error: "'workspace_name' must be text" }
+    const n = b.workspace_name.trim().replace(/\s+/g, ' ')
+    if (n.length > WORKSPACE_NAME_MAX) return { ok: false, error: `'workspace_name' must be at most ${WORKSPACE_NAME_MAX} characters` }
+    workspaceName = n || null
+  }
+
   return {
     ok: true,
-    value: { useCases, heardFrom, heardFromDetail, marketingOptIn: b.marketing_opt_in === true, phone },
+    value: { useCases, heardFrom, heardFromDetail, marketingOptIn: b.marketing_opt_in === true, phone, workspaceName },
   }
 }
 

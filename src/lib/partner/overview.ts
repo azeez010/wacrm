@@ -58,7 +58,7 @@ export async function buildPartnerOverview(db: Db, userId: string): Promise<Part
     accountIds.length ? db.from('account_subscriptions').select('account_id, plan_id, status').in('account_id', accountIds) : Promise.resolve({ data: [] }),
   ])
   const personBy = new Map(((people.data ?? []) as Array<{ user_id: string; email: string; full_name: string | null; phone: string | null }>).map((p) => [p.user_id, p]))
-  const planBy = new Map(((subs.data ?? []) as Array<{ account_id: string; plan_id: string; status: string }>).map((s) => [s.account_id, s.status === 'active' || s.status === 'trialing' ? s.plan_id : 'free']))
+  const planBy = new Map(((subs.data ?? []) as Array<{ account_id: string; plan_id: string; status: string }>).map((s) => [s.account_id, s.status === 'active' ? s.plan_id : 'free']))
 
   const referrals = refs.map((r) => ({
     id: r.id,

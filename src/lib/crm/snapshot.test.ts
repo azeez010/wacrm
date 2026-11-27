@@ -59,6 +59,7 @@ describe('buildContactSnapshot', () => {
       PLAN_STATUS: 'active',
       BILLING_INTERVAL: 'monthly',
       PLAN_RENEWS_AT: '2026-12-02',
+      TRIAL_ENDS_AT: null,
       LIFETIME_PAID: 30000.5,
       WHATSAPP_CONNECTED: true,
       WHATSAPP_NUMBERS: 2,

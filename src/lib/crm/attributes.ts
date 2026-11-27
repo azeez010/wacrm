@@ -22,6 +22,7 @@ export const CRM_ATTRIBUTES = {
   PLAN_STATUS: 'text',
   BILLING_INTERVAL: 'text',
   PLAN_RENEWS_AT: 'date',
+  TRIAL_ENDS_AT: 'date', // while on a free trial (PLAN_STATUS = trialing)
   LIFETIME_PAID: 'float',
   // profile
   LANGUAGE: 'text',

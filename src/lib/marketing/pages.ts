@@ -1758,4 +1758,173 @@ MARKETING_PAGES.push(
   },
 )
 
+const restOfAfricaFaq = (country: string, currency: string): MarketingPage['faq'] => [
+  { question: `Can I use my existing WhatsApp number in ${country}?`, answer: 'Yes. You can link the number from your WhatsApp Business app, or connect a new number through Meta.' },
+  { question: `Are prices shown in ${currency}?`, answer: `Plans are priced in naira and shown in ${currency} as an estimate. The amount you pay is shown at checkout.` },
+  { question: `What does Meta charge for messages in ${country}?`, answer: `${country} is in Meta’s “Rest of Africa” price group. Meta bills its message fees separately from OgaDesk; see our WhatsApp pricing guide for the current rates.` },
+  { question: 'Can my team share one number?', answer: 'Yes. Invite teammates with roles and assign each conversation to the right person.' },
+]
+const ROA_PROBLEMS = (first: string): MarketingPage['problems'] => [
+  { title: first, body: 'Questions, orders and payment confirmations all arrive at once and one person cannot keep up.' },
+  { title: 'Staff changes lose customer history', body: 'When the person holding the phone leaves, the conversations and customer details go with them.' },
+  { title: 'Hard to message customers properly', body: 'Sending the same update to many people by hand is slow and can look like spam to WhatsApp.' },
+]
+const roaPage = (slug: string, country: string, currency: string, city: string, first: string): MarketingPage => ({
+  ...countryPage({
+    slug,
+    country,
+    currency,
+    lead: `Your customers in ${city} already chat on WhatsApp. OgaDesk gives your team one shared inbox, broadcasts and automations on the official API.`,
+    problems: ROA_PROBLEMS(first),
+    faq: restOfAfricaFaq(country, currency),
+  }),
+  related: ['whatsapp-business-api-pricing', 'shared-whatsapp-inbox', 'whatsapp-broadcast'],
+})
+
+MARKETING_PAGES.push(
+  roaPage('whatsapp-business-api-zambia', 'Zambia', 'kwacha (ZMW)', 'Lusaka', 'Orders and questions pile up on one phone'),
+  roaPage('whatsapp-business-api-malawi', 'Malawi', 'kwacha (MWK)', 'Lilongwe and Blantyre', 'One phone cannot serve every customer'),
+  roaPage('whatsapp-business-api-zimbabwe', 'Zimbabwe', 'US dollars (USD)', 'Harare and Bulawayo', 'Customers message faster than you can reply'),
+  roaPage('whatsapp-business-api-botswana', 'Botswana', 'pula (BWP)', 'Gaborone', 'Customer chats get lost on one phone'),
+)
+
+MARKETING_PAGES.push(
+  {
+    slug: 'whatsapp-appointment-booking',
+    kind: 'solutions',
+    name: 'WhatsApp appointment booking',
+    metaTitle: 'WhatsApp appointment booking',
+    metaDescription: 'Let customers book appointments over WhatsApp. The AI agent offers free times from your Google Calendar, books the slot and your team sees it in the inbox.',
+    eyebrow: 'Use case',
+    h1: 'Take appointment bookings on WhatsApp, day and night',
+    lead: 'Customers already message you to ask “are you free on Friday?”. Let the AI agent check your Google Calendar, offer open times and book the one they pick, while your team keeps the full conversation in one inbox.',
+    problems: [
+      { title: 'A dozen messages per booking', body: 'Finding a time that suits both sides takes back and forth that eats your day.' },
+      { title: 'Double bookings', body: 'Two people on your team promise the same slot to different customers.' },
+      { title: 'Evening requests go unanswered', body: 'Customers who ask at night book with whoever replies first.' },
+    ],
+    features: [
+      { title: 'Free times from your calendar', body: 'The agent reads your Google Calendar and only offers slots that are open.' },
+      { title: 'Books the chosen slot', body: 'It creates the event with the customer’s details, using your slot length and time zone.' },
+      { title: 'Answers questions first', body: 'Prices, location and what to bring come from your own knowledge library.' },
+      { title: 'Approval if you want it', body: 'Require a team member to confirm before a booking is made.' },
+      { title: 'Message your bookings', body: 'Tag booked customers and send an approved template to the group, now or at a scheduled time.' },
+      { title: 'A person can step in', body: 'Any team member can take over the chat at any time.' },
+    ],
+    steps: [
+      { title: 'Connect Google Calendar', body: 'Sign in with Google in Settings, Integrations.' },
+      { title: 'Add your answers', body: 'Put your services, prices and opening hours in the knowledge library.' },
+      { title: 'Turn on the agent', body: 'Customers start booking in the chat.' },
+    ],
+    faq: [
+      { question: 'Which plan includes booking?', answer: 'AI replies and the Google Calendar tools are included from the Starter plan up.' },
+      { question: 'Does it send a reminder before each appointment?', answer: 'Not automatically per appointment yet. You can tag booked customers and send an approved template to them on a schedule.' },
+      { question: 'Can staff still book by hand?', answer: 'Yes. Your calendar works as usual; the agent only offers times that are free.' },
+    ],
+    related: ['whatsapp-google-calendar-booking', 'ai-whatsapp-auto-reply', 'whatsapp-payment-collection'],
+  },
+  {
+    slug: 'whatsapp-order-updates',
+    kind: 'solutions',
+    name: 'WhatsApp order updates',
+    metaTitle: 'Send order updates on WhatsApp',
+    metaDescription: 'Keep customers informed on WhatsApp: order confirmations, delivery updates and answers to “where is my order?” from one shared inbox. Free to start.',
+    eyebrow: 'Use case',
+    h1: 'Order updates on WhatsApp that stop the “where is my order?” messages',
+    lead: 'Customers would rather get a WhatsApp message than check an email. Send confirmations and delivery updates with approved templates and answer follow-up questions as a team from one inbox.',
+    problems: [
+      { title: 'The same question all day', body: '“Has it shipped?” arrives from every customer, and each answer is typed by hand.' },
+      { title: 'Updates go out late or never', body: 'When updates depend on someone remembering, customers are left guessing.' },
+      { title: 'Nobody knows who replied', body: 'Two staff answer the same customer differently, or no one answers at all.' },
+    ],
+    features: [
+      { title: 'Approved message templates', body: 'Write order and delivery templates once, get them approved by Meta and reuse them.' },
+      { title: 'Send from your system', body: 'Use the OgaDesk API or webhooks to send an update when an order changes in your store.' },
+      { title: 'Update a group at once', body: 'Send a delay or delivery notice to everyone with a tag, with read receipts.' },
+      { title: 'Replies land in one inbox', body: 'When a customer answers, the conversation is assigned to your team with the order context in notes.' },
+      { title: 'AI answers simple questions', body: 'The AI agent can answer delivery times and policies from your knowledge library.' },
+      { title: 'Payment links in the chat', body: 'Connect Paystack and the agent can send a link for the amount owed.' },
+    ],
+    steps: [
+      { title: 'Connect your number', body: 'Sign in with Meta and link your business number.' },
+      { title: 'Create your templates', body: 'Order confirmed, out for delivery, delivered.' },
+      { title: 'Send and reply', body: 'Send updates and handle replies as a team.' },
+    ],
+    faq: [
+      { question: 'What does Meta charge for order updates?', answer: 'Order and delivery updates are usually utility messages, which Meta charges per message by country. See our WhatsApp pricing guide for the current rates.' },
+      { question: 'Can updates go out automatically from my store?', answer: 'Yes, if your store can call an API or send webhooks. Use the OgaDesk public API to send a template when an order changes.' },
+      { question: 'Do I need a developer?', answer: 'Not for templates, broadcasts and the inbox. Automatic sending from your store needs someone to connect the API.' },
+    ],
+    related: ['whatsapp-api-and-webhooks', 'whatsapp-business-api-pricing', 'shared-whatsapp-inbox'],
+  },
+  {
+    slug: 'whatsapp-payment-collection',
+    kind: 'solutions',
+    name: 'Collect payments on WhatsApp',
+    metaTitle: 'Collect payments and send payment reminders on WhatsApp',
+    metaDescription: 'Send Paystack payment links in WhatsApp chats, check whether customers paid and follow up with those who have not. From the Starter plan.',
+    eyebrow: 'Use case',
+    h1: 'Get paid faster in the WhatsApp chat',
+    lead: 'The sale is agreed in the chat, then the customer goes quiet. Send a Paystack link for the exact amount, check whether it was paid, and follow up with customers who have not paid yet.',
+    problems: [
+      { title: 'Customers agree, then forget', body: 'A customer says yes, then the payment never comes.' },
+      { title: 'Checking transfers by hand', body: 'Someone has to confirm every payment before the order moves.' },
+      { title: 'Awkward chasing', body: 'Reminding customers one by one is slow, and some never hear from you.' },
+    ],
+    features: [
+      { title: 'Paystack links in the chat', body: 'The AI agent creates a link for the agreed amount and what it is for.' },
+      { title: 'Check a payment', body: 'The agent looks up the transaction and tells the customer the result.' },
+      { title: 'Tag who still owes', body: 'Tag unpaid customers so the whole team can see them.' },
+      { title: 'Follow up as a group', body: 'Send an approved reminder template to everyone with the tag, now or at a scheduled time.' },
+      { title: 'Respect opt-outs', body: 'Customers who unsubscribe are skipped from broadcasts.' },
+      { title: 'Money goes to you', body: 'Payments go to your own Paystack account, never through OgaDesk.' },
+    ],
+    steps: [
+      { title: 'Connect Paystack', body: 'Add your Paystack key in Settings, Integrations.' },
+      { title: 'Turn on the payment tools', body: 'Choose whether actions need approval.' },
+      { title: 'Sell and follow up', body: 'Send links, check payments and remind those who have not paid.' },
+    ],
+    faq: [
+      { question: 'Which plan includes payment links?', answer: 'AI tools and integrations are included from the Starter plan up.' },
+      { question: 'Does OgaDesk hold the money?', answer: 'No. Payments go straight to your own Paystack account.' },
+      { question: 'Can reminders go out automatically?', answer: 'You can schedule a reminder broadcast to customers with a tag. Reminders to customers outside the 24-hour window need an approved template.' },
+    ],
+    related: ['whatsapp-paystack-payment-links', 'whatsapp-order-updates', 'whatsapp-broadcast'],
+  },
+  {
+    slug: 'whatsapp-customer-support',
+    kind: 'solutions',
+    name: 'WhatsApp customer support',
+    metaTitle: 'WhatsApp customer support software for teams',
+    metaDescription: 'Run customer support on WhatsApp as a team: one shared number, assignment, internal notes, roles and AI answers that hand over to a person. Free to start.',
+    eyebrow: 'Use case',
+    h1: 'Customer support on WhatsApp, run as a team',
+    lead: 'Your customers already ask for help on WhatsApp. Give every agent access to the same number, assign each chat to one person, and let AI handle the simple questions so your team focuses on the hard ones.',
+    problems: [
+      { title: 'One phone, many agents', body: 'Support depends on whoever is holding the phone.' },
+      { title: 'Chats fall through the cracks', body: 'Without assignment, some customers get two answers and others get none.' },
+      { title: 'No context when a colleague takes over', body: 'The next agent has to scroll and guess what was promised.' },
+    ],
+    features: [
+      { title: 'Shared inbox', body: 'All agents answer from one WhatsApp number on their own devices.' },
+      { title: 'Assignment and status', body: 'Assign each conversation, and see which ones are open, pending or closed.' },
+      { title: 'Internal notes', body: 'Leave notes for teammates that customers never see.' },
+      { title: 'Roles and permissions', body: 'Admins, agents and viewers see and do only what they should.' },
+      { title: 'Quick replies', body: 'Save common answers and insert them in a few keystrokes.' },
+      { title: 'AI first line', body: 'The AI agent answers common questions and hands over to a person when needed.' },
+    ],
+    steps: [
+      { title: 'Connect your number', body: 'Sign in with Meta and link your support number.' },
+      { title: 'Invite your team', body: 'Give each agent a role.' },
+      { title: 'Start assigning', body: 'Route chats to the right person and keep notes on each one.' },
+    ],
+    faq: [
+      { question: 'How many agents can share one number?', answer: 'It depends on your plan’s seats. Check the plans on the pricing section for each limit.' },
+      { question: 'Can agents use their own phones?', answer: 'Yes. Agents sign in to OgaDesk in a browser on their own computer or phone.' },
+      { question: 'Is AI required?', answer: 'No. AI replies are optional and included from the Starter plan up.' },
+    ],
+    related: ['shared-whatsapp-inbox', 'ai-whatsapp-auto-reply', 'website-live-chat-widget'],
+  },
+)
+
 export const getMarketingPage = (kind: MarketingPage['kind'], slug: string) => MARKETING_PAGES.find((p) => p.kind === kind && p.slug === slug)

@@ -4316,7 +4316,14 @@
       "unlimited": "무제한",
       "startFree": "무료로 시작",
       "getPlan": "{plan} 시작",
-      "showPricesIn": "가격 표시 통화"
+      "showPricesIn": "가격 표시 통화",
+      "monthly": "월간",
+      "quarterly": "분기",
+      "annually": "연간",
+      "save": "{percent}% 절약",
+      "billedQuarterly": "3개월마다 {price} 청구",
+      "billedYearly": "연 {price} 청구",
+      "billingPeriod": "결제 주기"
     },
     "footer": {
       "login": "로그인",
@@ -5429,5 +5436,29 @@
     "readNext": "다음 읽을거리",
     "home": "홈",
     "website": "웹사이트"
+  },
+  "Footer": {
+    "description": "성장하는 비즈니스를 위한 공유 WhatsApp 받은편지함, 브로드캐스트, 자동화, AI 답변.",
+    "product": "제품",
+    "resources": "리소스",
+    "company": "회사",
+    "legal": "법적 고지",
+    "pricing": "요금",
+    "solutions": "솔루션",
+    "templates": "메시지 템플릿",
+    "linkGenerator": "WhatsApp 링크 생성기",
+    "apiDocs": "API 문서",
+    "blog": "블로그",
+    "help": "도움말 센터",
+    "changelog": "변경 내역",
+    "compare": "비교",
+    "partner": "파트너 되기",
+    "login": "로그인",
+    "privacy": "개인정보 처리방침",
+    "terms": "이용약관",
+    "dataDeletion": "데이터 삭제",
+    "builtOn": "공식 WhatsApp Business API 기반.",
+    "rights": "© {year} {brand}. All rights reserved.",
+    "trademark": "WhatsApp은 Meta Platforms, Inc.의 등록 상표입니다. {brand}는 Meta Platforms, Inc.와 제휴, 승인 또는 후원 관계가 없습니다."
   }
 }

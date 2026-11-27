@@ -227,7 +227,14 @@
       "unlimited": "غير محدود",
       "startFree": "ابدأ مجانًا",
       "getPlan": "احصل على {plan}",
-      "showPricesIn": "عرض الأسعار بـ"
+      "showPricesIn": "عرض الأسعار بـ",
+      "monthly": "شهري",
+      "quarterly": "ربع سنوي",
+      "annually": "سنوي",
+      "save": "وفّر {percent}%",
+      "billedQuarterly": "تُدفع {price} كل 3 أشهر",
+      "billedYearly": "تُدفع {price} سنويًا",
+      "billingPeriod": "فترة الفوترة"
     },
     "footer": {
       "login": "تسجيل الدخول",
@@ -5429,5 +5436,29 @@
       "metaApiStatus": "خطأ Meta API: {status}",
       "syncFailed": "فشلت مزامنة القوالب"
     }
+  },
+  "Footer": {
+    "description": "صندوق واردة واتساب مشترك ورسائل جماعية وأتمتة وردود بالذكاء الاصطناعي للأعمال المتنامية.",
+    "product": "المنتج",
+    "resources": "الموارد",
+    "company": "الشركة",
+    "legal": "قانوني",
+    "pricing": "الأسعار",
+    "solutions": "الحلول",
+    "templates": "قوالب الرسائل",
+    "linkGenerator": "منشئ روابط واتساب",
+    "apiDocs": "وثائق API",
+    "blog": "المدونة",
+    "help": "مركز المساعدة",
+    "changelog": "سجل التغييرات",
+    "compare": "مقارنة",
+    "partner": "كن شريكًا",
+    "login": "تسجيل الدخول",
+    "privacy": "الخصوصية",
+    "terms": "الشروط",
+    "dataDeletion": "حذف البيانات",
+    "builtOn": "مبني على واجهة WhatsApp Business API الرسمية.",
+    "rights": "© {year} {brand}. جميع الحقوق محفوظة.",
+    "trademark": "WhatsApp علامة تجارية مسجلة لشركة Meta Platforms, Inc. إن {brand} غير تابعة لشركة Meta Platforms, Inc. ولا معتمدة منها ولا برعايتها."
   }
 }

@@ -4316,7 +4316,14 @@
       "unlimited": "Ilimitado",
       "startFree": "Empezar gratis",
       "getPlan": "Elegir {plan}",
-      "showPricesIn": "Mostrar precios en"
+      "showPricesIn": "Mostrar precios en",
+      "monthly": "Mensual",
+      "quarterly": "Trimestral",
+      "annually": "Anual",
+      "save": "Ahorra {percent}%",
+      "billedQuarterly": "facturado {price} cada 3 meses",
+      "billedYearly": "facturado {price} al año",
+      "billingPeriod": "Periodo de facturación"
     },
     "footer": {
       "login": "Iniciar sesión",
@@ -5429,5 +5436,29 @@
     "readNext": "Sigue leyendo",
     "home": "Inicio",
     "website": "Sitio web"
+  },
+  "Footer": {
+    "description": "Una bandeja de WhatsApp compartida, difusiones, automatizaciones y respuestas con IA para negocios en crecimiento.",
+    "product": "Producto",
+    "resources": "Recursos",
+    "company": "Empresa",
+    "legal": "Legal",
+    "pricing": "Precios",
+    "solutions": "Soluciones",
+    "templates": "Plantillas de mensajes",
+    "linkGenerator": "Generador de enlaces de WhatsApp",
+    "apiDocs": "Documentación de la API",
+    "blog": "Blog",
+    "help": "Centro de ayuda",
+    "changelog": "Novedades",
+    "compare": "Comparar",
+    "partner": "Ser socio",
+    "login": "Iniciar sesión",
+    "privacy": "Privacidad",
+    "terms": "Términos",
+    "dataDeletion": "Eliminación de datos",
+    "builtOn": "Creado sobre la API oficial de WhatsApp Business.",
+    "rights": "© {year} {brand}. Todos los derechos reservados.",
+    "trademark": "WhatsApp es una marca registrada de Meta Platforms, Inc. {brand} no está afiliado, respaldado ni patrocinado por Meta Platforms, Inc."
   }
 }

@@ -4301,7 +4301,14 @@
       "unlimited": "Illimité",
       "startFree": "Commencer gratuitement",
       "getPlan": "Choisir {plan}",
-      "showPricesIn": "Afficher les prix en"
+      "showPricesIn": "Afficher les prix en",
+      "monthly": "Mensuel",
+      "quarterly": "Trimestriel",
+      "annually": "Annuel",
+      "save": "-{percent} %",
+      "billedQuarterly": "facturé {price} tous les 3 mois",
+      "billedYearly": "facturé {price} par an",
+      "billingPeriod": "Période de facturation"
     },
     "footer": {
       "login": "Se connecter",
@@ -5429,5 +5436,29 @@
     "readNext": "À lire ensuite",
     "home": "Accueil",
     "website": "Site"
+  },
+  "Footer": {
+    "description": "Une boîte WhatsApp partagée, des diffusions, des automatisations et des réponses IA pour les entreprises en croissance.",
+    "product": "Produit",
+    "resources": "Ressources",
+    "company": "Entreprise",
+    "legal": "Mentions légales",
+    "pricing": "Tarifs",
+    "solutions": "Solutions",
+    "templates": "Modèles de messages",
+    "linkGenerator": "Générateur de lien WhatsApp",
+    "apiDocs": "Documentation API",
+    "blog": "Blog",
+    "help": "Centre d’aide",
+    "changelog": "Nouveautés",
+    "compare": "Comparer",
+    "partner": "Devenir partenaire",
+    "login": "Se connecter",
+    "privacy": "Confidentialité",
+    "terms": "Conditions",
+    "dataDeletion": "Suppression des données",
+    "builtOn": "Construit sur l’API officielle WhatsApp Business.",
+    "rights": "© {year} {brand}. Tous droits réservés.",
+    "trademark": "WhatsApp est une marque déposée de Meta Platforms, Inc. {brand} n’est ni affilié à Meta Platforms, Inc., ni approuvé ou parrainé par celle-ci."
   }
 }

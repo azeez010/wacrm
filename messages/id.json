@@ -227,7 +227,14 @@
       "unlimited": "Tanpa batas",
       "startFree": "Mulai gratis",
       "getPlan": "Ambil {plan}",
-      "showPricesIn": "Tampilkan harga dalam"
+      "showPricesIn": "Tampilkan harga dalam",
+      "monthly": "Bulanan",
+      "quarterly": "Per kuartal",
+      "annually": "Tahunan",
+      "save": "Hemat {percent}%",
+      "billedQuarterly": "ditagih {price} setiap 3 bulan",
+      "billedYearly": "ditagih {price} per tahun",
+      "billingPeriod": "Periode penagihan"
     },
     "footer": {
       "login": "Masuk",
@@ -5429,5 +5436,29 @@
       "metaApiStatus": "Galat Meta API: {status}",
       "syncFailed": "Gagal menyinkronkan templat"
     }
+  },
+  "Footer": {
+    "description": "Kotak masuk WhatsApp bersama, siaran, otomatisasi, dan balasan AI untuk bisnis yang berkembang.",
+    "product": "Produk",
+    "resources": "Sumber daya",
+    "company": "Perusahaan",
+    "legal": "Hukum",
+    "pricing": "Harga",
+    "solutions": "Solusi",
+    "templates": "Templat pesan",
+    "linkGenerator": "Pembuat tautan WhatsApp",
+    "apiDocs": "Dokumen API",
+    "blog": "Blog",
+    "help": "Pusat bantuan",
+    "changelog": "Catatan perubahan",
+    "compare": "Bandingkan",
+    "partner": "Jadi mitra",
+    "login": "Masuk",
+    "privacy": "Privasi",
+    "terms": "Ketentuan",
+    "dataDeletion": "Penghapusan data",
+    "builtOn": "Dibangun di atas WhatsApp Business API resmi.",
+    "rights": "© {year} {brand}. Hak cipta dilindungi.",
+    "trademark": "WhatsApp adalah merek dagang terdaftar milik Meta Platforms, Inc. {brand} tidak berafiliasi dengan, didukung oleh, atau disponsori oleh Meta Platforms, Inc."
   }
 }

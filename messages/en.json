@@ -4316,7 +4316,14 @@
       "unlimited": "Unlimited",
       "startFree": "Start free",
       "getPlan": "Get {plan}",
-      "showPricesIn": "Show prices in"
+      "showPricesIn": "Show prices in",
+      "monthly": "Monthly",
+      "quarterly": "Quarterly",
+      "annually": "Annually",
+      "save": "Save {percent}%",
+      "billedQuarterly": "billed {price} every 3 months",
+      "billedYearly": "billed {price} yearly",
+      "billingPeriod": "Billing period"
     },
     "footer": {
       "login": "Log in",
@@ -5429,5 +5436,29 @@
     "readNext": "Read next",
     "home": "Home",
     "website": "Website"
+  },
+  "Footer": {
+    "description": "A shared WhatsApp inbox, broadcasts, automations and AI replies for growing businesses.",
+    "product": "Product",
+    "resources": "Resources",
+    "company": "Company",
+    "legal": "Legal",
+    "pricing": "Pricing",
+    "solutions": "Solutions",
+    "templates": "Message templates",
+    "linkGenerator": "WhatsApp link generator",
+    "apiDocs": "API docs",
+    "blog": "Blog",
+    "help": "Help center",
+    "changelog": "Changelog",
+    "compare": "Compare",
+    "partner": "Become a partner",
+    "login": "Log in",
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "dataDeletion": "Data deletion",
+    "builtOn": "Built on the official WhatsApp Business API.",
+    "rights": "© {year} {brand}. All rights reserved.",
+    "trademark": "WhatsApp is a registered trademark of Meta Platforms, Inc. {brand} is not affiliated with, endorsed by, or sponsored by Meta Platforms, Inc."
   }
 }

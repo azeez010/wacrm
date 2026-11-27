@@ -227,7 +227,14 @@
       "unlimited": "Bila kikomo",
       "startFree": "Anza bila malipo",
       "getPlan": "Chukua {plan}",
-      "showPricesIn": "Onyesha bei kwa"
+      "showPricesIn": "Onyesha bei kwa",
+      "monthly": "Kila mwezi",
+      "quarterly": "Kila robo mwaka",
+      "annually": "Kila mwaka",
+      "save": "Okoa {percent}%",
+      "billedQuarterly": "inalipwa {price} kila miezi 3",
+      "billedYearly": "inalipwa {price} kwa mwaka",
+      "billingPeriod": "Kipindi cha malipo"
     },
     "footer": {
       "login": "Ingia",
@@ -5429,5 +5436,29 @@
       "metaApiStatus": "Hitilafu ya Meta API: {status}",
       "syncFailed": "Imeshindwa kusawazisha violezo"
     }
+  },
+  "Footer": {
+    "description": "Kikasha cha WhatsApp cha pamoja, ujumbe kwa wengi, otomatiki na majibu ya AI kwa biashara zinazokua.",
+    "product": "Bidhaa",
+    "resources": "Rasilimali",
+    "company": "Kampuni",
+    "legal": "Kisheria",
+    "pricing": "Bei",
+    "solutions": "Suluhisho",
+    "templates": "Violezo vya ujumbe",
+    "linkGenerator": "Kitengeneza kiungo cha WhatsApp",
+    "apiDocs": "Nyaraka za API",
+    "blog": "Blogu",
+    "help": "Kituo cha msaada",
+    "changelog": "Mabadiliko",
+    "compare": "Linganisha",
+    "partner": "Kuwa mshirika",
+    "login": "Ingia",
+    "privacy": "Faragha",
+    "terms": "Masharti",
+    "dataDeletion": "Kufuta data",
+    "builtOn": "Imejengwa juu ya WhatsApp Business API rasmi.",
+    "rights": "© {year} {brand}. Haki zote zimehifadhiwa.",
+    "trademark": "WhatsApp ni alama ya biashara iliyosajiliwa ya Meta Platforms, Inc. {brand} haihusiani na, haijaidhinishwa wala kufadhiliwa na Meta Platforms, Inc."
   }
 }

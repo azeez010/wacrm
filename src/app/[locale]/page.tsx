@@ -14,6 +14,9 @@ import { BRAND_NAME } from '@/lib/brand'
 import { getPublicPlans } from '@/lib/billing/public-plans'
 import { createClient } from '@/lib/supabase/server'
 import { CurrencySwitcher } from '@/components/currency-switcher'
+import { PlanPrice, PricingPeriod } from '@/components/pricing-controls'
+import { SiteFooter } from '@/components/site-footer'
+import { availablePeriods, bestSavings, perMonth, periodTotal, type Period } from '@/lib/billing/period-price'
 import { getDisplayCurrency, toDisplay, type DisplayCurrency } from '@/lib/currency/server'
 import { FEATURE_DEFS, type FeatureKey, type LimitKey, type PlanRow } from '@/lib/billing/plans'
 
@@ -92,6 +95,14 @@ function PlanCard({
   signedIn: boolean
 }) {
   const price = (amount: number) => money(amount, plan.currency, locale, t('pricing.free'), fx)
+  const monthText = Object.fromEntries(
+    (['monthly', 'quarterly', 'annual'] as Period[]).map((p) => [p, price(perMonth(plan, p) || plan.price_monthly)]),
+  ) as Record<Period, string>
+  const billed: Record<Period, string | null> = {
+    monthly: null,
+    quarterly: periodTotal(plan, 'quarterly') > 0 ? t('pricing.billedQuarterly', { price: price(periodTotal(plan, 'quarterly')) }) : null,
+    annual: periodTotal(plan, 'annual') > 0 ? t('pricing.billedYearly', { price: price(periodTotal(plan, 'annual')) }) : null,
+  }
   return (
     <div
       className={cn(
@@ -108,17 +119,12 @@ function PlanCard({
         )}
       </div>
       <p className="mt-1 min-h-10 text-sm text-muted-foreground">{plan.description}</p>
-      <p className="mt-4">
-        <span className="text-3xl font-bold">{price(plan.price_monthly)}</span>
-        {plan.price_monthly > 0 && (
-          <span className="text-sm text-muted-foreground"> {t('pricing.perMonth')}</span>
-        )}
-      </p>
-      {plan.price_annual > 0 && (
-        <p className="text-xs text-muted-foreground">
-          {t('pricing.yearly', { price: price(plan.price_annual) })}
-        </p>
-      )}
+      <PlanPrice
+        free={plan.price_monthly === 0}
+        perMonthLabel={t('pricing.perMonth')}
+        monthText={monthText}
+        billed={billed}
+      />
       <Link
         href={signedIn ? '/settings?tab=billing' : `/signup?plan=${encodeURIComponent(plan.id)}`}
         className={cn(
@@ -189,38 +195,44 @@ export default async function LandingPage({
     getDisplayCurrency(),
   ])
   const locale = isLocale(rawLocale) ? rawLocale : 'en'
+  const periodLabel: Record<Period, string> = { monthly: t('pricing.monthly'), quarterly: t('pricing.quarterly'), annual: t('pricing.annually') }
+  const periodOptions = availablePeriods(plans).map((period) => ({ period, label: periodLabel[period], save: bestSavings(plans, period) }))
 
   return (
     <div className="min-h-screen bg-background text-foreground">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: organizationJsonLd(BRAND_NAME) }} />
-      <header className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-x-3 gap-y-3 px-4 py-5 sm:px-6">
-        <BrandLogo className="text-lg" markClassName="h-9 w-9" />
-        <nav className="flex w-full flex-wrap items-center justify-between gap-2 sm:w-auto sm:justify-end">
-          <a href="#pricing" className={cn(buttonVariants({ variant: 'ghost' }), 'hidden sm:inline-flex')}>
-            {t('nav.pricing')}
-          </a>
-          <Link href={localizedPath(locale, '/blog')} className={cn(buttonVariants({ variant: 'ghost' }), 'hidden sm:inline-flex')}>
-            {t('footer.blog')}
+      <header className="border-b">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-4 py-4 sm:px-6">
+          <Link href={localizedPath(locale, '/')} aria-label={BRAND_NAME} className="shrink-0">
+            <BrandLogo className="text-lg" markClassName="h-8 w-8" />
           </Link>
-          <Link href={localizedPath(locale, '/help')} className={cn(buttonVariants({ variant: 'ghost' }), 'hidden sm:inline-flex')}>
-            {t('footer.help')}
-          </Link>
-          <LanguageSwitcher mode="path" iconOnly />
-          {signedIn ? (
-            <Link href="/dashboard" className={buttonVariants()}>
-              {t('nav.dashboard')}
+          <nav className="flex items-center gap-1 sm:gap-2" aria-label="Main">
+            <a href="#pricing" className={cn(buttonVariants({ variant: 'ghost' }), 'hidden sm:inline-flex')}>
+              {t('nav.pricing')}
+            </a>
+            <Link href={localizedPath(locale, '/blog')} className={cn(buttonVariants({ variant: 'ghost' }), 'hidden sm:inline-flex')}>
+              {t('footer.blog')}
             </Link>
-          ) : (
-            <>
-              <Link href="/login" className={buttonVariants({ variant: 'ghost' })}>
-                {t('nav.login')}
+            <Link href={localizedPath(locale, '/help')} className={cn(buttonVariants({ variant: 'ghost' }), 'hidden sm:inline-flex')}>
+              {t('footer.help')}
+            </Link>
+            <LanguageSwitcher mode="path" iconOnly />
+            {signedIn ? (
+              <Link href="/dashboard" className={buttonVariants()}>
+                {t('nav.dashboard')}
               </Link>
-              <Link href="/signup" className={buttonVariants()}>
-                {t('nav.getStarted')}
-              </Link>
-            </>
-          )}
-        </nav>
+            ) : (
+              <>
+                <Link href="/login" className={cn(buttonVariants({ variant: 'ghost' }), 'hidden sm:inline-flex')}>
+                  {t('nav.login')}
+                </Link>
+                <Link href="/signup" className={buttonVariants()}>
+                  {t('nav.getStarted')}
+                </Link>
+              </>
+            )}
+          </nav>
+        </div>
       </header>
 
       <main>
@@ -253,10 +265,17 @@ export default async function LandingPage({
         <section id="pricing" className="mx-auto max-w-6xl px-4 pb-24 sm:px-6">
           <h2 className="text-center text-3xl font-bold">{t('pricing.title')}</h2>
           <p className="mt-2 text-center text-muted-foreground">{t('pricing.subtitle')}</p>
-          <div className="mt-5 flex items-center justify-center gap-2 text-sm text-muted-foreground">
-            <span>{t('pricing.showPricesIn')}</span>
-            <CurrencySwitcher current={fx.current} options={fx.options} />
-          </div>
+          <PricingPeriod
+            options={periodOptions}
+            saveLabel={t('pricing.save', { percent: '{percent}' })}
+            ariaLabel={t('pricing.billingPeriod')}
+            leading={
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <span>{t('pricing.showPricesIn')}</span>
+                <CurrencySwitcher current={fx.current} options={fx.options} />
+              </div>
+            }
+          >
           {plans.length === 0 ? (
             <p className="mt-10 text-center text-muted-foreground">
               {t('pricing.unavailable')}
@@ -268,55 +287,11 @@ export default async function LandingPage({
               ))}
             </div>
           )}
+          </PricingPeriod>
         </section>
       </main>
 
-      <footer className="border-t py-8 text-center text-sm text-muted-foreground">
-        © {new Date().getFullYear()} {BRAND_NAME} ·{' '}
-        <Link href={signedIn ? '/dashboard' : '/login'} className="underline">
-          {signedIn ? t('nav.dashboard') : t('footer.login')}
-        </Link>
-        {' · '}
-        <Link href={localizedPath(locale, '/blog')} className="underline">
-          {t('footer.blog')}
-        </Link>
-        {' · '}
-        <Link href="/solutions/whatsapp-crm" className="underline">
-          {t('footer.solutions')}
-        </Link>
-        {' · '}
-        <Link href="/templates" className="underline">
-          {t('footer.templates')}
-        </Link>
-        {' · '}
-        <Link href={localizedPath(locale, '/help')} className="underline">
-          {t('footer.help')}
-        </Link>
-        {' · '}
-        <Link href={localizedPath(locale, '/changelog')} className="underline">
-          {t('footer.changelog')}
-        </Link>
-        {' · '}
-        <Link href="/docs" className="underline">
-          {t('footer.apiDocs')}
-        </Link>
-        {' · '}
-        <Link href="/partners" className="underline">
-          {t('footer.partner')}
-        </Link>
-        {' · '}
-        <Link href="/privacy" className="underline">
-          {t('footer.privacy')}
-        </Link>
-        {' · '}
-        <Link href="/terms" className="underline">
-          {t('footer.terms')}
-        </Link>
-        {' · '}
-        <Link href="/data-deletion" className="underline">
-          {t('footer.dataDeletion')}
-        </Link>
-      </footer>
+      <SiteFooter />
     </div>
   )
 }

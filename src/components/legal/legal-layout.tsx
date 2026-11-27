@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import type { ReactNode } from 'react'
 import { SiteBanner } from '@/components/announcements/site-banner'
+import { SiteFooter } from '@/components/site-footer'
 import { BrandLogo } from '@/components/brand-logo'
 import { BRAND_NAME, LEGAL_LAST_UPDATED } from '@/lib/brand'
 
@@ -33,6 +34,7 @@ export function LegalLayout({
         {intro && <p className="mt-6 text-muted-foreground">{intro}</p>}
         <div className="mt-8 space-y-8">{children}</div>
       </main>
+      <SiteFooter />
     </div>
   )
 }

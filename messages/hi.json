@@ -227,7 +227,14 @@
       "unlimited": "असीमित",
       "startFree": "मुफ़्त शुरू करें",
       "getPlan": "{plan} लें",
-      "showPricesIn": "क़ीमतें इस मुद्रा में दिखाएँ"
+      "showPricesIn": "क़ीमतें इस मुद्रा में दिखाएँ",
+      "monthly": "मासिक",
+      "quarterly": "तिमाही",
+      "annually": "वार्षिक",
+      "save": "{percent}% बचाएँ",
+      "billedQuarterly": "हर 3 महीने में {price} का बिल",
+      "billedYearly": "सालाना {price} का बिल",
+      "billingPeriod": "बिलिंग अवधि"
     },
     "footer": {
       "login": "लॉग इन",
@@ -5429,5 +5436,29 @@
       "metaApiStatus": "Meta API त्रुटि: {status}",
       "syncFailed": "टेम्पलेट सिंक नहीं हो सके"
     }
+  },
+  "Footer": {
+    "description": "बढ़ते व्यवसायों के लिए साझा WhatsApp इनबॉक्स, ब्रॉडकास्ट, ऑटोमेशन और AI जवाब।",
+    "product": "उत्पाद",
+    "resources": "संसाधन",
+    "company": "कंपनी",
+    "legal": "कानूनी",
+    "pricing": "मूल्य",
+    "solutions": "समाधान",
+    "templates": "संदेश टेम्पलेट",
+    "linkGenerator": "WhatsApp लिंक जनरेटर",
+    "apiDocs": "API दस्तावेज़",
+    "blog": "ब्लॉग",
+    "help": "सहायता केंद्र",
+    "changelog": "चेंजलॉग",
+    "compare": "तुलना करें",
+    "partner": "पार्टनर बनें",
+    "login": "लॉग इन",
+    "privacy": "गोपनीयता",
+    "terms": "शर्तें",
+    "dataDeletion": "डेटा हटाना",
+    "builtOn": "आधिकारिक WhatsApp Business API पर बना।",
+    "rights": "© {year} {brand}. सर्वाधिकार सुरक्षित।",
+    "trademark": "WhatsApp, Meta Platforms, Inc. का पंजीकृत ट्रेडमार्क है। {brand}, Meta Platforms, Inc. से संबद्ध, उसके द्वारा समर्थित या प्रायोजित नहीं है।"
   }
 }

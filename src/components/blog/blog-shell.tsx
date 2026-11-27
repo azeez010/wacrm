@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { getLocale, getTranslations } from 'next-intl/server'
+import { SiteFooter } from '@/components/site-footer'
 import { SiteBanner } from '@/components/announcements/site-banner'
 import { AuthButtons } from '@/components/blog/blog-auth-buttons'
 import { BrandLogo } from '@/components/brand-logo'
@@ -32,22 +33,7 @@ export async function BlogShell({ children }: { children: React.ReactNode }) {
         </div>
       </header>
       <main className="mx-auto max-w-5xl px-4 pb-20 sm:px-6">{children}</main>
-      <footer className="border-t">
-        <div className="mx-auto flex max-w-5xl flex-col gap-3 px-4 py-8 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between sm:px-6">
-          <p>© {new Date().getFullYear()} {BRAND_NAME}</p>
-          <nav className="flex flex-wrap gap-4" aria-label="Footer">
-            <Link href={to('/blog')} className="hover:text-foreground">{t('blog')}</Link>
-            <Link href="/solutions/whatsapp-crm" className="hover:text-foreground">{t('solutions')}</Link>
-            <Link href="/templates" className="hover:text-foreground">{t('templates')}</Link>
-            <Link href={to('/help')} className="hover:text-foreground">{t('help')}</Link>
-            <Link href={to('/changelog')} className="hover:text-foreground">{t('changelog')}</Link>
-            <a href="/blog/feed.xml" className="hover:text-foreground">{t('rss')}</a>
-            <Link href="/partners" className="hover:text-foreground">{t('partners')}</Link>
-            <Link href="/privacy" className="hover:text-foreground">{t('privacy')}</Link>
-            <Link href="/terms" className="hover:text-foreground">{t('terms')}</Link>
-          </nav>
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   )
 }

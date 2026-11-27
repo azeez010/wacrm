@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { getTranslations } from 'next-intl/server'
 import { Gift, Link2, Users, Wallet } from 'lucide-react'
 import { SiteBanner } from '@/components/announcements/site-banner'
+import { SiteFooter } from '@/components/site-footer'
 import { BrandLogo } from '@/components/brand-logo'
 import { buttonVariants } from '@/components/ui/button'
 import { BRAND_NAME } from '@/lib/brand'
@@ -91,6 +92,7 @@ export default async function PartnersPage() {
 
         <p className="mt-12 text-center text-sm text-muted-foreground">{t('note')}</p>
       </main>
+      <SiteFooter />
     </div>
   )
 }

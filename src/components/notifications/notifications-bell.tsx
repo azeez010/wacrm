@@ -11,6 +11,7 @@ import { useUnreadNotifications } from '@/hooks/use-unread-notifications';
 import { useNotifications } from '@/hooks/use-notifications';
 import type { Notification } from '@/types';
 import { NotificationItem } from './notification-item';
+import { isBillingNotification } from '@/lib/notifications/notification-text';
 
 const RECENT = 10;
 
@@ -31,7 +32,7 @@ export function NotificationsBell() {
   function handleClick(n: Notification) {
     if (!n.read_at) void markRead(n.id);
     setOpen(false);
-    if (n.type === 'trial_ending' || n.type === 'trial_ended') router.push('/settings?tab=billing');
+    if (isBillingNotification(n.type)) router.push('/settings?tab=billing');
     else if (n.conversation_id) router.push(`/inbox?c=${n.conversation_id}`);
     else if (n.contact_id) router.push(`/contacts?open=${n.contact_id}`);
   }

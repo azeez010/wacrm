@@ -39,6 +39,8 @@ interface Billing {
   downgraded: boolean;
   features: Partial<Record<FeatureKey, boolean>>;
   usage: { key: LimitKey; used: number; limit: number | null; held?: number }[];
+  /** Items a lower plan archived, per limit key. */
+  plan_archived?: Record<string, number>;
   plans: PlanRow[];
   history: {
     id: string;
@@ -249,6 +251,16 @@ function Usage({ data, t, onUpgrade }: { data: Billing; t: T; onUpgrade: (k: Lim
                 )}
                 {u.held ? (
                   <p className="mt-1 text-xs text-amber-600 dark:text-amber-400">{t('heldLeads', { count: u.held })}</p>
+                ) : null}
+                {data.plan_archived?.[u.key] ? (
+                  <p className="text-muted-foreground mt-1 flex items-center justify-between gap-2 text-xs">
+                    <span>{t('archivedByPlan', { count: data.plan_archived[u.key] })}</span>
+                    {!(atLimit || near) ? (
+                      <button type="button" className="text-primary font-medium hover:underline" onClick={() => onUpgrade(u.key)}>
+                        {t('upgrade')}
+                      </button>
+                    ) : null}
+                  </p>
                 ) : null}
               </li>
             );

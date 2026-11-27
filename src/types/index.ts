@@ -246,7 +246,13 @@ export interface Conversation {
 // Notifications (migration 027)
 // ============================================================
 
-export type NotificationType = 'conversation_assigned' | 'form_submission' | 'trial_ending' | 'trial_ended';
+export type NotificationType =
+  | 'conversation_assigned'
+  | 'form_submission'
+  | 'trial_ending'
+  | 'trial_ended'
+  | 'plan_archived'
+  | 'plan_restored';
 
 export interface Notification {
   id: string;

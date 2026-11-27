@@ -31,6 +31,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 import { hasMinRole, isAccountRole, type AccountRole } from "./roles";
 import { getT } from "@/lib/i18n/translate";
+import { planLimitResponse } from "@/lib/billing/plan-limit-response";
 import { AccountSuspendedError, assertAccountNotSuspended } from "./suspension";
 
 const t = getT("LibErrors.auth");
@@ -78,6 +79,8 @@ export function toErrorResponse(err: unknown): NextResponse {
     const code = err instanceof ForbiddenError ? err.code : undefined;
     return NextResponse.json(code ? { error: err.message, code } : { error: err.message }, { status: err.status });
   }
+  const limit = planLimitResponse(err);
+  if (limit) return limit;
   console.error("[toErrorResponse] uncategorized error:", err);
   return NextResponse.json({ error: t("internal") }, { status: 500 });
 }

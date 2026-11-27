@@ -306,7 +306,11 @@
     "retry": "Coba lagi",
     "emptyTitle": "Belum ada notifikasi",
     "emptyDesc": "Anda akan melihat peringatan di sini saat seseorang menugaskan percakapan kepada Anda.",
-    "unread": "Belum dibaca"
+    "unread": "Belum dibaca",
+    "planArchivedTitle": "Paket Anda mengarsipkan beberapa item",
+    "planArchivedBody": "Paket Anda mengizinkan lebih sedikit dari yang Anda miliki, jadi item yang paling jarang dipakai belakangan diarsipkan. Tidak ada yang dihapus; tingkatkan paket untuk mengembalikannya.",
+    "planRestoredTitle": "Item yang diarsipkan sudah kembali",
+    "planRestoredBody": "Paket Anda punya ruang lagi, jadi item yang diarsipkannya telah dipulihkan."
   },
   "DashboardShell": {
     "loading": "Memuat..."
@@ -3845,8 +3849,6 @@
         "back": "Kembali",
         "completePayment": "Selesaikan pembayaran",
         "confirmDowngrade": "Beralih ke Gratis",
-        "freeFits": "Semua yang Anda punya muat di paket Gratis.",
-        "freeOver": "Di sini Anda memakai lebih dari batas paket Gratis. Anda tidak bisa menambah lagi sampai meningkatkan paket lagi:",
         "overLine": "{used} dari {limit}",
         "couponIssue": {
           "not_found": "Kode kupon itu tidak ada.",
@@ -3859,11 +3861,20 @@
           "already_used": "Anda sudah memakai kupon itu.",
           "once_not_recurring": "Kupon ini hanya untuk satu pembayaran. Matikan perpanjangan otomatis untuk memakainya.",
           "invalid": "Kupon itu tidak bisa dipakai."
-        }
+        },
+        "planFits": "Semua yang Anda punya muat di {plan}.",
+        "impactArchiveTitle": "Di {plan}, ini akan diarsipkan:",
+        "impactArchiveLine": "{archive} dari {count} ({keep} tetap)",
+        "impactExamples": "mis. {names}",
+        "impactArchiveNote": "Kami menyimpan yang paling baru dipakai. Item yang diarsipkan tidak dihapus dan kembali otomatis saat Anda meningkatkan paket lagi.",
+        "impactStuckTitle": "Melebihi batas {plan} (tetap ada, tetapi tidak bisa menambah lagi):",
+        "impactRestoreTitle": "Diarsipkan oleh paket Anda, akan kembali:",
+        "impactRestoreLine": "{restore} kembali"
       },
       "stopRenewing": "Hentikan perpanjangan",
       "renewStopped": "Paket Anda tidak akan diperpanjang. Anda tetap memakainya hingga akhir periode berbayar.",
-      "endsOn": "Berakhir {date} (tidak diperpanjang)"
+      "endsOn": "Berakhir {date} (tidak diperpanjang)",
+      "archivedByPlan": "{count} diarsipkan oleh paket Anda, kembali saat Anda meningkatkan paket"
     },
     "tables": {
       "title": "Tabel khusus",

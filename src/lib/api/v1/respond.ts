@@ -18,6 +18,8 @@ import { NextResponse } from 'next/server';
 import type { RateLimitResult } from '@/lib/rate-limit';
 import { FeatureLockedError, PlanLimitError } from '@/lib/billing/entitlements';
 import { QuotaExceededError } from '@/lib/billing/usage';
+import { parsePlanLimit } from '@/lib/billing/plan-limit';
+import { planLimitMessage } from '@/lib/billing/plan-limit-response';
 
 export type ApiErrorCode =
   | 'unauthorized' // missing / malformed / unknown / revoked / expired key
@@ -138,6 +140,11 @@ export function toApiErrorResponse(err: unknown): NextResponse {
   // monthly message allowance.
   if (err instanceof PlanLimitError || err instanceof FeatureLockedError) {
     return NextResponse.json({ error: { code: 'plan_limit', message: err.message } }, { status: 402 });
+  }
+  // A limit the database enforces (contacts, workspaces, archivable resources): 'plan_limit:<key>:<n>'.
+  const dbLimit = typeof err === 'object' && err !== null ? parsePlanLimit(err) : null;
+  if (dbLimit?.limitKey) {
+    return NextResponse.json({ error: { code: 'plan_limit', message: planLimitMessage(dbLimit.limitKey, dbLimit.limit) } }, { status: 402 });
   }
   if (err instanceof QuotaExceededError) {
     return NextResponse.json({ error: { code: 'quota_exceeded', message: err.message } }, { status: 402 });

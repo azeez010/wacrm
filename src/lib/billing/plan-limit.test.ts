@@ -71,7 +71,9 @@ describe('which failed requests are checked for a plan limit', async () => {
   })
   it('ignores successes, server errors and other sites', () => {
     expect(isLimitCandidate('/api/forms', 200, origin, sb)).toBe(false)
-    expect(isLimitCandidate('/api/forms', 500, origin, sb)).toBe(false)
+    // our routes may pass the database's plan_limit text through as a 500; Supabase 5xx never counts
+    expect(isLimitCandidate('/api/forms', 500, origin, sb)).toBe(true)
+    expect(isLimitCandidate('https://abc.supabase.co/rest/v1/forms', 500, origin, sb)).toBe(false)
     expect(isLimitCandidate('https://api.paystack.co/x', 402, origin, sb)).toBe(false)
     expect(isLimitCandidate('https://ogadesk.com/settings', 404, origin, sb)).toBe(false)
     expect(isLimitCandidate('https://abc.supabase.co/x', 400, origin, undefined)).toBe(false)

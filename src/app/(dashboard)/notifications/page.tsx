@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { useTranslations } from "next-intl";
 import { useNotifications } from "@/hooks/use-notifications";
 import { NotificationItem } from "@/components/notifications/notification-item";
+import { isBillingNotification } from "@/lib/notifications/notification-text";
 
 export default function NotificationsPage() {
   const t = useTranslations("Notifications");
@@ -18,7 +19,7 @@ export default function NotificationsPage() {
   const handleClick = useCallback(
     (n: Notification) => {
       if (!n.read_at) markRead(n.id);
-      if (n.type === 'trial_ending' || n.type === 'trial_ended') {
+      if (isBillingNotification(n.type)) {
         router.push('/settings?tab=billing');
       } else if (n.conversation_id) {
         router.push(`/inbox?c=${n.conversation_id}`);

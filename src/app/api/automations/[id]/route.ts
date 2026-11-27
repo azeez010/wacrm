@@ -1,3 +1,4 @@
+import { planLimitResponse } from '@/lib/billing/plan-limit-response'
 import { NextResponse } from 'next/server'
 import { getCurrentAccount, requireRole, toErrorResponse } from '@/lib/auth/account'
 import { supabaseAdmin } from '@/lib/automations/admin-client'
@@ -140,7 +141,7 @@ export async function PATCH(
       .update(update)
       .eq('id', id)
       .eq('account_id', accountId)
-    if (updErr) return NextResponse.json({ error: updErr.message }, { status: 500 })
+    if (updErr) return planLimitResponse(updErr) ?? NextResponse.json({ error: updErr.message }, { status: 500 })
   }
 
   if (Array.isArray(body.steps)) {

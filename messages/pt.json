@@ -2955,8 +2955,6 @@
         "back": "Voltar",
         "completePayment": "Concluir pagamento",
         "confirmDowngrade": "Mudar para Grátis",
-        "freeFits": "Tudo o que você tem cabe no plano Grátis.",
-        "freeOver": "Aqui você usa mais do que o plano Grátis permite. Não poderá adicionar mais até fazer upgrade de novo:",
         "overLine": "{used} de {limit}",
         "couponIssue": {
           "not_found": "Esse código de cupom não existe.",
@@ -2969,11 +2967,20 @@
           "already_used": "Você já usou esse cupom.",
           "once_not_recurring": "Este cupom vale para um único pagamento. Desative a renovação automática para usá-lo.",
           "invalid": "Esse cupom não pode ser usado."
-        }
+        },
+        "planFits": "Tudo o que você tem cabe no {plan}.",
+        "impactArchiveTitle": "No {plan}, isto será arquivado:",
+        "impactArchiveLine": "{archive} de {count} (ficam {keep})",
+        "impactExamples": "ex.: {names}",
+        "impactArchiveNote": "Mantemos os usados mais recentemente. Itens arquivados não são apagados e voltam sozinhos quando você fizer upgrade de novo.",
+        "impactStuckTitle": "Acima dos limites do {plan} (mantidos, mas você não poderá adicionar mais):",
+        "impactRestoreTitle": "Arquivados pelo seu plano, que voltam:",
+        "impactRestoreLine": "{restore} voltam"
       },
       "stopRenewing": "Parar a renovação",
       "renewStopped": "Seu plano não será renovado. Você o mantém até o fim do período pago.",
-      "endsOn": "Termina em {date} (não será renovado)"
+      "endsOn": "Termina em {date} (não será renovado)",
+      "archivedByPlan": "{count, plural, one {# arquivado pelo seu plano} other {# arquivados pelo seu plano}}, voltam com o upgrade"
     },
     "language": {
       "title": "Idioma",
@@ -3399,7 +3406,11 @@
     "retry": "Tentar novamente",
     "emptyTitle": "Nenhuma notificação ainda",
     "emptyDesc": "Você verá um alerta aqui quando alguém atribuir uma conversa a você.",
-    "unread": "Não lidas"
+    "unread": "Não lidas",
+    "planArchivedTitle": "Seu plano arquivou alguns itens",
+    "planArchivedBody": "Seu plano permite menos do que você tinha, então os menos usados recentemente foram arquivados. Nada foi apagado; faça upgrade para trazê-los de volta.",
+    "planRestoredTitle": "Os itens arquivados voltaram",
+    "planRestoredBody": "Seu plano tem espaço de novo, então os itens que ele arquivou foram restaurados."
   },
   "Agents": {
     "title": "Agentes de IA",

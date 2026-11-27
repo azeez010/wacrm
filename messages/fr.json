@@ -2955,8 +2955,6 @@
         "back": "Retour",
         "completePayment": "Finaliser le paiement",
         "confirmDowngrade": "Passer au forfait Gratuit",
-        "freeFits": "Tout ce que vous avez tient dans le forfait Gratuit.",
-        "freeOver": "Ici, vous utilisez plus que ce que permet le forfait Gratuit. Vous ne pourrez rien ajouter avant de repasser à un forfait supérieur :",
         "overLine": "{used} sur {limit}",
         "couponIssue": {
           "not_found": "Ce code promo n'existe pas.",
@@ -2969,11 +2967,20 @@
           "already_used": "Vous avez déjà utilisé ce code promo.",
           "once_not_recurring": "Ce code promo vaut pour un seul paiement. Désactivez le renouvellement automatique pour l'utiliser.",
           "invalid": "Ce code promo ne peut pas être utilisé."
-        }
+        },
+        "planFits": "Tout ce que vous avez tient dans le forfait {plan}.",
+        "impactArchiveTitle": "Avec {plan}, ces éléments seront archivés :",
+        "impactArchiveLine": "{archive} sur {count} ({keep} conservés)",
+        "impactExamples": "ex. {names}",
+        "impactArchiveNote": "Nous gardons les plus récemment utilisés. Les éléments archivés ne sont pas supprimés et reviennent automatiquement si vous repassez à un forfait supérieur.",
+        "impactStuckTitle": "Au-delà des limites de {plan} (conservés, mais impossible d'en ajouter) :",
+        "impactRestoreTitle": "Archivés par votre forfait, ils reviennent :",
+        "impactRestoreLine": "{restore} de retour"
       },
       "stopRenewing": "Arrêter le renouvellement",
       "renewStopped": "Votre forfait ne sera pas renouvelé. Vous le gardez jusqu'à la fin de la période payée.",
-      "endsOn": "Se termine le {date} (non renouvelé)"
+      "endsOn": "Se termine le {date} (non renouvelé)",
+      "archivedByPlan": "{count, plural, one {# archivé par votre forfait} other {# archivés par votre forfait}}, de retour si vous passez à un forfait supérieur"
     },
     "language": {
       "title": "Langue",
@@ -3399,7 +3406,11 @@
     "assignedBody": "{actor} vous a attribué une conversation avec {contact}",
     "assignedTitle": "Nouvelle conversation attribuée",
     "unknownActor": "Quelqu'un",
-    "unknownContact": "un contact"
+    "unknownContact": "un contact",
+    "planArchivedTitle": "Votre forfait a archivé certains éléments",
+    "planArchivedBody": "Votre forfait en autorise moins que ce que vous aviez : les moins utilisés récemment ont été archivés. Rien n'a été supprimé ; passez à un forfait supérieur pour les récupérer.",
+    "planRestoredTitle": "Les éléments archivés sont de retour",
+    "planRestoredBody": "Votre forfait a de nouveau de la place : les éléments qu'il avait archivés ont été restaurés."
   },
   "Agents": {
     "title": "Agents IA",

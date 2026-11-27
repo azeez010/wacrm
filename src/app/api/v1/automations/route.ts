@@ -68,7 +68,8 @@ export async function POST(request: Request) {
       .select('id', { count: 'exact', head: true })
       .eq('account_id', ctx.accountId)
       // The seeded default (system_key) never uses up the plan's quota.
-      .is('system_key', null);
+      .is('system_key', null)
+      .is('plan_archived_at', null);
     await assertWithinLimit(ctx.supabase, ctx.accountId, 'automations', count ?? 0);
 
     const userId = await resolveAuditUserId(ctx.supabase, ctx.accountId);

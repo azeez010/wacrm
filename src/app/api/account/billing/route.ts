@@ -20,6 +20,14 @@ async function count(db: Db, table: string, accountId: string) {
   return n ?? 0;
 }
 
+// Items the plan archived (migration 132) do not count toward the limit; neither do system automations.
+async function countLive(db: Db, table: string, accountId: string) {
+  let q = db.from(table).select('id', { count: 'exact', head: true }).eq('account_id', accountId).is('plan_archived_at', null);
+  if (table === 'automations') q = q.is('system_key', null);
+  const { count: n } = await q;
+  return n ?? 0;
+}
+
 async function countActiveKeys(db: Db, accountId: string) {
   const { count: n } = await db
     .from('api_keys')
@@ -71,13 +79,13 @@ export async function GET() {
       Promise.all([
         count(db, 'contacts', accountId),
         count(db, 'whatsapp_config', accountId),
-        count(db, 'automations', accountId),
-        count(db, 'flows', accountId),
+        countLive(db, 'automations', accountId),
+        countLive(db, 'flows', accountId),
         count(db, 'pipelines', accountId),
         count(db, 'message_templates', accountId),
-        count(db, 'quick_replies', accountId),
+        countLive(db, 'quick_replies', accountId),
         countActiveKeys(db, accountId),
-        count(db, 'webhook_endpoints', accountId),
+        countLive(db, 'webhook_endpoints', accountId),
         count(db, 'profiles', accountId),
         countPendingInvites(db, accountId),
         // Forms (not archived) and this month's leads (accepted vs held over the quota).
@@ -141,6 +149,15 @@ export async function GET() {
       /* the credit line is informational; never fail the page */
     }
 
+    // What a lower plan archived (restored automatically when there is room again).
+    let planArchived: Record<string, number> = {};
+    try {
+      const { data: pa } = await supabaseAdmin().rpc('plan_archived_summary', { p_account: accountId });
+      if (pa && typeof pa === 'object') planArchived = pa as Record<string, number>;
+    } catch {
+      planArchived = {};
+    }
+
     const plans = (plansRes.data ?? []) as unknown as PlanRow[];
     const planId = sub.data?.plan_id ?? 'free';
     const lapsed = !sub.data || sub.data.status === 'canceled' || sub.data.status === 'past_due';
@@ -172,6 +189,7 @@ export async function GET() {
       downgraded: lapsed && planId !== 'free',
       features: ents.features,
       usage,
+      plan_archived: planArchived,
       plans,
       // What was actually charged, plus the coupon and the fee the customer paid (when there were any).
       history: ((history.data ?? []) as Array<Record<string, unknown>>).map(({ coupons, ...h }) => ({

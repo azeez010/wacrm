@@ -33,6 +33,8 @@ export interface BillingSnapshot {
   periodEnd: string | null;
   paymentsMode: 'off' | 'test' | 'live';
   usage: { key: LimitKey; used: number; limit: number | null }[];
+  /** Items a lower plan archived, per limit key (they come back when there is room). */
+  planArchived: Record<string, number>;
 }
 
 /** One fetch of /api/account/billing shaped for the dialog. */
@@ -47,10 +49,12 @@ export function useBillingSnapshot(enabled: boolean) {
         plans: PlanRow[]; payments_mode?: BillingSnapshot['paymentsMode'];
         subscription: { plan_id: string; status: string; auto_renew?: boolean; current_period_end: string | null };
         usage: BillingSnapshot['usage'];
+        plan_archived?: Record<string, number>;
       };
       setData({
         plans: d.plans, currentPlanId: d.subscription.plan_id, status: d.subscription.status, autoRenew: d.subscription.auto_renew === true,
         periodEnd: d.subscription.current_period_end, paymentsMode: d.payments_mode ?? 'off', usage: d.usage ?? [],
+        planArchived: d.plan_archived ?? {},
       });
       setError(false);
     } catch {
@@ -432,9 +436,10 @@ function CheckoutStep({
                 <Switch checked={renew && canRecur} disabled={!canRecur || !once} onCheckedChange={setRenew} aria-label={t('renewTitle')} />
               </div>
             ) : null}
+            <PlanImpact data={data} plan={plan} />
           </>
         ) : (
-          <FreeImpact data={data} />
+          <PlanImpact data={data} plan={plan} />
         )}
       </div>
       <DialogFooter>
@@ -470,35 +475,104 @@ function Row({ label, value, strong }: { label: string; value: string; strong?: 
   );
 }
 
-/** Choosing Free: what goes over the Free limits (nothing is deleted). */
-function FreeImpact({ data }: { data: BillingSnapshot }) {
+// Limits the archive engine cuts back on a lower plan (migration 132). Everything else over a limit simply stops
+// growing until the plan has room again.
+const ARCHIVABLE = new Set<string>(['forms_max', 'custom_fields_max', 'custom_tables_max', 'automations', 'flows', 'webhook_endpoints', 'integrations_max', 'quick_replies']);
+// Monthly allowances reset each month: never "over" in the sense shown here.
+const MONTHLY = /_per_month$/;
+
+interface PreviewItem { key: string; limit: number | null; count: number; archive: number; restore: number; names: string[] }
+
+/**
+ * What switching to `plan` does to this workspace: items that will be archived (with a few names), items over the
+ * new limit that stay but cannot grow, and items a lower plan archived that come back. Nothing is deleted.
+ */
+function PlanImpact({ data, plan }: { data: BillingSnapshot; plan: PlanRow }) {
   const t = useTranslations('Settings.billing.picker');
   const tb = useTranslations('Settings.billing');
   const locale = useLocale();
-  const free = data.plans.find((p) => p.id === 'free');
-  const over = free
+  const current = data.plans.find((p) => p.id === data.currentPlanId);
+  const lower = plan.id === 'free' || (current ? plan.sort_order < current.sort_order : false);
+  const hasArchived = Object.keys(data.planArchived).length > 0;
+  const [items, setItems] = useState<PreviewItem[] | null>(null);
+
+  useEffect(() => {
+    if (!lower && !hasArchived) return;
+    let live = true;
+    fetch(`/api/account/billing/downgrade-preview?plan_id=${encodeURIComponent(plan.id)}`, { cache: 'no-store' })
+      .then((r) => (r.ok ? r.json() : { items: [] }))
+      .then((d: { items?: PreviewItem[] }) => {
+        if (live) setItems(d.items ?? []);
+      })
+      .catch(() => live && setItems([]));
+    return () => {
+      live = false;
+    };
+  }, [plan.id, lower, hasArchived]);
+
+  if (!lower && !hasArchived) return null;
+  if (items === null) return <Loader2 className="text-muted-foreground mx-auto size-4 animate-spin" />;
+
+  const archive = items.filter((i) => i.archive > 0);
+  const restore = items.filter((i) => i.restore > 0);
+  const stuck = lower
     ? data.usage.filter((u) => {
-        const l = free.limits[u.key];
-        return typeof l === 'number' && u.used > l;
+        const l = plan.limits[u.key];
+        return !ARCHIVABLE.has(u.key) && !MONTHLY.test(u.key) && typeof l === 'number' && u.used > l;
       })
     : [];
+  const n = (x: number) => x.toLocaleString(locale);
+
+  if (archive.length === 0 && restore.length === 0 && stuck.length === 0) {
+    return lower ? <p className="text-muted-foreground text-sm">{t('planFits', { plan: plan.name })}</p> : null;
+  }
   return (
-    <div className="space-y-2 text-sm">
-      {over.length === 0 ? (
-        <p className="text-muted-foreground">{t('freeFits')}</p>
-      ) : (
-        <>
-          <p>{t('freeOver')}</p>
+    <div className="max-h-56 space-y-3 overflow-y-auto text-sm">
+      {archive.length > 0 ? (
+        <div className="space-y-1.5">
+          <p className="font-medium">{t('impactArchiveTitle', { plan: plan.name })}</p>
           <ul className="space-y-1">
-            {over.map((u) => (
-              <li key={u.key} className="flex justify-between gap-3 rounded-lg bg-amber-500/10 px-3 py-1.5">
-                <span>{tb(`limits.${u.key}`)}</span>
-                <span className="tabular-nums">{t('overLine', { used: u.used.toLocaleString(locale), limit: (free?.limits[u.key] ?? 0).toLocaleString(locale) })}</span>
+            {archive.map((i) => (
+              <li key={i.key} className="rounded-lg bg-amber-500/10 px-3 py-1.5">
+                <div className="flex justify-between gap-3">
+                  <span>{tb(`limits.${i.key}`)}</span>
+                  <span className="tabular-nums">{t('impactArchiveLine', { archive: n(i.archive), count: n(i.count), keep: n(i.limit ?? 0) })}</span>
+                </div>
+                {i.names.length > 0 ? (
+                  <p className="text-muted-foreground truncate text-xs">{t('impactExamples', { names: i.names.join(', ') })}</p>
+                ) : null}
               </li>
             ))}
           </ul>
-        </>
-      )}
+          <p className="text-muted-foreground text-xs">{t('impactArchiveNote')}</p>
+        </div>
+      ) : null}
+      {stuck.length > 0 ? (
+        <div className="space-y-1.5">
+          <p className="font-medium">{t('impactStuckTitle', { plan: plan.name })}</p>
+          <ul className="space-y-1">
+            {stuck.map((u) => (
+              <li key={u.key} className="flex justify-between gap-3 rounded-lg bg-muted px-3 py-1.5">
+                <span>{tb(`limits.${u.key}`)}</span>
+                <span className="tabular-nums">{t('overLine', { used: n(u.used), limit: n(plan.limits[u.key] ?? 0) })}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+      {restore.length > 0 ? (
+        <div className="space-y-1.5">
+          <p className="font-medium">{t('impactRestoreTitle')}</p>
+          <ul className="space-y-1">
+            {restore.map((i) => (
+              <li key={i.key} className="flex justify-between gap-3 rounded-lg bg-emerald-500/10 px-3 py-1.5">
+                <span>{tb(`limits.${i.key}`)}</span>
+                <span className="tabular-nums">{t('impactRestoreLine', { restore: n(i.restore) })}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
     </div>
   );
 }

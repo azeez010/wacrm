@@ -50,7 +50,8 @@ export async function POST(request: Request) {
     const { count } = await ctx.supabase
       .from('flows')
       .select('id', { count: 'exact', head: true })
-      .eq('account_id', ctx.accountId);
+      .eq('account_id', ctx.accountId)
+      .is('plan_archived_at', null);
     await assertWithinLimit(ctx.supabase, ctx.accountId, 'flows', count ?? 0);
 
     const userId = await resolveAuditUserId(ctx.supabase, ctx.accountId);

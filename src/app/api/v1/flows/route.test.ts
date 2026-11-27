@@ -7,7 +7,7 @@ const st = vi.hoisted(() => ({
 
 function builder(table: string) {
   const b: Record<string, unknown> = {}
-  for (const m of ['select', 'eq', 'order', 'limit', 'or', 'insert']) b[m] = () => b
+  for (const m of ['select', 'eq', 'is', 'order', 'limit', 'or', 'insert']) b[m] = () => b
   b.delete = () => ({ eq: (_c: string, id: string) => { st.deleted.push(`${table}:${id}`); return Promise.resolve({}) } })
   b.single = async () => ({ data: { id: 'f-1', name: 'Menu', status: 'draft' }, error: null })
   b.then = (r: (v: unknown) => unknown) => r({ data: [], count: 0, error: null })

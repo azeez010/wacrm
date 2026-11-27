@@ -182,7 +182,7 @@ export type ToolRowInput = { name: string; title: string | null; description: st
 /** The plan must include AI tools, and the business must be under its integrations limit. */
 export async function assertCanAddIntegration(db: SupabaseClient, accountId: string) {
   await assertFeature(db, accountId, 'ai_tools')
-  const { count } = await db.from('integrations').select('id', { count: 'exact', head: true }).eq('account_id', accountId)
+  const { count } = await db.from('integrations').select('id', { count: 'exact', head: true }).eq('account_id', accountId).is('plan_archived_at', null)
   await assertWithinLimit(db, accountId, 'integrations_max', count ?? 0)
 }
 

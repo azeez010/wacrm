@@ -8,9 +8,11 @@ import { notifyPlanLimit, parsePlanLimit, PLAN_LIMIT_EVENT, type PlanLimitHit } 
 /** Should this failed response be checked for a plan limit? Our own API (402s, or 4xx with the limit text) and the
  *  database client (contacts limit trigger, create_workspace) - never other sites. */
 export function isLimitCandidate(url: string, status: number, origin: string, supabaseUrl: string | undefined): boolean {
-  if (status < 400 || status >= 500) return false
-  if (url.startsWith('/api/') || url.startsWith(`${origin}/api/`)) return true
-  return Boolean(supabaseUrl && url.startsWith(supabaseUrl))
+  if (status < 400) return false
+  const own = url.startsWith('/api/') || url.startsWith(`${origin}/api/`)
+  // Some of our routes pass a database 'plan_limit:<key>:<n>' through as a 500; only a real plan-limit body counts.
+  if (status >= 500) return own
+  return own || Boolean(supabaseUrl && url.startsWith(supabaseUrl))
 }
 
 /**

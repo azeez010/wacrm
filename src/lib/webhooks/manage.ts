@@ -81,7 +81,8 @@ export async function createWebhookEndpoint(
   const { count } = await supabase
     .from('webhook_endpoints')
     .select('id', { count: 'exact', head: true })
-    .eq('account_id', accountId);
+    .eq('account_id', accountId)
+    .is('plan_archived_at', null);
   await assertWithinLimit(supabase, accountId, 'webhook_endpoints', count ?? 0);
 
   const secret = generateWebhookSecret();

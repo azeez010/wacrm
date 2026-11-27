@@ -306,7 +306,11 @@
     "retry": "Jaribu tena",
     "emptyTitle": "Bado hakuna arifa",
     "emptyDesc": "Utaona tahadhari hapa mtu anapokukabidhi mazungumzo.",
-    "unread": "Hayajasomwa"
+    "unread": "Hayajasomwa",
+    "planArchivedTitle": "Mpango wako umehifadhi baadhi ya vipengee",
+    "planArchivedBody": "Mpango wako unaruhusu vichache kuliko ulivyokuwa navyo, hivyo vilivyotumika kidogo karibuni vimehifadhiwa. Hakuna kilichofutwa; pandisha mpango ili kuvirudisha.",
+    "planRestoredTitle": "Vipengee vilivyohifadhiwa vimerudi",
+    "planRestoredBody": "Mpango wako una nafasi tena, hivyo vipengee ulivyohifadhi vimerejeshwa."
   },
   "DashboardShell": {
     "loading": "Inapakia..."
@@ -3845,8 +3849,6 @@
         "back": "Rudi",
         "completePayment": "Kamilisha malipo",
         "confirmDowngrade": "Hamia mpango wa Bure",
-        "freeFits": "Kila ulicho nacho kinatosha kwenye mpango wa Bure.",
-        "freeOver": "Hapa unatumia zaidi ya kinachoruhusiwa na mpango wa Bure. Hutaweza kuongeza zaidi hadi upandishe mpango tena:",
         "overLine": "{used} kati ya {limit}",
         "couponIssue": {
           "not_found": "Msimbo huo wa kuponi haupo.",
@@ -3859,11 +3861,20 @@
           "already_used": "Tayari umetumia kuponi hiyo.",
           "once_not_recurring": "Kuponi hii ni ya malipo moja tu. Zima kufanya upya kiotomatiki ili kuitumia.",
           "invalid": "Kuponi hiyo haiwezi kutumika."
-        }
+        },
+        "planFits": "Kila ulicho nacho kinatosha kwenye {plan}.",
+        "impactArchiveTitle": "Kwenye {plan}, hivi vitahifadhiwa:",
+        "impactArchiveLine": "{archive} kati ya {count} ({keep} vinabaki)",
+        "impactExamples": "mf. {names}",
+        "impactArchiveNote": "Tunabakiza vilivyotumika karibuni. Vilivyohifadhiwa havifutwi na vinarudi vyenyewe ukipandisha mpango tena.",
+        "impactStuckTitle": "Zaidi ya mipaka ya {plan} (vinabaki, lakini huwezi kuongeza zaidi):",
+        "impactRestoreTitle": "Vilivyohifadhiwa na mpango wako, vinarudi:",
+        "impactRestoreLine": "{restore} vinarudi"
       },
       "stopRenewing": "Acha kufanya upya",
       "renewStopped": "Mpango wako hautafanywa upya. Utaendelea nao hadi mwisho wa kipindi ulicholipia.",
-      "endsOn": "Unaisha {date} (hautafanywa upya)"
+      "endsOn": "Unaisha {date} (hautafanywa upya)",
+      "archivedByPlan": "{count} vimehifadhiwa na mpango wako, vinarudi ukipandisha mpango"
     },
     "tables": {
       "title": "Majedwali maalum",

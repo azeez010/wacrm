@@ -1,6 +1,7 @@
 // PATCH  /api/account/webhooks/{id} - update url / events / is_active (admin+)
 // DELETE /api/account/webhooks/{id} - remove an endpoint (admin+)
 
+import { planLimitResponse } from '@/lib/billing/plan-limit-response';
 import { NextResponse } from 'next/server';
 
 import { requireRole, toErrorResponse } from '@/lib/auth/account';
@@ -42,6 +43,8 @@ export async function PATCH(
       .select(WEBHOOK_PUBLIC_COLUMNS)
       .maybeSingle();
     if (error) {
+      const limit = planLimitResponse(error);
+      if (limit) return limit;
       console.error('[PATCH /api/account/webhooks] update error:', error);
       return NextResponse.json({ error: 'Could not update the webhook' }, { status: 500 });
     }

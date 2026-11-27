@@ -22,7 +22,7 @@ export async function GET(request: Request) {
       getEntitlements(ctx.supabase, ctx.accountId),
       countBillableMessages(ctx.supabase, ctx.accountId),
       ctx.supabase.from('api_keys').select('id', { count: 'exact', head: true }).eq('account_id', ctx.accountId).is('revoked_at', null),
-      ctx.supabase.from('webhook_endpoints').select('id', { count: 'exact', head: true }).eq('account_id', ctx.accountId),
+      ctx.supabase.from('webhook_endpoints').select('id', { count: 'exact', head: true }).eq('account_id', ctx.accountId).is('plan_archived_at', null),
       ctx.supabase.from('whatsapp_config').select('id', { count: 'exact', head: true }).eq('account_id', ctx.accountId),
     ])
     return ok({

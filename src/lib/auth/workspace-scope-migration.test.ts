@@ -32,6 +32,7 @@ const exempt = new Map<string, string>([
   ["announcement_targets", "admin schema"],
   ["metrics_snapshots", "admin schema"],
   ["support_sessions", "admin schema"],
+  ["plan_archive_log", "service-only"],
 ]);
 
 function accountScopedTables(): Set<string> {

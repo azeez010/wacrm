@@ -2955,8 +2955,6 @@
         "back": "Atrás",
         "completePayment": "Completar pago",
         "confirmDowngrade": "Cambiar a Gratis",
-        "freeFits": "Todo lo que tienes cabe en el plan Gratis.",
-        "freeOver": "Aquí usas más de lo que permite el plan Gratis. No podrás añadir más hasta que vuelvas a mejorar:",
         "overLine": "{used} de {limit}",
         "couponIssue": {
           "not_found": "Ese código de cupón no existe.",
@@ -2969,11 +2967,20 @@
           "already_used": "Ya usaste ese cupón.",
           "once_not_recurring": "Este cupón es para un solo pago. Desactiva la renovación automática para usarlo.",
           "invalid": "Ese cupón no se puede usar."
-        }
+        },
+        "planFits": "Todo lo que tienes cabe en {plan}.",
+        "impactArchiveTitle": "Con {plan} se archivará lo siguiente:",
+        "impactArchiveLine": "{archive} de {count} (se quedan {keep})",
+        "impactExamples": "p. ej. {names}",
+        "impactArchiveNote": "Conservamos los usados más recientemente. Lo archivado no se elimina y vuelve solo cuando mejoras tu plan otra vez.",
+        "impactStuckTitle": "Por encima de los límites de {plan} (se conserva, pero no podrás añadir más):",
+        "impactRestoreTitle": "Archivado por tu plan, que vuelve:",
+        "impactRestoreLine": "vuelven {restore}"
       },
       "stopRenewing": "Dejar de renovar",
       "renewStopped": "Tu plan no se renovará. Lo conservas hasta el final del periodo pagado.",
-      "endsOn": "Termina el {date} (no se renueva)"
+      "endsOn": "Termina el {date} (no se renueva)",
+      "archivedByPlan": "{count, plural, one {# archivado por tu plan} other {# archivados por tu plan}}, vuelven al mejorar tu plan"
     },
     "language": {
       "title": "Idioma",
@@ -3399,7 +3406,11 @@
     "retry": "Reintentar",
     "emptyTitle": "Aún no hay notificaciones",
     "emptyDesc": "Verás una alerta aquí cuando alguien te asigne una conversación.",
-    "unread": "Sin leer"
+    "unread": "Sin leer",
+    "planArchivedTitle": "Tu plan archivó algunos elementos",
+    "planArchivedBody": "Tu plan permite menos de los que tenías, así que se archivaron los menos usados recientemente. No se eliminó nada; mejora tu plan para recuperarlos.",
+    "planRestoredTitle": "Los elementos archivados han vuelto",
+    "planRestoredBody": "Tu plan vuelve a tener espacio, así que se restauraron los elementos que había archivado."
   },
   "Agents": {
     "title": "Agentes de IA",

@@ -1,3 +1,5 @@
+import { MARKET_RATES, RATES_CHECKED, RATES_CURRENCY, RATES_EFFECTIVE } from './whatsapp-rates'
+
 // Content for the public marketing pages (/solutions/*, /compare/*). English only on purpose:
 // these are long-form pages written for search, so they are served at one URL each.
 // Keep claims to what the product really does.
@@ -22,7 +24,7 @@ export interface MarketingPage {
   features: { title: string; body: string }[]
   steps: { title: string; body: string }[]
   /** Optional comparison table (compare pages). */
-  table?: { heading: string; rows: [string, string, string][]; columns: [string, string, string] }
+  table?: { heading: string; rows: string[][]; columns: string[] }
   /** Small print under the table, e.g. when competitor details were last checked. */
   note?: string
   faq: { question: string; answer: string }[]
@@ -133,7 +135,7 @@ export const MARKETING_PAGES: MarketingPage[] = [
       { question: 'What if someone asks to stop?', answer: 'You can add an Unsubscribe automation that asks them to confirm and then blocks them, so they never get another message.' },
       { question: 'How long do templates take to approve?', answer: 'Usually between a few minutes and a day. The status updates inside OgaDesk.' },
     ],
-    related: ['whatsapp-crm', 'shared-whatsapp-inbox', 'whatsapp-automations', 'whatsapp-business-api-nigeria'],
+    related: ['whatsapp-crm', 'shared-whatsapp-inbox', 'whatsapp-automations', 'whatsapp-business-api-pricing'],
   },
   {
     slug: 'whatsapp-business-api-nigeria',
@@ -1079,7 +1081,7 @@ MARKETING_PAGES.push(
       { question: "Les prix sont-ils affichés en francs CFA (XAF) ?", answer: "Les forfaits sont fixés en nairas et affichés en francs CFA (XAF) à titre indicatif. Le montant exact est indiqué au paiement, et Meta facture ses propres frais de message séparément." },
       { question: "Mon équipe peut-elle partager un numéro ?", answer: "Oui. Invitez vos collègues avec des rôles et attribuez chaque conversation à la bonne personne." },
     ],
-    related: ["whatsapp-business-api-cote-d-ivoire", "whatsapp-business-api-senegal", "whatsapp-business-api-rdc"],
+    related: ["crm-whatsapp", "whatsapp-business-api-cote-d-ivoire", "whatsapp-business-api-senegal", "whatsapp-business-api-rdc"],
   },
   {
     slug: "whatsapp-business-api-cote-d-ivoire",
@@ -1185,6 +1187,257 @@ MARKETING_PAGES.push(
       { question: "Mon équipe peut-elle partager un numéro ?", answer: "Oui. Invitez vos collègues avec des rôles et attribuez chaque conversation à la bonne personne." },
     ],
     related: ["whatsapp-business-api-cameroun", "whatsapp-business-api-cote-d-ivoire", "whatsapp-business-api-senegal"],
+  },
+)
+
+MARKETING_PAGES.push(
+  {
+    slug: "crm-whatsapp",
+    kind: 'solutions',
+    lang: 'fr',
+    name: "CRM WhatsApp pour petites entreprises",
+    metaTitle: "CRM WhatsApp pour petites entreprises",
+    metaDescription: "Gardez chaque client, chaque discussion et chaque vente au même endroit. OgaDesk est un CRM WhatsApp avec contacts, pipelines, étiquettes et automatisations.",
+    eyebrow: "CRM WhatsApp",
+    h1: "Un CRM WhatsApp qui se souvient de chaque client pour vous",
+    lead: "Fini les heures à fouiller les discussions pour retrouver qui a commandé quoi. OgaDesk transforme vos conversations WhatsApp en liste de clients, en pipeline de ventes et en relances visibles par toute l’équipe.",
+    problems: [
+      { title: "Les clients se perdent dans les discussions", body: "Noms, commandes et promesses sont enfouis dans de longues conversations. Personne ne sait qui attend encore une réponse." },
+      { title: "Un seul téléphone voit tout", body: "Quand le propriétaire détient le numéro, l’équipe attend. Quand un employé part, l’historique part avec lui." },
+      { title: "Impossible de savoir ce qui marche", body: "Sans pipeline, difficile de dire quels prospects sont chauds, quelles ventes sont bloquées ni d’où viennent vos clients." },
+    ],
+    features: [
+      { title: "Des contacts qui se remplissent seuls", body: "Chaque personne qui vous écrit devient un contact avec son historique, ses étiquettes et ses champs personnalisés. Importez vos clients existants depuis un fichier CSV." },
+      { title: "Pipelines et ventes", body: "Faites avancer les ventes de nouveau prospect à gagné. Voyez la valeur des ventes en cours et celles restées sans nouvelles depuis des jours." },
+      { title: "Étiquettes, segments et notes", body: "Regroupez vos clients par produit, ville ou centre d’intérêt, enregistrez le filtre comme segment et laissez des notes internes visibles de l’équipe." },
+      { title: "Des relances automatiques", body: "Les automatisations étiquettent les nouveaux contacts, attribuent les conversations et envoient des rappels quand un client n’a pas répondu." },
+      { title: "Formulaires et codes QR", body: "Collectez des prospects depuis vos publicités, votre site ou un lien partagé. Chaque prospect arrive dans vos contacts avec sa source." },
+      { title: "Avec votre numéro actuel", body: "Connectez-vous via Meta, ou continuez à utiliser le numéro de votre application WhatsApp Business." },
+    ],
+    steps: [
+      { title: "Connectez votre numéro WhatsApp", body: "Connectez-vous avec Meta en quelques clics. Aucun compte développeur n’est nécessaire." },
+      { title: "Importez vos clients", body: "Importez un fichier CSV, ou laissez les contacts se constituer au fil des messages." },
+      { title: "Travaillez dans un seul pipeline", body: "Répondez, étiquetez, attribuez et faites avancer les ventes. Tout est enregistré sur la fiche du client." },
+    ],
+    faq: [
+      { question: "OgaDesk remplace-t-il l’application WhatsApp Business ?", answer: "OgaDesk fonctionne avec la plateforme officielle WhatsApp Business, qui permet à toute une équipe d’utiliser un même numéro. Vous pouvez connecter un nouveau numéro ou garder celui que vous utilisez déjà." },
+      { question: "Mon équipe peut-elle partager un numéro WhatsApp ?", answer: "Oui. Invitez vos collègues avec des rôles (administrateur, agent, lecteur) : tous travaillent dans une boîte partagée, chaque conversation étant attribuée à la bonne personne." },
+      { question: "Puis-je importer mes clients existants ?", answer: "Oui. Importez un fichier CSV avec noms et numéros au format international, ajoutez des étiquettes et associez les colonnes supplémentaires à des champs personnalisés." },
+      { question: "Faut-il une carte bancaire pour commencer ?", answer: "Non. Vous pouvez commencer gratuitement et passer à un forfait supérieur quand vous avez besoin de plus de numéros, de places ou de messages." },
+    ],
+    related: ["boite-de-reception-whatsapp-partagee", "diffusion-whatsapp", "whatsapp-business-api-cameroun"],
+  },
+  {
+    slug: "boite-de-reception-whatsapp-partagee",
+    kind: 'solutions',
+    lang: 'fr',
+    name: "Boîte de réception WhatsApp partagée",
+    metaTitle: "Boîte de réception WhatsApp partagée",
+    metaDescription: "Laissez toute votre équipe répondre aux clients depuis un seul numéro WhatsApp. Attribuez les discussions, répondez plus vite et ne ratez aucun message.",
+    eyebrow: "Boîte partagée",
+    h1: "Un numéro WhatsApp, toute votre équipe qui répond",
+    lead: "Ventes, support et direction peuvent répondre aux clients depuis le même numéro, sans se passer un téléphone. Voyez qui s’occupe de quoi et qui attend encore une réponse.",
+    problems: [
+      { title: "Un téléphone, une personne", body: "Les clients attendent pendant que la personne qui a le téléphone est occupée, endormie ou absente." },
+      { title: "Doubles réponses et discussions oubliées", body: "Deux personnes répondent au même client, ou personne ne le fait. Impossible de savoir qui s’occupe d’une conversation." },
+      { title: "Les réponses lentes font perdre des ventes", body: "Un client qui n’a pas de réponse en quelques minutes achète souvent ailleurs." },
+    ],
+    features: [
+      { title: "Attribuez chaque conversation", body: "Confiez une discussion à un collègue, ou faites-la passer à la personne suivante à tour de rôle. Chacun voit qui en est responsable." },
+      { title: "Voyez qui attend", body: "Le tableau de bord montre les clients en attente, l’attente la plus longue et les réponses proches de la fin de la fenêtre gratuite de 24 heures." },
+      { title: "Réponses rapides et notes", body: "Enregistrez les réponses que vous envoyez souvent et ajoutez des notes internes que le client ne voit jamais." },
+      { title: "Brouillons et réponses automatiques par IA", body: "Laissez un agent IA répondre aux questions courantes à partir de votre bibliothèque de connaissances, puis passez la main à une personne quand il ne peut pas aider." },
+      { title: "Rôles et autorisations", body: "Propriétaires, administrateurs, agents et lecteurs ont chacun l’accès dont ils ont besoin." },
+      { title: "Des alertes qui vous atteignent", body: "Son, compteur dans l’onglet et notifications du navigateur, même quand l’onglet est fermé." },
+    ],
+    steps: [
+      { title: "Connectez le numéro", body: "Liez votre numéro WhatsApp Business via Meta." },
+      { title: "Invitez votre équipe", body: "Envoyez un lien d’invitation et choisissez chaque rôle." },
+      { title: "Répondez ensemble", body: "Attribuez, répondez, clôturez. Les nouveaux messages apparaissent pour tous en temps réel." },
+    ],
+    faq: [
+      { question: "Combien de collègues peuvent utiliser un numéro ?", answer: "Cela dépend de votre forfait. Chaque forfait indique son nombre de places d’équipe, et vous pouvez passer à un forfait supérieur si besoin." },
+      { question: "Les clients voient-ils qu’il s’agit d’une équipe ?", answer: "Les clients voient un seul numéro et un seul nom d’entreprise. Votre équipe voit qui a traité chaque conversation." },
+      { question: "Cela fonctionne-t-il sur téléphone ?", answer: "Oui. OgaDesk fonctionne dans le navigateur sur ordinateur et mobile, avec des notifications." },
+      { question: "Que se passe-t-il après 24 heures ?", answer: "WhatsApp autorise les réponses gratuites dans les 24 heures suivant un message client. Au-delà, vous utilisez un modèle de message approuvé, que OgaDesk vous permet de créer et d’envoyer." },
+    ],
+    related: ["crm-whatsapp", "diffusion-whatsapp", "whatsapp-business-api-cameroun"],
+  },
+  {
+    slug: "diffusion-whatsapp",
+    kind: 'solutions',
+    lang: 'fr',
+    name: "Outil de diffusion WhatsApp avec modèles approuvés",
+    metaTitle: "Outil de diffusion WhatsApp avec modèles approuvés",
+    metaDescription: "Envoyez promotions, informations et rappels à des milliers de clients sur WhatsApp avec des modèles approuvés, des segments et des rapports de livraison.",
+    eyebrow: "Diffusions",
+    h1: "Envoyez un message WhatsApp à des milliers de clients, dans les règles",
+    lead: "Annoncez une promotion, rappelez un rendez-vous ou partagez une information avec des modèles approuvés par WhatsApp. Choisissez un public, personnalisez le message et voyez qui l’a reçu, lu et qui a répondu.",
+    problems: [
+      { title: "Les listes de diffusion sont très limitées", body: "L’application WhatsApp Business limite le nombre de personnes jointes ainsi, et seules celles qui ont enregistré votre numéro reçoivent le message." },
+      { title: "Risque d’être bloqué", body: "Envoyer le même message à la main à beaucoup de monde ressemble à du spam et peut mettre votre numéro en danger." },
+      { title: "Aucun résultat", body: "Impossible de savoir qui a reçu, lu ou répondu à un message." },
+    ],
+    features: [
+      { title: "Modèles de messages approuvés", body: "Créez des modèles et envoyez-les à Meta pour approbation depuis OgaDesk. Utilisez-les pour les diffusions et pour démarrer des conversations." },
+      { title: "Choisissez les destinataires", body: "Envoyez à tous les contacts, à une étiquette, à un segment enregistré ou à un fichier CSV, en excluant les étiquettes que vous voulez ignorer." },
+      { title: "Personnalisez chaque message", body: "Remplissez les variables du modèle avec le nom du client ou n’importe quel champ personnalisé." },
+      { title: "Programmez et suivez", body: "Envoyez maintenant ou plus tard, puis consultez les nombres de messages livrés, lus, répondus et échoués, et exportez la liste." },
+      { title: "Désabonnements gérés", body: "Les clients qui demandent à arrêter peuvent être bloqués automatiquement et sont ignorés ensuite." },
+      { title: "Relancez ce qui a échoué", body: "Si un envoi s’arrête en cours de route, reprenez-le depuis le serveur et ne relancez que les destinataires en échec." },
+    ],
+    steps: [
+      { title: "Créez un modèle", body: "Rédigez le message et soumettez-le à Meta. L’approbation prend généralement de quelques minutes à un jour." },
+      { title: "Choisissez votre public", body: "Sélectionnez une étiquette ou un segment, ou importez un fichier CSV." },
+      { title: "Envoyez et suivez les résultats", body: "Envoyez ou programmez, puis suivez livraison et réponses sur une seule page." },
+    ],
+    faq: [
+      { question: "Puis-je écrire à n’importe qui sur WhatsApp ?", answer: "Les messages démarrés par l’entreprise doivent utiliser un modèle approuvé par WhatsApp, et vous ne devez écrire qu’aux personnes qui ont accepté de vous lire." },
+      { question: "Combien coûte l’envoi ?", answer: "Votre forfait OgaDesk définit le nombre de destinataires de diffusion par mois. Meta peut aussi facturer ses propres frais de conversation, distincts de ceux de OgaDesk." },
+      { question: "Que faire si quelqu’un demande à arrêter ?", answer: "Vous pouvez ajouter une automatisation de désabonnement qui demande confirmation puis bloque le contact, afin qu’il ne reçoive plus aucun message." },
+      { question: "Combien de temps faut-il pour approuver un modèle ?", answer: "Généralement de quelques minutes à un jour. Le statut se met à jour dans OgaDesk." },
+    ],
+    related: ["crm-whatsapp", "boite-de-reception-whatsapp-partagee", "tarifs-api-whatsapp-business"],
+  },
+  {
+    slug: "application-whatsapp-business-comparatif",
+    kind: 'compare',
+    lang: 'fr',
+    name: "OgaDesk ou l’application WhatsApp Business",
+    metaTitle: "OgaDesk ou l’application WhatsApp Business",
+    metaDescription: "Quand l’application WhatsApp Business gratuite suffit, et quand passer à une boîte partagée avec diffusions, automatisations et rôles sur l’API WhatsApp Business.",
+    eyebrow: "Comparatif",
+    h1: "Application WhatsApp Business ou OgaDesk ? Comment choisir",
+    lead: "L’application WhatsApp Business gratuite est un bon début. Si plusieurs personnes répondent aux clients, ou si vous écrivez à beaucoup de monde, une boîte partagée sur l’API officielle fait gagner du temps et protège votre numéro.",
+    problems: [
+      { title: "Choisissez l’application si…", body: "Vous êtes seul à répondre, votre liste de clients est petite et vous n’avez besoin ni d’automatisation ni de rapports." },
+      { title: "Choisissez OgaDesk si…", body: "Une équipe répond aux clients, vous envoyez des diffusions, vous voulez des relances automatiques ou suivre vos ventes et vos délais de réponse." },
+      { title: "Vous n’avez pas à choisir pour toujours", body: "OgaDesk peut connecter le numéro de votre application WhatsApp Business, vous pouvez donc changer quand vous êtes prêt." },
+    ],
+    features: [
+      { title: "Accès pour l’équipe", body: "L’application est liée à un seul téléphone. OgaDesk permet aux propriétaires, administrateurs, agents et lecteurs de partager un numéro." },
+      { title: "Diffusions à grande échelle", body: "Envoyez des modèles approuvés à des étiquettes et des segments, avec rapports de livraison et de lecture." },
+      { title: "Automatisations et IA", body: "Messages d’accueil, réponses d’absence, scénarios par mot-clé et réponses de l’IA à partir de vos propres informations." },
+      { title: "CRM et rapports", body: "Contacts, pipelines, ventes et tableau de bord des délais de réponse et des conversations." },
+    ],
+    steps: [
+      { title: "Continuez avec l’application aujourd’hui", body: "Rien à changer si elle vous suffit déjà." },
+      { title: "Essayez OgaDesk gratuitement", body: "Connectez le même numéro et importez l’historique de vos discussions." },
+      { title: "Passez quand vous êtes prêt", body: "Invitez votre équipe et basculez votre travail quotidien vers la boîte partagée." },
+    ],
+    table: {
+      heading: "Côte à côte",
+      columns: ["", "Application WhatsApp Business", "OgaDesk"],
+      rows: [
+        ["Personnes qui répondent", "Un téléphone, quelques appareils liés", "Toute une équipe, avec des rôles"],
+        ["Diffusions", "Petites listes, contacts enregistrés seulement", "Segments et étiquettes avec modèles approuvés"],
+        ["Automatisation", "Message d’accueil, d’absence, réponses rapides", "Automatisations, scénarios de chatbot et réponses IA"],
+        ["Fiches clients", "Étiquettes et notes", "Contacts, champs personnalisés, pipelines et ventes"],
+        ["Rapports", "Statistiques de messages de base", "Délais de réponse, livraison et résultats de campagnes"],
+        ["Accès API", "Non", "Oui, y compris les codes OTP WhatsApp"],
+        ["Coût", "Gratuit", "Gratuit pour commencer, forfaits payants selon la croissance"],
+      ],
+    },
+    faq: [
+      { question: "Vais-je perdre mes discussions si je change ?", answer: "OgaDesk peut lier le numéro de votre application WhatsApp Business et importer l’historique de vos discussions." },
+      { question: "OgaDesk est-il autorisé par WhatsApp ?", answer: "Oui. Il utilise la plateforme officielle WhatsApp Business de Meta." },
+      { question: "Faut-il des compétences techniques ?", answer: "Non. La connexion se fait en quelques clics avec l’authentification Meta, et le centre d’aide vous guide." },
+    ],
+    related: ["crm-whatsapp", "boite-de-reception-whatsapp-partagee", "diffusion-whatsapp"],
+  },
+)
+
+
+// ---------------- WhatsApp pricing explainer (figures live in whatsapp-rates.ts) ----------------
+const money4 = (n: number) => `${RATES_CURRENCY === 'USD' ? '$' : ''}${n.toFixed(4)}`
+const rateTable = (lang: 'en' | 'fr'): MarketingPage['table'] | undefined =>
+  MARKET_RATES.length === 0
+    ? undefined
+    : {
+        heading: lang === 'fr' ? `Tarifs par message (${RATES_CURRENCY}), en vigueur le ${RATES_EFFECTIVE}` : `Price per message (${RATES_CURRENCY}), effective ${RATES_EFFECTIVE}`,
+        columns: lang === 'fr' ? ['Marché', 'Marketing', 'Utilitaire', 'Authentification', 'Service*'] : ['Market', 'Marketing', 'Utility', 'Authentication', 'Service*'],
+        rows: MARKET_RATES.map((r) => [lang === 'fr' ? r.marketFr : r.market, money4(r.marketing), money4(r.utility), money4(r.authentication), money4(r.service)]),
+      }
+
+MARKETING_PAGES.push(
+  {
+    slug: 'whatsapp-business-api-pricing',
+    kind: 'solutions',
+    name: 'How WhatsApp Business API pricing works',
+    metaTitle: 'How WhatsApp Business API pricing works',
+    metaDescription: 'Meta charges per delivered WhatsApp message by category and country. See what is free, what changed on 1 October 2026 and how it adds up with an OgaDesk plan.',
+    eyebrow: 'Pricing explained',
+    h1: 'How WhatsApp Business API pricing works',
+    lead: 'Two bills are involved: Meta charges for WhatsApp messages, and your platform charges for the software. Here is how Meta’s part works, what is free, and what changed on 1 October 2026.',
+    problems: [
+      { title: 'Per message, not per conversation', body: 'Since 1 July 2025 Meta charges for each delivered message, based on its category and the country of the person receiving it.' },
+      { title: 'Four categories, different prices', body: 'Marketing, utility and authentication templates are charged by category. Service messages are the replies you send inside the customer service window.' },
+      { title: 'The rules changed on 1 October 2026', body: 'Utility templates sent inside the window and service messages are no longer free beyond a monthly allowance. Check your current rates before you plan a campaign.' },
+    ],
+    features: [
+      { title: 'Customer replies are free to receive', body: 'Meta does not charge for messages your customers send to you.' },
+      { title: '24-hour customer service window', body: 'After a customer messages you, you can send non-template messages for 24 hours. Each new customer message restarts the window.' },
+      { title: 'Free service messages each month', body: 'From 1 October 2026, service messages are free for the first 1,000 per business phone number each month, then charged.' },
+      { title: 'Click-to-WhatsApp ad window', body: 'When a customer starts a chat from a Click-to-WhatsApp ad and you reply, Meta’s free entry point window can stay open for up to 7 days.' },
+      { title: 'Volume discounts on utility and authentication', body: 'Meta applies volume tiers to utility and authentication messages only, per market, and counts only messages that are charged.' },
+      { title: 'Billed by Meta, on every provider', body: 'These fees are the same whichever platform you use. OgaDesk plans are separate and cover the software: shared inbox, flows, AI replies and more.' },
+    ],
+    steps: [
+      { title: 'Know your categories', body: 'Marketing promotes, utility updates an existing order or booking, authentication sends a code.' },
+      { title: 'Check your country’s rate', body: 'Rates depend on the country code of the customer. Open Meta’s rate card for the exact price.' },
+      { title: 'Use the free window', body: 'Answer customers quickly inside 24 hours and use templates only when you need to start a conversation.' },
+    ],
+    ...(rateTable('en') ? { table: rateTable('en') } : {}),
+    note: `*Service messages: the first 1,000 per business phone number each month are free. Rates are copied from Meta’s USD rate card effective ${RATES_EFFECTIVE}, last checked on ${RATES_CHECKED}. Other countries are on Meta’s full rate card. Meta can change them, so confirm on Meta’s official rate card before you budget.`,
+    faq: [
+      { question: 'Who do I pay for WhatsApp messages?', answer: 'Meta bills WhatsApp message fees. Your platform, such as OgaDesk, bills for its software separately.' },
+      { question: 'Is the customer service window free?', answer: 'Receiving customer messages is free. From 1 October 2026, service messages you send are free up to 1,000 per business phone number each month, then charged.' },
+      { question: 'What changed on 1 October 2026?', answer: 'Utility templates sent inside the customer service window and service messages are charged, apart from the monthly free allowance of service messages.' },
+      { question: 'Which country’s rate applies?', answer: 'The country calling code of the customer you are messaging decides the market. Ghana and Kenya share the Rest of Africa rate.' },
+      { question: 'Where do I find the exact price?', answer: 'The table on this page shows Meta’s USD rates for common markets. Meta’s full rate card, in several currencies, is on Meta’s WhatsApp pricing page for developers.' },
+      { question: 'How much does a marketing message cost in Nigeria?', answer: 'On Meta’s rate card effective 1 October 2026, a marketing message to a Nigerian number costs $0.0516 and a utility or authentication message costs $0.0067.' },
+    ],
+    related: ['whatsapp-broadcast', 'whatsapp-business-api-nigeria', 'whatsapp-otp-api'],
+  },
+  {
+    slug: 'tarifs-api-whatsapp-business',
+    kind: 'solutions',
+    lang: 'fr',
+    name: 'Comment fonctionnent les tarifs de l’API WhatsApp Business',
+    metaTitle: 'Comment fonctionnent les tarifs de l’API WhatsApp Business',
+    metaDescription: 'Meta facture chaque message WhatsApp livré selon sa catégorie et le pays. Ce qui est gratuit, ce qui a changé le 1er octobre 2026 et le lien avec un forfait OgaDesk.',
+    eyebrow: 'Tarifs expliqués',
+    h1: 'Comment fonctionnent les tarifs de l’API WhatsApp Business',
+    lead: 'Deux factures existent : Meta facture les messages WhatsApp, et votre plateforme facture le logiciel. Voici comment fonctionne la partie Meta, ce qui est gratuit et ce qui a changé le 1er octobre 2026.',
+    problems: [
+      { title: 'Par message, pas par conversation', body: 'Depuis le 1er juillet 2025, Meta facture chaque message livré selon sa catégorie et le pays du destinataire.' },
+      { title: 'Quatre catégories, des prix différents', body: 'Les modèles marketing, utilitaires et d’authentification sont facturés par catégorie. Les messages de service sont les réponses envoyées dans la fenêtre de service client.' },
+      { title: 'Les règles ont changé le 1er octobre 2026', body: 'Les modèles utilitaires envoyés dans la fenêtre et les messages de service ne sont plus gratuits au-delà d’un quota mensuel. Vérifiez vos tarifs avant de préparer une campagne.' },
+    ],
+    features: [
+      { title: 'Recevoir les messages clients est gratuit', body: 'Meta ne facture pas les messages que vos clients vous envoient.' },
+      { title: 'Fenêtre de service client de 24 heures', body: 'Après un message client, vous pouvez envoyer des messages sans modèle pendant 24 heures. Chaque nouveau message du client relance la fenêtre.' },
+      { title: 'Messages de service gratuits chaque mois', body: 'Depuis le 1er octobre 2026, les messages de service sont gratuits jusqu’à 1 000 par numéro professionnel et par mois, puis facturés.' },
+      { title: 'Fenêtre des publicités Click-to-WhatsApp', body: 'Quand un client démarre une discussion depuis une publicité Click-to-WhatsApp et que vous répondez, la fenêtre gratuite de Meta peut rester ouverte jusqu’à 7 jours.' },
+      { title: 'Remises de volume sur utilitaire et authentification', body: 'Meta applique des paliers de volume aux seuls messages utilitaires et d’authentification, par marché, en ne comptant que les messages facturés.' },
+      { title: 'Facturé par Meta, chez tous les fournisseurs', body: 'Ces frais sont identiques quelle que soit la plateforme. Les forfaits OgaDesk sont distincts et couvrent le logiciel : boîte partagée, scénarios, réponses IA et plus.' },
+    ],
+    steps: [
+      { title: 'Connaître vos catégories', body: 'Le marketing fait la promotion, l’utilitaire informe sur une commande ou un rendez-vous, l’authentification envoie un code.' },
+      { title: 'Vérifier le tarif de votre pays', body: 'Les tarifs dépendent de l’indicatif du client. Ouvrez la grille tarifaire de Meta pour le prix exact.' },
+      { title: 'Profiter de la fenêtre gratuite', body: 'Répondez vite dans les 24 heures et n’utilisez des modèles que pour démarrer une conversation.' },
+    ],
+    ...(rateTable('fr') ? { table: rateTable('fr') } : {}),
+    note: `*Messages de service : les 1 000 premiers par numéro professionnel et par mois sont gratuits. Tarifs recopiés de la grille USD de Meta en vigueur le ${RATES_EFFECTIVE}, vérifiés le ${RATES_CHECKED}. Les autres pays figurent dans la grille complète de Meta. Meta peut les modifier : vérifiez la grille officielle avant d’établir un budget.`,
+    faq: [
+      { question: 'À qui je paie les messages WhatsApp ?', answer: 'Meta facture les messages WhatsApp. Votre plateforme, comme OgaDesk, facture son logiciel séparément.' },
+      { question: 'La fenêtre de service client est-elle gratuite ?', answer: 'Recevoir les messages clients est gratuit. Depuis le 1er octobre 2026, les messages de service envoyés sont gratuits jusqu’à 1 000 par numéro professionnel et par mois, puis facturés.' },
+      { question: 'Qu’est-ce qui a changé le 1er octobre 2026 ?', answer: 'Les modèles utilitaires envoyés dans la fenêtre de service client et les messages de service sont facturés, hors quota mensuel gratuit de messages de service.' },
+      { question: 'Quel tarif de pays s’applique ?', answer: 'L’indicatif du client détermine le marché. Le Ghana et le Kenya partagent le tarif Reste de l’Afrique.' },
+      { question: 'Où trouver le prix exact ?', answer: 'Le tableau de cette page reprend les tarifs USD de Meta pour les marchés courants. La grille complète de Meta, dans plusieurs devises, se trouve sur la page des tarifs WhatsApp pour développeurs.' },
+      { question: 'Combien coûte un message marketing au Cameroun ou en Côte d’Ivoire ?', answer: 'Ces pays relèvent du tarif Reste de l’Afrique : selon la grille de Meta en vigueur le 1er octobre 2026, 0,0225 $ par message marketing et 0,004 $ par message utilitaire ou d’authentification.' },
+    ],
+    related: ['diffusion-whatsapp', 'crm-whatsapp'],
   },
 )
 

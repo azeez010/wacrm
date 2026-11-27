@@ -39,7 +39,7 @@ export function MarketingPageView({ page }: { page: MarketingPage }) {
   const ld = graph(
     breadcrumbJsonLd([
       { name: u.home, path: prefix || '/' },
-      { name: u.sections[page.kind], path },
+      { name: u.sections[page.kind], path: page.kind === 'compare' ? `${prefix}/compare` : path },
       { name: page.name, path },
     ]),
     faqJsonLd(page.faq),
@@ -55,7 +55,7 @@ export function MarketingPageView({ page }: { page: MarketingPage }) {
   return (
     <BlogShell>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(ld) }} />
-      <Breadcrumbs items={[{ name: u.home, href: prefix || '/' }, { name: u.sections[page.kind] }, { name: page.name }]} />
+      <Breadcrumbs items={[{ name: u.home, href: prefix || '/' }, { name: u.sections[page.kind], href: page.kind === 'compare' ? `${prefix}/compare` : undefined }, { name: page.name }]} />
 
       <header className="mx-auto max-w-3xl py-10 text-center sm:py-14">
         {page.comingSoon && <p className="mb-3"><span className="rounded-full bg-amber-400 px-3 py-1 text-xs font-bold uppercase tracking-wider text-amber-950">{u.comingSoon}</span></p>}
@@ -103,8 +103,9 @@ export function MarketingPageView({ page }: { page: MarketingPage }) {
                 {page.table.rows.map((r) => (
                   <tr key={r[0]} className="border-t">
                     <th scope="row" className="p-3 font-medium">{r[0]}</th>
-                    <td className="p-3 text-muted-foreground">{r[1]}</td>
-                    <td className="p-3">{r[2]}</td>
+                    {r.slice(1).map((cell, i) => (
+                      <td key={i} className={i === 0 && r.length === 3 ? 'p-3 text-muted-foreground' : 'p-3'}>{cell}</td>
+                    ))}
                   </tr>
                 ))}
               </tbody>

@@ -11,7 +11,7 @@ export async function SiteFooter() {
   const raw = await getLocale()
   const locale = isLocale(raw) ? raw : 'en'
   const t = await getTranslations('Footer')
-  const columns = footerColumns((path) => localizedPath(locale, path))
+  const columns = footerColumns((path) => localizedPath(locale, path), locale)
   return (
     <footer className="border-t bg-muted/20">
       <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">

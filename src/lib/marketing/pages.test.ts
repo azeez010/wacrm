@@ -26,7 +26,7 @@ describe('marketing content', () => {
     const frPages = MARKETING_PAGES.filter((p) => p.lang === 'fr')
     expect(frPages.length).toBeGreaterThanOrEqual(4)
     for (const p of frPages) {
-      expect(p.slug).toMatch(/cameroun|cote-d-ivoire|senegal|rdc/)
+      expect(MARKETING_PAGES.some((x) => x.slug === p.slug && x.lang !== 'fr')).toBe(false)
       expect(`${p.h1} ${p.lead}`).not.toMatch(/\b(Start free|Sign up|WhatsApp Business API for)\b/)
       for (const r of p.related) expect(MARKETING_PAGES.find((x) => x.slug === r)?.lang).toBe('fr')
     }

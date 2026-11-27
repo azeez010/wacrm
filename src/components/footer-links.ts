@@ -2,20 +2,22 @@ export type FooterLink = { key: string; href: string }
 export type FooterColumn = { title: string; links: FooterLink[] }
 
 /** The public footer's columns. `to` prefixes content pages that exist in every language. */
-export function footerColumns(to: (path: string) => string): FooterColumn[] {
+export function footerColumns(to: (path: string) => string, lang: string = 'en'): FooterColumn[] {
+  const fr = lang === 'fr'
   return [
     { title: 'product', links: [
       { key: 'pricing', href: `${to('/')}#pricing` },
-      { key: 'solutions', href: '/solutions/whatsapp-crm' },
+      { key: 'solutions', href: fr ? '/fr/solutions/crm-whatsapp' : '/solutions/whatsapp-crm' },
       { key: 'templates', href: '/templates' },
       { key: 'linkGenerator', href: '/free-tools/whatsapp-link-generator' },
+      { key: 'whatsappPricing', href: fr ? '/fr/solutions/tarifs-api-whatsapp-business' : '/solutions/whatsapp-business-api-pricing' },
       { key: 'apiDocs', href: '/docs' },
     ] },
     { title: 'resources', links: [
       { key: 'blog', href: to('/blog') },
       { key: 'help', href: to('/help') },
       { key: 'changelog', href: to('/changelog') },
-      { key: 'compare', href: '/compare/whatsapp-business-app' },
+      { key: 'compare', href: fr ? '/fr/compare' : '/compare' },
     ] },
     { title: 'company', links: [
       { key: 'partner', href: '/partners' },

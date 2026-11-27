@@ -7,6 +7,7 @@ import { routing } from '@/i18n/routing'
 import { canonicalRedirect } from '@/lib/canonical-host'
 import { applyReferralCookie } from '@/lib/referral'
 import { applyPlanIntentCookie } from '@/lib/plan-intent'
+import { supportGate, supportInfo } from '@/lib/support/session'
 
 // Path-based language for the public landing page only (`/`, `/fr`, ...).
 // The signed-in app, auth and legal pages are cookie-driven and untouched.
@@ -138,6 +139,19 @@ async function handle(request: NextRequest) {
       response.cookies.set(cookie)
     })
     return response
+  }
+
+  // OgaDesk staff opened this business from the admin console: end the session once it expires, and reject changes in
+  // a read-only session (the database rejects them too; this also covers server routes that write as the service role).
+  const gate = supportGate(supportInfo(user), request.method, request.nextUrl.pathname)
+  if (gate === 'expired') {
+    const url = request.nextUrl.clone()
+    url.pathname = '/api/support/end'
+    url.search = '?reason=expired'
+    return withRefreshedCookies(NextResponse.redirect(url))
+  }
+  if (gate === 'read_only') {
+    return withRefreshedCookies(NextResponse.json({ error: 'This is a read-only support session.' }, { status: 403 }))
   }
 
   // Auth pages - redirect to dashboard if already logged in.

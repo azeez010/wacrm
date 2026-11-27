@@ -8,12 +8,14 @@ import { Sidebar } from "@/components/layout/sidebar";
 import { Header } from "@/components/layout/header";
 import { AccountAccessAlert } from "@/components/layout/account-access-alert";
 import { SuspensionGate } from "@/components/layout/suspension-gate";
+import { SupportSessionBanner } from "@/components/layout/support-session-banner";
 import { DashboardAnnouncements } from "@/components/announcements/dashboard-announcements";
 import { PresenceHeartbeat } from "@/components/presence/presence-heartbeat";
 import { DefaultsSeeder } from "@/components/automations/defaults-seeder";
 import { OnboardingDialog } from "@/components/onboarding/onboarding-dialog";
 import { ReferralAttribution } from "@/components/partner/referral-attribution";
 import { CommandPalette } from "@/components/command-palette/command-palette";
+import { UpgradeHost } from "@/components/billing/upgrade-host";
 import { BrowserNotificationsListener } from "@/components/notifications/browser-notifications-listener";
 import { useTotalUnread } from "@/hooks/use-total-unread";
 import { useUnreadTitle } from "@/hooks/use-unread-title";
@@ -92,8 +94,10 @@ function SignedInShell({
       <ReferralAttribution />
       {/* Cmd/Ctrl+K search and quick actions (desktop only). */}
       <CommandPalette />
+      <UpgradeHost />
       <Sidebar open={sidebarOpen} onClose={closeSidebar} totalUnread={totalUnread} />
       <div className="flex flex-1 flex-col overflow-hidden">
+        <SupportSessionBanner />
         <Header onOpenSidebar={() => setSidebarOpen(true)} />
         {/* Thinner horizontal padding on mobile so cards have room to breathe. */}
         <main className="flex-1 overflow-y-auto p-4 sm:p-6">

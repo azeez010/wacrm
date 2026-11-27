@@ -5,7 +5,7 @@
 import { after } from 'next/server'
 import { supabaseAdmin } from '@/lib/flows/admin-client'
 import { enqueue, enqueueOnce, flushOutbox } from './outbox'
-import { isCrmEnabled } from './registry'
+import { crmWorkspaceId, isCrmEnabled } from './registry'
 
 export { isCrmEnabled, isEmailEnabled } from './registry'
 
@@ -30,7 +30,7 @@ async function safely(label: string, fn: () => Promise<void>): Promise<void> {
 
 /** Sync one person to the CRM (collapses repeats while a job is pending). */
 export async function crmSyncUser(userId: string): Promise<void> {
-  if (!isCrmEnabled()) return
+  if (!(await isCrmEnabled())) return
   await safely('crmSyncUser', async () => {
     await enqueue(supabaseAdmin(), { kind: 'contact', userId, dedupeKey: `contact:${userId}` })
     scheduleFlush()
@@ -39,7 +39,9 @@ export async function crmSyncUser(userId: string): Promise<void> {
 
 /** Sync everyone in a workspace (plan, usage and members changed). */
 export async function crmSyncAccount(accountId: string): Promise<void> {
-  if (!isCrmEnabled()) return
+  if (!(await isCrmEnabled())) return
+  // The CRM writes into its own workspace through the API; syncing that workspace would feed itself.
+  if (accountId === (await crmWorkspaceId())) return
   await safely('crmSyncAccount', async () => {
     const db = supabaseAdmin()
     const { data } = await db.from('workspace_members').select('user_id').eq('account_id', accountId)
@@ -64,7 +66,8 @@ export async function crmTrack(
     onceKey?: string
   },
 ): Promise<boolean> {
-  if (!isCrmEnabled()) return false
+  if (!(await isCrmEnabled())) return false
+  if (target.accountId && target.accountId === (await crmWorkspaceId())) return false
   let queued = false
   await safely(`crmTrack(${name})`, async () => {
     const db = supabaseAdmin()

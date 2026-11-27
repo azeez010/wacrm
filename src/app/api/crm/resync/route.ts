@@ -15,7 +15,7 @@ export async function POST(request: Request) {
   const auth = cronAuthorized(request)
   if (auth === 'unconfigured') return NextResponse.json({ error: 'AUTOMATION_CRON_SECRET is not set' }, { status: 503 })
   if (auth === 'forbidden') return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-  if (!isCrmEnabled()) return NextResponse.json({ error: 'No CRM provider configured' }, { status: 409 })
+  if (!(await isCrmEnabled())) return NextResponse.json({ error: 'No CRM provider configured' }, { status: 409 })
 
   const db = supabaseAdmin()
   let queued = 0

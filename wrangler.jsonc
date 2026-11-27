@@ -28,8 +28,10 @@
 	],
 	// Non-secret settings (change here and redeploy). Secrets - BREVO_API_KEY,
 	// BREVO_WEBHOOK_TOKEN, AUTOMATION_CRON_SECRET - are set with
-	// `wrangler secret put` and never live in this file. With no BREVO_API_KEY the
-	// CRM/email layer stays a no-op even though the provider is "brevo".
+	// `wrangler secret put` and never live in this file. Email providers, the sender and the
+	// CRM are set in the admin console (Platform settings -> Email & CRM); the EMAIL_* /
+	// BREVO_API_KEY values below are only a fallback until a provider is saved there.
+	// CRM_PROVIDER is no longer read (see docs/crm-email.md).
 	"vars": {
 		"CRM_PROVIDER": "brevo",
 		"EMAIL_PROVIDER": "brevo",

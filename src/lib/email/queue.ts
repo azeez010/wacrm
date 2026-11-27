@@ -1,17 +1,16 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
-import { BRAND_NAME } from '@/lib/brand'
 import { enqueueOnce } from '@/lib/crm/outbox'
 import { isEmailEnabled } from '@/lib/crm/registry'
 import { scheduleFlush } from '@/lib/crm'
 import type { EmailMessage } from '@/lib/crm/types'
 import { getEntitlements } from '@/lib/billing/entitlements'
 import { renderEmail } from './render'
+import { platformSender } from './platform'
 
-/** The verified sender (Brevo needs the address or its domain verified). */
-export function sender(): EmailMessage['from'] | null {
-  const email = process.env.EMAIL_FROM_ADDRESS
-  if (!email) return null
-  return { email, name: process.env.EMAIL_FROM_NAME || BRAND_NAME }
+/** The default sender set in the admin console (falls back to EMAIL_FROM_* while it is not set). */
+export async function sender(): Promise<EmailMessage['from'] | null> {
+  const s = await platformSender()
+  return s ? { email: s.email, name: s.name } : null
 }
 
 async function person(db: SupabaseClient, userId: string) {
@@ -39,8 +38,8 @@ async function queue(db: SupabaseClient, message: EmailMessage, key: string, ids
 
 /** The welcome email, once per person, tailored to what they said they will use. */
 export async function queueWelcomeEmail(db: SupabaseClient, userId: string, accountId: string): Promise<boolean> {
-  const from = sender()
-  if (!isEmailEnabled() || !from) return false
+  const from = await sender()
+  if (!(await isEmailEnabled()) || !from) return false
   const who = await person(db, userId)
   if (!who) return false
   const { data: account } = await db.from('accounts').select('use_cases').eq('id', accountId).maybeSingle()
@@ -62,8 +61,8 @@ export async function queueQuotaEmail(
   used: number,
   limit: number,
 ): Promise<boolean> {
-  const from = sender()
-  if (!isEmailEnabled() || !from) return false
+  const from = await sender()
+  if (!(await isEmailEnabled()) || !from) return false
   const userId = await ownerUserId(db, accountId)
   const who = userId ? await person(db, userId) : null
   if (!userId || !who) return false
@@ -87,8 +86,8 @@ export async function queueTrialEmail(
   onceId: string,
   days?: number,
 ): Promise<boolean> {
-  const from = sender()
-  if (!isEmailEnabled() || !from) return false
+  const from = await sender()
+  if (!(await isEmailEnabled()) || !from) return false
   const userId = await ownerUserId(db, accountId)
   const who = userId ? await person(db, userId) : null
   if (!userId || !who) return false

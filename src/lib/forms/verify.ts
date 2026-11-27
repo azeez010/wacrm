@@ -70,7 +70,7 @@ export async function verifyAvailability(db: SupabaseClient, accountId: string):
   else if (rows.some((t) => t.status === 'PENDING' || t.status === 'IN_APPEAL')) whatsapp = { ok: false, reason: 'template_pending' }
   else if (rows.length > 0) whatsapp = { ok: false, reason: 'template_rejected' }
   else whatsapp = { ok: false, reason: 'no_template' }
-  return { whatsapp, email: emailCodesAvailable() ? { ok: true } : { ok: false, reason: 'email_off' } }
+  return { whatsapp, email: (await emailCodesAvailable()) ? { ok: true } : { ok: false, reason: 'email_off' } }
 }
 
 // ---------------- start ----------------

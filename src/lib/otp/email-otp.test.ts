@@ -41,13 +41,13 @@ beforeEach(() => {
 })
 
 describe('email codes', () => {
-  it('are only available when a provider and a sender are configured', () => {
-    expect(emailCodesAvailable()).toBe(true)
+  it('are only available when a provider and a sender are configured', async () => {
+    expect(await emailCodesAvailable()).toBe(true)
     h.provider = null
-    expect(emailCodesAvailable()).toBe(false)
+    expect(await emailCodesAvailable()).toBe(false)
     h.provider = { name: 'fake', send: vi.fn() }
     h.sender = null
-    expect(emailCodesAvailable()).toBe(false)
+    expect(await emailCodesAvailable()).toBe(false)
   })
 
   it('stores only a hash, sends the code straight away, and lowercases the address', async () => {

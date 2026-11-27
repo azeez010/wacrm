@@ -326,7 +326,7 @@ export async function createVerification(
     .neq('id', id)
   // CRM: the first code a workspace ever sends is a milestone. And the monthly
   // allowance may just have crossed 80% / 100%.
-  if (isCrmEnabled()) {
+  if (await isCrmEnabled()) {
     const { count: total } = await db.from('otp_verifications').select('id', { count: 'exact', head: true }).eq('account_id', accountId)
     if (total === 1) await crmTrack('first_otp_sent', { accountId })
   }

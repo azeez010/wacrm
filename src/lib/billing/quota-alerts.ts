@@ -18,7 +18,7 @@ export async function checkQuotaThresholds(
   accountId: string,
   now: Date = new Date(),
 ): Promise<'quota_100' | 'quota_80' | null> {
-  if (!isCrmEnabled() && !isEmailEnabled()) return null
+  if (!(await isCrmEnabled()) && !(await isEmailEnabled())) return null
   const { limit } = await getLimit(db, accountId, 'messages_per_month')
   if (!limit) return null
   const used = await countBillableMessages(db, accountId, now)

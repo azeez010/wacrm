@@ -5,6 +5,10 @@ let mailOn = true
 vi.mock('@/lib/crm/registry', () => ({ isEmailEnabled: () => mailOn, isCrmEnabled: () => true }))
 const scheduleFlush = vi.fn()
 vi.mock('@/lib/crm', () => ({ scheduleFlush: () => scheduleFlush() }))
+// The default sender comes from the console (cached); here it follows EMAIL_FROM_* so each test can change it.
+vi.mock('./platform', () => ({
+  platformSender: async () => (process.env.EMAIL_FROM_ADDRESS ? { email: process.env.EMAIL_FROM_ADDRESS, name: process.env.EMAIL_FROM_NAME || 'OgaDesk', replyTo: null } : null),
+}))
 vi.mock('@/lib/billing/entitlements', () => ({ getEntitlements: async () => ({ planName: 'Free', limits: {}, features: {} }) }))
 
 const { queueWelcomeEmail, queueQuotaEmail } = await import('./queue')

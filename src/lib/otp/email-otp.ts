@@ -16,8 +16,8 @@ import { OTP_LIMITS, generateOtpCode, hashOtp } from './code'
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
 
 /** Can this platform send verification emails at all? */
-export function emailCodesAvailable(): boolean {
-  return isEmailEnabled() && sender() !== null
+export async function emailCodesAvailable(): Promise<boolean> {
+  return (await isEmailEnabled()) && (await sender()) !== null
 }
 
 export interface EmailVerificationInput {
@@ -37,8 +37,8 @@ export async function createEmailVerification(
 ): Promise<{ id: string; expiresAt: string }> {
   const email = input.email.trim().toLowerCase()
   if (!EMAIL_RE.test(email) || email.length > 254) throw new ApiError('bad_request', 'Enter a valid email address', 400)
-  const provider = getEmailProvider()
-  const from = sender()
+  const provider = await getEmailProvider()
+  const from = await sender()
   if (!provider || !from) throw new ApiError('unavailable', 'Email codes are not available on this server', 503)
 
   // Throttle per address, like the per-phone throttle for WhatsApp codes.

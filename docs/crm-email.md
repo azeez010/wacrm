@@ -1,72 +1,61 @@
-# CRM sync and transactional email (Brevo)
+# CRM sync and platform email
 
-OgaDesk keeps a CRM in sync with every user and sends a few service emails. It is
-**provider-agnostic**: the app talks to the interfaces in `src/lib/crm/types.ts`, and
-Brevo is one adapter (`src/lib/crm/brevo.ts`). With nothing configured the whole layer
-is a no-op and nothing is queued.
+Both are configured in the **admin console → Platform settings → Email & CRM** (migration 131), not in
+environment variables. With nothing configured, the whole layer is a no-op and nothing is queued.
 
-## What is synced
+## Email: providers with failover
 
-Every person with a login becomes a Brevo contact (looked up by email):
+Every platform email goes out through the providers listed in the console, in order. The first enabled,
+healthy one sends it; if it fails (bad key, unverified sender, rate limit, outage) the next one tries. A
+provider that fails 3 times in a row is moved to the back for 5 minutes.
 
-| Kind | What |
+- Providers: **Brevo, Resend, SendGrid, Postmark, Mailgun, Amazon SES** (v2 API, SigV4-signed). Types and
+  adapters are one dependency-free module, `src/lib/email/providers.ts`, kept byte-identical in the admin API
+  (`ogadesk-api/src/lib/email-providers.ts`) and console (drift-tested there).
+- Keys are encrypted with `PLATFORM_SECRETS_KEY` by the admin API and are write-only (hints only).
+- The default sender (from address, name, reply-to) is set in the same tab; each provider can override it.
+- "Send test" sends a real email through one provider, or through the whole chain.
+
+Emails sent: welcome, usage alerts (80% / 100%), renewal and trial reminders, form sign-in codes (sent
+directly, not through the outbox), and console notices (e.g. "your business was deleted", sent by the admin
+API with the same providers). Supabase still sends the auth emails. Text lives in the `Emails` namespace of
+`messages/*.json`.
+
+**Fallback while nothing is set in the console:** the old `EMAIL_PROVIDER=brevo` + `BREVO_API_KEY` +
+`EMAIL_FROM_ADDRESS` / `EMAIL_FROM_NAME` variables still work (`src/lib/email/platform.ts`). Once a provider
+and the sender are saved in the console, those are used instead.
+
+## CRM: OgaDesk's own workspace
+
+Every person with a login becomes a contact in the **OgaDesk business's own workspace** in this app, through
+that workspace's public API (`src/lib/crm/ogadesk.ts`). In that workspace, create an API key (Settings → API
+keys) with `contacts:read, contacts:write, fields:read, fields:write`, then paste it and the app address in the
+console and press "Test connection".
+
+| Kind | Where it lands |
 | --- | --- |
-| Attributes | `FIRSTNAME, LASTNAME, ROLE, USE_CASES, HEARD_FROM, HEARD_FROM_DETAIL, REFERRAL_CODE, ONBOARDED_AT, PLAN, PLAN_STATUS, BILLING_INTERVAL, PLAN_RENEWS_AT, LIFETIME_PAID, LANGUAGE, COUNTRY, TIMEZONE, SIGNED_UP_AT, WHATSAPP_CONNECTED, WHATSAPP_NUMBERS, API_KEYS, WEBHOOK_ENDPOINTS, MEMBERS, MESSAGES_THIS_MONTH, MESSAGE_LIMIT, QUOTA_PERCENT, MARKETING_OPT_IN, OGA_USER_ID, OGA_ACCOUNT_ID` (catalogue: `src/lib/crm/attributes.ts`) |
-| Lists | `OgaDesk - All users`, `OgaDesk - Use case: Developer API / Support / Sales / Marketing`, `OgaDesk - Marketing opt-in` |
-| Events | `onboarding_completed, whatsapp_connected, whatsapp_disconnected, otp_template_created, template_approved, template_rejected, api_key_created, first_otp_sent, quota_80, quota_100` (plus `plan_changed` / `payment_recorded` once billing records payments) |
+| Attributes (`src/lib/crm/attributes.ts`) | contact custom fields `oga_<name>` (created on the first sync); first and last name go to the contact name |
+| Lists (All users, use cases, Marketing opt-in) | tags. Tags the team adds by hand are kept; only these are added or removed |
+| Events (`onboarding_completed`, `quota_80`, ...) | an `event: <name>` tag plus `oga_last_event` / `oga_last_event_at` |
 
-The app creates the missing attributes and lists itself on the first sync.
+Contacts are matched by email; a person with no phone gets a contact with an empty phone (the public
+`POST /api/v1/contacts` accepts `email` alone). The CRM workspace's own activity is never synced into itself.
 
-**Marketing consent.** Everyone is synced (for service and lifecycle targeting) but
-`MARKETING_OPT_IN` and the `Marketing opt-in` list reflect the checkbox in onboarding
-(off by default). Send marketing campaigns only to that list. An unsubscribe, spam
-complaint or hard bounce in Brevo turns the flag off in the app through the webhook
-below.
-
-## Emails sent by the app
-
-- **Welcome** (after onboarding, tailored to the use cases picked, in the user's language).
-- **Usage alerts** at 80% and 100% of the monthly message allowance, to the workspace owner.
-
-Supabase still sends the auth emails (confirm, password reset). Marketing campaigns are
-sent from Brevo itself. Email text lives in the `Emails` namespace of `messages/*.json`.
-
-## Setup
-
-1. In Brevo: create an API key; verify the sender address or domain (SPF/DKIM) you will
-   send from.
-2. Settings. Non-secret ones are plain variables in `wrangler.jsonc` (`vars`):
-   `CRM_PROVIDER=brevo`, `EMAIL_PROVIDER=brevo`, `EMAIL_FROM_ADDRESS` (the verified
-   sender, e.g. `hello@ogadesk.com`), `EMAIL_FROM_NAME`. Optional: `BREVO_FOLDER_ID`.
-   Secrets are set on the Worker (`npx wrangler secret put NAME --name ogadesk`):
-
-   | Secret | What it is |
-   | --- | --- |
-   | `BREVO_API_KEY` | your Brevo API key |
-   | `AUTOMATION_CRON_SECRET` | the one shared cron password: guards `/api/crm/flush`, `/api/crm/resync`, `/api/automations/cron` and `/api/flows/cron` (any long random string) |
-   | `BREVO_WEBHOOK_TOKEN` | token in the unsubscribe webhook URL (it is a secret: the URL is configured in Brevo) |
-
-3. Nothing else to schedule: a Cloudflare Cron Trigger (`triggers.crons` in `wrangler.jsonc`,
-   every 5 minutes) runs the `scheduled` handler in `worker/custom-worker.ts`, which calls
-   `/api/crm/flush` (and the automations and flows cron endpoints) through the Worker's
-   own service binding, using the secrets above. No GitHub secret or external pinger.
-4. In Brevo (Settings, Webhooks) add a marketing webhook for unsubscribe, spam and hard
-   bounce pointing at `https://ogadesk.com/api/crm/webhooks/brevo?token=<BREVO_WEBHOOK_TOKEN>`.
-5. Backfill existing users once (after the secrets are set and the app is deployed):
-   `CRM_BASE_URL=https://ogadesk.com AUTOMATION_CRON_SECRET=... npm run crm:backfill`
-
-Brevo's Events API can require a Marketing Automation plan. If it is not available,
-contacts, attributes, lists and emails still work; events are marked dead in the outbox.
+**Marketing consent.** Everyone is synced, but only the `Marketing opt-in` tag reflects the onboarding
+checkbox. Send campaigns only to that tag. The Brevo webhook (`/api/crm/webhooks/brevo`) still turns the
+flag off on an unsubscribe, complaint or hard bounce if Brevo is one of your email providers.
 
 ## How it works
 
-Changes enqueue a job in `crm_outbox` (a user sync, an event or an email) and return at
-once. Jobs are drained after the response is sent and by the 5-minute cron trigger (
-`/api/crm/flush`), with retries at 1 min, 5 min, 30 min, 2 h and 12 h before a job is
-marked `dead` (look at `last_error`). A contact sync reads the database when it runs, so
-Brevo always gets the latest plan and usage however many changes were collapsed.
+Changes enqueue a job in `crm_outbox` (a user sync, an event or an email) and return at once. Jobs are
+drained after the response is sent and by the 5-minute cron trigger (`/api/crm/flush`), with retries at
+1 min, 5 min, 30 min, 2 h and 12 h before a job is marked `dead` (look at `last_error`). Failover between
+email providers happens inside one attempt; the retries cover every provider being down.
 
-## Adding another provider
+Backfill existing users once after the CRM is set up:
+`CRM_BASE_URL=https://ogadesk.com AUTOMATION_CRON_SECRET=... npm run crm:backfill`
 
-Implement `CrmProvider` and/or `EmailProvider` in `src/lib/crm/<name>.ts`, add it to
-`src/lib/crm/registry.ts`, and set `CRM_PROVIDER` / `EMAIL_PROVIDER` to its name.
+## Adding an email provider
+
+One entry in `EMAIL_TYPES` and one case in `sendVia()` in `src/lib/email/providers.ts`, then copy the file to
+the admin API and console (the drift test there fails until you do).

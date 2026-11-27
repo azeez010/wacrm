@@ -82,7 +82,7 @@ type Outcome = 'sent' | 'skipped'
 
 async function handle(db: SupabaseClient, row: OutboxRow): Promise<Outcome> {
   if (row.kind === 'contact') {
-    const crm = getCrmProvider()
+    const crm = await getCrmProvider()
     if (!crm) throw new CrmError('CRM provider is not configured', false)
     if (!row.user_id) return 'skipped'
     const snapshot = await buildContactSnapshot(db, row.user_id)
@@ -92,7 +92,7 @@ async function handle(db: SupabaseClient, row: OutboxRow): Promise<Outcome> {
   }
 
   if (row.kind === 'event') {
-    const crm = getCrmProvider()
+    const crm = await getCrmProvider()
     if (!crm) throw new CrmError('CRM provider is not configured', false)
     const email = await recipientEmail(db, row)
     if (!email) return 'skipped'
@@ -101,7 +101,7 @@ async function handle(db: SupabaseClient, row: OutboxRow): Promise<Outcome> {
     return 'sent'
   }
 
-  const mail = getEmailProvider()
+  const mail = await getEmailProvider()
   if (!mail) throw new CrmError('Email provider is not configured', false)
   await mail.send(row.payload as unknown as EmailMessage)
   return 'sent'
@@ -118,7 +118,7 @@ export interface FlushResult {
 export async function flushOutbox(db: SupabaseClient, limit = 10, nowMs: number = Date.now()): Promise<FlushResult> {
   const result: FlushResult = { claimed: 0, sent: 0, retried: 0, dead: 0 }
   // Nothing configured: leave the queue alone (jobs wait for configuration).
-  if (!getCrmProvider() && !getEmailProvider()) return result
+  if (!(await getCrmProvider()) && !(await getEmailProvider())) return result
 
   const { data, error } = await db.rpc('crm_claim_outbox', { p_limit: limit })
   if (error) {

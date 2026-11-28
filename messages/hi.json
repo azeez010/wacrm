@@ -5598,9 +5598,10 @@
     "antiSpam": "एंटी-स्पैम नीति",
     "builtOn": "आधिकारिक WhatsApp Business API पर बना।",
     "rights": "© {year} {brand}. सर्वाधिकार सुरक्षित।",
-    "trademark": "WhatsApp, Meta Platforms, Inc. का पंजीकृत ट्रेडमार्क है। {brand}, Meta Platforms, Inc. से संबद्ध, उसके द्वारा समर्थित या प्रायोजित नहीं है।",
+    "trademark": "WhatsApp और Meta, Meta Platforms, Inc. के ट्रेडमार्क हैं। {brand} एक Meta बिज़नेस पार्टनर (Meta Business Partner) है।",
     "whatsappPricing": "WhatsApp मूल्य",
-    "signupSync": "अपने ऐप के साइनअप सिंक करें"
+    "signupSync": "अपने ऐप के साइनअप सिंक करें",
+    "metaPartner": "Meta बिज़नेस पार्टनर"
   },
   "NotFound": {
     "eyebrow": "त्रुटि 404",

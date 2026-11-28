@@ -5598,9 +5598,10 @@
     "antiSpam": "Política antispam",
     "builtOn": "Criado sobre a API oficial do WhatsApp Business.",
     "rights": "© {year} {brand}. Todos os direitos reservados.",
-    "trademark": "WhatsApp é uma marca registada da Meta Platforms, Inc. A {brand} não é afiliada, endossada nem patrocinada pela Meta Platforms, Inc.",
+    "trademark": "WhatsApp e Meta são marcas da Meta Platforms, Inc. {brand} é um parceiro de negócios da Meta (Meta Business Partner).",
     "whatsappPricing": "Preços do WhatsApp",
-    "signupSync": "Sincronize seus cadastros"
+    "signupSync": "Sincronize seus cadastros",
+    "metaPartner": "Parceiro de negócios da Meta"
   },
   "NotFound": {
     "eyebrow": "Erro 404",

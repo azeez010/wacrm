@@ -21,6 +21,11 @@ export async function SiteFooter() {
               <BrandLogo className="text-lg" markClassName="h-8 w-8" />
             </Link>
             <p className="mt-4 max-w-xs text-sm text-muted-foreground">{t('description')}</p>
+            {/* Meta's badge file, unmodified; the white tile keeps its dark lettering readable in dark mode. */}
+            <div className="mt-5 inline-flex rounded-lg bg-white px-3 py-2 ring-1 ring-border">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/brand/meta-business-partner.webp" alt={t('metaPartner')} width={138} height={28} loading="lazy" />
+            </div>
           </div>
           {columns.map((col) => (
             <nav key={col.title} aria-label={t(col.title)}>

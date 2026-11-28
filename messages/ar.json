@@ -5598,9 +5598,10 @@
     "antiSpam": "سياسة مكافحة الرسائل المزعجة",
     "builtOn": "مبني على واجهة WhatsApp Business API الرسمية.",
     "rights": "© {year} {brand}. جميع الحقوق محفوظة.",
-    "trademark": "WhatsApp علامة تجارية مسجلة لشركة Meta Platforms, Inc. إن {brand} غير تابعة لشركة Meta Platforms, Inc. ولا معتمدة منها ولا برعايتها.",
+    "trademark": "WhatsApp وMeta علامتان تجاريتان لشركة Meta Platforms, Inc. و{brand} شريك أعمال لـ Meta (Meta Business Partner).",
     "whatsappPricing": "أسعار واتساب",
-    "signupSync": "مزامنة تسجيلات تطبيقك"
+    "signupSync": "مزامنة تسجيلات تطبيقك",
+    "metaPartner": "شريك أعمال Meta"
   },
   "NotFound": {
     "eyebrow": "خطأ 404",

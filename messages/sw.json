@@ -5598,9 +5598,10 @@
     "antiSpam": "Sera ya kuzuia barua taka",
     "builtOn": "Imejengwa juu ya WhatsApp Business API rasmi.",
     "rights": "© {year} {brand}. Haki zote zimehifadhiwa.",
-    "trademark": "WhatsApp ni alama ya biashara iliyosajiliwa ya Meta Platforms, Inc. {brand} haihusiani na, haijaidhinishwa wala kufadhiliwa na Meta Platforms, Inc.",
+    "trademark": "WhatsApp na Meta ni alama za biashara za Meta Platforms, Inc. {brand} ni Mshirika wa Biashara wa Meta (Meta Business Partner).",
     "whatsappPricing": "Bei za WhatsApp",
-    "signupSync": "Sawazisha wanaojisajili kwenye programu"
+    "signupSync": "Sawazisha wanaojisajili kwenye programu",
+    "metaPartner": "Mshirika wa Biashara wa Meta"
   },
   "NotFound": {
     "eyebrow": "Hitilafu 404",

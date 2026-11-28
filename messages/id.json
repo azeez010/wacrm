@@ -5598,9 +5598,10 @@
     "antiSpam": "Kebijakan anti-spam",
     "builtOn": "Dibangun di atas WhatsApp Business API resmi.",
     "rights": "© {year} {brand}. Hak cipta dilindungi.",
-    "trademark": "WhatsApp adalah merek dagang terdaftar milik Meta Platforms, Inc. {brand} tidak berafiliasi dengan, didukung oleh, atau disponsori oleh Meta Platforms, Inc.",
+    "trademark": "WhatsApp dan Meta adalah merek dagang Meta Platforms, Inc. {brand} adalah Mitra Bisnis Meta (Meta Business Partner).",
     "whatsappPricing": "Harga WhatsApp",
-    "signupSync": "Sinkronkan pendaftar aplikasi"
+    "signupSync": "Sinkronkan pendaftar aplikasi",
+    "metaPartner": "Mitra Bisnis Meta"
   },
   "NotFound": {
     "eyebrow": "Kesalahan 404",

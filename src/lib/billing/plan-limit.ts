@@ -53,3 +53,11 @@ export function handlePlanLimit(x: unknown): boolean {
   notifyPlanLimit(hit)
   return true
 }
+
+/** A usage meter near or at its plan limit: 'near' from 80%, 'at' when full. null for unlimited or plenty of room. */
+export function nudgeState(used: number, limit: number | null): 'near' | 'at' | null {
+  if (limit === null) return null
+  if (used >= limit) return 'at'
+  if (limit > 0 && used / limit >= 0.8) return 'near'
+  return null
+}

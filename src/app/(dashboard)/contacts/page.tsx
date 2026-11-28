@@ -1,5 +1,6 @@
 'use client';
 
+import { LimitNudge } from '@/components/billing/limit-nudge';
 import { useUrlAction } from '@/hooks/use-url-action';
 import { Suspense, useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
@@ -954,6 +955,7 @@ function ContactsPageInner() {
             <Upload className="size-4" />
             {t('importBtn')}
           </GatedButton>
+          <LimitNudge limitKey="contacts" />
           <GatedButton
             canAct={canEdit}
             gateReason={tGate('reasons.addOrImportContacts')}

@@ -79,3 +79,17 @@ describe('which failed requests are checked for a plan limit', async () => {
     expect(isLimitCandidate('https://abc.supabase.co/x', 400, origin, undefined)).toBe(false)
   })
 })
+
+describe('nudgeState', async () => {
+  const { nudgeState } = await import('./plan-limit')
+  it('is quiet for unlimited and for plenty of room', () => {
+    expect(nudgeState(500, null)).toBeNull()
+    expect(nudgeState(7, 10)).toBeNull()
+  })
+  it('is near from 80% and at when full or over', () => {
+    expect(nudgeState(8, 10)).toBe('near')
+    expect(nudgeState(10, 10)).toBe('at')
+    expect(nudgeState(12, 10)).toBe('at')
+    expect(nudgeState(0, 0)).toBe('at')
+  })
+})

@@ -1,5 +1,6 @@
 "use client";
 
+import { LimitNudge } from "@/components/billing/limit-nudge";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -217,6 +218,8 @@ export default function FlowsPage() {
             {t("description")}
           </p>
         </div>
+        <div className="flex items-center gap-3">
+        <LimitNudge limitKey="flows" />
         <GatedButton
           canAct={canCreate}
           gateReason={tGate("reasons.createFlows")}
@@ -225,6 +228,7 @@ export default function FlowsPage() {
           <Plus className="h-4 w-4" />
           {t("newFlow")}
         </GatedButton>
+        </div>
       </header>
 
       {flows.length === 0 ? (

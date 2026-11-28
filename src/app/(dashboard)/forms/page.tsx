@@ -1,5 +1,6 @@
 "use client";
 
+import { LimitNudge } from "@/components/billing/limit-nudge";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -219,6 +220,7 @@ export default function FormsPage() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
         <div className="flex items-center gap-2">
+          <LimitNudge limitKey="forms_max" />
           <GatedButton canAct={canManage} gateReason={tGate("reasons.manageForms")} onClick={() => setNewOpen(true)}>
             <Plus className="h-4 w-4" />
             {t("new")}

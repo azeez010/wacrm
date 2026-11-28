@@ -1,5 +1,6 @@
 "use client"
 
+import { LimitNudge } from "@/components/billing/limit-nudge";
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
@@ -170,6 +171,8 @@ export default function AutomationsPage() {
             {t("subtitle")}
           </p>
         </div>
+        <div className="flex items-center gap-3">
+        <LimitNudge limitKey="automations" />
         <GatedButton
           canAct={canCreate}
           gateReason={tGate("reasons.createAutomations")}
@@ -179,6 +182,7 @@ export default function AutomationsPage() {
           <Plus className="h-4 w-4" />
           {t("create")}
         </GatedButton>
+        </div>
       </div>
 
       {showTemplates && (

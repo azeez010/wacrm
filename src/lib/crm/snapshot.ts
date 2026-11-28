@@ -22,10 +22,12 @@ async function count(db: SupabaseClient, table: string, accountId: string, extra
 export async function buildContactSnapshot(db: SupabaseClient, userId: string): Promise<CrmContact | null> {
   const { data: profile } = await db
     .from('profiles')
-    .select('user_id, full_name, email, account_id, account_role, locale, country, marketing_opt_in, created_at')
+    .select('user_id, full_name, email, phone, account_id, account_role, locale, country, marketing_opt_in, created_at')
     .eq('user_id', userId)
     .maybeSingle()
   if (!profile?.email) return null
+  // Temporary support-session logins (admin "open as this business") are staff, not customers.
+  if (/^support-.+@support\.ogadesk\.invalid$/i.test(String(profile.email))) return null
 
   const full = String(profile.full_name ?? '').trim()
   const [first, ...rest] = full.split(/\s+/)
@@ -34,6 +36,7 @@ export async function buildContactSnapshot(db: SupabaseClient, userId: string): 
     LASTNAME: rest.join(' ') || null,
     OGA_USER_ID: userId,
     ROLE: profile.account_role ?? null,
+    PHONE: (profile.phone as string | null) ?? null,
     LANGUAGE: profile.locale ?? null,
     COUNTRY: profile.country ?? null,
     SIGNED_UP_AT: ymd(profile.created_at as string),
@@ -106,5 +109,5 @@ export async function buildContactSnapshot(db: SupabaseClient, userId: string): 
     for (const uc of useCases) if (USE_CASE_LISTS[uc]) lists.push(USE_CASE_LISTS[uc])
   }
 
-  return { externalId: userId, email: String(profile.email).toLowerCase(), attributes: attrs, lists }
+  return { externalId: userId, email: String(profile.email).toLowerCase(), phone: (profile.phone as string | null) ?? null, attributes: attrs, lists }
 }

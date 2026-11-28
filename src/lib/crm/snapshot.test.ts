@@ -12,7 +12,7 @@ const { buildContactSnapshot } = await import('./snapshot')
 function seed(over: { profile?: Record<string, unknown>; account?: Record<string, unknown> } = {}) {
   return new FakeDb({}, {
     profiles: [
-      { user_id: 'u1', full_name: 'Jane Q Doe', email: 'Jane@Example.com', account_id: 'a1', account_role: 'owner', locale: 'fr', country: 'NG', marketing_opt_in: true, created_at: '2026-11-01T08:00:00Z', ...over.profile },
+      { user_id: 'u1', full_name: 'Jane Q Doe', email: 'Jane@Example.com', phone: '+2348127423455', account_id: 'a1', account_role: 'owner', locale: 'fr', country: 'NG', marketing_opt_in: true, created_at: '2026-11-01T08:00:00Z', ...over.profile },
       { user_id: 'u2', account_id: 'a1', email: 'bob@example.com' },
     ],
     accounts: [
@@ -35,13 +35,14 @@ beforeEach(() => vi.clearAllMocks())
 describe('buildContactSnapshot', () => {
   it('describes the user, their plan and their usage', async () => {
     const c = await buildContactSnapshot(seed().asClient(), 'u1')
-    expect(c).toMatchObject({ externalId: 'u1', email: 'jane@example.com' })
+    expect(c).toMatchObject({ externalId: 'u1', email: 'jane@example.com', phone: '+2348127423455' })
     expect(c!.attributes).toEqual({
       FIRSTNAME: 'Jane',
       LASTNAME: 'Q Doe',
       OGA_USER_ID: 'u1',
       ROLE: 'owner',
       LANGUAGE: 'fr',
+      PHONE: '+2348127423455',
       COUNTRY: 'NG',
       SIGNED_UP_AT: '2026-11-01',
       MARKETING_OPT_IN: true,
@@ -70,6 +71,11 @@ describe('buildContactSnapshot', () => {
       MESSAGE_LIMIT: 1000,
       QUOTA_PERCENT: 25,
     })
+  })
+
+  it('leaves temporary support-session logins out of the CRM', async () => {
+    const db = seed({ profile: { email: 'support-6a1f@support.ogadesk.invalid' } })
+    expect(await buildContactSnapshot(db.asClient(), 'u1')).toBeNull()
   })
 
   it('puts people on lists by use case and marketing consent', async () => {

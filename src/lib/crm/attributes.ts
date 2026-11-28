@@ -25,6 +25,7 @@ export const CRM_ATTRIBUTES = {
   TRIAL_ENDS_AT: 'date', // while on a free trial (PLAN_STATUS = trialing)
   LIFETIME_PAID: 'float',
   // profile
+  PHONE: 'text', // WhatsApp number (+234...), kept here even when another contact already owns it as its phone
   LANGUAGE: 'text',
   COUNTRY: 'text',
   TIMEZONE: 'text',

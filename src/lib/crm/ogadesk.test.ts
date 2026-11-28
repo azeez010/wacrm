@@ -4,7 +4,7 @@ import { eventTag, fieldKey, ogadeskCrmProvider, resetOgadeskSchemaCache } from 
 
 type Call = { method: string; path: string; body: Record<string, unknown> | null; auth: string | null }
 
-function server(opts: { fields?: string[]; contactTags?: string[]; status?: number } = {}) {
+function server(opts: { fields?: string[]; contactTags?: string[]; status?: number; phoneTaken?: boolean } = {}) {
   const calls: Call[] = []
   const f = vi.fn(async (url: string | URL | Request, init?: RequestInit) => {
     const u = new URL(String(url))
@@ -15,7 +15,7 @@ function server(opts: { fields?: string[]; contactTags?: string[]; status?: numb
     if (call.path === '/api/v1/custom-fields' && call.method === 'GET') return json(200, { data: (opts.fields ?? []).map((key) => ({ key })) })
     if (call.path === '/api/v1/custom-fields') return json(201, { data: { key: call.body!.key } })
     if (call.path === '/api/v1/contacts') return json(200, { data: { id: 'c1', name: 'x', tags: (opts.contactTags ?? []).map((name) => ({ name })) } })
-    if (call.path === '/api/v1/contacts/c1') return json(200, { data: { id: 'c1' } })
+    if (call.path === '/api/v1/contacts/c1') return call.body && 'phone' in call.body && opts.phoneTaken ? json(409, { error: { code: 'phone_in_use', message: 'taken' } }) : json(200, { data: { id: 'c1' } })
     return json(404, {})
   }) as unknown as typeof fetch
   return { f, calls }
@@ -24,7 +24,8 @@ function server(opts: { fields?: string[]; contactTags?: string[]; status?: numb
 const contact = {
   externalId: 'u1',
   email: 'ada@example.com',
-  attributes: { FIRSTNAME: 'Ada', PLAN: 'pro', SIGNED_UP_AT: '2026-11-20T10:00:00Z', WHATSAPP_CONNECTED: true, MESSAGES_THIS_MONTH: 12, NOT_A_FIELD: 'x' },
+  phone: '2348127423455',
+  attributes: { FIRSTNAME: 'Ada', PHONE: '+2348127423455', PLAN: 'pro', SIGNED_UP_AT: '2026-11-20T10:00:00Z', WHATSAPP_CONNECTED: true, MESSAGES_THIS_MONTH: 12, NOT_A_FIELD: 'x' },
   lists: [CRM_LISTS.all, CRM_LISTS.support],
 }
 
@@ -54,6 +55,23 @@ describe('OgaDesk CRM provider', () => {
     const before = calls.length
     await p.upsertContact(contact)
     expect(calls.slice(before).some((c) => c.path === '/api/v1/custom-fields')).toBe(false) // schema cached
+  })
+
+  it('puts the WhatsApp number on the contact, and keeps syncing when another contact already has it', async () => {
+    const ok = server({ fields: [] })
+    await ogadeskCrmProvider({ baseUrl: 'https://ogadesk.com', apiKey: 'k' }, ok.f).upsertContact(contact)
+    const patches = ok.calls.filter((c) => c.method === 'PATCH')
+    expect(patches).toHaveLength(1)
+    expect(patches[0]!.body!.phone).toBe('+2348127423455')
+    expect(patches[0]!.body!.custom_fields).toMatchObject({ [fieldKey('PHONE')]: '+2348127423455' })
+
+    resetOgadeskSchemaCache()
+    const taken = server({ fields: [], phoneTaken: true })
+    await ogadeskCrmProvider({ baseUrl: 'https://ogadesk.com', apiKey: 'k' }, taken.f).upsertContact(contact)
+    const retried = taken.calls.filter((c) => c.method === 'PATCH')
+    expect(retried).toHaveLength(2)
+    expect(retried[1]!.body).not.toHaveProperty('phone')
+    expect(retried[1]!.body!.custom_fields).toMatchObject({ [fieldKey('PHONE')]: '+2348127423455' })
   })
 
   it('records an event as a tag and the last-event fields', async () => {

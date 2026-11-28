@@ -5,13 +5,16 @@
 // Both are account-scoped: a contact belonging to another account
 // returns 404 (never 403 - don't reveal it exists elsewhere).
 // PATCH updates only the fields present in the body; pass `tags` (an
-// array of tag names) to replace the contact's tags.
+// array of tag names) to replace the contact's tags. `phone` (international,
+// with a leading +) sets the number; 409 `phone_in_use` when another
+// contact in the account already has it.
 // ============================================================
 
 import { setContactBlocked } from '@/lib/contacts/block-write';
 import { requireApiKey } from '@/lib/auth/api-context';
 import { writeContactCustomFields } from '@/lib/custom-fields/contact-values';
 import { ok, fail, toApiErrorResponse } from '@/lib/api/v1/respond';
+import { parseInternationalPhone } from '@/lib/whatsapp/phone-utils';
 import {
   getContactById,
   setContactTags,
@@ -67,6 +70,28 @@ export async function PATCH(
       } else {
         return fail('bad_request', `'${field}' must be a string or null`, 400);
       }
+    }
+
+    if ('phone' in body) {
+      const digits = typeof body.phone === 'string' ? parseInternationalPhone(body.phone) : null;
+      if (!digits) {
+        return fail(
+          'bad_request',
+          "'phone' must be an international phone number with a leading + and country code (e.g. +14155550123)",
+          400
+        );
+      }
+      const { data: taken } = await ctx.supabase
+        .from('contacts')
+        .select('id')
+        .eq('account_id', ctx.accountId)
+        .eq('phone_normalized', digits)
+        .neq('id', id)
+        .limit(1);
+      if (taken && taken.length > 0) {
+        return fail('phone_in_use', 'Another contact already has this phone number', 409);
+      }
+      updates.phone = digits;
     }
 
     if ('blocked' in body) {

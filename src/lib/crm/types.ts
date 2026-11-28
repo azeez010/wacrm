@@ -11,6 +11,8 @@ export interface CrmContact {
   /** Stable key in our system (the Supabase user id). */
   externalId: string
   email: string
+  /** International WhatsApp number with a leading +, when the person gave one. */
+  phone?: string | null
   attributes: CrmAttributes
   /** Names of the lists/segments the person should be in (managed in full). */
   lists: string[]

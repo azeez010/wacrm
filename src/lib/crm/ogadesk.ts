@@ -1,6 +1,6 @@
 // OgaDesk's own CRM: the OgaDesk business's workspace in this app, reached through its public API (/api/v1) with an
 // API key created in that workspace and pasted in the admin console (Platform settings → Email & CRM, migration 131).
-//   contact     → POST /api/v1/contacts (find-or-create by email; phone stays empty), then PATCH to set name, fields, tags
+//   contact     → POST /api/v1/contacts (find-or-create by email), then PATCH to set name, phone, fields, tags
 //   attributes  → contact custom fields "oga_<name>" (created once per isolate via /api/v1/custom-fields)
 //   lists       → tags; tags the team added by hand are kept, only managed tags are added/removed
 //   events      → an "event: <name>" tag plus the oga_last_event / oga_last_event_at fields
@@ -105,10 +105,12 @@ export function ogadeskCrmProvider(cfg: OgadeskCrmConfig, f: typeof fetch = fetc
       const managed = new Set(ALL_MANAGED_LISTS.map((n) => n.toLowerCase()))
       const current = (existing.tags ?? []).map((t) => t.name)
       const tags = [...current.filter((t) => !managed.has(t.toLowerCase())), ...contact.lists]
-      await request(`/contacts/${existing.id}`, {
-        method: 'PATCH',
-        body: { ...(name ? { name } : {}), email: contact.email, tags: [...new Set(tags)], custom_fields: customFields(attrs) },
-      })
+      const body = { ...(name ? { name } : {}), email: contact.email, tags: [...new Set(tags)], custom_fields: customFields(attrs) }
+      const phone = contact.phone ? (contact.phone.startsWith('+') ? contact.phone : `+${contact.phone}`) : null
+      // The number goes on the contact itself. If another contact in the workspace already has it (two signups sharing a
+      // number, or a WhatsApp chat from it) or it is not a valid number, the sync continues; it stays in the oga_phone field.
+      const first = await request(`/contacts/${existing.id}`, { method: 'PATCH', body: phone ? { ...body, phone } : body }, phone ? [409, 400] : [])
+      if (phone && (first.status === 409 || first.status === 400)) await request(`/contacts/${existing.id}`, { method: 'PATCH', body })
     },
 
     async trackEvent(event: CrmEvent) {

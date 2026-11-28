@@ -2,12 +2,13 @@
 
 import { useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
-import { Code2, Headset, Megaphone, TrendingUp, type LucideIcon } from 'lucide-react'
+import { ChevronDown, Code2, Headset, Megaphone, TrendingUp, type LucideIcon } from 'lucide-react'
 import { toast } from 'sonner'
 
 import { useAuth } from '@/hooks/use-auth'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { PhoneField } from '@/components/phone-field'
@@ -123,24 +124,39 @@ export function OnboardingDialog() {
                 placeholder={t('workspacePlaceholder')}
               />
             </div>
-            <fieldset className="space-y-1.5">
-              <legend className="text-sm font-medium">{t('useCasesLabel')}</legend>
-              <div className="divide-y rounded-lg border">
-                {USE_CASES.map((uc) => {
-                  const Icon = USE_CASE_ICONS[uc]
-                  return (
-                    <label key={uc} className="flex cursor-pointer items-center gap-3 px-3 py-2 hover:bg-muted/40">
-                      <Checkbox checked={useCases.includes(uc)} onCheckedChange={() => toggleUseCase(uc)} />
-                      <Icon className="size-4 shrink-0 text-primary" aria-hidden />
-                      <span className="min-w-0 text-sm">
-                        <span className="font-medium">{t(`useCases.${uc}.title`)}</span>
-                        <span className="text-muted-foreground"> · {t(`useCases.${uc}.description`)}</span>
-                      </span>
-                    </label>
-                  )
-                })}
-              </div>
-            </fieldset>
+            <div className="space-y-1.5">
+              <span id="onboarding-usecases-label" className="text-sm font-medium">{t('useCasesLabel')}</span>
+              <Popover>
+                <PopoverTrigger
+                  aria-labelledby="onboarding-usecases-label"
+                  className="flex h-10 w-full items-center justify-between gap-2 rounded-lg border border-border bg-muted px-3 text-left text-sm transition-colors hover:bg-muted/70 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
+                >
+                  <span className={cn('truncate', useCases.length === 0 && 'text-muted-foreground')}>
+                    {useCases.length === 0
+                      ? t('useCasesPlaceholder')
+                      : useCases.length <= 2
+                        ? useCases.map((uc) => t(`useCases.${uc}.title`)).join(', ')
+                        : t('useCasesSelected', { count: useCases.length })}
+                  </span>
+                  <ChevronDown className="size-4 shrink-0 text-muted-foreground" aria-hidden />
+                </PopoverTrigger>
+                <PopoverContent align="start" className="w-(--anchor-width) min-w-64 gap-0 p-1">
+                  {USE_CASES.map((uc) => {
+                    const Icon = USE_CASE_ICONS[uc]
+                    return (
+                      <label key={uc} className="flex cursor-pointer items-center gap-3 rounded-md px-2 py-2 hover:bg-muted">
+                        <Checkbox checked={useCases.includes(uc)} onCheckedChange={() => toggleUseCase(uc)} />
+                        <Icon className="size-4 shrink-0 text-primary" aria-hidden />
+                        <span className="min-w-0 text-sm">
+                          <span className="block font-medium">{t(`useCases.${uc}.title`)}</span>
+                          <span className="block text-xs text-muted-foreground">{t(`useCases.${uc}.description`)}</span>
+                        </span>
+                      </label>
+                    )
+                  })}
+                </PopoverContent>
+              </Popover>
+            </div>
             <div className="space-y-1.5">
               <label htmlFor="onboarding-phone" className="text-sm font-medium">{t('phoneLabel')}</label>
               <PhoneField id="onboarding-phone" value={phone} onChange={setPhone} placeholder="8012345678" />

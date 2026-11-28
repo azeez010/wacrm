@@ -83,7 +83,8 @@
       "viewAll": "모두 보기"
     },
     "forms": "양식",
-    "partner": "파트너 프로그램"
+    "partner": "파트너 프로그램",
+    "integrations": "연동"
   },
   "ModeToggle": {
     "switchMode": "{mode} 모드로 전환"
@@ -2870,7 +2871,7 @@
       },
       "upgradeTo": "{feature}을(를) 사용하려면 {plan}(으)로 업그레이드",
       "pickTitle": "요금제 선택",
-      "pickDesc": "결제가 아직 연결되지 않아 요금제가 바로 변경됩니다.",
+      "pickDesc": "플랜을 선택하세요. 유료 플랜은 다음 단계에서 결제합니다.",
       "switchTo": "{plan}(으)로 변경",
       "switchToGeneric": "요금제 변경",
       "switched": "이제 {plan} 요금제입니다",
@@ -2989,7 +2990,9 @@
       "stopRenewing": "갱신 중지",
       "renewStopped": "요금제가 갱신되지 않습니다. 결제한 기간이 끝날 때까지 유지됩니다.",
       "endsOn": "{date}에 종료 (갱신 안 함)",
-      "archivedByPlan": "요금제로 {count}개 보관됨, 업그레이드하면 돌아옵니다"
+      "archivedByPlan": "요금제로 {count}개 보관됨, 업그레이드하면 돌아옵니다",
+      "paymentsUnavailable": "아직 이 워크스페이스에서는 온라인 결제를 사용할 수 없습니다. 업그레이드는 지원팀에 문의하세요.",
+      "paymentsUnavailableButton": "업그레이드는 지원팀에 문의"
     },
     "language": {
       "title": "언어",
@@ -5255,7 +5258,9 @@
     "workspacePlaceholder": "예: 라고스 매장",
     "trialBanner": "{days}일 {plan} 무료 체험을 시작합니다. 카드 필요 없음.",
     "trialStarted": "{days}일 {plan} 체험이 시작되었습니다.",
-    "useCasesLabel": "어떤 용도로 사용하시나요?"
+    "useCasesLabel": "어떤 용도로 사용하시나요?",
+    "useCasesPlaceholder": "용도 선택",
+    "useCasesSelected": "{count}개 선택됨"
   },
   "Emails": {
     "footer": "OgaDesk 계정이 있어 이 서비스 이메일을 받으셨습니다.",
@@ -5452,7 +5457,8 @@
     "hintOpen": "열기",
     "hintClose": "닫기",
     "pages": {
-      "notifications": "알림"
+      "notifications": "알림",
+      "integrations": "연동"
     },
     "actions": {
       "newContact": "새 연락처",
@@ -5511,7 +5517,11 @@
     "websiteVisitor": "웹사이트 방문자"
   },
   "PhoneField": {
-    "searchCountry": "국가 또는 코드 검색"
+    "searchCountry": "국가 또는 코드 검색",
+    "valid": "올바른 번호입니다: {number} ({country})",
+    "keepTyping": "계속 입력하세요…",
+    "tooShort": "번호가 너무 짧은 것 같습니다",
+    "tooLong": "번호가 너무 긴 것 같습니다"
   },
   "Blog": {
     "title": "{brand} 블로그",

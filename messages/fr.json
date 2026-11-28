@@ -83,7 +83,8 @@
       "viewAll": "Tout voir"
     },
     "forms": "Formulaires",
-    "partner": "Programme partenaire"
+    "partner": "Programme partenaire",
+    "integrations": "Intégrations"
   },
   "ModeToggle": {
     "switchMode": "Passer en mode {mode}"
@@ -2870,7 +2871,7 @@
       },
       "upgradeTo": "Passez à {plan} pour utiliser {feature}",
       "pickTitle": "Choisissez une formule",
-      "pickDesc": "Les paiements ne sont pas encore connectés : votre formule change immédiatement.",
+      "pickDesc": "Choisissez une offre. Les offres payantes se règlent à l’étape suivante.",
       "switchTo": "Passer à {plan}",
       "switchToGeneric": "Changer de formule",
       "switched": "Vous êtes maintenant sur {plan}",
@@ -2989,7 +2990,9 @@
       "stopRenewing": "Arrêter le renouvellement",
       "renewStopped": "Votre forfait ne sera pas renouvelé. Vous le gardez jusqu'à la fin de la période payée.",
       "endsOn": "Se termine le {date} (non renouvelé)",
-      "archivedByPlan": "{count, plural, one {# archivé par votre forfait} other {# archivés par votre forfait}}, de retour si vous passez à un forfait supérieur"
+      "archivedByPlan": "{count, plural, one {# archivé par votre forfait} other {# archivés par votre forfait}}, de retour si vous passez à un forfait supérieur",
+      "paymentsUnavailable": "Le paiement en ligne n’est pas encore disponible pour votre espace. Contactez le support pour passer à une offre supérieure.",
+      "paymentsUnavailableButton": "Contacter le support pour passer à l’offre"
     },
     "language": {
       "title": "Langue",
@@ -5255,7 +5258,9 @@
     "workspacePlaceholder": "ex. : Boutique de Lagos",
     "trialBanner": "Vous commencez un essai gratuit de {days} jours du forfait {plan}. Sans carte.",
     "trialStarted": "Votre essai de {days} jours du forfait {plan} a commencé.",
-    "useCasesLabel": "Pour quoi allez-vous l’utiliser ?"
+    "useCasesLabel": "Pour quoi allez-vous l’utiliser ?",
+    "useCasesPlaceholder": "Choisir les usages",
+    "useCasesSelected": "{count} sélectionnés"
   },
   "Emails": {
     "footer": "Vous recevez cet e-mail de service parce que vous avez un compte OgaDesk.",
@@ -5452,7 +5457,8 @@
     "hintOpen": "ouvrir",
     "hintClose": "fermer",
     "pages": {
-      "notifications": "Notifications"
+      "notifications": "Notifications",
+      "integrations": "Intégrations"
     },
     "actions": {
       "newContact": "Nouveau contact",
@@ -5511,7 +5517,11 @@
     "websiteVisitor": "Visiteur du site"
   },
   "PhoneField": {
-    "searchCountry": "Rechercher un pays ou un indicatif"
+    "searchCountry": "Rechercher un pays ou un indicatif",
+    "valid": "Parfait : {number} ({country})",
+    "keepTyping": "Continuez à saisir…",
+    "tooShort": "Ce numéro semble trop court",
+    "tooLong": "Ce numéro semble trop long"
   },
   "Blog": {
     "title": "Blog {brand}",

@@ -83,7 +83,8 @@
       "viewAll": "View all"
     },
     "forms": "Forms",
-    "partner": "Partner program"
+    "partner": "Partner program",
+    "integrations": "Integrations"
   },
   "ModeToggle": {
     "switchMode": "Switch to {mode} mode"
@@ -2870,7 +2871,7 @@
       },
       "upgradeTo": "Upgrade to {plan} to use {feature}",
       "pickTitle": "Choose a plan",
-      "pickDesc": "Payments aren't connected yet, so your plan changes right away.",
+      "pickDesc": "Pick a plan. Paid plans are paid for in the next step.",
       "switchTo": "Switch to {plan}",
       "switchToGeneric": "Switch plan",
       "switched": "You are now on {plan}",
@@ -2989,7 +2990,9 @@
       "stopRenewing": "Stop renewing",
       "renewStopped": "Your plan won't renew. You keep it until the end of the paid period.",
       "endsOn": "Ends on {date} (won't renew)",
-      "archivedByPlan": "{count, plural, one {# archived by your plan} other {# archived by your plan}}, back when you upgrade"
+      "archivedByPlan": "{count, plural, one {# archived by your plan} other {# archived by your plan}}, back when you upgrade",
+      "paymentsUnavailable": "Online payments aren't available for your workspace yet. Contact support to upgrade.",
+      "paymentsUnavailableButton": "Contact support to upgrade"
     },
     "language": {
       "title": "Language",
@@ -5255,7 +5258,9 @@
     "workspacePlaceholder": "e.g. Lagos store",
     "trialBanner": "You're starting a {days}-day {plan} free trial. No card needed.",
     "trialStarted": "Your {days}-day {plan} trial has started.",
-    "useCasesLabel": "What will you use it for?"
+    "useCasesLabel": "What will you use it for?",
+    "useCasesPlaceholder": "Select use cases",
+    "useCasesSelected": "{count} selected"
   },
   "Emails": {
     "footer": "You're receiving this service email because you have an OgaDesk account.",
@@ -5452,7 +5457,8 @@
     "hintOpen": "open",
     "hintClose": "close",
     "pages": {
-      "notifications": "Notifications"
+      "notifications": "Notifications",
+      "integrations": "Integrations"
     },
     "actions": {
       "newContact": "New contact",
@@ -5511,7 +5517,11 @@
     "websiteVisitor": "Website visitor"
   },
   "PhoneField": {
-    "searchCountry": "Search country or code"
+    "searchCountry": "Search country or code",
+    "valid": "Looks good: {number} ({country})",
+    "keepTyping": "Keep typing…",
+    "tooShort": "This number looks too short",
+    "tooLong": "This number looks too long"
   },
   "Blog": {
     "title": "{brand} Blog",

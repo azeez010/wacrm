@@ -176,7 +176,8 @@
       "viewAll": "Lihat semua"
     },
     "forms": "Formulir",
-    "partner": "Program mitra"
+    "partner": "Program mitra",
+    "integrations": "Integrasi"
   },
   "ModeToggle": {
     "switchMode": "Beralih ke mode {mode}"
@@ -322,7 +323,11 @@
     "hidePassword": "Sembunyikan kata sandi"
   },
   "PhoneField": {
-    "searchCountry": "Cari negara atau kode"
+    "searchCountry": "Cari negara atau kode",
+    "valid": "Sudah benar: {number} ({country})",
+    "keepTyping": "Lanjutkan mengetik…",
+    "tooShort": "Nomor ini tampak terlalu pendek",
+    "tooLong": "Nomor ini tampak terlalu panjang"
   },
   "Channels": {
     "whatsapp": "WhatsApp",
@@ -342,7 +347,8 @@
     "hintOpen": "buka",
     "hintClose": "tutup",
     "pages": {
-      "notifications": "Notifikasi"
+      "notifications": "Notifikasi",
+      "integrations": "Integrasi"
     },
     "actions": {
       "newContact": "Kontak baru",
@@ -523,7 +529,9 @@
     "workspacePlaceholder": "mis. Toko Lagos",
     "trialBanner": "Anda memulai uji coba gratis paket {plan} selama {days} hari. Tanpa kartu.",
     "trialStarted": "Uji coba paket {plan} {days} hari Anda sudah dimulai.",
-    "useCasesLabel": "Untuk apa Anda akan memakainya?"
+    "useCasesLabel": "Untuk apa Anda akan memakainya?",
+    "useCasesPlaceholder": "Pilih kegunaan",
+    "useCasesSelected": "{count} dipilih"
   },
   "Partner": {
     "title": "Program mitra",
@@ -3763,7 +3771,7 @@
       },
       "upgradeTo": "Tingkatkan ke {plan} untuk memakai {feature}",
       "pickTitle": "Pilih paket",
-      "pickDesc": "Pembayaran belum terhubung, jadi paket Anda langsung berubah.",
+      "pickDesc": "Pilih paket. Paket berbayar dibayar di langkah berikutnya.",
       "switchTo": "Beralih ke {plan}",
       "switchToGeneric": "Ganti paket",
       "switched": "Anda sekarang memakai {plan}",
@@ -3882,7 +3890,9 @@
       "stopRenewing": "Hentikan perpanjangan",
       "renewStopped": "Paket Anda tidak akan diperpanjang. Anda tetap memakainya hingga akhir periode berbayar.",
       "endsOn": "Berakhir {date} (tidak diperpanjang)",
-      "archivedByPlan": "{count} diarsipkan oleh paket Anda, kembali saat Anda meningkatkan paket"
+      "archivedByPlan": "{count} diarsipkan oleh paket Anda, kembali saat Anda meningkatkan paket",
+      "paymentsUnavailable": "Pembayaran online belum tersedia untuk ruang kerja Anda. Hubungi dukungan untuk upgrade.",
+      "paymentsUnavailableButton": "Hubungi dukungan untuk upgrade"
     },
     "tables": {
       "title": "Tabel khusus",

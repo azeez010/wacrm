@@ -9,8 +9,6 @@ import { useAuth } from "@/hooks/use-auth";
 import { WorkspaceSwitcher } from "@/components/layout/workspace-switcher";
 import {
   Crown,
-  LogOut,
-  Settings,
   Shield,
   User,
   UserCog,
@@ -56,18 +54,6 @@ const ROLE_CHIP: Record<
       "border-border bg-card text-muted-foreground",
   },
 };
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@/components/ui/avatar";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
 interface SidebarProps {
   /** Controlled on mobile by the Header's hamburger button. Ignored on lg+. */
@@ -82,7 +68,7 @@ import { useTranslations } from "next-intl";
 export function Sidebar({ open = false, onClose, totalUnread = 0 }: SidebarProps) {
   const t = useTranslations("Sidebar");
   const pathname = usePathname();
-  const { profile, profileLoading, accountRole, signOut } = useAuth();
+  const { profileLoading, accountRole } = useAuth();
 
   // Close the drawer when route changes - users opened it to navigate,
   // so once they pick a destination the drawer should get out of the way.
@@ -225,7 +211,7 @@ export function Sidebar({ open = false, onClose, totalUnread = 0 }: SidebarProps
           </ul>
         </nav>
 
-        {/* User section */}
+        {/* Workspace section. The person's own menu (profile, settings, sign out) lives top right, in the header. */}
         <div className="shrink-0 border-t border-border p-3">
           {/* Workspace switcher: the active workspace, the person's role in it,
               every other workspace they belong to and "New workspace". */}
@@ -249,70 +235,6 @@ export function Sidebar({ open = false, onClose, totalUnread = 0 }: SidebarProps
               }
             />
           ) : null}
-          <DropdownMenu>
-            <DropdownMenuTrigger className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left transition-colors hover:bg-muted/60 focus:bg-muted/60 focus:outline-none data-popup-open:bg-muted/60">
-              <Avatar className="size-8 shrink-0">
-                {profile?.avatar_url ? (
-                  <AvatarImage
-                    src={profile.avatar_url}
-                    alt={profile.full_name ?? t("defaultAvatar")}
-                  />
-                ) : null}
-                <AvatarFallback className="bg-primary/10 text-sm font-medium text-primary">
-                  {profile?.full_name?.charAt(0)?.toUpperCase() ??
-                    profile?.email?.charAt(0)?.toUpperCase() ??
-                    "U"}
-                </AvatarFallback>
-              </Avatar>
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-foreground">
-                  {profile?.full_name ?? t("defaultUser")}
-                </p>
-                <p className="truncate text-xs text-muted-foreground">
-                  {profile?.email ?? ""}
-                </p>
-              </div>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent
-              align="end"
-              side="top"
-              sideOffset={6}
-              className="min-w-56 bg-popover text-popover-foreground ring-border"
-            >
-              <DropdownMenuItem
-                render={
-                  <Link
-                    href="/settings?tab=profile"
-                    onClick={onClose}
-                    className="text-popover-foreground focus:bg-accent focus:text-accent-foreground"
-                  />
-                }
-              >
-                <User className="size-4" />
-                {t("menuProfile")}
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                render={
-                  <Link
-                    href="/settings?tab=whatsapp"
-                    onClick={onClose}
-                    className="text-popover-foreground focus:bg-accent focus:text-accent-foreground"
-                  />
-                }
-              >
-                <Settings className="size-4" />
-                {t("menuSettings")}
-              </DropdownMenuItem>
-              <DropdownMenuSeparator className="bg-border" />
-              <DropdownMenuItem
-                onClick={signOut}
-                className="text-popover-foreground focus:bg-accent focus:text-accent-foreground"
-              >
-                <LogOut className="size-4" />
-                {t("menuSignOut")}
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
         </div>
       </aside>
     </>

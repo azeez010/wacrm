@@ -289,6 +289,8 @@ function CheckoutStep({
 
   const isFree = plan.id === 'free';
   const paymentsOn = data.paymentsMode === 'test' || data.paymentsMode === 'live';
+  // A paid plan can only be bought through checkout; with payments off for this workspace there is nothing to pay with.
+  const unavailable = !isFree && !paymentsOn;
   const onTrial = data.status === 'trialing';
   const periodPrice = periodTotal(plan, period) || plan.price_monthly;
 
@@ -424,7 +426,10 @@ function CheckoutStep({
                 )}
               </div>
             ) : (
-              <div className="rounded-xl border p-4 text-sm"><Row label={t('total')} value={money(periodPrice, plan.currency)} strong /></div>
+              <div className="space-y-2 rounded-xl border p-4 text-sm">
+                <Row label={t('total')} value={money(periodPrice, plan.currency)} strong />
+                {unavailable ? <p className="text-muted-foreground text-xs">{tb('paymentsUnavailable')}</p> : null}
+              </div>
             )}
 
             {paymentsOn && (canRecur || once) ? (
@@ -444,9 +449,9 @@ function CheckoutStep({
       </div>
       <DialogFooter>
         {onBack ? <Button variant="outline" onClick={onBack} disabled={busy}><ArrowLeft className="size-4" />{t('back')}</Button> : null}
-        <Button onClick={() => void pay()} disabled={busy || (!isFree && paymentsOn && (loading || !line))} className="sm:min-w-48">
+        <Button onClick={() => void pay()} disabled={busy || unavailable || (!isFree && paymentsOn && (loading || !line))} className="sm:min-w-48">
           {busy ? <Loader2 className="size-4 animate-spin" /> : null}
-          {isFree ? (paymentsOn ? t('confirmDowngrade') : tb('switchTo', { plan: plan.name })) : method === 'bank_transfer' ? tb('pay.showTransfer') : paymentsOn ? t('completePayment') : tb('switchTo', { plan: plan.name })}
+          {isFree ? (paymentsOn ? t('confirmDowngrade') : tb('switchTo', { plan: plan.name })) : unavailable ? tb('paymentsUnavailableButton') : method === 'bank_transfer' ? tb('pay.showTransfer') : t('completePayment')}
         </Button>
       </DialogFooter>
       {/* re-quote on currency change */}

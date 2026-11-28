@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useMemo, type ReactNode } from 'react';
+import { Suspense, useEffect, useMemo, type ReactNode } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 
@@ -64,10 +64,19 @@ function SettingsPageInner() {
   const section = resolveSection(searchParams.get('tab'));
 
   const go = (next: SettingsSection) => {
+    if (next === 'integrations') return router.push('/integrations');
     const params = new URLSearchParams(searchParams.toString());
     params.set('tab', next);
     router.replace(`/settings?${params.toString()}`, { scroll: false });
   };
+
+  // Integrations moved to its own page; old links and bookmarks land there (keeping ?google=… from the OAuth return).
+  const toIntegrations = section === 'integrations';
+  useEffect(() => {
+    if (!toIntegrations) return;
+    const google = searchParams.get('google');
+    router.replace(google ? `/integrations?google=${encodeURIComponent(google)}` : '/integrations');
+  }, [toIntegrations, searchParams, router]);
 
   // Cheap, fetch-free rail hints. The Overview landing carries the
   // full live status/counts; the rail just surfaces the two that are
@@ -111,6 +120,8 @@ function SettingsPageInner() {
     ),
     webhooks: <WebhooksPanel />,
   };
+
+  if (toIntegrations) return null;
 
   return (
     <div>

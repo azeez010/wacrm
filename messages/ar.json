@@ -176,7 +176,8 @@
       "viewAll": "عرض الكل"
     },
     "forms": "النماذج",
-    "partner": "برنامج الشركاء"
+    "partner": "برنامج الشركاء",
+    "integrations": "التكاملات"
   },
   "ModeToggle": {
     "switchMode": "التبديل إلى الوضع {mode}"
@@ -322,7 +323,11 @@
     "hidePassword": "إخفاء كلمة المرور"
   },
   "PhoneField": {
-    "searchCountry": "ابحث عن دولة أو رمز"
+    "searchCountry": "ابحث عن دولة أو رمز",
+    "valid": "يبدو صحيحًا: {number} ({country})",
+    "keepTyping": "تابع الكتابة…",
+    "tooShort": "يبدو هذا الرقم قصيرًا جدًا",
+    "tooLong": "يبدو هذا الرقم طويلًا جدًا"
   },
   "Channels": {
     "whatsapp": "واتساب",
@@ -342,7 +347,8 @@
     "hintOpen": "فتح",
     "hintClose": "إغلاق",
     "pages": {
-      "notifications": "الإشعارات"
+      "notifications": "الإشعارات",
+      "integrations": "التكاملات"
     },
     "actions": {
       "newContact": "جهة اتصال جديدة",
@@ -523,7 +529,9 @@
     "workspacePlaceholder": "مثال: متجر لاغوس",
     "trialBanner": "ستبدأ تجربة مجانية لباقة {plan} لمدة {days} يومًا. بدون بطاقة.",
     "trialStarted": "بدأت تجربتك لباقة {plan} لمدة {days} يومًا.",
-    "useCasesLabel": "فيمَ ستستخدمه؟"
+    "useCasesLabel": "فيمَ ستستخدمه؟",
+    "useCasesPlaceholder": "اختر الاستخدامات",
+    "useCasesSelected": "تم اختيار {count}"
   },
   "Partner": {
     "title": "برنامج الشركاء",
@@ -3763,7 +3771,7 @@
       },
       "upgradeTo": "ارتقِ إلى {plan} لاستخدام {feature}",
       "pickTitle": "اختر باقة",
-      "pickDesc": "الدفع غير مربوط بعد، لذا تتغير باقتك فورًا.",
+      "pickDesc": "اختر باقة. الباقات المدفوعة يتم دفعها في الخطوة التالية.",
       "switchTo": "التبديل إلى {plan}",
       "switchToGeneric": "تبديل الباقة",
       "switched": "أنت الآن على {plan}",
@@ -3882,7 +3890,9 @@
       "stopRenewing": "إيقاف التجديد",
       "renewStopped": "لن تُجدَّد باقتك. ستبقى معك حتى نهاية الفترة المدفوعة.",
       "endsOn": "تنتهي في {date} (دون تجديد)",
-      "archivedByPlan": "{count, plural, one {عنصر واحد أرشفته باقتك} other {# عناصر أرشفتها باقتك}}، تعود عند الترقية"
+      "archivedByPlan": "{count, plural, one {عنصر واحد أرشفته باقتك} other {# عناصر أرشفتها باقتك}}، تعود عند الترقية",
+      "paymentsUnavailable": "الدفع عبر الإنترنت غير متاح لمساحة عملك بعد. تواصل مع الدعم للترقية.",
+      "paymentsUnavailableButton": "تواصل مع الدعم للترقية"
     },
     "tables": {
       "title": "الجداول المخصصة",

@@ -146,7 +146,7 @@ export function CommandPalette() {
       out.push({ id: `page:${p.href}`, group: 'pages', label: t(`pages.${p.labelKey}`), keywords: p.keywords, icon: p.icon, href: p.href });
     }
     for (const s of SETTINGS_SECTIONS) {
-      if (s === 'overview') continue;
+      if (s === 'overview' || s === 'integrations') continue; // Integrations has its own page now
       const meta = SECTION_META[s];
       out.push({
         id: `settings:${s}`,

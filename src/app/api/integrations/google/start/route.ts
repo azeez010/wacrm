@@ -13,7 +13,7 @@ import { googleRedirectPath } from '@/lib/integrations/google-connect'
 import { FeatureLockedError, PlanLimitError } from '@/lib/billing/entitlements'
 
 export async function GET(request: Request) {
-  const back = (reason: string) => NextResponse.redirect(`${publicOrigin(request)}/settings?tab=integrations&google=${reason}`)
+  const back = (reason: string) => NextResponse.redirect(`${publicOrigin(request)}/integrations?google=${reason}`)
   try {
     const ctx = await requireRole('admin')
     const db = supabaseAdmin()

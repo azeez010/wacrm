@@ -13,7 +13,7 @@ import { googleRedirectPath, saveGoogleConnection } from '@/lib/integrations/goo
 
 export async function GET(request: Request) {
   const origin = publicOrigin(request)
-  const back = (reason: string) => NextResponse.redirect(`${origin}/settings?tab=integrations&google=${reason}`)
+  const back = (reason: string) => NextResponse.redirect(`${origin}/integrations?google=${reason}`)
   try {
     const url = new URL(request.url)
     if (url.searchParams.get('error')) return back('denied')

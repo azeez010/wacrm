@@ -83,7 +83,8 @@
       "viewAll": "Ver todas"
     },
     "forms": "Formularios",
-    "partner": "Programa de socios"
+    "partner": "Programa de socios",
+    "integrations": "Integraciones"
   },
   "ModeToggle": {
     "switchMode": "Cambiar al modo {mode}"
@@ -2870,7 +2871,7 @@
       },
       "upgradeTo": "Pasa a {plan} para usar {feature}",
       "pickTitle": "Elige un plan",
-      "pickDesc": "Los pagos aún no están conectados, así que tu plan cambia al instante.",
+      "pickDesc": "Elige un plan. Los planes de pago se pagan en el siguiente paso.",
       "switchTo": "Cambiar a {plan}",
       "switchToGeneric": "Cambiar de plan",
       "switched": "Ahora estás en {plan}",
@@ -2989,7 +2990,9 @@
       "stopRenewing": "Dejar de renovar",
       "renewStopped": "Tu plan no se renovará. Lo conservas hasta el final del periodo pagado.",
       "endsOn": "Termina el {date} (no se renueva)",
-      "archivedByPlan": "{count, plural, one {# archivado por tu plan} other {# archivados por tu plan}}, vuelven al mejorar tu plan"
+      "archivedByPlan": "{count, plural, one {# archivado por tu plan} other {# archivados por tu plan}}, vuelven al mejorar tu plan",
+      "paymentsUnavailable": "El pago en línea aún no está disponible para tu espacio. Contacta con soporte para mejorar tu plan.",
+      "paymentsUnavailableButton": "Contacta con soporte para mejorar"
     },
     "language": {
       "title": "Idioma",
@@ -5255,7 +5258,9 @@
     "workspacePlaceholder": "p. ej., Tienda de Lagos",
     "trialBanner": "Vas a empezar una prueba gratis de {days} días del plan {plan}. Sin tarjeta.",
     "trialStarted": "Tu prueba de {days} días del plan {plan} ha empezado.",
-    "useCasesLabel": "¿Para qué lo usarás?"
+    "useCasesLabel": "¿Para qué lo usarás?",
+    "useCasesPlaceholder": "Elige los usos",
+    "useCasesSelected": "{count} seleccionados"
   },
   "Emails": {
     "footer": "Recibes este correo de servicio porque tienes una cuenta de OgaDesk.",
@@ -5452,7 +5457,8 @@
     "hintOpen": "abrir",
     "hintClose": "cerrar",
     "pages": {
-      "notifications": "Notificaciones"
+      "notifications": "Notificaciones",
+      "integrations": "Integraciones"
     },
     "actions": {
       "newContact": "Nuevo contacto",
@@ -5511,7 +5517,11 @@
     "websiteVisitor": "Visitante del sitio web"
   },
   "PhoneField": {
-    "searchCountry": "Buscar país o código"
+    "searchCountry": "Buscar país o código",
+    "valid": "Perfecto: {number} ({country})",
+    "keepTyping": "Sigue escribiendo…",
+    "tooShort": "Este número parece demasiado corto",
+    "tooLong": "Este número parece demasiado largo"
   },
   "Blog": {
     "title": "Blog de {brand}",

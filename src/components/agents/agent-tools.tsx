@@ -72,7 +72,7 @@ export function AgentTools({ agent, canEdit, onSaved }: { agent: AgentDto; canEd
         ) : items.length === 0 ? (
           <p className="text-muted-foreground text-sm">
             {t('none')}{' '}
-            <a href="/settings?tab=integrations" className="text-primary underline-offset-4 hover:underline">
+            <a href="/integrations" className="text-primary underline-offset-4 hover:underline">
               {t('connect')}
             </a>
           </p>

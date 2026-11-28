@@ -176,7 +176,8 @@
       "viewAll": "Tazama zote"
     },
     "forms": "Fomu",
-    "partner": "Mpango wa washirika"
+    "partner": "Mpango wa washirika",
+    "integrations": "Miunganisho"
   },
   "ModeToggle": {
     "switchMode": "Badili kwenda hali ya {mode}"
@@ -322,7 +323,11 @@
     "hidePassword": "Ficha nenosiri"
   },
   "PhoneField": {
-    "searchCountry": "Tafuta nchi au msimbo"
+    "searchCountry": "Tafuta nchi au msimbo",
+    "valid": "Inaonekana sawa: {number} ({country})",
+    "keepTyping": "Endelea kuandika…",
+    "tooShort": "Namba hii inaonekana fupi sana",
+    "tooLong": "Namba hii inaonekana ndefu sana"
   },
   "Channels": {
     "whatsapp": "WhatsApp",
@@ -342,7 +347,8 @@
     "hintOpen": "fungua",
     "hintClose": "funga",
     "pages": {
-      "notifications": "Arifa"
+      "notifications": "Arifa",
+      "integrations": "Miunganisho"
     },
     "actions": {
       "newContact": "Anwani mpya",
@@ -523,7 +529,9 @@
     "workspacePlaceholder": "mf. Duka la Lagos",
     "trialBanner": "Unaanza jaribio la bure la siku {days} la mpango wa {plan}. Hakuna kadi.",
     "trialStarted": "Jaribio lako la siku {days} la mpango wa {plan} limeanza.",
-    "useCasesLabel": "Utaitumia kwa nini?"
+    "useCasesLabel": "Utaitumia kwa nini?",
+    "useCasesPlaceholder": "Chagua matumizi",
+    "useCasesSelected": "{count} yamechaguliwa"
   },
   "Partner": {
     "title": "Mpango wa washirika",
@@ -3763,7 +3771,7 @@
       },
       "upgradeTo": "Pandisha hadi {plan} ili utumie {feature}",
       "pickTitle": "Chagua mpango",
-      "pickDesc": "Malipo bado hayajaunganishwa, kwa hivyo mpango wako unabadilika mara moja.",
+      "pickDesc": "Chagua mpango. Mipango ya kulipia hulipwa hatua inayofuata.",
       "switchTo": "Hamia {plan}",
       "switchToGeneric": "Badilisha mpango",
       "switched": "Sasa uko kwenye {plan}",
@@ -3882,7 +3890,9 @@
       "stopRenewing": "Acha kufanya upya",
       "renewStopped": "Mpango wako hautafanywa upya. Utaendelea nao hadi mwisho wa kipindi ulicholipia.",
       "endsOn": "Unaisha {date} (hautafanywa upya)",
-      "archivedByPlan": "{count} vimehifadhiwa na mpango wako, vinarudi ukipandisha mpango"
+      "archivedByPlan": "{count} vimehifadhiwa na mpango wako, vinarudi ukipandisha mpango",
+      "paymentsUnavailable": "Malipo ya mtandaoni bado hayapatikani kwa nafasi yako ya kazi. Wasiliana na msaada ili kupandisha daraja.",
+      "paymentsUnavailableButton": "Wasiliana na msaada ili kupandisha daraja"
     },
     "tables": {
       "title": "Majedwali maalum",

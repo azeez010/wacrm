@@ -13,6 +13,7 @@
 
 import {
   Bell,
+  Blocks,
   ClipboardList,
   GitBranch,
   Radio,
@@ -64,6 +65,7 @@ export interface ExtraPage {
 /** Dashboard pages that are not in the sidebar. */
 export const EXTRA_PAGES: ExtraPage[] = [
   { href: '/notifications', labelKey: 'notifications', icon: Bell, keywords: 'alerts activity bell' },
+  { href: '/integrations', labelKey: 'integrations', icon: Blocks, keywords: 'integrations ai tools mcp http action paystack payment link google calendar connect' },
 ];
 
 /** Search aliases for settings tabs (English; matched in any locale). */
@@ -83,7 +85,6 @@ export const SETTINGS_KEYWORDS: Partial<Record<SettingsSection, string>> = {
   deals: 'currency pipeline money',
   members: 'team invite users roles agents',
   api: 'api keys mcp integrations developer token claude chatgpt cursor',
-  integrations: 'integrations ai tools mcp http action paystack payment link google calendar connect',
   webhooks: 'webhook events callback integrations developer notify url',
 };
 

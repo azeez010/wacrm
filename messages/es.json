@@ -18,7 +18,8 @@
     "continueWithGoogle": "Continuar con Google",
     "orDivider": "o",
     "methodDisabled": "Este método de inicio de sesión está desactivado. Usa otra forma de iniciar sesión.",
-    "oauthFailed": "El inicio de sesión con Google no se completó. Inténtalo de nuevo o usa otra forma de iniciar sesión."
+    "oauthFailed": "El inicio de sesión con Google no se completó. Inténtalo de nuevo o usa otra forma de iniciar sesión.",
+    "lastUsed": "Último usado"
   },
   "Sidebar": {
     "title": "OgaDesk",

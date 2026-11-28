@@ -18,6 +18,8 @@ import {
 } from "@/components/ui/card";
 import { BrandMark } from "@/components/brand-logo";
 import { GoogleButton, OrDivider, useLoginOptions } from "@/components/auth/google-button";
+import { LastUsedBadge } from "@/components/auth/last-used-badge";
+import { rememberAuthMethod, useLastAuthMethod } from "@/lib/auth/last-method";
 
 // `useSearchParams` opts the component out of static prerendering
 // unless it sits under a Suspense boundary. We split the form into
@@ -56,6 +58,7 @@ function LoginPageInner() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const lastMethod = useLastAuthMethod();
   const [loading, setLoading] = useState(false);
   const supabase = createClient();
 
@@ -85,6 +88,7 @@ function LoginPageInner() {
     // back to /login - which looks like the page "just refreshing"
     // instead of signing in (issue #365). Mirrors the deliberate full
     // reload the invite-accept flow already uses in join/[token].
+    rememberAuthMethod("email");
     const destination = inviteToken
       ? `/join/${encodeURIComponent(inviteToken)}`
       : "/dashboard";
@@ -123,6 +127,7 @@ function LoginPageInner() {
                 label={t("continueWithGoogle")}
                 inviteToken={inviteToken}
                 onError={setError}
+                lastUsedLabel={options.password && lastMethod === "google" ? t("lastUsed") : undefined}
               />
               {options.password && <OrDivider label={t("orDivider")} />}
             </>
@@ -166,13 +171,16 @@ function LoginPageInner() {
               </Link>
             </div>
 
-            <Button
-              type="submit"
-              disabled={loading}
-              className="mt-2 h-10 w-full bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
-            >
-              {loading ? t('signingIn') : t('signIn')}
-            </Button>
+            <div className="relative mt-2">
+              {options.google && lastMethod === "email" && <LastUsedBadge label={t("lastUsed")} />}
+              <Button
+                type="submit"
+                disabled={loading}
+                className="h-10 w-full bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+              >
+                {loading ? t('signingIn') : t('signIn')}
+              </Button>
+            </div>
           </form>
           )}
 

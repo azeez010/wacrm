@@ -19,6 +19,8 @@ import {
 import { CheckCircle } from "lucide-react";
 import { BrandMark } from "@/components/brand-logo";
 import { GoogleButton, OrDivider, useLoginOptions } from "@/components/auth/google-button";
+import { LastUsedBadge } from "@/components/auth/last-used-badge";
+import { rememberAuthMethod, useLastAuthMethod } from "@/lib/auth/last-method";
 
 // `useSearchParams` opts the component out of static prerendering
 // unless wrapped in Suspense - same pattern as /login.
@@ -67,6 +69,8 @@ function SignupPageInner() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const lastMethod = useLastAuthMethod();
+  const tLogin = useTranslations("LoginPage");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const supabase = createClient();
@@ -121,6 +125,7 @@ function SignupPageInner() {
       return;
     }
 
+    rememberAuthMethod("email");
     setSuccess(true);
     setLoading(false);
   };
@@ -196,6 +201,7 @@ function SignupPageInner() {
                 label={t("continueWithGoogle")}
                 inviteToken={inviteToken}
                 onError={setError}
+                lastUsedLabel={options.password && lastMethod === "google" ? tLogin("lastUsed") : undefined}
               />
               {options.password && <OrDivider label={t("orDivider")} />}
             </>
@@ -261,13 +267,16 @@ function SignupPageInner() {
               />
             </div>
 
-            <Button
-              type="submit"
-              disabled={loading}
-              className="mt-2 h-10 w-full bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
-            >
-              {loading ? t("creating") : t("submit")}
-            </Button>
+            <div className="relative mt-2">
+              {options.google && lastMethod === "email" && <LastUsedBadge label={tLogin("lastUsed")} />}
+              <Button
+                type="submit"
+                disabled={loading}
+                className="h-10 w-full bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+              >
+                {loading ? t("creating") : t("submit")}
+              </Button>
+            </div>
           </form>
           )}
 

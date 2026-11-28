@@ -18,7 +18,8 @@
     "continueWithGoogle": "Endelea na Google",
     "orDivider": "au",
     "methodDisabled": "Njia hii ya kuingia imezimwa. Tumia njia nyingine kuingia.",
-    "oauthFailed": "Kuingia kwa Google hakukukamilika. Jaribu tena au tumia njia nyingine kuingia."
+    "oauthFailed": "Kuingia kwa Google hakukukamilika. Jaribu tena au tumia njia nyingine kuingia.",
+    "lastUsed": "Ulichotumia mwisho"
   },
   "SignupPage": {
     "passwordsMismatch": "Manenosiri hayalingani",

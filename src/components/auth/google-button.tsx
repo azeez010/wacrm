@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { OAUTH_FLOW_PARAM, OAUTH_FLOW_VALUE } from "@/lib/auth/callback";
+import { rememberAuthMethod } from "@/lib/auth/last-method";
+import { LastUsedBadge } from "@/components/auth/last-used-badge";
 
 export type LoginOptions = { password: boolean; google: boolean };
 
@@ -58,15 +60,19 @@ export function GoogleButton({
   label,
   inviteToken,
   onError,
+  lastUsedLabel,
 }: {
   label: string;
   inviteToken: string | null;
   onError: (message: string) => void;
+  /** Shown as a "Last used" pill when Google was the last method on this browser. */
+  lastUsedLabel?: string;
 }) {
   const [loading, setLoading] = useState(false);
 
   const start = async () => {
     setLoading(true);
+    rememberAuthMethod("google");
     const next = inviteToken
       ? `/join/${encodeURIComponent(inviteToken)}`
       : "/dashboard";
@@ -85,16 +91,19 @@ export function GoogleButton({
   };
 
   return (
-    <Button
-      type="button"
-      variant="outline"
-      disabled={loading}
-      onClick={start}
-      className="h-10 w-full gap-2 border-border text-foreground hover:bg-muted"
-    >
-      <GoogleIcon />
-      {label}
-    </Button>
+    <div className="relative">
+      {lastUsedLabel && <LastUsedBadge label={lastUsedLabel} />}
+      <Button
+        type="button"
+        variant="outline"
+        disabled={loading}
+        onClick={start}
+        className="h-10 w-full gap-2 border-border text-foreground hover:bg-muted"
+      >
+        <GoogleIcon />
+        {label}
+      </Button>
+    </div>
   );
 }
 

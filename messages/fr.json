@@ -18,7 +18,8 @@
     "continueWithGoogle": "Continuer avec Google",
     "orDivider": "ou",
     "methodDisabled": "Ce mode de connexion est désactivé. Utilisez un autre moyen de vous connecter.",
-    "oauthFailed": "La connexion avec Google n'a pas abouti. Réessayez ou utilisez un autre moyen de vous connecter."
+    "oauthFailed": "La connexion avec Google n'a pas abouti. Réessayez ou utilisez un autre moyen de vous connecter.",
+    "lastUsed": "Dernière utilisée"
   },
   "Sidebar": {
     "title": "OgaDesk",

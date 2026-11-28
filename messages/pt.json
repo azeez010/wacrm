@@ -18,7 +18,8 @@
     "continueWithGoogle": "Continuar com o Google",
     "orDivider": "ou",
     "methodDisabled": "Este método de login está desativado. Use outra forma de entrar.",
-    "oauthFailed": "O login com o Google não foi concluído. Tente novamente ou use outra forma de entrar."
+    "oauthFailed": "O login com o Google não foi concluído. Tente novamente ou use outra forma de entrar.",
+    "lastUsed": "Último usado"
   },
   "Sidebar": {
     "title": "OgaDesk",

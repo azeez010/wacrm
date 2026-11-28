@@ -18,7 +18,8 @@
     "continueWithGoogle": "Lanjutkan dengan Google",
     "orDivider": "atau",
     "methodDisabled": "Metode masuk ini dinonaktifkan. Gunakan cara lain untuk masuk.",
-    "oauthFailed": "Masuk dengan Google tidak selesai. Coba lagi atau gunakan cara lain untuk masuk."
+    "oauthFailed": "Masuk dengan Google tidak selesai. Coba lagi atau gunakan cara lain untuk masuk.",
+    "lastUsed": "Terakhir dipakai"
   },
   "SignupPage": {
     "passwordsMismatch": "Kata sandi tidak cocok",

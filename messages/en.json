@@ -18,7 +18,8 @@
     "continueWithGoogle": "Continue with Google",
     "orDivider": "or",
     "methodDisabled": "This sign-in method is turned off. Use another way to sign in.",
-    "oauthFailed": "Google sign-in didn't finish. Try again, or use another way to sign in."
+    "oauthFailed": "Google sign-in didn't finish. Try again, or use another way to sign in.",
+    "lastUsed": "Last used"
   },
   "Sidebar": {
     "title": "OgaDesk",

@@ -20,6 +20,7 @@ export function footerColumns(to: (path: string) => string, lang: string = 'en')
       { key: 'help', href: to('/help') },
       { key: 'changelog', href: to('/changelog') },
       { key: 'compare', href: fr ? '/fr/compare' : '/compare' },
+      { key: 'caseStudy', href: '/case-studies/ogadesk-crm' },
     ] },
     { title: 'company', links: [
       { key: 'partner', href: '/partners' },

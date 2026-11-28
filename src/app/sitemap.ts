@@ -4,6 +4,7 @@ import { routing } from '@/i18n/routing'
 import { blogEntries } from '@/lib/blog/sitemap'
 import { getHelp } from '@/lib/help'
 import { MARKETING_PAGES } from '@/lib/marketing/pages'
+import { CASE_STUDIES, caseStudyPath } from '@/lib/marketing/case-studies'
 import { pagePath } from '@/lib/marketing/route'
 import { SITE_URL, localizedUrl } from '@/lib/seo'
 
@@ -41,7 +42,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const help = helpPaths.flatMap((path) =>
     LOCALES.map((l) => ({ url: localizedUrl(l, path), changeFrequency: 'monthly' as const, priority: path === '/help' ? 0.6 : 0.5, alternates: helpUrls(path) })),
   )
-  const marketing = ['/templates', '/compare', '/fr/compare', '/free-tools/whatsapp-link-generator', '/free-tools/whatsapp-cost-calculator',...MARKETING_PAGES.map(pagePath)].map((path) => ({
+  const marketing = ['/templates', '/compare', '/fr/compare', '/free-tools/whatsapp-link-generator', '/free-tools/whatsapp-cost-calculator',...MARKETING_PAGES.map(pagePath), ...CASE_STUDIES.map(caseStudyPath)].map((path) => ({
     url: `${SITE_URL}${path}`,
     changeFrequency: 'monthly' as const,
     priority: path === '/templates' || path.startsWith('/free-tools') ? 0.6 : 0.8,

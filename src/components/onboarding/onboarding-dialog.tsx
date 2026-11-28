@@ -2,12 +2,12 @@
 
 import { useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
-import { Check, Code2, Headset, Megaphone, TrendingUp, type LucideIcon } from 'lucide-react'
+import { Code2, Headset, Megaphone, TrendingUp, type LucideIcon } from 'lucide-react'
 import { toast } from 'sonner'
 
 import { useAuth } from '@/hooks/use-auth'
 import { Button } from '@/components/ui/button'
-import { Switch } from '@/components/ui/switch'
+import { Checkbox } from '@/components/ui/checkbox'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { PhoneField } from '@/components/phone-field'
@@ -122,46 +122,36 @@ export function OnboardingDialog() {
                 onChange={(e) => setWorkspaceName(e.target.value)}
                 placeholder={t('workspacePlaceholder')}
               />
-              <p className="text-xs text-muted-foreground">{t('workspaceHint')}</p>
             </div>
-            <div role="group" aria-label={t('title')} className="grid gap-2 sm:grid-cols-2">
-              {USE_CASES.map((uc) => {
-                const Icon = USE_CASE_ICONS[uc]
-                const on = useCases.includes(uc)
-                return (
-                  <button
-                    key={uc}
-                    type="button"
-                    role="checkbox"
-                    aria-checked={on}
-                    onClick={() => toggleUseCase(uc)}
-                    className={cn(
-                      'relative flex flex-col gap-1.5 rounded-lg border bg-card p-3 text-left transition-colors',
-                      on ? 'border-primary/60 ring-2 ring-primary/40' : 'border-border hover:bg-muted/40',
-                    )}
-                  >
-                    <span className="flex items-center gap-2 text-sm font-semibold">
-                      <Icon className="size-4 text-primary" aria-hidden />
-                      {t(`useCases.${uc}.title`)}
-                    </span>
-                    <span className="text-xs text-muted-foreground">{t(`useCases.${uc}.description`)}</span>
-                    {on && <Check className="absolute right-2 top-2 size-4 text-primary" aria-hidden />}
-                  </button>
-                )
-              })}
-            </div>
+            <fieldset className="space-y-1.5">
+              <legend className="text-sm font-medium">{t('useCasesLabel')}</legend>
+              <div className="divide-y rounded-lg border">
+                {USE_CASES.map((uc) => {
+                  const Icon = USE_CASE_ICONS[uc]
+                  return (
+                    <label key={uc} className="flex cursor-pointer items-center gap-3 px-3 py-2 hover:bg-muted/40">
+                      <Checkbox checked={useCases.includes(uc)} onCheckedChange={() => toggleUseCase(uc)} />
+                      <Icon className="size-4 shrink-0 text-primary" aria-hidden />
+                      <span className="min-w-0 text-sm">
+                        <span className="font-medium">{t(`useCases.${uc}.title`)}</span>
+                        <span className="text-muted-foreground"> · {t(`useCases.${uc}.description`)}</span>
+                      </span>
+                    </label>
+                  )
+                })}
+              </div>
+            </fieldset>
             <div className="space-y-1.5">
               <label htmlFor="onboarding-phone" className="text-sm font-medium">{t('phoneLabel')}</label>
               <PhoneField id="onboarding-phone" value={phone} onChange={setPhone} placeholder="8012345678" />
-              <p className="text-xs text-muted-foreground">{t('phoneHint')}</p>
             </div>
-            <div className="flex items-start justify-between gap-4">
-              <div className="text-sm">
-                <p id="onboarding-marketing-label">{t('marketingLabel')}</p>
-                <p className="text-xs text-muted-foreground">{t('marketingHint')}</p>
-              </div>
-              <Switch checked={optIn} onCheckedChange={(v) => setOptIn(Boolean(v))} aria-labelledby="onboarding-marketing-label" />
-            </div>
+            <label className="flex cursor-pointer items-start gap-3 text-sm">
+              <Checkbox className="mt-0.5" checked={optIn} onCheckedChange={(v) => setOptIn(Boolean(v))} />
+              <span>
+                {t('marketingLabel')}
+                <span className="block text-xs text-muted-foreground">{t('marketingHint')}</span>
+              </span>
+            </label>
             <div className="flex justify-end">
               <Button disabled={useCases.length === 0 || !PHONE_RE.test(phone.replace(/[\s().-]/g, '')) || saving} onClick={() => (referred ? void submit(true) : setStep(2))}>
                 {referred ? (saving ? t('saving') : t('finish')) : t('next')}

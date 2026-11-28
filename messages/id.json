@@ -519,12 +519,11 @@
       }
     },
     "phoneLabel": "Nomor WhatsApp Anda",
-    "phoneHint": "Sertakan kode negara, mis. +2348012345678.",
     "workspaceLabel": "Nama ruang kerja",
     "workspacePlaceholder": "mis. Toko Lagos",
-    "workspaceHint": "Ini yang akan dilihat tim Anda. Bisa diubah nanti di Pengaturan.",
     "trialBanner": "Anda memulai uji coba gratis paket {plan} selama {days} hari. Tanpa kartu.",
-    "trialStarted": "Uji coba paket {plan} {days} hari Anda sudah dimulai."
+    "trialStarted": "Uji coba paket {plan} {days} hari Anda sudah dimulai.",
+    "useCasesLabel": "Untuk apa Anda akan memakainya?"
   },
   "Partner": {
     "title": "Program mitra",
@@ -3080,7 +3079,11 @@
       "signOutEverywhere": "Keluar dari semua tempat",
       "signOutFailed": "Gagal keluar: {message}",
       "avatarAlt": "Avatar",
-      "fullNamePlaceholder": "Budi Santoso"
+      "fullNamePlaceholder": "Budi Santoso",
+      "phone": "Nomor WhatsApp",
+      "phoneHelp": "Opsional. Kami memakainya untuk menghubungi Anda soal akun Anda.",
+      "invalidPhone": "Masukkan nomor dengan + dan kode negara, mis. +2348012345678.",
+      "phoneSaveFailed": "Nomor WhatsApp tidak dapat disimpan"
     },
     "appearance": {
       "title": "Tampilan",

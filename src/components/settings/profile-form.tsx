@@ -22,12 +22,17 @@ import { MessageSoundCard } from './message-sound-card';
 import { UseCaseCard } from './use-case-card';
 import { MarketingCard } from './marketing-card';
 import { MediaDialog } from '@/components/media/media-dialog';
+import { PhoneField } from '@/components/phone-field';
 
 const MAX_AVATAR_BYTES = 2 * 1024 * 1024;
 // Rough email shape check - the real validator is Supabase Auth, which
 // rejects anything malformed when we call updateUser({ email }). We
 // just want to stop obvious typos before making a network call.
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const PHONE_RE = /^\+\d{8,15}$/;
+
+/** Compact international form for comparing/saving: "+2348127423455" or "". */
+const compactPhone = (v: string) => v.trim().replace(/[\s().-]/g, '');
 
 export function ProfileForm() {
   const t = useTranslations('Settings.profile');
@@ -36,6 +41,7 @@ export function ProfileForm() {
 
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   // undefined = leave the saved photo alone; null = remove it; string = new photo.
   const [pickedAvatar, setPickedAvatar] = useState<string | null | undefined>(undefined);
   const [pickerOpen, setPickerOpen] = useState(false);
@@ -47,6 +53,7 @@ export function ProfileForm() {
     if (!profile) return;
     setFullName(profile.full_name ?? '');
     setEmail(profile.email ?? '');
+    setPhone(profile.phone ?? '');
   }, [profile]);
 
   const currentAvatar =
@@ -89,6 +96,12 @@ export function ProfileForm() {
       return;
     }
 
+    const nextPhone = compactPhone(phone);
+    if (nextPhone && !PHONE_RE.test(nextPhone)) {
+      toast.error(t('invalidPhone'));
+      return;
+    }
+
     setSaving(true);
     try {
       const nextAvatarUrl: string | null =
@@ -104,6 +117,16 @@ export function ProfileForm() {
         .eq('user_id', user.id);
       if (updateError) {
         throw new Error(t('saveFailed', { message: updateError.message }));
+      }
+
+      // The WhatsApp number goes through the server so the CRM contact follows the change.
+      if (nextPhone !== (profile.phone ?? '')) {
+        const res = await fetch('/api/account/phone', {
+          method: 'PUT',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ phone: nextPhone || null }),
+        });
+        if (!res.ok) throw new Error(t('phoneSaveFailed'));
       }
 
       // Email change goes through Supabase Auth, which emails a
@@ -148,6 +171,7 @@ export function ProfileForm() {
     !!profile &&
     (fullName.trim() !== (profile.full_name ?? '') ||
       email.trim().toLowerCase() !== (profile.email ?? '').toLowerCase() ||
+      compactPhone(phone) !== (profile.phone ?? '') ||
       pickedAvatar !== undefined);
 
   const joined = user?.created_at
@@ -257,6 +281,15 @@ export function ProfileForm() {
                 </span>
               </p>
             )}
+          </div>
+
+          {/* WhatsApp number */}
+          <div className="space-y-2">
+            <Label htmlFor="profile-phone" className="text-foreground">
+              {t('phone')}
+            </Label>
+            <PhoneField id="profile-phone" value={phone} onChange={setPhone} placeholder="8012345678" />
+            <p className="text-xs text-muted-foreground">{t('phoneHelp')}</p>
           </div>
 
           {/* Read-only block */}

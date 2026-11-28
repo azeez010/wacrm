@@ -519,12 +519,11 @@
       }
     },
     "phoneLabel": "आपका WhatsApp नंबर",
-    "phoneHint": "देश कोड शामिल करें, जैसे +2348012345678।",
     "workspaceLabel": "वर्कस्पेस का नाम",
     "workspacePlaceholder": "जैसे: लागोस स्टोर",
-    "workspaceHint": "आपकी टीम को यही दिखेगा। आप इसे बाद में सेटिंग्स में बदल सकते हैं।",
     "trialBanner": "आप {days} दिन का {plan} मुफ़्त ट्रायल शुरू कर रहे हैं। कार्ड की ज़रूरत नहीं।",
-    "trialStarted": "आपका {days} दिन का {plan} ट्रायल शुरू हो गया है।"
+    "trialStarted": "आपका {days} दिन का {plan} ट्रायल शुरू हो गया है।",
+    "useCasesLabel": "आप इसका उपयोग किसलिए करेंगे?"
   },
   "Partner": {
     "title": "पार्टनर प्रोग्राम",
@@ -3080,7 +3079,11 @@
       "signOutEverywhere": "हर जगह से साइन आउट करें",
       "signOutFailed": "साइन आउट विफल: {message}",
       "avatarAlt": "अवतार",
-      "fullNamePlaceholder": "राहुल शर्मा"
+      "fullNamePlaceholder": "राहुल शर्मा",
+      "phone": "WhatsApp नंबर",
+      "phoneHelp": "वैकल्पिक। हम इसका उपयोग आपके खाते के बारे में संपर्क करने के लिए करते हैं।",
+      "invalidPhone": "नंबर + और देश कोड के साथ दर्ज करें, जैसे +2348012345678।",
+      "phoneSaveFailed": "आपका WhatsApp नंबर सहेजा नहीं जा सका"
     },
     "appearance": {
       "title": "रूप-रंग",

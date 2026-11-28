@@ -2447,7 +2447,11 @@
       "signOutEverywhere": "Se déconnecter partout",
       "signOutFailed": "Échec de la déconnexion : {message}",
       "avatarAlt": "Avatar",
-      "fullNamePlaceholder": "Ada Lovelace"
+      "fullNamePlaceholder": "Ada Lovelace",
+      "phone": "Numéro WhatsApp",
+      "phoneHelp": "Facultatif. Il nous sert à vous joindre au sujet de votre compte.",
+      "invalidPhone": "Saisissez le numéro avec + et l’indicatif du pays, par ex. +2348012345678.",
+      "phoneSaveFailed": "Impossible d’enregistrer votre numéro WhatsApp"
     },
     "appearance": {
       "title": "Apparence",
@@ -5247,12 +5251,11 @@
       }
     },
     "phoneLabel": "Votre numéro WhatsApp",
-    "phoneHint": "Avec l'indicatif du pays, ex. +2348012345678.",
     "workspaceLabel": "Nom de l'espace de travail",
     "workspacePlaceholder": "ex. : Boutique de Lagos",
-    "workspaceHint": "C'est ce que verra votre équipe. Vous pourrez le modifier plus tard dans les paramètres.",
     "trialBanner": "Vous commencez un essai gratuit de {days} jours du forfait {plan}. Sans carte.",
-    "trialStarted": "Votre essai de {days} jours du forfait {plan} a commencé."
+    "trialStarted": "Votre essai de {days} jours du forfait {plan} a commencé.",
+    "useCasesLabel": "Pour quoi allez-vous l’utiliser ?"
   },
   "Emails": {
     "footer": "Vous recevez cet e-mail de service parce que vous avez un compte OgaDesk.",

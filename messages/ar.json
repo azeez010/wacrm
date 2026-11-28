@@ -519,12 +519,11 @@
       }
     },
     "phoneLabel": "رقم واتساب الخاص بك",
-    "phoneHint": "أضف رمز الدولة، مثل +2348012345678.",
     "workspaceLabel": "اسم مساحة العمل",
     "workspacePlaceholder": "مثال: متجر لاغوس",
-    "workspaceHint": "هذا ما سيراه فريقك. يمكنك تغييره لاحقًا من الإعدادات.",
     "trialBanner": "ستبدأ تجربة مجانية لباقة {plan} لمدة {days} يومًا. بدون بطاقة.",
-    "trialStarted": "بدأت تجربتك لباقة {plan} لمدة {days} يومًا."
+    "trialStarted": "بدأت تجربتك لباقة {plan} لمدة {days} يومًا.",
+    "useCasesLabel": "فيمَ ستستخدمه؟"
   },
   "Partner": {
     "title": "برنامج الشركاء",
@@ -3080,7 +3079,11 @@
       "signOutEverywhere": "تسجيل الخروج في كل مكان",
       "signOutFailed": "فشل تسجيل الخروج: {message}",
       "avatarAlt": "الصورة الرمزية",
-      "fullNamePlaceholder": "محمد أحمد"
+      "fullNamePlaceholder": "محمد أحمد",
+      "phone": "رقم واتساب",
+      "phoneHelp": "اختياري. نستخدمه للتواصل معك بشأن حسابك.",
+      "invalidPhone": "أدخل الرقم مع + ورمز الدولة، مثل +2348012345678.",
+      "phoneSaveFailed": "تعذّر حفظ رقم واتساب"
     },
     "appearance": {
       "title": "المظهر",

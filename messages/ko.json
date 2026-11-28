@@ -2447,7 +2447,11 @@
       "signOutEverywhere": "모든 곳에서 로그아웃",
       "signOutFailed": "로그아웃 실패: {message}",
       "avatarAlt": "아바타",
-      "fullNamePlaceholder": "김민지"
+      "fullNamePlaceholder": "김민지",
+      "phone": "WhatsApp 번호",
+      "phoneHelp": "선택 사항입니다. 계정 관련 연락에 사용합니다.",
+      "invalidPhone": "+와 국가 코드를 포함해 입력하세요. 예: +2348012345678",
+      "phoneSaveFailed": "WhatsApp 번호를 저장하지 못했습니다"
     },
     "appearance": {
       "title": "화면 설정",
@@ -5247,12 +5251,11 @@
       }
     },
     "phoneLabel": "WhatsApp 번호",
-    "phoneHint": "국가 번호 포함, 예: +2348012345678",
     "workspaceLabel": "워크스페이스 이름",
     "workspacePlaceholder": "예: 라고스 매장",
-    "workspaceHint": "팀원에게 보이는 이름입니다. 나중에 설정에서 바꿀 수 있습니다.",
     "trialBanner": "{days}일 {plan} 무료 체험을 시작합니다. 카드 필요 없음.",
-    "trialStarted": "{days}일 {plan} 체험이 시작되었습니다."
+    "trialStarted": "{days}일 {plan} 체험이 시작되었습니다.",
+    "useCasesLabel": "어떤 용도로 사용하시나요?"
   },
   "Emails": {
     "footer": "OgaDesk 계정이 있어 이 서비스 이메일을 받으셨습니다.",

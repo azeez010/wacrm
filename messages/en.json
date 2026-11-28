@@ -2447,7 +2447,11 @@
       "signOutEverywhere": "Sign out everywhere",
       "signOutFailed": "Sign-out failed: {message}",
       "avatarAlt": "Avatar",
-      "fullNamePlaceholder": "Ada Lovelace"
+      "fullNamePlaceholder": "Ada Lovelace",
+      "phone": "WhatsApp number",
+      "phoneHelp": "Optional. We use it to reach you about your account.",
+      "invalidPhone": "Enter the number with + and country code, e.g. +2348012345678.",
+      "phoneSaveFailed": "Could not save your WhatsApp number"
     },
     "appearance": {
       "title": "Appearance",
@@ -5247,12 +5251,11 @@
       }
     },
     "phoneLabel": "Your WhatsApp number",
-    "phoneHint": "Include the country code, e.g. +2348012345678.",
     "workspaceLabel": "Workspace name",
     "workspacePlaceholder": "e.g. Lagos store",
-    "workspaceHint": "This is what your team will see. You can change it later in Settings.",
     "trialBanner": "You're starting a {days}-day {plan} free trial. No card needed.",
-    "trialStarted": "Your {days}-day {plan} trial has started."
+    "trialStarted": "Your {days}-day {plan} trial has started.",
+    "useCasesLabel": "What will you use it for?"
   },
   "Emails": {
     "footer": "You're receiving this service email because you have an OgaDesk account.",

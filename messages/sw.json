@@ -519,12 +519,11 @@
       }
     },
     "phoneLabel": "Nambari yako ya WhatsApp",
-    "phoneHint": "Jumuisha msimbo wa nchi, mfano +2348012345678.",
     "workspaceLabel": "Jina la eneo la kazi",
     "workspacePlaceholder": "mf. Duka la Lagos",
-    "workspaceHint": "Hili ndilo timu yako itaona. Unaweza kulibadilisha baadaye kwenye Mipangilio.",
     "trialBanner": "Unaanza jaribio la bure la siku {days} la mpango wa {plan}. Hakuna kadi.",
-    "trialStarted": "Jaribio lako la siku {days} la mpango wa {plan} limeanza."
+    "trialStarted": "Jaribio lako la siku {days} la mpango wa {plan} limeanza.",
+    "useCasesLabel": "Utaitumia kwa nini?"
   },
   "Partner": {
     "title": "Mpango wa washirika",
@@ -3080,7 +3079,11 @@
       "signOutEverywhere": "Toka kila mahali",
       "signOutFailed": "Kutoka kumeshindwa: {message}",
       "avatarAlt": "Picha ya wasifu",
-      "fullNamePlaceholder": "Juma Mwangi"
+      "fullNamePlaceholder": "Juma Mwangi",
+      "phone": "Namba ya WhatsApp",
+      "phoneHelp": "Si lazima. Tunaitumia kuwasiliana nawe kuhusu akaunti yako.",
+      "invalidPhone": "Weka namba pamoja na + na msimbo wa nchi, mfano +2348012345678.",
+      "phoneSaveFailed": "Imeshindwa kuhifadhi namba yako ya WhatsApp"
     },
     "appearance": {
       "title": "Mwonekano",

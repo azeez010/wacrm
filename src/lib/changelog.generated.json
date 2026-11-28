@@ -1,1 +1,178 @@
-[]
+[
+  {
+    "date": "2026-11-28",
+    "changes": [
+      {
+        "kind": "New",
+        "text": {
+          "en": "Lost on a broken link? A friendlier page now helps you find your way back, and our anti-spam policy explains how to message customers the right way.",
+          "fr": "Lien cassé ? Une nouvelle page vous aide à retrouver votre chemin, et notre politique anti-spam explique comment écrire à vos clients dans les règles."
+        }
+      }
+    ]
+  },
+  {
+    "date": "2026-11-27",
+    "changes": [
+      {
+        "kind": "New",
+        "text": {
+          "en": "Announcements now span the top of every public page with a live countdown, badge and button, and can target specific countries.",
+          "fr": "Les annonces s'affichent en haut de chaque page publique avec compte à rebours, badge et bouton, et peuvent cibler des pays précis.",
+          "es": "Los anuncios ocupan la parte superior de cada página pública con cuenta regresiva, insignia y botón, y pueden dirigirse a países concretos.",
+          "pt": "Os anúncios aparecem no topo de todas as páginas públicas com contagem regressiva, selo e botão, e podem ser direcionados a países específicos."
+        }
+      },
+      {
+        "kind": "New",
+        "text": {
+          "en": "Connect your own tools in Settings → Integrations (an MCP server, your API or Paystack payment links) so the AI can look things up and act, with your approval for actions.",
+          "fr": "Connectez vos outils dans Paramètres → Intégrations (serveur MCP, votre API ou liens de paiement Paystack) : l'IA peut consulter et agir, avec votre approbation pour les actions.",
+          "es": "Conecta tus herramientas en Ajustes → Integraciones (un servidor MCP, tu API o enlaces de pago de Paystack) para que la IA consulte y actúe, con tu aprobación para las acciones.",
+          "pt": "Conecte suas ferramentas em Configurações → Integrações (servidor MCP, sua API ou links de pagamento do Paystack) para a IA consultar e agir, com sua aprovação para ações.",
+          "ko": "설정 → 통합에서 MCP 서버, 자체 API, Paystack 결제 링크를 연결하면 AI가 정보를 조회하고 작업을 수행합니다(작업은 승인 후 실행).",
+          "ar": "اربط أدواتك من الإعدادات ← التكاملات (خادم MCP أو واجهتك أو روابط دفع Paystack) ليبحث الذكاء الاصطناعي وينفذ الإجراءات بموافقتك.",
+          "hi": "सेटिंग्स → इंटीग्रेशन में अपने टूल जोड़ें (MCP सर्वर, अपना API या Paystack पेमेंट लिंक), ताकि AI जानकारी देख सके और आपकी मंज़ूरी से काम कर सके।",
+          "id": "Hubungkan alat Anda di Pengaturan → Integrasi (server MCP, API Anda, atau tautan pembayaran Paystack) agar AI bisa mencari info dan bertindak dengan persetujuan Anda.",
+          "sw": "Unganisha zana zako kwenye Mipangilio → Miunganisho (seva ya MCP, API yako au viungo vya malipo vya Paystack) ili AI itafute taarifa na kuchukua hatua kwa idhini yako."
+        }
+      },
+      {
+        "kind": "New",
+        "text": {
+          "en": "Connect Google Calendar so the AI can offer free times and book appointments for you.",
+          "fr": "Connectez Google Agenda : l'IA propose des créneaux libres et réserve des rendez-vous pour vous.",
+          "es": "Conecta Google Calendar para que la IA ofrezca horarios libres y reserve citas por ti.",
+          "pt": "Conecte o Google Agenda para a IA oferecer horários livres e agendar compromissos por você.",
+          "ko": "Google 캘린더를 연결하면 AI가 빈 시간을 제안하고 약속을 예약합니다.",
+          "ar": "اربط تقويم Google ليقترح الذكاء الاصطناعي أوقاتًا حرة ويحجز المواعيد نيابةً عنك.",
+          "hi": "Google Calendar जोड़ें ताकि AI खाली समय बताए और आपके लिए अपॉइंटमेंट बुक करे।",
+          "id": "Hubungkan Google Kalender agar AI menawarkan waktu kosong dan memesan janji untuk Anda.",
+          "sw": "Unganisha Google Kalenda ili AI ipendekeze nyakati wazi na kuweka miadi kwa niaba yako."
+        }
+      },
+      {
+        "kind": "New",
+        "text": {
+          "en": "New pages compare OgaDesk with other WhatsApp tools, explain each feature, cover more African countries in English and French, and offer a free WhatsApp link generator.",
+          "fr": "De nouvelles pages comparent OgaDesk à d'autres outils WhatsApp, présentent chaque fonctionnalité, couvrent plus de pays africains en anglais et en français, et proposent un générateur de lien WhatsApp gratuit."
+        }
+      },
+      {
+        "kind": "New",
+        "text": {
+          "en": "Pick monthly, quarterly or yearly billing right on the pricing section, and every public page now has a full footer with all the important links.",
+          "fr": "Choisissez la facturation mensuelle, trimestrielle ou annuelle directement dans la section des tarifs, et chaque page publique a désormais un pied de page complet.",
+          "es": "Elige facturación mensual, trimestral o anual directamente en la sección de precios, y todas las páginas públicas tienen ahora un pie de página completo.",
+          "pt": "Escolha cobrança mensal, trimestral ou anual na secção de preços, e todas as páginas públicas têm agora um rodapé completo."
+        }
+      },
+      {
+        "kind": "New",
+        "text": {
+          "en": "New guide explains how WhatsApp message pricing works with Meta's current rates, plus a page comparing OgaDesk with other WhatsApp tools.",
+          "fr": "Nouveau guide sur les tarifs des messages WhatsApp avec les prix actuels de Meta, et une page qui compare OgaDesk aux autres outils WhatsApp."
+        }
+      },
+      {
+        "kind": "New",
+        "text": {
+          "en": "New pages show how OgaDesk works with Paystack, Google Calendar, Claude, n8n and Zapier, plus a free calculator that estimates your monthly WhatsApp costs.",
+          "fr": "De nouvelles pages montrent comment OgaDesk fonctionne avec Paystack, Google Agenda, Claude, n8n et Zapier, ainsi qu'un calculateur gratuit des coûts WhatsApp mensuels."
+        }
+      },
+      {
+        "kind": "New",
+        "text": {
+          "en": "Our AI replies, chatbot, website chat, automations and lead forms pages are now available in French.",
+          "fr": "Nos pages sur les réponses IA, le chatbot, le chat du site, les automatisations et les formulaires sont désormais disponibles en français."
+        }
+      },
+      {
+        "kind": "New",
+        "text": {
+          "en": "New guides for using WhatsApp in Zambia, Malawi, Zimbabwe and Botswana, and for taking bookings, sending order updates, collecting payments and running customer support.",
+          "fr": "Nouveaux guides pour utiliser WhatsApp en Zambie, au Malawi, au Zimbabwe et au Botswana, et pour prendre des rendez-vous, envoyer des suivis de commande, encaisser des paiements et gérer le support client."
+        }
+      },
+      {
+        "kind": "New",
+        "text": {
+          "en": "The API can now add a contact with just an email address; the phone number can be added later.",
+          "fr": "L'API peut désormais ajouter un contact avec seulement une adresse e-mail ; le numéro peut être ajouté plus tard.",
+          "es": "La API ahora puede añadir un contacto solo con su correo electrónico; el teléfono se puede añadir después.",
+          "pt": "A API agora pode adicionar um contato apenas com o e-mail; o telefone pode ser adicionado depois."
+        }
+      },
+      {
+        "kind": "New",
+        "text": {
+          "en": "Moving to a smaller plan now archives only what no longer fits, keeping your most recently used items, and upgrading again brings them back.",
+          "fr": "Passer à un forfait plus petit n'archive que ce qui dépasse, en gardant vos éléments les plus récents, et repasser au forfait supérieur les fait revenir.",
+          "es": "Pasar a un plan más pequeño solo archiva lo que no cabe, conservando lo más usado recientemente, y al mejorar de nuevo vuelve todo.",
+          "pt": "Mudar para um plano menor arquiva só o que não cabe, mantendo os itens usados mais recentemente, e fazer upgrade de novo traz tudo de volta."
+        }
+      },
+      {
+        "kind": "New",
+        "text": {
+          "en": "When a smaller plan has fewer contacts than you, the oldest inactive ones are archived instead of deleted: you can still reply to them, and upgrading brings them back.",
+          "fr": "Si un forfait plus petit autorise moins de contacts, les plus anciens et inactifs sont archivés au lieu d'être supprimés : vous pouvez toujours leur répondre, et repasser au forfait supérieur les fait revenir."
+        }
+      },
+      {
+        "kind": "New",
+        "text": {
+          "en": "Claude and other AI assistants connected to OgaDesk can now check your plan and limits, invite teammates and manage your workspaces.",
+          "fr": "Claude et les autres assistants IA connectés à OgaDesk peuvent désormais consulter votre forfait et vos limites, inviter des coéquipiers et gérer vos espaces de travail."
+        }
+      },
+      {
+        "kind": "New",
+        "text": {
+          "en": "AI assistants connected to OgaDesk can now build and test your AI agents and their knowledge for you; auto-replies are only switched on after you say yes.",
+          "fr": "Les assistants IA connectés à OgaDesk peuvent désormais créer et tester vos agents IA et leurs connaissances ; les réponses automatiques ne sont activées qu'avec votre accord."
+        }
+      },
+      {
+        "kind": "New",
+        "text": {
+          "en": "New guide: send every signup from your app into OgaDesk as a contact with plan, usage and milestones, then follow up on WhatsApp.",
+          "fr": "Nouveau guide : envoyez chaque inscription de votre application dans OgaDesk comme contact, avec offre, usage et étapes clés, puis relancez sur WhatsApp."
+        }
+      }
+    ]
+  },
+  {
+    "date": "2026-11-26",
+    "changes": [
+      {
+        "kind": "New",
+        "text": {
+          "en": "The changelog now updates itself with every release."
+        }
+      },
+      {
+        "kind": "New",
+        "text": {
+          "en": "New pages for the WhatsApp CRM, shared inbox, broadcasts and Nigeria, a comparison with the WhatsApp Business app, and free copy-and-paste message templates."
+        }
+      },
+      {
+        "kind": "New",
+        "text": {
+          "en": "New pages for restaurants, online stores, schools, clinics, real estate and logistics, plus Ghana, Kenya and South Africa."
+        }
+      },
+      {
+        "kind": "New",
+        "text": {
+          "en": "Chatbot flows, automations and the AI agent now answer website live chat visitors too, with tappable quick-reply buttons.",
+          "fr": "Les parcours, automatisations et l'agent IA répondent désormais aussi aux visiteurs du chat en direct, avec des boutons de réponse rapide.",
+          "es": "Los flujos, automatizaciones y el agente de IA ahora también responden a los visitantes del chat en vivo, con botones de respuesta rápida.",
+          "pt": "Fluxos, automações e o agente de IA agora também respondem aos visitantes do chat ao vivo, com botões de resposta rápida."
+        }
+      }
+    ]
+  }
+]

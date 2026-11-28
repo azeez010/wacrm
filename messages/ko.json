@@ -5594,10 +5594,22 @@
     "privacy": "개인정보 처리방침",
     "terms": "이용약관",
     "dataDeletion": "데이터 삭제",
+    "antiSpam": "스팸 방지 정책",
     "builtOn": "공식 WhatsApp Business API 기반.",
     "rights": "© {year} {brand}. All rights reserved.",
     "trademark": "WhatsApp은 Meta Platforms, Inc.의 등록 상표입니다. {brand}는 Meta Platforms, Inc.와 제휴, 승인 또는 후원 관계가 없습니다.",
     "whatsappPricing": "WhatsApp 요금",
     "signupSync": "앱 가입자 동기화"
+  },
+  "NotFound": {
+    "eyebrow": "오류 404",
+    "title": "이 메시지는 잘못된 번호로 갔어요",
+    "body": "찾으시는 페이지가 이동했거나 존재하지 않아요. 홈으로 가거나, 뒤로 가거나, 아래에서 원하는 곳을 선택하세요.",
+    "home": "홈으로",
+    "back": "뒤로 가기",
+    "popular": "인기 페이지",
+    "alt": "목적지에서 멀어지는 길 잃은 말풍선",
+    "appTitle": "찾을 수 없어요",
+    "appBody": "삭제되었거나 이 워크스페이스에서 접근 권한이 없을 수 있어요."
   }
 }

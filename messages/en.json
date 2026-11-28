@@ -5594,10 +5594,22 @@
     "privacy": "Privacy",
     "terms": "Terms",
     "dataDeletion": "Data deletion",
+    "antiSpam": "Anti-spam policy",
     "builtOn": "Built on the official WhatsApp Business API.",
     "rights": "© {year} {brand}. All rights reserved.",
     "trademark": "WhatsApp is a registered trademark of Meta Platforms, Inc. {brand} is not affiliated with, endorsed by, or sponsored by Meta Platforms, Inc.",
     "whatsappPricing": "WhatsApp pricing",
     "signupSync": "Sync your app's signups"
+  },
+  "NotFound": {
+    "eyebrow": "Error 404",
+    "title": "This chat went to the wrong number",
+    "body": "The page you were looking for has moved or never existed. Head home, go back, or pick one of the places below.",
+    "home": "Go home",
+    "back": "Go back",
+    "popular": "Popular places",
+    "alt": "A lost chat bubble drifting away from its destination",
+    "appTitle": "We couldn't find that",
+    "appBody": "It may have been deleted, or you may not have access to it in this workspace."
   }
 }

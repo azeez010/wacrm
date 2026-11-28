@@ -5,7 +5,7 @@ import { SiteFooter } from '@/components/site-footer'
 import { BrandLogo } from '@/components/brand-logo'
 import { BRAND_NAME, LEGAL_LAST_UPDATED } from '@/lib/brand'
 
-/** Shared chrome for the public legal pages (privacy, terms, data deletion). */
+/** Shared chrome for the public legal pages (privacy, terms, data deletion, anti-spam). */
 export function LegalLayout({
   title,
   intro,
@@ -22,10 +22,11 @@ export function LegalLayout({
         <Link href="/" aria-label={BRAND_NAME}>
           <BrandLogo className="text-lg" markClassName="h-9 w-9" />
         </Link>
-        <nav className="flex gap-4 text-sm text-muted-foreground">
+        <nav className="flex flex-wrap justify-end gap-x-4 gap-y-1 text-sm text-muted-foreground">
           <Link href="/privacy" className="hover:text-foreground">Privacy</Link>
           <Link href="/terms" className="hover:text-foreground">Terms</Link>
           <Link href="/data-deletion" className="hover:text-foreground">Data deletion</Link>
+          <Link href="/anti-spam" className="hover:text-foreground">Anti-spam</Link>
         </nav>
       </header>
       <main className="mx-auto max-w-3xl px-4 pb-20 sm:px-6">

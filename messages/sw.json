@@ -5594,10 +5594,22 @@
     "privacy": "Faragha",
     "terms": "Masharti",
     "dataDeletion": "Kufuta data",
+    "antiSpam": "Sera ya kuzuia barua taka",
     "builtOn": "Imejengwa juu ya WhatsApp Business API rasmi.",
     "rights": "© {year} {brand}. Haki zote zimehifadhiwa.",
     "trademark": "WhatsApp ni alama ya biashara iliyosajiliwa ya Meta Platforms, Inc. {brand} haihusiani na, haijaidhinishwa wala kufadhiliwa na Meta Platforms, Inc.",
     "whatsappPricing": "Bei za WhatsApp",
     "signupSync": "Sawazisha wanaojisajili kwenye programu"
+  },
+  "NotFound": {
+    "eyebrow": "Hitilafu 404",
+    "title": "Ujumbe huu umeenda kwa namba isiyo sahihi",
+    "body": "Ukurasa unaoutafuta umehamishwa au haukuwahi kuwepo. Rudi mwanzo, rudi nyuma, au chagua moja ya sehemu zilizo hapa chini.",
+    "home": "Nenda mwanzo",
+    "back": "Rudi nyuma",
+    "popular": "Sehemu maarufu",
+    "alt": "Kiputo cha gumzo kilichopotea kikielea mbali na kinakoenda",
+    "appTitle": "Hatukukipata",
+    "appBody": "Huenda kimefutwa, au huna ruhusa ya kukifikia katika eneo hili la kazi."
   }
 }

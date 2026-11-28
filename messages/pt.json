@@ -5594,10 +5594,22 @@
     "privacy": "Privacidade",
     "terms": "Termos",
     "dataDeletion": "Eliminação de dados",
+    "antiSpam": "Política antispam",
     "builtOn": "Criado sobre a API oficial do WhatsApp Business.",
     "rights": "© {year} {brand}. Todos os direitos reservados.",
     "trademark": "WhatsApp é uma marca registada da Meta Platforms, Inc. A {brand} não é afiliada, endossada nem patrocinada pela Meta Platforms, Inc.",
     "whatsappPricing": "Preços do WhatsApp",
     "signupSync": "Sincronize seus cadastros"
+  },
+  "NotFound": {
+    "eyebrow": "Erro 404",
+    "title": "Esta conversa foi para o número errado",
+    "body": "A página que você procura mudou de lugar ou nunca existiu. Volte ao início, volte à página anterior ou escolha um dos lugares abaixo.",
+    "home": "Ir para o início",
+    "back": "Voltar",
+    "popular": "Lugares populares",
+    "alt": "Um balão de conversa perdido se afastando do destino",
+    "appTitle": "Não encontramos isso",
+    "appBody": "Pode ter sido excluído, ou você pode não ter acesso a ele neste espaço de trabalho."
   }
 }

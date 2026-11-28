@@ -28,6 +28,7 @@ export function footerColumns(to: (path: string) => string, lang: string = 'en')
       { key: 'privacy', href: '/privacy' },
       { key: 'terms', href: '/terms' },
       { key: 'dataDeletion', href: '/data-deletion' },
+      { key: 'antiSpam', href: '/anti-spam' },
     ] },
   ]
 }

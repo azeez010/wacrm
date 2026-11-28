@@ -5594,10 +5594,22 @@
     "privacy": "Confidentialité",
     "terms": "Conditions",
     "dataDeletion": "Suppression des données",
+    "antiSpam": "Politique anti-spam",
     "builtOn": "Construit sur l’API officielle WhatsApp Business.",
     "rights": "© {year} {brand}. Tous droits réservés.",
     "trademark": "WhatsApp est une marque déposée de Meta Platforms, Inc. {brand} n’est ni affilié à Meta Platforms, Inc., ni approuvé ou parrainé par celle-ci.",
     "whatsappPricing": "Tarifs WhatsApp",
     "signupSync": "Synchroniser vos inscriptions"
+  },
+  "NotFound": {
+    "eyebrow": "Erreur 404",
+    "title": "Ce message est parti au mauvais numéro",
+    "body": "La page que vous cherchez a été déplacée ou n’a jamais existé. Revenez à l’accueil, retournez en arrière ou choisissez une page ci-dessous.",
+    "home": "Accueil",
+    "back": "Retour",
+    "popular": "Pages populaires",
+    "alt": "Une bulle de discussion perdue qui s’éloigne de sa destination",
+    "appTitle": "Introuvable",
+    "appBody": "Cet élément a peut-être été supprimé, ou vous n’y avez pas accès dans cet espace de travail."
   }
 }

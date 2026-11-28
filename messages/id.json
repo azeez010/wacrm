@@ -5594,10 +5594,22 @@
     "privacy": "Privasi",
     "terms": "Ketentuan",
     "dataDeletion": "Penghapusan data",
+    "antiSpam": "Kebijakan anti-spam",
     "builtOn": "Dibangun di atas WhatsApp Business API resmi.",
     "rights": "© {year} {brand}. Hak cipta dilindungi.",
     "trademark": "WhatsApp adalah merek dagang terdaftar milik Meta Platforms, Inc. {brand} tidak berafiliasi dengan, didukung oleh, atau disponsori oleh Meta Platforms, Inc.",
     "whatsappPricing": "Harga WhatsApp",
     "signupSync": "Sinkronkan pendaftar aplikasi"
+  },
+  "NotFound": {
+    "eyebrow": "Kesalahan 404",
+    "title": "Chat ini terkirim ke nomor yang salah",
+    "body": "Halaman yang Anda cari sudah dipindahkan atau tidak pernah ada. Kembali ke beranda, kembali ke halaman sebelumnya, atau pilih salah satu tempat di bawah.",
+    "home": "Ke beranda",
+    "back": "Kembali",
+    "popular": "Halaman populer",
+    "alt": "Gelembung chat yang tersesat menjauh dari tujuannya",
+    "appTitle": "Kami tidak menemukannya",
+    "appBody": "Mungkin sudah dihapus, atau Anda tidak punya akses di ruang kerja ini."
   }
 }

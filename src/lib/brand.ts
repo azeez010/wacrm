@@ -8,7 +8,7 @@ export const BRAND_NAME = 'OgaDesk'
 export const COMPANY_NAME = process.env.NEXT_PUBLIC_COMPANY_NAME || 'OgaDesk Ltd'
 export const COMPANY_ADDRESS = 'No 2, Aanuoluwapo, Olosan, Ogooluwa, Osogbo, Osun State, Nigeria'
 
-export const SUPPORT_EMAIL = process.env.NEXT_PUBLIC_SUPPORT_EMAIL || 'getogadesk@gmail.com'
+export const SUPPORT_EMAIL = process.env.NEXT_PUBLIC_SUPPORT_EMAIL || 'info@ogadesk.com'
 
 // Bump when the Privacy Policy or Terms change materially.
 export const LEGAL_LAST_UPDATED = '25 November 2026'
